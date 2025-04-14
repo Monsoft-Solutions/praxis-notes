@@ -19,7 +19,7 @@ RUN apk add --no-cache nodejs
 
 WORKDIR /runtime/
 
-COPY --from=builder /app/template/bin/server/ ./server/
-COPY --from=builder /app/template/bin/web/    ./web/
+COPY --from=builder /app/praxis-notes-app/bin/server/ ./server/
+COPY --from=builder /app/praxis-notes-app/bin/web/    ./web/
 
 CMD ["node", "server/main.js"]
