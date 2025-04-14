@@ -1,0 +1,1 @@
+ALTER TABLE "antecedent" ADD COLUMN "description" text;

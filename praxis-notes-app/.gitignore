@@ -1,0 +1,6 @@
+# env
+.env-cmdrc
+
+# build
+**/vite.config.mts.timestamp-*.mjs
+**/routeTree.gen.ts

@@ -1,0 +1,2 @@
+ALTER TABLE "client_intervention" ADD COLUMN "intervention_id" char(36) NOT NULL;--> statement-breakpoint
+ALTER TABLE "client_intervention" ADD CONSTRAINT "client_intervention_intervention_id_interventions_id_fk" FOREIGN KEY ("intervention_id") REFERENCES "public"."interventions"("id") ON DELETE no action ON UPDATE no action;

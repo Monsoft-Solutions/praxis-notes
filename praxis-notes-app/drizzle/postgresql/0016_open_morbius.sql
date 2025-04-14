@@ -1,0 +1,1 @@
+ALTER TABLE "client_session" ADD COLUMN "notes" text;
