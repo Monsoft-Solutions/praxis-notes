@@ -1,0 +1,22 @@
+# Turbo
+.turbo
+
+# deps
+node_modules
+
+# env
+.env-cmdrc
+
+# build
+bin
+**/*.tsbuildinfo
+**/routeTree.gen.ts
+
+#macOS
+**/.DS_Store
+
+**/.DS_Store
+packages/*/coverage/**
+packages/**/site/**
+*.pdf
+packages/**/dist/**/**/*.js
