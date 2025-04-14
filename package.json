@@ -11,8 +11,11 @@
     "pre-commit": "git stash -q --keep-index && (npm run check || (git stash pop -q && exit 1)) && git stash pop -q"
   },
   
+  "dependencies": {
+    "husky": "^9.1.7"
+  },
+  
   "devDependencies": {
-    "husky": "^9.1.7",
     "@changesets/cli": "^2.27.1",
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
