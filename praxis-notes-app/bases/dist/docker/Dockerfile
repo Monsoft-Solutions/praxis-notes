@@ -10,7 +10,7 @@ COPY ./ ./
 RUN npm ci --omit=dev && npm cache clean --force
 RUN cd praxis-notes-app && npm ci --omit=dev && npm cache clean --force
 
-WORKDIR /app/template/
+WORKDIR /app/praxis-notes-app/
 
 RUN npm run app:deploy
 
