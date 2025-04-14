@@ -1,0 +1,29 @@
+{
+  "name": "@monsoft/praxis-notes",
+  "description": "The ABA therapy note-generation app",
+  "author": "Monsoft Solutions",
+  "private": true,
+
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint --continue",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "test": "turbo run test",
+    "release": "changeset publish"
+  },
+  
+  "devDependencies": {
+    "@changesets/cli": "^2.27.1",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "turbo": "^2.4.2"
+  },
+
+  "packageManager": "npm@10.9.2",
+  
+  "workspaces": [
+    "packages/*"  
+  ]
+}
