@@ -58,7 +58,7 @@ export function ReplacementProgramsTable() {
         <div className="space-y-4">
             <Card>
                 <CardHeader className="flex flex-col items-start justify-between space-y-2 sm:flex-row sm:items-center sm:space-y-0">
-                    <CardTitle>ReplacementPrograms</CardTitle>
+                    <CardTitle>Replacement Programs</CardTitle>
 
                     <div className="flex justify-between">
                         <Button
@@ -211,7 +211,7 @@ export function ReplacementProgramsTable() {
                                             colSpan={5}
                                             className="h-24 text-center"
                                         >
-                                            No replacementPrograms found
+                                            No replacement programs found
                                         </TableCell>
                                     </TableRow>
                                 )}
