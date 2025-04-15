@@ -1,3 +1,5 @@
+ARG APP_FOLDER
+
 FROM alpine:3.21 AS builder
 RUN apk add --no-cache nodejs npm
 
@@ -9,7 +11,7 @@ COPY ./ ./
 
 RUN npm ci --omit=dev && npm cache clean --force
 
-WORKDIR /app/praxis-notes-app/
+WORKDIR /app/${APP_FOLDER}/
 
 RUN npm run app:deploy
 
@@ -18,7 +20,7 @@ RUN apk add --no-cache nodejs
 
 WORKDIR /runtime/
 
-COPY --from=builder /app/praxis-notes-app/bin/server/ ./server/
-COPY --from=builder /app/praxis-notes-app/bin/web/    ./web/
+COPY --from=builder /app/${APP_FOLDER}/bin/server/ ./server/
+COPY --from=builder /app/${APP_FOLDER}/bin/web/    ./web/
 
 CMD ["node", "server/main.js"]
