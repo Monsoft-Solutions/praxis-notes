@@ -47,6 +47,11 @@ const navbarSections: NavSection[] = [
 
         items: [
             {
+                title: 'Antecedents',
+                url: '/antecedents',
+            },
+
+            {
                 title: 'Behaviors',
                 url: '/behaviors',
             },
@@ -59,11 +64,6 @@ const navbarSections: NavSection[] = [
             {
                 title: 'Replacement Programs',
                 url: '/replacement-programs',
-            },
-
-            {
-                title: 'Antecedents',
-                url: '/antecedents',
             },
         ],
     },
