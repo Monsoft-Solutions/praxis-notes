@@ -34,7 +34,7 @@ export const validateSession = (async ({ sessionId }) => {
     // otherwise...
 
     // ifsession does not exist, or is expired
-    if (session === undefined) return Error('NOT_FOUND');
+    if (session === undefined) return Success(null);
     // otherwise...
 
     const {
@@ -58,5 +58,5 @@ export const validateSession = (async ({ sessionId }) => {
             organizationId: string;
             roles: string[];
         };
-    }
+    } | null
 >;

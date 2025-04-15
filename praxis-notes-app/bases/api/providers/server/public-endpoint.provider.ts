@@ -19,6 +19,8 @@ const getNextContextSession = (async ({ session: previousContextSession }) => {
 
     if (sessionError) return Error(sessionError);
 
+    if (validatedSession === null) return Success(null);
+
     const { user } = validatedSession;
 
     const newContextSession = {

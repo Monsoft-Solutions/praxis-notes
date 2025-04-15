@@ -1,5 +1,5 @@
 import { Function } from '@errors/types';
-import { Error, Success } from '@errors/utils';
+import { Success } from '@errors/utils';
 
 import { ReactElement } from 'react';
 
@@ -13,7 +13,6 @@ import { apiClientUtils, vanillaApi } from '@api/providers/web';
 import { LogInCredentials } from '@auth/schemas';
 
 import {
-    getWebSessionId,
     setWebSessionId,
     removeWebSessionId,
     isWebSessionIdAvailable,
@@ -86,18 +85,9 @@ const logOut = async () => {
 const getLoggedInUser = (async () => {
     const { data: webSessionIdAvailable } = isWebSessionIdAvailable();
 
-    if (!webSessionIdAvailable) return Success(null);
-
-    // get the id of the current session
-    // from the browser session storage
-    const { data: sessionId, error: webSessionIdError } = getWebSessionId();
-
-    if (webSessionIdError) return Error(webSessionIdError);
-
-    // if no session id found
+    // if no session id available in browser session storage
     // consider no active session
-    if (!sessionId) return Error('SESSION_ID_NOT_FOUND');
-    // otherwise...
+    if (!webSessionIdAvailable) return Success(null);
 
     // retrive the session object
     // cache to avoid delais on router invalidations

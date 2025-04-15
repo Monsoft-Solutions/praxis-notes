@@ -1,6 +1,6 @@
 import { endpoints } from '../../api/providers/server';
 
-import { getLoggedInUser } from './get-session.query';
+import { getLoggedInUser } from './get-logged-in-user.query';
 import { getBookmarkedUsers } from './get-bookmarked-users.query';
 
 import { logIn } from './log-in.mutation';

@@ -9,13 +9,7 @@ export const Route = createFileRoute('/_public')({
     }) => {
         // get logged-in user
         // or null if not logged-in
-        const { data: loggedInUserData, error: loggedInUserError } =
-            await getLoggedInUser();
-
-        // if logged-in user could not be obtained
-        // treat as not logged-in
-        const loggedInUser =
-            loggedInUserError === null ? loggedInUserData : null;
+        const { data: loggedInUser } = await getLoggedInUser();
 
         // add logged-in user (possibly null) to router context
         return { loggedInUser };

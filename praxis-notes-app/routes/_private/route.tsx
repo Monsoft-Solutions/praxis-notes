@@ -9,13 +9,7 @@ export const Route = createFileRoute('/_private')({
     }) => {
         // get logged-in user
         // or null if not logged-in
-        const { data: loggedInUserData, error: loggedInUserError } =
-            await getLoggedInUser();
-
-        // if logged-in user could not be obtained
-        // treat as not logged-in
-        const loggedInUser =
-            loggedInUserError === null ? loggedInUserData : null;
+        const { data: loggedInUser } = await getLoggedInUser();
 
         // if no active session (not logged-in), block access
         if (loggedInUser === null)
