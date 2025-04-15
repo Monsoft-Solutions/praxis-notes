@@ -3,7 +3,6 @@ import { Link } from '@tanstack/react-router';
 import { format } from 'date-fns';
 
 import {
-    FileText,
     Clock,
     MapPin,
     Calendar,
@@ -21,6 +20,8 @@ import { Badge } from '@ui/badge.ui';
 import { Route } from '@routes/_private/_app/clients/$clientId/sessions/$sessionId';
 
 import { api } from '@api/providers/web';
+
+import { NotesEditor } from '@src/notes/components/notes-editor.component';
 
 export function ClientSessionDetailsView() {
     const { sessionId } = Route.useParams();
@@ -58,16 +59,6 @@ export function ClientSessionDetailsView() {
                         <Button variant="outline" size="sm">
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit Session
-                        </Button>
-                    </Link>
-
-                    <Link
-                        to="/clients/$clientId/sessions/$sessionId/notes"
-                        params={{ clientId, sessionId }}
-                    >
-                        <Button size="sm">
-                            <FileText className="mr-2 h-4 w-4" />
-                            View Notes
                         </Button>
                     </Link>
                 </div>
@@ -255,6 +246,11 @@ export function ClientSessionDetailsView() {
                     </Badge>
                 </CardContent>
             </Card>
+
+            <NotesEditor
+                sessionId={sessionId}
+                initialData={session.notes ?? undefined}
+            />
         </div>
     );
 }

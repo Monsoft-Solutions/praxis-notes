@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 
 import { format } from 'date-fns';
 
-import { PlusCircle, FileText, Calendar, Clock } from 'lucide-react';
+import { PlusCircle, Calendar, Clock } from 'lucide-react';
 
 import { Button } from '@ui/button.ui';
 
@@ -97,16 +97,6 @@ export const ClientSessionsView = () => {
                                 >
                                     <Button variant="outline" size="sm">
                                         View Details
-                                    </Button>
-                                </Link>
-
-                                <Link
-                                    to="/clients/$clientId/sessions/$sessionId/notes"
-                                    params={{ clientId, sessionId: session.id }}
-                                >
-                                    <Button variant="secondary" size="sm">
-                                        <FileText className="mr-2 h-4 w-4" />
-                                        Notes
                                     </Button>
                                 </Link>
                             </div>
