@@ -1,10 +1,18 @@
 import { execSync } from 'child_process';
+import { exit } from 'process';
 
 const envAssignments = Object.entries(process.env)
     .map(([key, value]) =>
         key.startsWith('MSS_') && value ? `${key}='${value}'` : undefined,
     )
     .filter((item) => item !== undefined);
+
+const appFolder = process.env.MSS_APP_FOLDER;
+
+if (!appFolder) {
+    console.error('missing MSS_APP_FOLDER environment variable');
+    exit(1);
+}
 
 // Build and tag the Docker image
 export const buildImage = ({ imageName }: { imageName: string }) => {
@@ -15,7 +23,7 @@ export const buildImage = ({ imageName }: { imageName: string }) => {
     try {
         console.log('Building Docker image...');
         execSync(
-            `docker build --progress=plain --squash ${buildArgs} -t ${imageName} -f template/bases/dist/docker/Dockerfile .`,
+            `docker build --progress=plain --squash ${buildArgs} -t ${imageName} -f ${appFolder}/bases/dist/docker/Dockerfile .`,
             {
                 cwd: '../',
                 stdio: 'inherit',

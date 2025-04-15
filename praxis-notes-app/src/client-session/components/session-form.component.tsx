@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { useNavigate } from '@tanstack/react-router';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,9 +29,6 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
     const { mutateAsync: createClientSession } =
         api.clientSession.createClientSession.useMutation();
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isGenerating, setIsGenerating] = useState(false);
-
     const navigate = useNavigate();
 
     // Initialize form with default values or initial data if provided
@@ -59,15 +54,16 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
     });
 
     // Handle saving as draft
-    const handleSaveDraft = async (data: ClientSession) => {
-        setIsSubmitting(true);
-
-        console.log('data', data);
-
-        toast.success('Session saved as draft');
-
+    const handleCreateSession = async ({
+        data,
+        initNotes,
+    }: {
+        data: ClientSession;
+        initNotes: boolean;
+    }) => {
         const response = await createClientSession({
             clientId,
+            initNotes,
             sessionForm: {
                 ...data,
                 sessionDate: data.sessionDate.toISOString(),
@@ -79,30 +75,14 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             return;
         }
 
+        toast.success('Session saved as draft');
+
         const { id } = response.data;
 
         await navigate({
             to: '/clients/$clientId/sessions/$sessionId',
             params: { clientId, sessionId: id },
         });
-    };
-
-    // Handle generating notes
-    const handleGenerateNotes = async (data: ClientSession) => {
-        console.log('generating notes', data);
-
-        setIsGenerating(true);
-
-        toast.success('Notes generated successfully');
-
-        const sessionId = 'session-id';
-
-        await navigate({
-            to: '/clients/$clientId/sessions/$sessionId/notes',
-            params: { clientId, sessionId },
-        });
-
-        setIsGenerating(false);
     };
 
     // Handle cancellation
@@ -122,35 +102,35 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                 <ValuationSelector />
 
                 <div className="flex justify-end space-x-4 pt-6">
-                    <Button
-                        variant="outline"
-                        onClick={handleCancel}
-                        disabled={isSubmitting || isGenerating}
-                    >
+                    <Button variant="outline" onClick={handleCancel}>
                         Cancel
                     </Button>
 
                     <Button
                         variant="secondary"
                         onClick={(e) => {
-                            void form.handleSubmit(handleSaveDraft)(e);
+                            void form.handleSubmit((data) =>
+                                handleCreateSession({
+                                    data,
+                                    initNotes: false,
+                                }),
+                            )(e);
                         }}
-                        disabled={isSubmitting || isGenerating}
-                        className={
-                            isSubmitting ? 'cursor-not-allowed opacity-70' : ''
-                        }
                     >
-                        {isSubmitting ? 'Saving...' : 'Save as Draft'}
+                        Save as Draft
                     </Button>
 
                     <Button
-                        onClick={() => form.handleSubmit(handleGenerateNotes)}
-                        disabled={isSubmitting || isGenerating}
-                        className={
-                            isGenerating ? 'cursor-not-allowed opacity-70' : ''
-                        }
+                        onClick={(e) => {
+                            void form.handleSubmit((data) =>
+                                handleCreateSession({
+                                    data,
+                                    initNotes: true,
+                                }),
+                            )(e);
+                        }}
                     >
-                        {isGenerating ? 'Generating...' : 'Generate Notes'}
+                        Generate Notes
                     </Button>
                 </div>
             </form>
