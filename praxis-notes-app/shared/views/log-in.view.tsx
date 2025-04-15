@@ -7,7 +7,7 @@ import { type LogInCredentials, logInCredentialsSchema } from '@auth/schemas';
 
 import { Route } from '@routes/_public/auth/log-in';
 
-import { LogInForm } from '@auth/components';
+import { LogInForm } from '@shared/components/log-in-form.component';
 
 // Log in view
 // Render log in form

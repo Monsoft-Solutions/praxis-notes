@@ -4,7 +4,7 @@ import { Link } from '@tanstack/react-router';
 
 import type { UseFormReturn } from 'react-hook-form';
 
-import type { BookmarkedUser, LogInCredentials } from '../schemas';
+import type { BookmarkedUser, LogInCredentials } from '@auth/schemas';
 
 import { templateRoleHumanReadable } from '@src/template/utils';
 

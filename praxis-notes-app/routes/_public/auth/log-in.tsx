@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 import { apiClientUtils } from '@api/providers/web';
 
-import { LogInView } from '@auth/views/log-in.view';
+import { LogInView } from '@shared/views/log-in.view';
 
 // ----------------------------------------------------------------------
 
