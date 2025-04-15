@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { useNavigate } from '@tanstack/react-router';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,9 +28,6 @@ type SessionFormProps = {
 export function SessionForm({ clientId, clientName }: SessionFormProps) {
     const { mutateAsync: createClientSession } =
         api.clientSession.createClientSession.useMutation();
-
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isGenerating, setIsGenerating] = useState(false);
 
     const navigate = useNavigate();
 
@@ -66,8 +61,6 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
         data: ClientSession;
         initNotes: boolean;
     }) => {
-        setIsSubmitting(true);
-
         const response = await createClientSession({
             clientId,
             initNotes,
@@ -92,24 +85,6 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
         });
     };
 
-    // Handle generating notes
-    const handleGenerateNotes = async (data: ClientSession) => {
-        console.log('generating notes', data);
-
-        setIsGenerating(true);
-
-        toast.success('Notes generated successfully');
-
-        const sessionId = 'session-id';
-
-        await navigate({
-            to: '/clients/$clientId/sessions/$sessionId/notes',
-            params: { clientId, sessionId },
-        });
-
-        setIsGenerating(false);
-    };
-
     // Handle cancellation
     const handleCancel = () => {
         console.log('cancelling');
@@ -127,11 +102,7 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                 <ValuationSelector />
 
                 <div className="flex justify-end space-x-4 pt-6">
-                    <Button
-                        variant="outline"
-                        onClick={handleCancel}
-                        disabled={isSubmitting || isGenerating}
-                    >
+                    <Button variant="outline" onClick={handleCancel}>
                         Cancel
                     </Button>
 
@@ -145,22 +116,21 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                                 }),
                             )(e);
                         }}
-                        disabled={isSubmitting || isGenerating}
-                        className={
-                            isSubmitting ? 'cursor-not-allowed opacity-70' : ''
-                        }
                     >
-                        {isSubmitting ? 'Saving...' : 'Save as Draft'}
+                        Save as Draft
                     </Button>
 
                     <Button
-                        onClick={() => form.handleSubmit(handleGenerateNotes)}
-                        disabled={isSubmitting || isGenerating}
-                        className={
-                            isGenerating ? 'cursor-not-allowed opacity-70' : ''
-                        }
+                        onClick={(e) => {
+                            void form.handleSubmit((data) =>
+                                handleCreateSession({
+                                    data,
+                                    initNotes: true,
+                                }),
+                            )(e);
+                        }}
                     >
-                        {isGenerating ? 'Generating...' : 'Generate Notes'}
+                        Generate Notes
                     </Button>
                 </div>
             </form>
