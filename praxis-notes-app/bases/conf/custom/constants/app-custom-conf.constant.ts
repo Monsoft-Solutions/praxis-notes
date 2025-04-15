@@ -1,5 +1,7 @@
 import * as appCustom from '@app/conf/custom';
 
+import { AppConf } from '@conf/types';
+
 // full app custom configuration
 export const appCustomConf = Object.entries(appCustom).reduce(
     (acc, [, moduleConf]) => ({
@@ -7,6 +9,4 @@ export const appCustomConf = Object.entries(appCustom).reduce(
         ...moduleConf,
     }),
     {},
-) as {
-    [K in keyof (typeof appCustom)[keyof typeof appCustom]]: (typeof appCustom)[keyof typeof appCustom][K];
-};
+) as AppConf<typeof appCustom>;

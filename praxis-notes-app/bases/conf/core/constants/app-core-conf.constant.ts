@@ -1,5 +1,7 @@
 import * as appCore from '@app/conf/core';
 
+import { AppConf } from '../../types';
+
 // full app core configuration
 export const appCoreConf = Object.entries(appCore).reduce(
     (acc, [, moduleConf]) => ({
@@ -7,6 +9,4 @@ export const appCoreConf = Object.entries(appCore).reduce(
         ...moduleConf,
     }),
     {},
-) as {
-    [K in keyof (typeof appCore)[keyof typeof appCore]]: (typeof appCore)[keyof typeof appCore][K];
-};
+) as AppConf<typeof appCore>;
