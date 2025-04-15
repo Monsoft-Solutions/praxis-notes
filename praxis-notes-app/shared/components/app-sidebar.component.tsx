@@ -39,11 +39,6 @@ const navbarSections: NavSection[] = [
                 title: 'Clients',
                 url: '/clients',
             },
-
-            {
-                title: 'Notes',
-                url: '/notes',
-            },
         ],
     },
 
