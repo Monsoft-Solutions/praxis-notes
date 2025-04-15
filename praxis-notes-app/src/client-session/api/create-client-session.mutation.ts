@@ -21,11 +21,15 @@ import { queryMutationCallback } from '@api/providers/server/query-mutation-call
 
 import { clientSessionValuationEnum } from '../enum';
 
+import { generateNotes as generateNotesProvider } from '@src/notes/providers/server';
+
 // mutation to create a client session
 export const createClientSession = protectedEndpoint
     .input(
         z.object({
             clientId: z.string(),
+
+            initNotes: z.boolean(),
 
             sessionForm: z.object({
                 location: z.string(),
@@ -54,7 +58,7 @@ export const createClientSession = protectedEndpoint
                 ctx: {
                     session: { user },
                 },
-                input: { clientId, sessionForm },
+                input: { clientId, initNotes, sessionForm },
             }) => {
                 console.log(sessionForm);
 
@@ -74,6 +78,15 @@ export const createClientSession = protectedEndpoint
                 // generate a unique id for the client session
                 const id = uuidv4();
 
+                const notes = initNotes
+                    ? (
+                          await generateNotesProvider({
+                              ...sessionForm,
+                              sessionDate: new Date(sessionForm.sessionDate),
+                          })
+                      ).data
+                    : null;
+
                 // create the client session object
                 const clientSession = {
                     id,
@@ -87,6 +100,8 @@ export const createClientSession = protectedEndpoint
                     endTime,
 
                     valuation,
+
+                    notes,
                 };
 
                 // insert the client session into db

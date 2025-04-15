@@ -59,15 +59,18 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
     });
 
     // Handle saving as draft
-    const handleSaveDraft = async (data: ClientSession) => {
+    const handleCreateSession = async ({
+        data,
+        initNotes,
+    }: {
+        data: ClientSession;
+        initNotes: boolean;
+    }) => {
         setIsSubmitting(true);
-
-        console.log('data', data);
-
-        toast.success('Session saved as draft');
 
         const response = await createClientSession({
             clientId,
+            initNotes,
             sessionForm: {
                 ...data,
                 sessionDate: data.sessionDate.toISOString(),
@@ -78,6 +81,8 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             toast.error('Error saving session');
             return;
         }
+
+        toast.success('Session saved as draft');
 
         const { id } = response.data;
 
@@ -133,7 +138,12 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                     <Button
                         variant="secondary"
                         onClick={(e) => {
-                            void form.handleSubmit(handleSaveDraft)(e);
+                            void form.handleSubmit((data) =>
+                                handleCreateSession({
+                                    data,
+                                    initNotes: false,
+                                }),
+                            )(e);
                         }}
                         disabled={isSubmitting || isGenerating}
                         className={
