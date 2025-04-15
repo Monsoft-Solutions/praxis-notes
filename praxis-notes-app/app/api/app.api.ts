@@ -6,3 +6,4 @@ export * from '@src/replacement-program/api';
 export * from '@src/intervention/api';
 export * from '@src/client-session/api';
 export * from '@src/antecedent/api';
+export * from '@src/stripe/api';

@@ -67,6 +67,22 @@ const navbarSections: NavSection[] = [
             },
         ],
     },
+
+    {
+        title: 'Subscription',
+
+        items: [
+            {
+                title: 'Pricing',
+                url: '/pricing',
+            },
+
+            {
+                title: 'Account',
+                url: '/account',
+            },
+        ],
+    },
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
