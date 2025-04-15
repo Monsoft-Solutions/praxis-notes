@@ -9,7 +9,7 @@ import { api, apiClient, webQueryClient } from '@api/providers/web';
 
 import { router } from './router';
 
-import '../../bases/css/styles.css';
+import '../../app/css/styles.css';
 
 // web app root component
 export function App(): ReactElement {
