@@ -13,7 +13,7 @@ import {
 
 import { ThemeSelector } from '@shared/ui/theme-selector.ui';
 
-import { AppSidebar } from '@shared/components/app-sidebar';
+import { AppSidebar } from '@shared/components/app-sidebar.component';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
     return (
