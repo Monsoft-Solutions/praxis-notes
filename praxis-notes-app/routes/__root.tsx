@@ -94,6 +94,8 @@ const getLoggedInUser = (async () => {
     const { data: user } =
         await apiClientUtils.auth.getLoggedInUser.ensureData();
 
+    if (user === null) removeWebSessionId();
+
     return Success(user);
 }) satisfies Function<void, User | null>;
 
