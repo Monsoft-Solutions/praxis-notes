@@ -55,8 +55,10 @@ export const generateNotes = protectedEndpoint
                 })),
             };
 
-            const { data: generatedNotes } =
+            const { data: generatedNotes, error: generatedNotesError } =
                 await generateNotesProvider(sessionData);
+
+            if (generatedNotesError) return Error();
 
             return Success(generatedNotes);
         }),
