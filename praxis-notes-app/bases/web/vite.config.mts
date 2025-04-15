@@ -73,7 +73,7 @@ export default defineConfig({
 
         // allow serving files from node modules
         fs: {
-            allow: ['.', '../../node_modules'],
+            allow: ['.', '../../node_modules', '../../../node_modules'],
         },
     },
 });
