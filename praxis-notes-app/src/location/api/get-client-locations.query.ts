@@ -28,7 +28,7 @@ export const getClientLocations = protectedEndpoint
                     .select()
                     .from(clientLocationTable)
                     .where(eq(clientLocationTable.clientId, clientId))
-                    .leftJoin(
+                    .innerJoin(
                         locationTable,
                         eq(clientLocationTable.locationId, locationTable.id),
                     ),
@@ -36,10 +36,13 @@ export const getClientLocations = protectedEndpoint
 
             if (error) return Error();
 
+            if (clientLocations.length === 0) return Success([]);
+
             const locations = clientLocations.map((cl) => ({
-                id: cl.location?.id,
-                name: cl.location?.name,
-                description: cl.location?.description,
+                id: cl.location.id,
+                name: cl.location.name,
+                description: cl.location.description,
+                address: cl.location.address,
                 clientLocationId: cl.client_location.id,
             }));
 

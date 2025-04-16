@@ -76,7 +76,7 @@ export const ClientLocationList: React.FC<ClientLocationListProps> = ({
                             >
                                 <div>
                                     <div className="font-medium">
-                                        {location.name ?? 'Unnamed Location'}
+                                        {location.name}
                                     </div>
                                     {location.description && (
                                         <div className="text-sm text-gray-500">
@@ -90,9 +90,7 @@ export const ClientLocationList: React.FC<ClientLocationListProps> = ({
                                         size="sm"
                                         variant="destructive"
                                         onClick={() => {
-                                            handleRemoveLocation(
-                                                location.clientLocationId,
-                                            );
+                                            handleRemoveLocation(location.id);
                                         }}
                                         disabled={
                                             removeLocationMutation.isPending

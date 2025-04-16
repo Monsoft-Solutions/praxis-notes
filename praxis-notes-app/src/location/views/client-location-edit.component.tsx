@@ -24,6 +24,7 @@ export const ClientLocationEdit: React.FC<ClientLocationEditProps> = ({
     const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
         null,
     );
+    const utils = api.useUtils(); // Get TRPC utils
 
     const {
         data: locationsQuery,
@@ -40,6 +41,8 @@ export const ClientLocationEdit: React.FC<ClientLocationEditProps> = ({
         onSuccess: () => {
             setIsAddDialogOpen(false);
             setSelectedLocationId(null);
+            // Invalidate the getClientLocations query to refresh the list
+            void utils.location.getClientLocations.invalidate({ clientId });
         },
         onError: (error) => {
             console.error(

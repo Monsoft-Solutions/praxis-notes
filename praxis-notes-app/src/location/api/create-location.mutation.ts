@@ -18,8 +18,9 @@ import { locationTable } from '../db';
 export const createLocation = protectedEndpoint
     .input(
         z.object({
-            name: z.string().min(1),
-            description: z.string().optional(),
+            name: z.string().min(1).max(255),
+            description: z.string().max(1000).optional().nullable(),
+            address: z.string().max(500).optional().nullable(),
         }),
     )
     .mutation(
@@ -30,7 +31,7 @@ export const createLocation = protectedEndpoint
                 },
                 input,
             }) => {
-                const { name, description } = input;
+                const { name, description, address } = input;
 
                 const locationId = uuidv4();
 
@@ -40,6 +41,7 @@ export const createLocation = protectedEndpoint
                         organizationId: user.organizationId,
                         name,
                         description: description ?? null,
+                        address: address ?? null,
                     }),
                 );
 

@@ -24,6 +24,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({ onSuccess }) => {
         defaultValues: {
             name: '',
             description: '',
+            address: '',
         },
     });
 
@@ -57,6 +58,20 @@ export const LocationForm: React.FC<LocationFormProps> = ({ onSuccess }) => {
                             placeholder="Enter location description"
                             rows={3}
                             {...field}
+                            value={field.value ?? ''}
+                        />
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                        <Textarea
+                            placeholder="Enter location address (optional)"
+                            rows={3}
+                            {...field}
+                            value={field.value ?? ''}
                         />
                     )}
                 />

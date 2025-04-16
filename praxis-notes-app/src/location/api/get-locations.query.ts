@@ -4,7 +4,7 @@ import { protectedEndpoint } from '@api/providers/server';
 
 import { db } from '@db/providers/server';
 
-import { eq } from 'drizzle-orm';
+import { eq, or, isNull } from 'drizzle-orm';
 
 import { catchError } from '@errors/utils/catch-error.util';
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
@@ -20,10 +20,22 @@ export const getLocations = protectedEndpoint.query(
             // get the locations for the organization
             const { data: locations, error } = await catchError(
                 db
-                    .select()
+                    .select({
+                        id: locationTable.id,
+                        organizationId: locationTable.organizationId,
+                        name: locationTable.name,
+                        description: locationTable.description,
+                        address: locationTable.address,
+                    })
                     .from(locationTable)
                     .where(
-                        eq(locationTable.organizationId, user.organizationId),
+                        or(
+                            eq(
+                                locationTable.organizationId,
+                                user.organizationId,
+                            ),
+                            isNull(locationTable.organizationId),
+                        ),
                     ),
             );
 
