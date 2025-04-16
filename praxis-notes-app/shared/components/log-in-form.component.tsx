@@ -204,10 +204,10 @@ export function LogInForm({
 
             <CardFooter className="flex items-center gap-2">
                 <ShortInfoMessage>
-                    not needed for{' '}
-                    <Link to="/templates/monitor">
+                    Don&apos;t have an account ?{' '}
+                    <Link to="/auth/sign-up">
                         <Button variant="link" className="h-0 px-0 italic">
-                            Templates Monitor
+                            Sign Up
                         </Button>
                     </Link>
                 </ShortInfoMessage>
