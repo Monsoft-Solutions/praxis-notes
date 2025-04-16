@@ -14,6 +14,9 @@ import { LogInView } from '@shared/views/log-in.view';
 const validateSearch = z.object({
     // path to return to after successful log-in
     returnTo: z.string().catch('/'),
+
+    // pre-filled email
+    email: z.string().optional(),
 });
 
 export const Route = createFileRoute('/_public/auth/log-in')({
