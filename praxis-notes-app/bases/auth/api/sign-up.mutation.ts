@@ -53,7 +53,8 @@ export const signUp = publicEndpoint.input(signUpFormSchema).mutation(
 
         if (error) return Error();
 
-        sendVerificationEmail({
+        await sendVerificationEmail({
+            email,
             id: unverifiedEmailId,
         });
 
