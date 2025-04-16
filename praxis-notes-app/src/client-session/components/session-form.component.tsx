@@ -95,7 +95,7 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             <form className="space-y-8">
                 <SessionHeader clientName={clientName} />
 
-                <SessionBasicInfo />
+                <SessionBasicInfo clientId={clientId} />
 
                 <ABCCardContainer />
 

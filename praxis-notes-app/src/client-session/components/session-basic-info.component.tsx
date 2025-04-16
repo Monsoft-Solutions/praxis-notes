@@ -24,17 +24,58 @@ import { Calendar as CalendarComponent } from '@ui/calendar.ui';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
 
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from '@ui/select.ui';
+
 import { cn } from '@css/utils';
 
 import { Tag } from '@shared/components/tag.component';
 
 import { ClientSession } from '../schemas';
+import { api } from '@api/providers/web';
 
-export function SessionBasicInfo() {
+export function SessionBasicInfo({ clientId }: { clientId: string }) {
     const { control } = useFormContext<ClientSession>();
 
     const [participantInput, setParticipantInput] = useState('');
     const [environmentalInput, setEnvironmentalInput] = useState('');
+
+    // Fetch client locations
+    console.log('clientId', clientId);
+    const { data: clientLocationsQuery } =
+        api.location.getClientLocations.useQuery(
+            { clientId },
+            { enabled: !!clientId },
+        );
+    console.log('clientLocationsQuery', clientLocationsQuery);
+
+    // Fetch all locations to get the global ones
+    const { data: allLocationsQuery } = api.location.getLocations.useQuery();
+
+    // Organize locations into client's and global
+    const clientLocations =
+        clientLocationsQuery && !clientLocationsQuery.error
+            ? clientLocationsQuery.data
+            : [];
+    const allLocations =
+        allLocationsQuery && !allLocationsQuery.error
+            ? allLocationsQuery.data
+            : [];
+
+    console.log('clientLocations', clientLocations);
+    console.log('allLocations', allLocations);
+
+    // Global locations (where organizationId is null)
+    const globalLocations = allLocations.filter(
+        (location) => location.organizationId === null,
+    );
 
     const handleKeyDown = (
         e: React.KeyboardEvent<HTMLInputElement>,
@@ -109,19 +150,63 @@ export function SessionBasicInfo() {
                         )}
                     />
 
-                    {/* Location */}
+                    {/* Location - Updated to use Select */}
                     <FormField
                         control={control}
                         name="location"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Location</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="Enter session location"
-                                        {...field}
-                                    />
-                                </FormControl>
+                                <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a location" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {clientLocations.length > 0 && (
+                                            <SelectGroup>
+                                                <SelectLabel>
+                                                    Client&apos;s
+                                                </SelectLabel>
+                                                {clientLocations.map(
+                                                    (location) => (
+                                                        <SelectItem
+                                                            key={location.id}
+                                                            value={
+                                                                location.name
+                                                            }
+                                                        >
+                                                            - {location.name}
+                                                        </SelectItem>
+                                                    ),
+                                                )}
+                                            </SelectGroup>
+                                        )}
+                                        {globalLocations.length > 0 && (
+                                            <SelectGroup>
+                                                <SelectLabel>
+                                                    Others
+                                                </SelectLabel>
+                                                {globalLocations.map(
+                                                    (location) => (
+                                                        <SelectItem
+                                                            key={location.id}
+                                                            value={
+                                                                location.name
+                                                            }
+                                                        >
+                                                            - {location.name}
+                                                        </SelectItem>
+                                                    ),
+                                                )}
+                                            </SelectGroup>
+                                        )}
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
                             </FormItem>
                         )}
