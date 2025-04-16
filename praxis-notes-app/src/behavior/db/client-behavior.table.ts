@@ -25,9 +25,7 @@ export const clientBehaviorTable = table('client_behavior', {
         .notNull(),
 
     behaviorId: char('behavior_id', { length: 36 })
-        .references(() => behaviorTable.id, {
-            onDelete: 'cascade',
-        })
+        .references(() => behaviorTable.id)
         .notNull(),
 
     type: sqlEnum('type', typeEnum).notNull(),

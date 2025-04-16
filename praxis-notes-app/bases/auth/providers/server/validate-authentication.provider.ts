@@ -8,6 +8,8 @@ import bcrypt from 'bcryptjs';
 import { db } from '@db/providers/server';
 import { catchError } from '@errors/utils/catch-error.util';
 
+const invalidCredentialsError = 'INVALID_CREDENTIALS';
+
 // Validate user credentials
 // Check email exists and password matches
 export const validateAuthentication = (async ({ email, password }) => {
@@ -23,7 +25,7 @@ export const validateAuthentication = (async ({ email, password }) => {
     // otherwise...
 
     // if user does not exist
-    if (authentication === undefined) return Error();
+    if (authentication === undefined) return Error(invalidCredentialsError);
 
     // compare password with the hash stored on DB
     const isPasswordValid = await bcrypt.compare(
@@ -32,7 +34,7 @@ export const validateAuthentication = (async ({ email, password }) => {
     );
 
     // if password is incorrect
-    if (!isPasswordValid) return Error('INVALID_CREDENTIALS');
+    if (!isPasswordValid) return Error(invalidCredentialsError);
     // otherwise...
 
     const { userId } = authentication;
