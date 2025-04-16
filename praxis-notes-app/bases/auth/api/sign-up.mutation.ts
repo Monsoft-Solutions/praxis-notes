@@ -8,16 +8,19 @@ import { catchError } from '@errors/utils/catch-error.util';
 import { db } from '@db/providers/server';
 
 import { signUpFormSchema } from '@auth/schemas';
-import { userTable, organizationTable, authenticationTable } from '@auth/db';
+import { userTable, organizationTable, unverifiedEmailTable } from '@auth/db';
 
 import { v4 as uuidv4 } from 'uuid';
 
 import bcrypt from 'bcryptjs';
+import { sendVerificationEmail } from '@auth/providers/server';
 
 // sign up a user
 // Input: name, email, password
 export const signUp = publicEndpoint.input(signUpFormSchema).mutation(
     queryMutationCallback(async ({ input: { name, email, password } }) => {
+        const unverifiedEmailId = uuidv4();
+
         const { error } = await catchError(
             db.transaction(async (tx) => {
                 const organizationId = uuidv4();
@@ -36,12 +39,10 @@ export const signUp = publicEndpoint.input(signUpFormSchema).mutation(
                     firstName: name,
                 });
 
-                const authenticationId = uuidv4();
-
                 const hashedPassword = await bcrypt.hash(password, 10);
 
-                await tx.insert(authenticationTable).values({
-                    id: authenticationId,
+                await tx.insert(unverifiedEmailTable).values({
+                    id: unverifiedEmailId,
                     userId,
 
                     email,
@@ -51,6 +52,10 @@ export const signUp = publicEndpoint.input(signUpFormSchema).mutation(
         );
 
         if (error) return Error();
+
+        sendVerificationEmail({
+            id: unverifiedEmailId,
+        });
 
         return Success();
     }),
