@@ -7,11 +7,10 @@ import { VerificationEmail } from '../../email';
 
 import { sendEmail } from '../../../email/utils';
 
-const verifyEmailPath = '/api/auth.verifyEmail';
+const verifyEmailPath = '/auth/verify-email';
 
 export const sendVerificationEmail = (async ({ email, id }) => {
-    const payload = JSON.stringify({ id });
-    const link = `${appUrl}${verifyEmailPath}?input=${encodeURIComponent(payload)}`;
+    const link = `${appUrl}${verifyEmailPath}?id=${id}`;
 
     await sendEmail({
         from: 'Acme <onboarding@resend.dev>',

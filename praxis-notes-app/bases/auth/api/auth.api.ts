@@ -13,12 +13,13 @@ import { deleteOrganization } from './delete-organization.mutation';
 
 // auth endpoints
 export const authApi = endpoints({
+    // queries
     getLoggedInUser,
     getBookmarkedUsers,
-    verifyEmail,
 
     // mutations
     signUp,
+    verifyEmail,
     logIn,
     logOut,
     deleteOrganization,

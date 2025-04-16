@@ -15,15 +15,15 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { eq } from 'drizzle-orm';
 
-// sign up a user
-// Input: name, email, password
+// verify email
+// Input: id
 export const verifyEmail = publicEndpoint
     .input(
         z.object({
             id: z.string(),
         }),
     )
-    .query(
+    .mutation(
         queryMutationCallback(async ({ input: { id } }) => {
             const { error } = await catchError(
                 db.transaction(async (tx) => {
