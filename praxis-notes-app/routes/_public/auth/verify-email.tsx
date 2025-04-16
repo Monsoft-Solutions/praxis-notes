@@ -19,16 +19,21 @@ export const Route = createFileRoute('/_public/auth/verify-email')({
     validateSearch,
 
     beforeLoad: async (ctx) => {
-        const { error } = await vanillaApi.auth.verifyEmail.mutate({
+        const verifyEmailResult = await vanillaApi.auth.verifyEmail.mutate({
             id: ctx.search.id,
         });
 
-        if (!error) {
+        if (!verifyEmailResult.error) {
             toast.success('Email verified successfully', {
                 description: 'You can now log in to your account',
             });
 
-            throw redirect({ to: '/auth/log-in' });
+            const { email } = verifyEmailResult.data;
+
+            throw redirect({
+                to: '/auth/log-in',
+                search: { email },
+            });
         }
     },
 
