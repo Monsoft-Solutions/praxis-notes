@@ -131,8 +131,29 @@
     {
       "idx": 18,
       "version": "7",
-      "when": 1744766147700,
-      "tag": "0018_smiling_edwin_jarvis",
+      "when": 1744805850091,
+      "tag": "0018_glossy_weapon_omega",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1744808685672,
+      "tag": "0019_wakeful_shockwave",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1744817930527,
+      "tag": "0020_exotic_senator_kelly",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1744822010929,
+      "tag": "0021_lyrical_skullbuster",
       "breakpoints": true
     }
   ]

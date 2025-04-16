@@ -21,9 +21,7 @@ export const clientBehaviorInterventionTable = table(
             .notNull(),
 
         clientBehaviorId: char('client_behavior_id', { length: 36 })
-            .references(() => clientBehaviorTable.id, {
-                onDelete: 'cascade',
-            })
+            .references(() => clientBehaviorTable.id)
             .notNull(),
 
         createdAt: bigint('created_at', {

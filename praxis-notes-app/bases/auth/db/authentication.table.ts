@@ -11,7 +11,7 @@ export const authenticationTable = table('authentications', {
     userId: char('user_id', { length: 36 })
         .notNull()
         .unique()
-        .references(() => userTable.id),
+        .references(() => userTable.id, { onDelete: 'cascade' }),
     email: varchar('email', { length: 255 }).unique().notNull(),
     password: varchar('password', { length: 255 }).notNull(),
 });

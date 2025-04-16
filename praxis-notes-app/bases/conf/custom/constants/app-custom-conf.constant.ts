@@ -1,6 +1,6 @@
 import * as appCustom from '@app/conf/custom';
 
-import { AppConf } from '@conf/types';
+import { Conf } from '@conf/types';
 
 // full app custom configuration
 export const appCustomConf = Object.entries(appCustom).reduce(
@@ -9,4 +9,4 @@ export const appCustomConf = Object.entries(appCustom).reduce(
         ...moduleConf,
     }),
     {},
-) as AppConf<typeof appCustom>;
+) as Conf<typeof appCustom>;

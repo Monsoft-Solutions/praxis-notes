@@ -4,11 +4,11 @@ import { createSelectSchema } from 'drizzle-zod';
 
 import { table } from '@db/sql';
 
-import { appCoreConf } from '../constants';
+import { coreConf } from '../constants';
 
 // Auxiliary table (not used in db) containing all core configurations
 const auxTable = table('core_conf', {
-    ...appCoreConf,
+    ...coreConf,
 });
 
 // Core configuration schema

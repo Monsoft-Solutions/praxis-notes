@@ -12,7 +12,7 @@ COPY ./ ./
 
 RUN npm ci --omit=dev && npm cache clean --force
 
-WORKDIR /app/${APP_FOLDER}/
+WORKDIR /app/$MSS_APP_FOLDER/
 
 RUN npm run app:deploy
 
@@ -23,7 +23,7 @@ ARG MSS_APP_FOLDER
 
 WORKDIR /runtime/
 
-COPY --from=builder /app/${APP_FOLDER}/bin/server/ ./server/
-COPY --from=builder /app/${APP_FOLDER}/bin/web/    ./web/
+COPY --from=builder /app/$MSS_APP_FOLDER/bin/server/ ./server/
+COPY --from=builder /app/$MSS_APP_FOLDER/bin/web/    ./web/
 
 CMD ["node", "server/main.js"]

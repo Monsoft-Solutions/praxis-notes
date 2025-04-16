@@ -1,2 +1,2 @@
 export * from './core-conf-query-key.constant';
-export * from './app-core-conf.constant';
+export * from './core-conf.constant';

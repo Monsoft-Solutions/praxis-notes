@@ -1,4 +1,3 @@
-import { eq } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 
 import { protectedEndpoint } from '@api/providers/server';
@@ -7,9 +6,8 @@ import { catchError } from '@errors/utils/catch-error.util';
 import { Success } from '@errors/utils';
 
 import { stripe } from '@src/stripe/config/stripe';
-import { db } from '@db/providers/server';
-import { stripeCustomerTable } from '../db';
 import { connectionEnv } from '@env/constants/connection-env.constant';
+import { getStripeCustomer } from '../utils';
 
 export const getCustomerPortalSession = protectedEndpoint.mutation(
     queryMutationCallback(
@@ -28,36 +26,9 @@ export const getCustomerPortalSession = protectedEndpoint.mutation(
             }
             const returnUrl = `${fqdn}/account`;
 
-            // --- Get Stripe Customer ID ---
-            const customerMappingResult = await catchError(
-                db
-                    .select({
-                        stripeCustomerId: stripeCustomerTable.stripeCustomerId,
-                    })
-                    .from(stripeCustomerTable)
-                    .where(eq(stripeCustomerTable.userId, sessionUser.id))
-                    .limit(1),
-            );
+            const stripeCustomer = await getStripeCustomer(sessionUser.id);
 
-            if (
-                customerMappingResult.error ||
-                customerMappingResult.data.length === 0
-            ) {
-                console.error(
-                    'DB Error or no Stripe customer mapping found for user:',
-                    sessionUser.id,
-                    customerMappingResult.error,
-                );
-                // If no customer ID, they likely haven't subscribed yet.
-                // Throwing an error might be appropriate.
-                throw new TRPCError({
-                    code: 'NOT_FOUND',
-                    message: 'Stripe customer record not found for this user.',
-                });
-            }
-            const stripeCustomerId =
-                customerMappingResult.data[0].stripeCustomerId;
-            // --- End Get Stripe Customer ID ---
+            const stripeCustomerId = stripeCustomer.id;
 
             // --- Create Stripe Billing Portal Session ---
             const portalSessionResult = await catchError(
