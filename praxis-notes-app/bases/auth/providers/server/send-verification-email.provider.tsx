@@ -13,7 +13,7 @@ export const sendVerificationEmail = (async ({ email, id }) => {
     const link = `${appUrl}${verifyEmailPath}?id=${id}`;
 
     await sendEmail({
-        from: 'Acme <onboarding@resend.dev>',
+        from: 'Praxis Notes <verify@praxisnote.com>',
         to: email,
 
         subject: 'Verify your email',
