@@ -8,39 +8,42 @@ import {
     CardTitle,
 } from '@shared/ui/card.ui';
 
+import { AppLayout } from '@shared/views/app-layout.view';
 import { SubscriptionManagement } from '../components/subscription-management.component';
 
 export function AccountView(): ReactElement {
     return (
-        <div className="container mx-auto py-12">
-            <div className="mx-auto max-w-4xl">
-                <div className="mb-8">
-                    <h1 className="mb-2 text-3xl font-bold">Account</h1>
-                    <p className="text-muted-foreground">
-                        Manage your account settings and subscription
-                    </p>
-                </div>
+        <AppLayout>
+            <div className="container mx-auto py-12">
+                <div className="mx-auto max-w-4xl">
+                    <div className="mb-8">
+                        <h1 className="mb-2 text-3xl font-bold">Account</h1>
+                        <p className="text-muted-foreground">
+                            Manage your account settings and subscription
+                        </p>
+                    </div>
 
-                <div className="grid gap-8">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Account Information</CardTitle>
-                            <CardDescription>
-                                Your personal account details
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {/* This would typically include other account settings */}
-                            <p>
-                                This section could include account information
-                                like name, email, etc.
-                            </p>
-                        </CardContent>
-                    </Card>
+                    <div className="grid gap-8">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Account Information</CardTitle>
+                                <CardDescription>
+                                    Your personal account details
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                {/* This would typically include other account settings */}
+                                <p>
+                                    This section could include account
+                                    information like name, email, etc.
+                                </p>
+                            </CardContent>
+                        </Card>
 
-                    <SubscriptionManagement />
+                        <SubscriptionManagement />
+                    </div>
                 </div>
             </div>
-        </div>
+        </AppLayout>
     );
 }
