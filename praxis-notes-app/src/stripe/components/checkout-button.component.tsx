@@ -4,6 +4,7 @@ import { Button } from '@shared/ui/button.ui';
 import { Spinner } from '@shared/ui/spinner.ui';
 
 import { api } from '@api/providers/web';
+import { toast } from 'sonner';
 
 type CheckoutButtonProps = {
     priceId: string;
@@ -33,16 +34,15 @@ export function CheckoutButton({
             setIsLoading(true);
 
             // Create a checkout session and redirect to Stripe checkout
-            const {
-                data: { url },
-            } = await createCheckoutSession({ priceId });
+            const { data: { url } = { url: null } } =
+                await createCheckoutSession({ priceId });
 
             // Redirect to Stripe checkout
             if (url) {
                 window.location.href = url;
             }
-        } catch (error) {
-            console.error('Failed to create checkout session', error);
+        } catch {
+            toast.error('Unable to start checkout process. Please try again.');
             setIsLoading(false);
         }
     };
@@ -60,8 +60,8 @@ export function CheckoutButton({
             if (url) {
                 window.open(url, '_blank');
             }
-        } catch (error) {
-            console.error('Failed to create portal session', error);
+        } catch {
+            toast.error('Unable to manage subscription. Please try again.');
             setIsLoading(false);
         }
     };

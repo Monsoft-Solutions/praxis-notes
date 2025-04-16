@@ -203,6 +203,7 @@ export function PricingView(): ReactElement {
                                                             strokeLinecap="round"
                                                             strokeLinejoin="round"
                                                             className="mr-2 h-5 w-5 text-green-500"
+                                                            aria-hidden="true"
                                                         >
                                                             <path d="M20 6L9 17l-5-5" />
                                                         </svg>

@@ -40,6 +40,8 @@ export function PaymentSuccessView(): ReactElement {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 className="h-8 w-8 text-green-600"
+                                aria-label="Success Checkmark"
+                                role="img"
                             >
                                 <path d="M20 6L9 17l-5-5" />
                             </svg>

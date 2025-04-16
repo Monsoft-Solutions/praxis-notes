@@ -22,8 +22,11 @@ export function SubscriptionManagement({
     className,
 }: SubscriptionManagementProps) {
     const [isLoading, setIsLoading] = useState(false);
-    const { data: subscription, isLoading: isLoadingSubscription } =
-        api.stripe.getSubscriptionStatus.useQuery();
+    const {
+        data: subscription,
+        isLoading: isLoadingSubscription,
+        error: subscriptionError,
+    } = api.stripe.getSubscriptionStatus.useQuery();
     const { mutateAsync: createPortalSession } =
         api.stripe.getCustomerPortalSession.useMutation();
 
@@ -45,6 +48,19 @@ export function SubscriptionManagement({
             setIsLoading(false);
         }
     };
+
+    if (subscriptionError) {
+        return (
+            <Card className={className}>
+                <CardHeader>
+                    <CardTitle>Error Loading Subscription</CardTitle>
+                    <CardDescription>
+                        Unable to load subscription. Please try again later.
+                    </CardDescription>
+                </CardHeader>
+            </Card>
+        );
+    }
 
     if (isLoadingSubscription) {
         return (
