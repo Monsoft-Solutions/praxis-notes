@@ -168,6 +168,8 @@
         "ai": "4.3.0 || ai (vercel sdk)",
         "@ai-sdk/anthropic": "1.2.6",
 
+        "resend": "4.3.0 || email (resend)",
+
         "bcryptjs": "2.4.3 || password hashing (bcryptjs)",
         "@types/bcryptjs": "2.4.6"
     }
