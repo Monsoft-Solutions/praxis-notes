@@ -1,8 +1,8 @@
 {    
-    "name": "@repo/modular-template",
-    "description": "modular type-safe full-stack template",
-    "author": "Monsoft Solutions",
-    "private": true,
+    "name": "@repo/praxis-notes-app",
+    "description": "Generate detailed, insurance-ready ABA session notes with AI. Save 75% of your documentation time. (https://praxisnote.com) ",
+    "author": "Monsoft Solutions (https://monsoftsolutions.com)",
+    "private": false,
     
     "scripts": {
         "ok"           : "echo everything good !!\n",
