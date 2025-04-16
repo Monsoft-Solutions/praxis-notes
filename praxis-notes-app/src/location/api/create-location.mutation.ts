@@ -52,7 +52,8 @@ export const createLocation = protectedEndpoint
                     return Error();
                 }
 
-                return Success();
+                // Return the locationId on success
+                return Success({ locationId });
             },
         ),
     );

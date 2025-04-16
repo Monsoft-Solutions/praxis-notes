@@ -13,9 +13,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FormField } from '@shared/ui/form.ui';
 import { Textarea } from '@shared/ui/textarea.ui';
+import { toast } from 'sonner';
 
 type LocationFormProps = {
-    onSuccess?: () => void;
+    onSuccess?: (newLocationId: string) => void;
 };
 
 export const LocationForm: React.FC<LocationFormProps> = ({ onSuccess }) => {
@@ -29,24 +30,61 @@ export const LocationForm: React.FC<LocationFormProps> = ({ onSuccess }) => {
     });
 
     const createLocation = api.location.createLocation.useMutation({
-        onSuccess: () => {
+        onSuccess: (result) => {
             form.reset();
-            onSuccess?.();
+            if (!result.error) {
+                if (result.data.locationId) {
+                    toast.success('Location created successfully');
+                    onSuccess?.(result.data.locationId);
+                } else {
+                    toast.error('Location created, but ID was missing.');
+                    console.error(
+                        'Create location success, but missing ID:',
+                        result,
+                    );
+                }
+            } else {
+                const errorMessage =
+                    result.error === 'DUPLICATE'
+                        ? 'Location with this name already exists.'
+                        : 'Failed to create location.';
+                toast.error(errorMessage);
+                if (result.error !== 'DUPLICATE') {
+                    console.error('Create location error:', result.error);
+                }
+            }
+        },
+        onError: (error) => {
+            toast.error('An unexpected error occurred.');
+            console.error('Create location network/unexpected error:', error);
         },
     });
 
-    const onSubmit = form.handleSubmit((data) => {
+    const handleFormSubmit = (data: z.infer<typeof createLocationSchema>) => {
+        console.log('-->   ~ handleFormSubmit ~ data:', data);
         createLocation.mutate(data);
-    });
+    };
 
     return (
         <FormProvider {...form}>
-            <form onSubmit={() => onSubmit} className="space-y-4">
+            <form
+                onSubmit={(e) => {
+                    console.log('-->   ~ onSubmit ~ e:', e);
+                    e.preventDefault();
+                    handleFormSubmit(form.getValues());
+                }}
+                className="space-y-4"
+            >
                 <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
-                        <Input placeholder="Enter location name" {...field} />
+                        <div>
+                            <Input
+                                placeholder="Enter location name"
+                                {...field}
+                            />
+                        </div>
                     )}
                 />
 
@@ -54,12 +92,14 @@ export const LocationForm: React.FC<LocationFormProps> = ({ onSuccess }) => {
                     control={form.control}
                     name="description"
                     render={({ field }) => (
-                        <Textarea
-                            placeholder="Enter location description"
-                            rows={3}
-                            {...field}
-                            value={field.value ?? ''}
-                        />
+                        <div>
+                            <Textarea
+                                placeholder="Enter location description (optional)"
+                                rows={3}
+                                {...field}
+                                value={field.value ?? ''}
+                            />
+                        </div>
                     )}
                 />
 
@@ -67,20 +107,22 @@ export const LocationForm: React.FC<LocationFormProps> = ({ onSuccess }) => {
                     control={form.control}
                     name="address"
                     render={({ field }) => (
-                        <Textarea
-                            placeholder="Enter location address (optional)"
-                            rows={3}
-                            {...field}
-                            value={field.value ?? ''}
-                        />
+                        <div>
+                            <Textarea
+                                placeholder="Enter location address (optional)"
+                                rows={3}
+                                {...field}
+                                value={field.value ?? ''}
+                            />
+                        </div>
                     )}
                 />
 
                 <div className="flex justify-end">
                     <Button type="submit" disabled={createLocation.isPending}>
                         {createLocation.isPending
-                            ? 'Adding...'
-                            : 'Add Location'}
+                            ? 'Creating...'
+                            : 'Create Location'}
                     </Button>
                 </div>
             </form>

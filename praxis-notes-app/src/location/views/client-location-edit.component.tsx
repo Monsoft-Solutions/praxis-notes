@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 
-import { Dialog } from '@shared/ui/dialog.ui';
-import { Card } from '@shared/ui/card.ui';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@shared/ui/dialog.ui';
 import { ClientLocationList } from '../components/client-location-list.component';
+import { LocationForm } from '../components/location-form.component';
 import {
     Select,
     SelectContent,
@@ -11,7 +17,9 @@ import {
     SelectValue,
 } from '@shared/ui/select.ui';
 import { Button } from '@shared/ui/button.ui';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@shared/ui/tabs.ui';
 import { api } from '@api/providers/web';
+import { toast } from 'sonner';
 
 type ClientLocationEditProps = {
     clientId: string;
@@ -24,7 +32,8 @@ export const ClientLocationEdit: React.FC<ClientLocationEditProps> = ({
     const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
         null,
     );
-    const utils = api.useUtils(); // Get TRPC utils
+    const [activeTab, setActiveTab] = useState('select');
+    const utils = api.useUtils();
 
     const {
         data: locationsQuery,
@@ -39,12 +48,15 @@ export const ClientLocationEdit: React.FC<ClientLocationEditProps> = ({
 
     const addLocationMutation = api.location.addClientLocation.useMutation({
         onSuccess: () => {
+            toast.success('Location associated successfully');
+            void utils.location.getClientLocations.invalidate({ clientId });
+            void utils.location.getLocations.invalidate();
             setIsAddDialogOpen(false);
             setSelectedLocationId(null);
-            // Invalidate the getClientLocations query to refresh the list
-            void utils.location.getClientLocations.invalidate({ clientId });
+            setActiveTab('select');
         },
         onError: (error) => {
+            toast.error('Failed to associate location');
             console.error(
                 'Failed to add location:',
                 error instanceof Error ? error.message : 'Unknown error',
@@ -53,7 +65,6 @@ export const ClientLocationEdit: React.FC<ClientLocationEditProps> = ({
     });
 
     const availableLocations = React.useMemo(() => {
-        // Check if queries succeeded before accessing data
         const locations =
             locationsQuery && !locationsQuery.error
                 ? locationsQuery.data
@@ -63,32 +74,45 @@ export const ClientLocationEdit: React.FC<ClientLocationEditProps> = ({
                 ? clientLocationsQuery.data
                 : undefined;
 
-        // Ensure data arrays are valid before calculating
         if (!Array.isArray(locations) || !Array.isArray(clientLocations)) {
             return [];
         }
 
-        // Types should be narrowed correctly now
         const assignedLocationIds = new Set(
             clientLocations.map((location) => location.id),
         );
 
-        // Types should be narrowed correctly now
         return locations
             .filter((location) => !assignedLocationIds.has(location.id))
             .map((location) => ({
                 value: location.id,
                 label: location.name,
             }));
-        // Depend on the query result objects directly
     }, [locationsQuery, clientLocationsQuery]);
 
-    const handleAddLocation = () => {
+    const handleAssociateLocation = () => {
         if (selectedLocationId && clientId) {
             addLocationMutation.mutate({
                 clientId,
                 locationId: selectedLocationId,
             });
+        }
+    };
+
+    const handleLocationCreated = (newLocationId?: string) => {
+        if (newLocationId) {
+            addLocationMutation.mutate({
+                clientId,
+                locationId: newLocationId,
+            });
+        } else {
+            toast.error(
+                'Location created, but failed to associate automatically.',
+            );
+            void utils.location.getClientLocations.invalidate({ clientId });
+            void utils.location.getLocations.invalidate();
+            setIsAddDialogOpen(false);
+            setActiveTab('select');
         }
     };
 
@@ -102,6 +126,7 @@ export const ClientLocationEdit: React.FC<ClientLocationEditProps> = ({
             locationsError,
             clientLocationsError,
         );
+        return <div>Error loading location data.</div>;
     }
 
     return (
@@ -109,71 +134,98 @@ export const ClientLocationEdit: React.FC<ClientLocationEditProps> = ({
             <ClientLocationList
                 clientId={clientId}
                 onAddLocation={() => {
+                    setSelectedLocationId(null);
+                    setActiveTab('select');
                     setIsAddDialogOpen(true);
                 }}
             />
 
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <Card>
-                    <div className="space-y-4 p-4">
-                        <div className="space-y-2">
-                            <label
-                                htmlFor="location-select"
-                                className="block text-sm font-medium"
-                            >
-                                Select Location
-                            </label>
-                            <Select
-                                value={selectedLocationId ?? ''}
-                                onValueChange={setSelectedLocationId}
-                            >
-                                <SelectTrigger id="location-select">
-                                    <SelectValue placeholder="Select location" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {availableLocations.length > 0 ? (
-                                        availableLocations.map((location) => (
+                <DialogContent className="sm:max-w-[480px]">
+                    <DialogHeader>
+                        <DialogTitle>Add Location to Client</DialogTitle>
+                    </DialogHeader>
+                    <Tabs
+                        value={activeTab}
+                        onValueChange={setActiveTab}
+                        className="w-full"
+                    >
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="select">
+                                Select Existing
+                            </TabsTrigger>
+                            <TabsTrigger value="create">Create New</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="select" className="space-y-4 pt-4">
+                            <div className="space-y-2">
+                                <label
+                                    htmlFor="location-select"
+                                    className="block text-sm font-medium"
+                                >
+                                    Available Locations
+                                </label>
+                                <Select
+                                    value={selectedLocationId ?? ''}
+                                    onValueChange={setSelectedLocationId}
+                                >
+                                    <SelectTrigger id="location-select">
+                                        <SelectValue placeholder="Select location" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {availableLocations.length > 0 ? (
+                                            availableLocations.map(
+                                                (location) => (
+                                                    <SelectItem
+                                                        key={location.value}
+                                                        value={location.value}
+                                                    >
+                                                        {location.label}
+                                                    </SelectItem>
+                                                ),
+                                            )
+                                        ) : (
                                             <SelectItem
-                                                key={location.value}
-                                                value={location.value}
+                                                value="no-options"
+                                                disabled
                                             >
-                                                {location.label}
+                                                No available locations
                                             </SelectItem>
-                                        ))
-                                    ) : (
-                                        <SelectItem value="no-options" disabled>
-                                            No available locations
-                                        </SelectItem>
-                                    )}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="flex justify-end space-x-2">
-                            <Button
-                                variant="secondary"
-                                onClick={() => {
-                                    setIsAddDialogOpen(false);
-                                    setSelectedLocationId(null);
-                                }}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="default"
-                                onClick={handleAddLocation}
-                                disabled={
-                                    !selectedLocationId ||
-                                    addLocationMutation.isPending
-                                }
-                            >
-                                {addLocationMutation.isPending
-                                    ? 'Adding...'
-                                    : 'Add Location'}
-                            </Button>
-                        </div>
-                    </div>
-                </Card>
+                                        )}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex justify-end">
+                                <Button
+                                    variant="default"
+                                    onClick={handleAssociateLocation}
+                                    disabled={
+                                        !selectedLocationId ||
+                                        addLocationMutation.isPending
+                                    }
+                                >
+                                    {addLocationMutation.isPending
+                                        ? 'Associating...'
+                                        : 'Associate Location'}
+                                </Button>
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="create" className="space-y-4 pt-4">
+                            <LocationForm onSuccess={handleLocationCreated} />
+                        </TabsContent>
+                    </Tabs>
+                    <DialogFooter className="mt-4">
+                        <Button
+                            variant="secondary"
+                            onClick={() => {
+                                setIsAddDialogOpen(false);
+                                setSelectedLocationId(null);
+                                setActiveTab('select');
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </div>
     );

@@ -4,7 +4,7 @@ import { api } from '@api/providers/web';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/ui/card.ui';
 import { Button } from '@shared/ui/button.ui';
-import { Badge } from '@shared/ui/badge.ui';
+import { Trash2 } from 'lucide-react';
 
 type ClientLocationListProps = {
     clientId: string;
@@ -72,7 +72,7 @@ export const ClientLocationList: React.FC<ClientLocationListProps> = ({
                         {locations.map((location) => (
                             <div
                                 key={location.clientLocationId}
-                                className="flex items-center justify-between rounded border p-2"
+                                className="flex items-center justify-between rounded-lg border p-2 pl-4 shadow-sm transition-shadow duration-200 hover:shadow-md"
                             >
                                 <div>
                                     <div className="font-medium">
@@ -85,10 +85,9 @@ export const ClientLocationList: React.FC<ClientLocationListProps> = ({
                                     )}
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <Badge>Location</Badge>
                                     <Button
-                                        size="sm"
-                                        variant="destructive"
+                                        size="icon"
+                                        variant="ghost"
                                         onClick={() => {
                                             handleRemoveLocation(location.id);
                                         }}
@@ -96,9 +95,7 @@ export const ClientLocationList: React.FC<ClientLocationListProps> = ({
                                             removeLocationMutation.isPending
                                         }
                                     >
-                                        {removeLocationMutation.isPending
-                                            ? 'Removing...'
-                                            : 'Remove'}
+                                        <Trash2 className="h-4 w-4" />
                                     </Button>
                                 </div>
                             </div>
