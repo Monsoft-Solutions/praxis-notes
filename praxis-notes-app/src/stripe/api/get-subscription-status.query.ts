@@ -110,11 +110,11 @@ export const getSubscriptionStatus = protectedEndpoint.query(
                     status,
                     priceId,
                     customerId: stripeCustomerId,
-                    currentPeriodStart: stripeSubscription.start_date
-                        ? Number(stripeSubscription.start_date)
+                    currentPeriodStart: subscriptionItem.current_period_start
+                        ? Number(subscriptionItem.current_period_start)
                         : undefined,
-                    currentPeriodEnd: stripeSubscription.ended_at
-                        ? Number(stripeSubscription.ended_at)
+                    currentPeriodEnd: subscriptionItem.current_period_end
+                        ? Number(subscriptionItem.current_period_end)
                         : undefined,
                     cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
                     plan: {
