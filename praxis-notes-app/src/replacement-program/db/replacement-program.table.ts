@@ -15,7 +15,7 @@ export const replacementProgramTable = table('replacement_programs', {
     organizationId: char('organization_id', { length: 36 }).references(
         () => organizationTable.id,
         {
-            onDelete: 'set null',
+            onDelete: 'cascade',
         },
     ),
 

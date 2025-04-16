@@ -2,7 +2,7 @@ import { char, enumType, sqlEnum, table, varchar } from '@db/sql';
 
 import { usageSchema } from '../../schemas';
 
-import { appCoreConf } from '../constants';
+import { coreConf } from '../constants';
 
 export const coreConfUsageEnum = enumType(
     'core_conf_usage',
@@ -15,5 +15,5 @@ export const coreConfTable = table('core_conf', {
     name: varchar('name', { length: 255 }).unique().notNull(),
     usage: sqlEnum('usage', coreConfUsageEnum).unique(),
 
-    ...appCoreConf,
+    ...coreConf,
 });

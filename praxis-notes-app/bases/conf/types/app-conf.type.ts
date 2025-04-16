@@ -1,7 +1,7 @@
 import { MergeUnion } from '../../types';
 
-type ModuleConfName<AppCore> = keyof AppCore;
+type ModuleConfName<ModulesConf> = keyof ModulesConf;
 
-type ModuleConfUnion<AppCore> = AppCore[ModuleConfName<AppCore>];
+type ModuleConfUnion<ModulesConf> = ModulesConf[ModuleConfName<ModulesConf>];
 
-export type AppConf<AppCore> = MergeUnion<ModuleConfUnion<AppCore>>;
+export type Conf<ModulesConf> = MergeUnion<ModuleConfUnion<ModulesConf>>;

@@ -23,7 +23,9 @@ export const clientSessionTable = table('client_session', {
 
     // client treated in the session
     clientId: char('client_id', { length: 36 })
-        .references(() => clientTable.id)
+        .references(() => clientTable.id, {
+            onDelete: 'cascade',
+        })
         .notNull(),
 
     // user/therapist who conducted the session

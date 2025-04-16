@@ -11,7 +11,7 @@ export const userTable = table('users', {
     id: char('id', { length: 36 }).primaryKey(),
     organizationId: char('organization_id', { length: 36 })
         .notNull()
-        .references(() => organizationTable.id),
+        .references(() => organizationTable.id, { onDelete: 'cascade' }),
     firstName: varchar('firstName', { length: 255 }).notNull(),
     lastName: varchar('lastName', { length: 255 }),
 
