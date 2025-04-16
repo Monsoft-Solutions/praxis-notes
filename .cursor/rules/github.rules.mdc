@@ -9,3 +9,5 @@ alwaysApply: false
 - To create or update Pull Requests, check [pull-request.rules.mdc](mdc:.cursor/rules/pull-request.rules.mdc)
 - For the operations related to GitHub project, follow [github-project-operations.rules.mdc](mdc:.cursor/rules/github-project-operations.rules.mdc)
 - For the templates of the issues and Pull Requests, check the folder `.github`
+
+- AFter any operations on Github, share the link so the user can check the changes

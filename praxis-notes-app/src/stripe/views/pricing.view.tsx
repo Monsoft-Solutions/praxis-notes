@@ -9,11 +9,13 @@ import {
     CardTitle,
 } from '@shared/ui/card.ui';
 import { Tabs, TabsList, TabsTrigger } from '@shared/ui/tabs.ui';
+import { Badge } from '@shared/ui/badge.ui';
 
 import { AppLayout } from '@shared/views/app-layout.view';
 import { CheckoutButton } from '../components/checkout-button.component';
 import { api } from '@api/providers/web';
 import { Spinner } from '@shared/ui/spinner.ui';
+import { SubscriptionManagement } from '../components/subscription-management.component';
 
 import Stripe from 'stripe';
 
@@ -23,6 +25,10 @@ export function PricingView(): ReactElement {
     console.log('PricingView');
     const [billingInterval, setBillingInterval] =
         useState<BillingInterval>('month');
+
+    // Check if user already has a subscription
+    const { data: subscription, isLoading: isLoadingSubscription } =
+        api.stripe.getSubscriptionStatus.useQuery();
 
     // Fetch products and prices from the API
     const { data, isLoading, error } =
@@ -51,7 +57,13 @@ export function PricingView(): ReactElement {
         return price;
     };
 
-    if (isLoading) {
+    // Check if the user has an active subscription
+    const hasActiveSubscription =
+        subscription?.data &&
+        (subscription.data.status === 'active' ||
+            subscription.data.status === 'trialing');
+
+    if (isLoading || isLoadingSubscription) {
         return (
             <AppLayout>
                 <div className="flex h-96 items-center justify-center">
@@ -84,10 +96,23 @@ export function PricingView(): ReactElement {
     return (
         <AppLayout>
             <div className="container mx-auto py-12">
+                {hasActiveSubscription && (
+                    <div className="mx-auto mb-16 max-w-2xl">
+                        <div className="mb-8 text-center">
+                            <h2 className="mb-4 text-2xl font-bold">
+                                Your Current Subscription
+                            </h2>
+                        </div>
+                        <SubscriptionManagement />
+                    </div>
+                )}
+
                 <div className="mb-12 text-center">
                     <h1 className="mb-4 text-3xl font-bold">Pricing Plans</h1>
                     <p className="text-muted-foreground mb-8 text-xl">
-                        Choose the perfect plan for your practice
+                        {hasActiveSubscription
+                            ? 'Compare your current plan with other available options'
+                            : 'Choose the perfect plan for your practice'}
                     </p>
 
                     <Tabs
@@ -123,13 +148,28 @@ export function PricingView(): ReactElement {
                         .map(({ product, price }) => {
                             if (!price) return null;
 
+                            // Check if this is the user's current plan
+                            const isCurrentPlan = Boolean(
+                                hasActiveSubscription &&
+                                    subscription.data?.priceId === price.id,
+                            );
+
                             return (
                                 <Card
                                     key={product.id}
-                                    className="flex flex-col"
+                                    className={`flex flex-col ${isCurrentPlan ? 'border-primary' : ''}`}
                                 >
                                     <CardHeader>
-                                        <CardTitle>{product.name}</CardTitle>
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle>
+                                                {product.name}
+                                            </CardTitle>
+                                            {isCurrentPlan && (
+                                                <Badge variant="default">
+                                                    Current Plan
+                                                </Badge>
+                                            )}
+                                        </div>
                                         <CardDescription>
                                             {product.description}
                                         </CardDescription>
@@ -174,7 +214,11 @@ export function PricingView(): ReactElement {
                                     <CardFooter>
                                         <CheckoutButton
                                             priceId={price.id}
-                                            buttonText="Subscribe Now"
+                                            buttonText={
+                                                isCurrentPlan
+                                                    ? 'Current Plan'
+                                                    : 'Subscribe Now'
+                                            }
                                             className="w-full"
                                         />
                                     </CardFooter>
