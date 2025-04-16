@@ -8,7 +8,7 @@ import { getBookmarkedUsers } from './get-bookmarked-users.query';
 import { logIn } from './log-in.mutation';
 import { logOut } from './log-out.mutation';
 import { signUp } from './sign-up.mutation';
-
+import { deleteOrganization } from './delete-organization.mutation';
 // auth endpoints
 export const authApi = endpoints({
     getLoggedInUser,
@@ -18,4 +18,5 @@ export const authApi = endpoints({
     signUp,
     logIn,
     logOut,
+    deleteOrganization,
 });
