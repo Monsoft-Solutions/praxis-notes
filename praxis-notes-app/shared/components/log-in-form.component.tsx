@@ -4,15 +4,11 @@ import { Link } from '@tanstack/react-router';
 
 import type { UseFormReturn } from 'react-hook-form';
 
-import type { BookmarkedUser, LogInCredentials } from '@auth/schemas';
+import type { LogInCredentials } from '@auth/schemas';
 
-import { templateRoleHumanReadable } from '@src/template/utils';
+import { Button } from '@ui/button.ui';
 
-import { Button } from '@shared/ui/button.ui';
-
-import { Badge } from '@shared/ui/badge.ui';
-
-import { Input } from '@shared/ui/input.ui';
+import { Input } from '@ui/input.ui';
 
 import {
     Form,
@@ -21,7 +17,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from '@shared/ui/form.ui';
+} from '@ui/form.ui';
 
 import {
     Card,
@@ -30,22 +26,9 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from '@shared/ui/card.ui';
-
-import { ChevronDown } from 'lucide-react';
+} from '@ui/card.ui';
 
 import { ShortInfoMessage } from '@shared/components/short-info-message.component';
-
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@shared/ui/dropdown-menu.ui';
-
-import { ScrollArea } from '@shared/ui/scroll-area.ui';
 
 // ----------------------------------------------------------------------
 
@@ -57,27 +40,10 @@ import { ScrollArea } from '@shared/ui/scroll-area.ui';
 export function LogInForm({
     form,
     onSubmit,
-    bookmarkedUsers,
 }: {
     form: UseFormReturn<LogInCredentials>;
     onSubmit: (data: LogInCredentials) => void;
-    bookmarkedUsers: BookmarkedUser[] | null;
 }): ReactElement {
-    const handleSelectUser = ({ id }: { id: string }) => {
-        if (!bookmarkedUsers) return;
-
-        const user = bookmarkedUsers.find((user) => user.id === id);
-        if (!user) return;
-
-        const { email } = user;
-
-        if (email !== form.watch('email')) form.resetField('password');
-
-        form.setValue('email', email);
-
-        form.setFocus('password');
-    };
-
     return (
         <Card className="w-[350px]">
             <CardHeader>
@@ -106,72 +72,6 @@ export function LogInForm({
                                                 {...field}
                                             />
                                         </FormControl>
-
-                                        {bookmarkedUsers && (
-                                            <DropdownMenu modal={false}>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        className="absolute right-2 size-6 px-0 py-0"
-                                                    >
-                                                        <ChevronDown className="size-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-
-                                                <DropdownMenuContent>
-                                                    <DropdownMenuLabel>
-                                                        Bookmarked Users
-                                                    </DropdownMenuLabel>
-                                                    <DropdownMenuSeparator />
-
-                                                    <ScrollArea className="h-96">
-                                                        {bookmarkedUsers.map(
-                                                            ({
-                                                                id,
-                                                                name,
-                                                                roles,
-                                                            }) => (
-                                                                <DropdownMenuItem
-                                                                    key={id}
-                                                                    onClick={() => {
-                                                                        handleSelectUser(
-                                                                            {
-                                                                                id,
-                                                                            },
-                                                                        );
-                                                                    }}
-                                                                    className="flex items-center gap-2"
-                                                                >
-                                                                    <span className="min-w-44">
-                                                                        {name}
-                                                                    </span>
-
-                                                                    <ul className="flex items-center gap-1">
-                                                                        {roles.map(
-                                                                            (
-                                                                                role,
-                                                                            ) => (
-                                                                                <li
-                                                                                    key={
-                                                                                        role
-                                                                                    }
-                                                                                >
-                                                                                    <Badge>
-                                                                                        {templateRoleHumanReadable(
-                                                                                            role,
-                                                                                        )}
-                                                                                    </Badge>
-                                                                                </li>
-                                                                            ),
-                                                                        )}
-                                                                    </ul>
-                                                                </DropdownMenuItem>
-                                                            ),
-                                                        )}
-                                                    </ScrollArea>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        )}
                                     </div>
                                     <FormMessage />
                                 </FormItem>
