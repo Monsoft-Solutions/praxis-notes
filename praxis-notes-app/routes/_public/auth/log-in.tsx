@@ -2,10 +2,6 @@ import { z } from 'zod';
 
 import { createFileRoute, redirect } from '@tanstack/react-router';
 
-import { toast } from 'sonner';
-
-import { apiClientUtils } from '@api/providers/web';
-
 import { LogInView } from '@shared/views/log-in.view';
 
 // ----------------------------------------------------------------------
@@ -14,6 +10,9 @@ import { LogInView } from '@shared/views/log-in.view';
 const validateSearch = z.object({
     // path to return to after successful log-in
     returnTo: z.string().catch('/'),
+
+    // pre-filled email
+    email: z.string().optional(),
 });
 
 export const Route = createFileRoute('/_public/auth/log-in')({
@@ -30,26 +29,6 @@ export const Route = createFileRoute('/_public/auth/log-in')({
 
         // redirect to return-to path
         throw redirect({ to: returnToClean });
-    },
-
-    // loader only runs if beforeLoad doesn't throw redirect
-    loader: async () => {
-        // retrive bookmarked users
-        const bookmarkedUsersResult =
-            await apiClientUtils.auth.getBookmarkedUsers.ensureData();
-
-        const { error } = bookmarkedUsersResult;
-
-        if (error) {
-            toast.error('Failed to retrieve bookmarked users');
-
-            return { bookmarkedUsers: null };
-        }
-
-        const { data: bookmarkedUsers } = bookmarkedUsersResult;
-
-        // add bookmarked users to route loader data
-        return { bookmarkedUsers };
     },
 
     component: LogInView,

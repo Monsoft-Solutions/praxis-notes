@@ -16,10 +16,12 @@ export function LogInView(): ReactElement {
         auth: { logIn },
     } = Route.useRouteContext();
 
+    const { email } = Route.useSearch();
+
     const form = useForm<LogInCredentials>({
         resolver: zodResolver(logInCredentialsSchema),
         defaultValues: {
-            email: '',
+            email: email ?? '',
             password: '',
         },
     });

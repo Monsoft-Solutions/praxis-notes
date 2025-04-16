@@ -25,7 +25,7 @@ export const verifyEmail = publicEndpoint
     )
     .mutation(
         queryMutationCallback(async ({ input: { id } }) => {
-            const { error } = await catchError(
+            const { data, error } = await catchError(
                 db.transaction(async (tx) => {
                     const unverifiedEmail =
                         await tx.query.unverifiedEmailTable.findFirst({
@@ -45,11 +45,19 @@ export const verifyEmail = publicEndpoint
                         email,
                         password,
                     });
+
+                    return {
+                        email,
+                    };
                 }),
             );
 
             if (error) return Error();
 
-            return Success();
+            const { email } = data;
+
+            return Success({
+                email,
+            });
         }),
     );
