@@ -13,7 +13,7 @@ type Client = {
 };
 
 export const ClientsView = () => {
-    const { data: clientsQuery } = api.client.getClients.useQuery();
+    const { data: clientsQuery } = api.clientRouter.getClients.useQuery();
 
     if (!clientsQuery) return null;
     const { error } = clientsQuery;

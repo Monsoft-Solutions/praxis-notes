@@ -8,7 +8,7 @@ import { createClient } from './create-client.mutation';
 
 // subscriptions
 
-export const client = endpoints({
+export const clientRouter = endpoints({
     // queries
     getClients,
 

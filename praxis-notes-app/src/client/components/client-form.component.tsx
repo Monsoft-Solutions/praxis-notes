@@ -23,7 +23,8 @@ import { Route } from '@routes/_private/_app/clients/new';
 export function ClientForm() {
     const navigate = Route.useNavigate();
 
-    const { mutateAsync: createClient } = api.client.createClient.useMutation();
+    const { mutateAsync: createClient } =
+        api.clientRouter.createClient.useMutation();
 
     const { data: behaviorsQuery } = api.behavior.getBehaviors.useQuery();
     const { data: replacementProgramsQuery } =
