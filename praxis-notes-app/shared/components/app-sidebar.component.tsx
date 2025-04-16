@@ -1,5 +1,7 @@
 import { Link } from '@tanstack/react-router';
 
+import { Power } from 'lucide-react';
+
 import {
     Sidebar,
     SidebarContent,
@@ -11,7 +13,11 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarRail,
+    SidebarFooter,
+    SidebarMenuAction,
 } from '@ui/sidebar.ui';
+
+import { Route } from '@routes/__root';
 
 type NavItem = {
     title: string;
@@ -70,6 +76,10 @@ const navbarSections: NavSection[] = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const {
+        auth: { logOut },
+    } = Route.useRouteContext();
+
     return (
         <Sidebar {...props}>
             <SidebarHeader></SidebarHeader>
@@ -96,6 +106,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     </SidebarGroup>
                 ))}
             </SidebarContent>
+
+            <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton onClick={() => void logOut()}>
+                            Log Out
+                            <SidebarMenuAction className="opacity-100">
+                                <Power className="stroke-destructive size-4 stroke-2" />
+                            </SidebarMenuAction>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
 
             <SidebarRail />
         </Sidebar>
