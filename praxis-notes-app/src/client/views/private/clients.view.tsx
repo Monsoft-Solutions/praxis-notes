@@ -45,13 +45,15 @@ export const ClientsView = () => {
             ) : (
                 <div className="grid gap-4">
                     {clients.map((client: Client) => (
-                        <Link
+                        <div
                             key={client.id}
-                            to="/clients/$clientId/sessions"
-                            params={{ clientId: client.id }}
-                            className="bg-card hover:bg-accent/10 flex items-center justify-between rounded-lg border p-4 transition-colors"
+                            className="bg-card flex items-center justify-between rounded-lg border p-4"
                         >
-                            <div className="flex items-center space-x-4">
+                            <Link
+                                to="/clients/$clientId/sessions"
+                                params={{ clientId: client.id }}
+                                className="flex flex-grow items-center space-x-4 hover:underline"
+                            >
                                 <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
                                     <User className="text-primary h-5 w-5" />
                                 </div>
@@ -61,10 +63,27 @@ export const ClientsView = () => {
                                         {client.firstName} {client.lastName}
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
 
-                            <Button variant="ghost">View Sessions</Button>
-                        </Link>
+                            <div className="flex space-x-2">
+                                <Button variant="ghost" asChild>
+                                    <Link
+                                        to="/clients/$clientId/edit"
+                                        params={{ clientId: client.id }}
+                                    >
+                                        Edit
+                                    </Link>
+                                </Button>
+                                <Button variant="ghost" asChild>
+                                    <Link
+                                        to="/clients/$clientId/sessions"
+                                        params={{ clientId: client.id }}
+                                    >
+                                        View Sessions
+                                    </Link>
+                                </Button>
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}
