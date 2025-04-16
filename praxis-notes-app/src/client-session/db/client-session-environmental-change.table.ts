@@ -14,7 +14,9 @@ export const clientSessionEnvironmentalChangeTable = table(
 
         // client session
         clientSessionId: char('client_session_id', { length: 36 })
-            .references(() => clientSessionTable.id)
+            .references(() => clientSessionTable.id, {
+                onDelete: 'cascade',
+            })
             .notNull(),
 
         // name of the environmental change

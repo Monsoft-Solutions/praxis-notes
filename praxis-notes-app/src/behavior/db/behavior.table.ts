@@ -14,6 +14,7 @@ export const behaviorTable = table('behavior', {
     // if null, the behavior is considered global
     organizationId: char('organization_id', { length: 36 }).references(
         () => organizationTable.id,
+        { onDelete: 'cascade' },
     ),
 
     name: varchar('name', { length: 255 }).notNull(),

@@ -15,7 +15,9 @@ export const clientReplacementProgramTable = table(
         id: char('id', { length: 36 }).primaryKey(),
 
         clientId: char('client_id', { length: 36 })
-            .references(() => clientTable.id)
+            .references(() => clientTable.id, {
+                onDelete: 'cascade',
+            })
             .notNull(),
 
         replacementProgramId: char('replacement_program_id', {

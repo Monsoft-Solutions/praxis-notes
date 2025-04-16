@@ -16,6 +16,7 @@ export const clientSessionAbcEntryTable = table('client_session_abc_entry', {
 
     clientSessionId: char('client_session_id', { length: 36 }).references(
         () => clientSessionTable.id,
+        { onDelete: 'cascade' },
     ),
 
     antecedentId: char('antecedent_id', { length: 36 }).references(
