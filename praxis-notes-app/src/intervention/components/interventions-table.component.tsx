@@ -35,7 +35,7 @@ import { InterventionForm } from './interventions-form.component';
 export function InterventionsTable() {
     const navigate = Route.useNavigate();
 
-    const { searchQuery } = Route.useSearch();
+    const { searchQuery = '' } = Route.useSearch();
 
     const [isAddOpen, setIsAddOpen] = useState(false);
 
@@ -49,9 +49,20 @@ export function InterventionsTable() {
 
     const setSearchQuery = (searchQuery: string) => {
         void navigate({
-            search: (prev) => ({ ...prev, searchQuery, page: 1 }),
+            search: (prev) => ({
+                ...prev,
+                searchQuery: searchQuery === '' ? undefined : searchQuery,
+            }),
         });
     };
+
+    const filteredInterventions = searchQuery
+        ? interventions.filter((intervention) =>
+              intervention.name
+                  .toLowerCase()
+                  .includes(searchQuery.toLowerCase()),
+          )
+        : interventions;
 
     return (
         <div className="space-y-4">
@@ -114,7 +125,7 @@ export function InterventionsTable() {
                             </TableHeader>
 
                             <TableBody>
-                                {interventions.map((intervention) => (
+                                {filteredInterventions.map((intervention) => (
                                     <TableRow key={intervention.id}>
                                         <TableCell className="font-medium">
                                             <div>
@@ -202,13 +213,13 @@ export function InterventionsTable() {
                                     </TableRow>
                                 ))}
 
-                                {interventions.length === 0 && (
+                                {filteredInterventions.length === 0 && (
                                     <TableRow>
                                         <TableCell
                                             colSpan={5}
                                             className="h-24 text-center"
                                         >
-                                            No interventions found
+                                            No matching interventions found
                                         </TableCell>
                                     </TableRow>
                                 )}
