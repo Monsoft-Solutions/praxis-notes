@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 
 import { vanillaApi } from '@api/providers/web';
 
+import { setWebSessionId } from '@auth/providers/web';
+
 import { EmailVerificationFailedView } from '@shared/views/email-verification-failed.view';
 
 // ----------------------------------------------------------------------
@@ -24,15 +26,16 @@ export const Route = createFileRoute('/_public/auth/verify-email')({
         });
 
         if (!verifyEmailResult.error) {
-            toast.success('Email verified successfully', {
-                description: 'You can now log in to your account',
+            toast.success('Welcome to Praxis Notes !');
+
+            const { sessionId } = verifyEmailResult.data;
+
+            setWebSessionId({
+                sessionId,
             });
 
-            const { email } = verifyEmailResult.data;
-
             throw redirect({
-                to: '/auth/log-in',
-                search: { email },
+                to: '/',
             });
         }
     },
