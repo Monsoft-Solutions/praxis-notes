@@ -14,6 +14,7 @@ import { authenticationTable } from '@auth/db';
 import { v4 as uuidv4 } from 'uuid';
 
 import { eq } from 'drizzle-orm';
+import { createSession } from '@auth/providers/server';
 
 // verify email
 // Input: id
@@ -46,18 +47,28 @@ export const verifyEmail = publicEndpoint
                         password,
                     });
 
+                    // init session
+                    const { data: session, error: sessionError } =
+                        await createSession({
+                            userId,
+                        });
+
+                    if (sessionError) throw 'INIT_SESSION';
+
                     return {
                         email,
+                        sessionId: session.id,
                     };
                 }),
             );
 
             if (error) return Error();
 
-            const { email } = data;
+            const { email, sessionId } = data;
 
             return Success({
                 email,
+                sessionId,
             });
         }),
     );
