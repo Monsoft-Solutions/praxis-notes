@@ -4,27 +4,16 @@ import { Button } from '@ui/button.ui';
 
 import { Trash2 } from 'lucide-react';
 
-import {
-    FormField,
-    FormItem,
-    FormLabel,
-    FormControl,
-    FormMessage,
-} from '@ui/form.ui';
+import { FormField, FormItem, FormLabel, FormMessage } from '@ui/form.ui';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
 
 import { cn } from '@css/utils';
 
 import { ClientSession } from '../schemas';
-import {
-    Select,
-    SelectValue,
-    SelectTrigger,
-    SelectItem,
-    SelectContent,
-} from '@shared/ui/select.ui';
+
 import { api } from '@api/providers/web';
+import { AbcSelector } from './abc-selector.component';
 
 type ABCCardProps = {
     index: number;
@@ -84,24 +73,10 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                         <FormItem>
                             <FormLabel>Activity/Antecedent</FormLabel>
 
-                            <Select onValueChange={field.onChange}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select activity/antecedent" />
-                                    </SelectTrigger>
-                                </FormControl>
-
-                                <SelectContent>
-                                    {antecedents.map((antecedent) => (
-                                        <SelectItem
-                                            key={antecedent.id}
-                                            value={antecedent.id}
-                                        >
-                                            {antecedent.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <AbcSelector
+                                items={antecedents}
+                                onSelect={field.onChange}
+                            />
 
                             <FormMessage />
                         </FormItem>
@@ -116,24 +91,10 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                         <FormItem>
                             <FormLabel>Behaviors</FormLabel>
 
-                            <Select onValueChange={field.onChange}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select behavior" />
-                                    </SelectTrigger>
-                                </FormControl>
-
-                                <SelectContent>
-                                    {behaviors.map((behavior) => (
-                                        <SelectItem
-                                            key={behavior.id}
-                                            value={behavior.id}
-                                        >
-                                            {behavior.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <AbcSelector
+                                items={behaviors}
+                                onSelect={field.onChange}
+                            />
 
                             <FormMessage />
                         </FormItem>
@@ -148,24 +109,10 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                         <FormItem>
                             <FormLabel>Interventions</FormLabel>
 
-                            <Select onValueChange={field.onChange}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select intervention/consequence" />
-                                    </SelectTrigger>
-                                </FormControl>
-
-                                <SelectContent>
-                                    {interventions.map((intervention) => (
-                                        <SelectItem
-                                            key={intervention.id}
-                                            value={intervention.id}
-                                        >
-                                            {intervention.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <AbcSelector
+                                items={interventions}
+                                onSelect={field.onChange}
+                            />
 
                             <FormMessage />
                         </FormItem>
