@@ -13,7 +13,7 @@ export const unverifiedEmailTable = table('unverified_email', {
         .unique()
         .references(() => userTable.id, { onDelete: 'cascade' }),
 
-    email: varchar('email', { length: 255 }).unique().notNull(),
+    email: varchar('email', { length: 255 }).notNull(),
 
     password: varchar('password', { length: 255 }).notNull(),
 });
