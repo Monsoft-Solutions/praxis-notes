@@ -1,3 +1,5 @@
+ARG APP_FOLDER
+
 FROM alpine:3.21 AS builder
 RUN apk add --no-cache nodejs npm
 

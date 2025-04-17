@@ -1,0 +1,1 @@
+ALTER TABLE "core_conf" ADD COLUMN "stripe_secret_key" varchar(255) NOT NULL;
