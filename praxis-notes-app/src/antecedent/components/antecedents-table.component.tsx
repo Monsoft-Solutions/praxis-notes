@@ -36,7 +36,7 @@ import { AntecedentForm } from './antecedent-form.component';
 export function AntecedentsTable() {
     const navigate = Route.useNavigate();
 
-    const { searchQuery } = Route.useSearch();
+    const { searchQuery = '' } = Route.useSearch();
 
     const [isAddOpen, setIsAddOpen] = useState(false);
 
@@ -49,9 +49,18 @@ export function AntecedentsTable() {
 
     const setSearchQuery = (searchQuery: string) => {
         void navigate({
-            search: (prev) => ({ ...prev, searchQuery, page: 1 }),
+            search: (prev) => ({
+                ...prev,
+                searchQuery: searchQuery === '' ? undefined : searchQuery,
+            }),
         });
     };
+
+    const filteredAntecedents = searchQuery
+        ? antecedents.filter((antecedent) =>
+              antecedent.name.toLowerCase().includes(searchQuery.toLowerCase()),
+          )
+        : antecedents;
 
     return (
         <div className="space-y-4">
@@ -113,7 +122,7 @@ export function AntecedentsTable() {
                             </TableHeader>
 
                             <TableBody>
-                                {antecedents.map((antecedent) => (
+                                {filteredAntecedents.map((antecedent) => (
                                     <TableRow key={antecedent.id}>
                                         <TableCell className="font-medium">
                                             <div>

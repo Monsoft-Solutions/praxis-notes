@@ -35,7 +35,7 @@ import { BehaviorForm } from './behavior-form.component';
 export function BehaviorsTable() {
     const navigate = Route.useNavigate();
 
-    const { searchQuery } = Route.useSearch();
+    const { searchQuery = '' } = Route.useSearch();
 
     const [isAddOpen, setIsAddOpen] = useState(false);
 
@@ -48,9 +48,18 @@ export function BehaviorsTable() {
 
     const setSearchQuery = (searchQuery: string) => {
         void navigate({
-            search: (prev) => ({ ...prev, searchQuery, page: 1 }),
+            search: (prev) => ({
+                ...prev,
+                searchQuery: searchQuery === '' ? undefined : searchQuery,
+            }),
         });
     };
+
+    const filteredBehaviors = searchQuery
+        ? behaviors.filter((behavior) =>
+              behavior.name.toLowerCase().includes(searchQuery.toLowerCase()),
+          )
+        : behaviors;
 
     return (
         <div className="space-y-4">
@@ -112,7 +121,7 @@ export function BehaviorsTable() {
                             </TableHeader>
 
                             <TableBody>
-                                {behaviors.map((behavior) => (
+                                {filteredBehaviors.map((behavior) => (
                                     <TableRow key={behavior.id}>
                                         <TableCell className="font-medium">
                                             <div>
@@ -198,13 +207,13 @@ export function BehaviorsTable() {
                                     </TableRow>
                                 ))}
 
-                                {behaviors.length === 0 && (
+                                {filteredBehaviors.length === 0 && (
                                     <TableRow>
                                         <TableCell
                                             colSpan={5}
                                             className="h-24 text-center"
                                         >
-                                            No behaviors found
+                                            No matching behaviors found
                                         </TableCell>
                                     </TableRow>
                                 )}
