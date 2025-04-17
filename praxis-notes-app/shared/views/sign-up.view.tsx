@@ -39,7 +39,7 @@ export function SignUpView(): ReactElement {
 
         toast.success('Signed up successfully');
 
-        await navigate({ to: '/auth/log-in' });
+        await navigate({ to: '/auth/waiting-email-verification' });
     };
 
     return (
