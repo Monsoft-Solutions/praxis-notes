@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const behaviorSchema = z.object({
     id: z.string(),
 
-    organizationId: z.string().nullable(),
+    isCustom: z.boolean(),
 
     name: z.string().min(1),
 

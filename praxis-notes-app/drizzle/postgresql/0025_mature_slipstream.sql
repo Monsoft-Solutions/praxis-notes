@@ -1,0 +1,1 @@
+ALTER TABLE "unverified_email" DROP CONSTRAINT "unverified_email_email_unique";

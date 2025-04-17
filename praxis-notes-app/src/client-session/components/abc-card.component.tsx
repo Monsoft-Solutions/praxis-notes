@@ -4,40 +4,34 @@ import { Button } from '@ui/button.ui';
 
 import { Trash2 } from 'lucide-react';
 
-import {
-    FormField,
-    FormItem,
-    FormLabel,
-    FormControl,
-    FormMessage,
-} from '@ui/form.ui';
+import { FormField, FormItem, FormLabel, FormMessage } from '@ui/form.ui';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
 
 import { cn } from '@css/utils';
 
-import { ClientSession } from '../schemas';
-import {
-    Select,
-    SelectValue,
-    SelectTrigger,
-    SelectItem,
-    SelectContent,
-} from '@shared/ui/select.ui';
+import { ClientSessionForm } from '../schemas';
+
 import { api } from '@api/providers/web';
+import { AbcSelector } from './abc-selector.component';
 
 type ABCCardProps = {
     index: number;
+    clientId: string;
     onRemove?: () => void;
 };
 
-export function ABCCard({ index, onRemove }: ABCCardProps) {
-    const { control } = useFormContext<ClientSession>();
+export function ABCCard({ index, clientId, onRemove }: ABCCardProps) {
+    const { control } = useFormContext<ClientSessionForm>();
 
     const { data: antecedentsQuery } = api.antecedent.getAntecedents.useQuery();
-    const { data: behaviorsQuery } = api.behavior.getBehaviors.useQuery();
+    const { data: behaviorsQuery } = api.behavior.getClientBehaviors.useQuery({
+        clientId: clientId,
+    });
     const { data: interventionsQuery } =
-        api.intervention.getInterventions.useQuery();
+        api.intervention.getClientInterventions.useQuery({
+            clientId: clientId,
+        });
 
     if (!antecedentsQuery) return null;
     const { error: antecedentsError } = antecedentsQuery;
@@ -79,29 +73,15 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                 {/* Activity/Antecedent */}
                 <FormField
                     control={control}
-                    name={`abcEntries.${index}.antecedent`}
+                    name={`abcIdEntries.${index}.antecedentId`}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Activity/Antecedent</FormLabel>
 
-                            <Select onValueChange={field.onChange}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select activity/antecedent" />
-                                    </SelectTrigger>
-                                </FormControl>
-
-                                <SelectContent>
-                                    {antecedents.map((antecedent) => (
-                                        <SelectItem
-                                            key={antecedent.id}
-                                            value={antecedent.id}
-                                        >
-                                            {antecedent.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <AbcSelector
+                                items={antecedents}
+                                onSelect={field.onChange}
+                            />
 
                             <FormMessage />
                         </FormItem>
@@ -111,29 +91,15 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                 {/* Behaviors */}
                 <FormField
                     control={control}
-                    name={`abcEntries.${index}.behavior`}
+                    name={`abcIdEntries.${index}.clientBehaviorId`}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Behaviors</FormLabel>
 
-                            <Select onValueChange={field.onChange}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select behavior" />
-                                    </SelectTrigger>
-                                </FormControl>
-
-                                <SelectContent>
-                                    {behaviors.map((behavior) => (
-                                        <SelectItem
-                                            key={behavior.id}
-                                            value={behavior.id}
-                                        >
-                                            {behavior.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <AbcSelector
+                                items={behaviors}
+                                onSelect={field.onChange}
+                            />
 
                             <FormMessage />
                         </FormItem>
@@ -143,29 +109,15 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                 {/* Interventions */}
                 <FormField
                     control={control}
-                    name={`abcEntries.${index}.intervention`}
+                    name={`abcIdEntries.${index}.clientInterventionId`}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Interventions</FormLabel>
 
-                            <Select onValueChange={field.onChange}>
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select intervention/consequence" />
-                                    </SelectTrigger>
-                                </FormControl>
-
-                                <SelectContent>
-                                    {interventions.map((intervention) => (
-                                        <SelectItem
-                                            key={intervention.id}
-                                            value={intervention.id}
-                                        >
-                                            {intervention.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <AbcSelector
+                                items={interventions}
+                                onSelect={field.onChange}
+                            />
 
                             <FormMessage />
                         </FormItem>

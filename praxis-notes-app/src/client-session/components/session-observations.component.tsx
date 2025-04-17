@@ -10,12 +10,12 @@ import {
     CardDescription,
 } from '@ui/card.ui';
 
-import { ClientSession } from '../schemas';
+import { ClientSessionForm } from '../schemas';
 
 import { Textarea } from '@ui/textarea.ui';
 
 export function SessionObservations() {
-    const { control } = useFormContext<ClientSession>();
+    const { control } = useFormContext<ClientSessionForm>();
 
     return (
         <Card>

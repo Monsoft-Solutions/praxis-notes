@@ -17,7 +17,7 @@ export const getInterventions = protectedEndpoint.query(
             },
         }) => {
             // get the templates matching the search query
-            const { data: interventions, error } = await catchError(
+            const { data: interventionRecords, error } = await catchError(
                 db.query.interventionTable.findMany({
                     where: (record) =>
                         or(
@@ -28,6 +28,13 @@ export const getInterventions = protectedEndpoint.query(
             );
 
             if (error) return Error();
+
+            const interventions = interventionRecords.map((record) => ({
+                id: record.id,
+                name: record.name,
+                description: record.description,
+                isCustom: record.organizationId !== null,
+            }));
 
             // return the templates matching the search query
             return Success(interventions);

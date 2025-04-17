@@ -134,7 +134,7 @@ export function AntecedentsTable() {
                                                         className="mr-1 text-xs"
                                                     ></Badge>
 
-                                                    {antecedent.organizationId ? (
+                                                    {antecedent.isCustom ? (
                                                         <Badge className="text-xs">
                                                             Org
                                                         </Badge>
@@ -160,7 +160,7 @@ export function AntecedentsTable() {
                                         </TableCell>
 
                                         <TableCell className="hidden md:table-cell">
-                                            {antecedent.organizationId ? (
+                                            {antecedent.isCustom ? (
                                                 <Badge>Organization</Badge>
                                             ) : (
                                                 <Badge variant="secondary">
@@ -175,7 +175,7 @@ export function AntecedentsTable() {
                                         </TableCell>
 
                                         <TableCell>
-                                            {antecedent.organizationId && (
+                                            {antecedent.isCustom && (
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger
                                                         asChild

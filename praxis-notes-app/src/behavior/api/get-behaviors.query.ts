@@ -17,7 +17,7 @@ export const getBehaviors = protectedEndpoint.query(
             },
         }) => {
             // get the templates matching the search query
-            const { data: behaviors, error } = await catchError(
+            const { data: behaviorRecords, error } = await catchError(
                 db.query.behaviorTable.findMany({
                     where: (record) =>
                         or(
@@ -28,6 +28,13 @@ export const getBehaviors = protectedEndpoint.query(
             );
 
             if (error) return Error();
+
+            const behaviors = behaviorRecords.map((record) => ({
+                id: record.id,
+                name: record.name,
+                description: record.description,
+                isCustom: record.organizationId !== null,
+            }));
 
             // return the templates matching the search query
             return Success(behaviors);

@@ -133,7 +133,7 @@ export function BehaviorsTable() {
                                                         className="mr-1 text-xs"
                                                     ></Badge>
 
-                                                    {behavior.organizationId ? (
+                                                    {behavior.isCustom ? (
                                                         <Badge className="text-xs">
                                                             Org
                                                         </Badge>
@@ -159,7 +159,7 @@ export function BehaviorsTable() {
                                         </TableCell>
 
                                         <TableCell className="hidden md:table-cell">
-                                            {behavior.organizationId ? (
+                                            {behavior.isCustom ? (
                                                 <Badge>Organization</Badge>
                                             ) : (
                                                 <Badge variant="secondary">
@@ -174,7 +174,7 @@ export function BehaviorsTable() {
                                         </TableCell>
 
                                         <TableCell>
-                                            {behavior.organizationId && (
+                                            {behavior.isCustom && (
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger
                                                         asChild

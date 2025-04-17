@@ -28,10 +28,10 @@ import { cn } from '@css/utils';
 
 import { Tag } from '@shared/components/tag.component';
 
-import { ClientSession } from '../schemas';
+import { ClientSessionForm } from '../schemas';
 
 export function SessionBasicInfo() {
-    const { control } = useFormContext<ClientSession>();
+    const { control } = useFormContext<ClientSessionForm>();
 
     const [participantInput, setParticipantInput] = useState('');
     const [environmentalInput, setEnvironmentalInput] = useState('');
