@@ -4,6 +4,7 @@ import fs from 'fs';
 
 import reactPlugin from '@vitejs/plugin-react';
 import tsrPlugin from '@tanstack/router-plugin/vite';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 
 import path from 'path';
 
@@ -57,8 +58,14 @@ const tsrOptions = tsrPlugin({
     addExtensions: true,
 });
 
+// sentry plugin options
+const sentryPlugin = sentryVitePlugin({
+    org: 'monsoft-solutions',
+    project: 'praxis-notes-app',
+});
+
 export default defineConfig({
-    plugins: [reactOptions, tsrOptions],
+    plugins: [reactOptions, tsrOptions, sentryPlugin],
 
     resolve: {
         alias,
@@ -67,6 +74,8 @@ export default defineConfig({
     build: {
         chunkSizeWarningLimit: 5000,
     },
+
+    envPrefix: 'MSS_CLIENT_',
 
     server: {
         port: devWebPort,
