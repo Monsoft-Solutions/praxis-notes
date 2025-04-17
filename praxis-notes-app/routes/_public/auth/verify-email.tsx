@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 
 import { vanillaApi } from '@api/providers/web';
 
+import { setWebSessionId } from '@auth/providers/web';
+
 import { EmailVerificationFailedView } from '@shared/views/email-verification-failed.view';
 
 // ----------------------------------------------------------------------
@@ -28,11 +30,14 @@ export const Route = createFileRoute('/_public/auth/verify-email')({
                 description: 'You can now log in to your account',
             });
 
-            const { email } = verifyEmailResult.data;
+            const { sessionId } = verifyEmailResult.data;
+
+            setWebSessionId({
+                sessionId,
+            });
 
             throw redirect({
-                to: '/auth/log-in',
-                search: { email },
+                to: '/',
             });
         }
     },
