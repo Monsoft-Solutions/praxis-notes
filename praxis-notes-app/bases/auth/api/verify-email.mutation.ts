@@ -9,7 +9,7 @@ import { catchError } from '@errors/utils/catch-error.util';
 
 import { db } from '@db/providers/server';
 
-import { authenticationTable } from '@auth/db';
+import { authenticationTable, unverifiedEmailTable } from '@auth/db';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -34,6 +34,11 @@ export const verifyEmail = publicEndpoint
                         });
 
                     if (!unverifiedEmail) throw 'UNVERIFIED_EMAIL_NOT_FOUND';
+
+                    // delete unverified email, no longer needed
+                    await tx
+                        .delete(unverifiedEmailTable)
+                        .where(eq(unverifiedEmailTable.id, id));
 
                     const { userId, email, password } = unverifiedEmail;
 
