@@ -1,6 +1,9 @@
 import { useState } from 'react';
 
+import { toast } from 'sonner';
+
 import { Button } from '@shared/ui/button.ui';
+
 import {
     Card,
     CardContent,
@@ -9,6 +12,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@shared/ui/card.ui';
+
 import { Spinner } from '@shared/ui/spinner.ui';
 import { Badge } from '@shared/ui/badge.ui';
 
@@ -21,32 +25,34 @@ type SubscriptionManagementProps = {
 export function SubscriptionManagement({
     className,
 }: SubscriptionManagementProps) {
-    const [isLoading, setIsLoading] = useState(false);
-    const { data: subscription, isLoading: isLoadingSubscription } =
+    const { data: subscriptionQuery } =
         api.stripe.getSubscriptionStatus.useQuery();
+
     const { mutateAsync: createPortalSession } =
         api.stripe.getCustomerPortalSession.useMutation();
 
-    const handleManageSubscription = async () => {
-        try {
-            setIsLoading(true);
+    const [isLoading, setIsLoading] = useState(false);
 
-            // Create a customer portal session and redirect
-            const {
-                data: { url },
-            } = await createPortalSession();
+    const handleManageSubscription = async () => {
+        setIsLoading(true);
+
+        // Create a customer portal session and redirect
+        const portalSessionResponse = await createPortalSession();
+
+        if (portalSessionResponse.error) {
+            toast.error('Failed to create portal session');
+            return;
+        } else {
+            const { url } = portalSessionResponse.data;
 
             // Redirect to Stripe customer portal
-            if (url) {
-                window.open(url, '_blank');
-            }
-        } catch (error) {
-            console.error('Failed to create portal session', error);
-            setIsLoading(false);
+            if (url) window.open(url, '_blank');
         }
+
+        setIsLoading(false);
     };
 
-    if (isLoadingSubscription) {
+    if (!subscriptionQuery) {
         return (
             <Card className={className}>
                 <CardContent className="flex h-40 items-center justify-center pt-6">
@@ -55,6 +61,21 @@ export function SubscriptionManagement({
             </Card>
         );
     }
+
+    if (subscriptionQuery.error) {
+        return (
+            <Card className={className}>
+                <CardHeader>
+                    <CardTitle>Error Loading Subscription</CardTitle>
+                    <CardDescription>
+                        Unable to load subscription. Please try again later.
+                    </CardDescription>
+                </CardHeader>
+            </Card>
+        );
+    }
+
+    const { data: subscription } = subscriptionQuery;
 
     if (!subscription) {
         return (
@@ -77,93 +98,91 @@ export function SubscriptionManagement({
         }).format(amount / 100);
     };
 
+    const { features: featuresString } = subscription.plan.metadata;
+
     // Format features from pipe-separated string to array
-    const features = subscription.data?.plan.metadata.features
-        ? subscription.data.plan.metadata.features.split('|')
-        : [];
+    const features = featuresString ? featuresString.split('|') : [];
 
     return (
         <Card className={className}>
             <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                     Your Subscription
-                    {subscription.data && (
-                        <Badge
-                            variant={
-                                subscription.data.status === 'active'
-                                    ? 'default'
-                                    : 'outline'
-                            }
-                        >
-                            {subscription.data.status === 'active'
-                                ? 'Active'
-                                : subscription.data.status === 'canceled'
-                                  ? 'Canceled'
-                                  : 'Inactive'}
-                        </Badge>
-                    )}
+                    <Badge
+                        variant={
+                            subscription.status === 'active'
+                                ? 'default'
+                                : 'outline'
+                        }
+                    >
+                        {subscription.status === 'active'
+                            ? 'Active'
+                            : subscription.status === 'canceled'
+                              ? 'Canceled'
+                              : 'Inactive'}
+                    </Badge>
                 </CardTitle>
+
                 <CardDescription>
                     Manage your subscription and billing details.
                 </CardDescription>
             </CardHeader>
+
             <CardContent>
                 <div className="space-y-4">
-                    {subscription.data?.plan && (
-                        <div className="bg-muted rounded-md p-3">
-                            <h3 className="font-medium">
-                                {subscription.data.plan.name}
-                            </h3>
-                            <div className="text-muted-foreground mt-1 text-sm">
-                                {subscription.data.plan.amount && (
-                                    <div>
-                                        {formatAmount(
-                                            subscription.data.plan.amount,
-                                        )}
-                                        {subscription.data.plan.interval &&
-                                            `/${subscription.data.plan.interval}`}
-                                    </div>
-                                )}
-                            </div>
+                    <div className="bg-muted rounded-md p-3">
+                        <h3 className="font-medium">
+                            {subscription.plan.name}
+                        </h3>
+
+                        <div className="text-muted-foreground mt-1 text-sm">
+                            {subscription.plan.amount && (
+                                <div>
+                                    {formatAmount(subscription.plan.amount)}
+                                    {subscription.plan.interval &&
+                                        `/${subscription.plan.interval}`}
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     <div className="space-y-2">
-                        {subscription.data?.currentPeriodStart && (
+                        {subscription.currentPeriodStart && (
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">
                                     Current period started:
                                 </span>
+
                                 <span className="font-medium">
                                     {new Date(
-                                        subscription.data.currentPeriodStart *
-                                            1000,
+                                        subscription.currentPeriodStart * 1000,
                                     ).toLocaleDateString()}
                                 </span>
                             </div>
                         )}
 
-                        {subscription.data?.currentPeriodEnd && (
+                        {subscription.currentPeriodEnd && (
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">
                                     Next billing date:
                                 </span>
+
                                 <span className="font-medium">
                                     {new Date(
-                                        subscription.data.currentPeriodEnd *
-                                            1000,
+                                        subscription.currentPeriodEnd * 1000,
                                     ).toLocaleDateString()}
                                 </span>
                             </div>
                         )}
 
-                        {subscription.data?.cancelAtPeriodEnd !== undefined && (
+                        {subscription.cancelAtPeriodEnd !== undefined && (
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">
                                     Auto-renewal:
                                 </span>
+
                                 <span className="font-medium">
-                                    {subscription.data.cancelAtPeriodEnd
+                                    {subscription.cancelAtPeriodEnd
                                         ? 'Off'
                                         : 'On'}
                                 </span>
@@ -176,6 +195,7 @@ export function SubscriptionManagement({
                             <h3 className="text-muted-foreground text-sm font-medium">
                                 Plan includes:
                             </h3>
+
                             <ul className="list-inside list-disc space-y-1 text-sm">
                                 {features.map((feature, index) => (
                                     <li key={index}>{feature.trim()}</li>
@@ -185,12 +205,11 @@ export function SubscriptionManagement({
                     )}
                 </div>
             </CardContent>
+
             <CardFooter>
                 <Button
                     onClick={() => void handleManageSubscription()}
-                    disabled={
-                        isLoading || subscription.data?.status !== 'active'
-                    }
+                    disabled={isLoading || subscription.status !== 'active'}
                     className="w-full"
                 >
                     {isLoading ? <Spinner className="mr-2" /> : null}

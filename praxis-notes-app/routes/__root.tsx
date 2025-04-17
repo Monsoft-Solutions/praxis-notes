@@ -1,12 +1,15 @@
-import { Function } from '@errors/types';
-import { Success } from '@errors/utils';
-
 import { ReactElement } from 'react';
 
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
-
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools/production';
+
+import * as Sentry from '@sentry/react';
+
+import { toast } from 'sonner';
+
+import { Function } from '@errors/types';
+import { Success } from '@errors/utils';
 
 import { apiClientUtils, vanillaApi } from '@api/providers/web';
 
@@ -17,8 +20,8 @@ import {
     removeWebSessionId,
     isWebSessionIdAvailable,
 } from '@auth/providers/web';
+
 import { router } from '@web/router';
-import { toast } from 'sonner';
 
 import { User } from '@guard/types';
 
@@ -94,7 +97,13 @@ const getLoggedInUser = (async () => {
     const { data: user } =
         await apiClientUtils.auth.getLoggedInUser.ensureData();
 
-    if (user === null) removeWebSessionId();
+    if (user === null) {
+        removeWebSessionId();
+    } else {
+        Sentry.setUser({
+            id: user.id,
+        });
+    }
 
     return Success(user);
 }) satisfies Function<void, User | null>;
@@ -126,7 +135,7 @@ export const Route = createRootRoute({
                             buttonPosition="bottom-right"
                         />
 
-                        <TanStackRouterDevtools />
+                        <TanStackRouterDevtools position="bottom-right" />
                     </>
                 )}
             </>

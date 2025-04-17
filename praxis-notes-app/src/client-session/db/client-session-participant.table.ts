@@ -14,7 +14,9 @@ export const clientSessionParticipantTable = table(
 
         // client session
         clientSessionId: char('client_session_id', { length: 36 })
-            .references(() => clientSessionTable.id)
+            .references(() => clientSessionTable.id, {
+                onDelete: 'cascade',
+            })
             .notNull(),
 
         // name of the participant

@@ -16,12 +16,12 @@ export function LogInView(): ReactElement {
         auth: { logIn },
     } = Route.useRouteContext();
 
-    const { bookmarkedUsers } = Route.useLoaderData();
+    const { email } = Route.useSearch();
 
     const form = useForm<LogInCredentials>({
         resolver: zodResolver(logInCredentialsSchema),
         defaultValues: {
-            email: '',
+            email: email ?? '',
             password: '',
         },
     });
@@ -33,7 +33,6 @@ export function LogInView(): ReactElement {
                 onSubmit={(credentials) => {
                     void logIn(credentials);
                 }}
-                bookmarkedUsers={bookmarkedUsers}
             />
         </div>
     );

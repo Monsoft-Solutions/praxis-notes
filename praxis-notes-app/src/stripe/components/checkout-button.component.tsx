@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 
 import { Button } from '@shared/ui/button.ui';
 import { Spinner } from '@shared/ui/spinner.ui';
 
 import { api } from '@api/providers/web';
+import { toast } from 'sonner';
 
 type CheckoutButtonProps = {
     priceId: string;
@@ -16,10 +18,12 @@ export function CheckoutButton({
     buttonText = 'Subscribe',
     className,
 }: CheckoutButtonProps) {
+    const navigate = useNavigate();
+
     const [isLoading, setIsLoading] = useState(false);
 
     // Check if user already has a subscription
-    const { data: subscription, isLoading: isLoadingSubscription } =
+    const { data: subscriptionQuery } =
         api.stripe.getSubscriptionStatus.useQuery();
 
     const { mutateAsync: createCheckoutSession } =
@@ -29,45 +33,45 @@ export function CheckoutButton({
         api.stripe.getCustomerPortalSession.useMutation();
 
     const handleCheckout = async () => {
-        try {
-            setIsLoading(true);
+        setIsLoading(true);
 
-            // Create a checkout session and redirect to Stripe checkout
-            const {
-                data: { url },
-            } = await createCheckoutSession({ priceId });
+        // Create a checkout session and redirect to Stripe checkout
+        const checkoutSessionResult = await createCheckoutSession({
+            priceId,
+            quantity: 1,
+        });
 
-            // Redirect to Stripe checkout
-            if (url) {
-                window.location.href = url;
-            }
-        } catch (error) {
-            console.error('Failed to create checkout session', error);
-            setIsLoading(false);
+        if (checkoutSessionResult.error) {
+            toast.error('Unable to start checkout process. Please try again.');
+        } else {
+            const { url } = checkoutSessionResult.data;
+
+            if (url) await navigate({ to: url });
         }
+
+        setIsLoading(false);
     };
 
     const handleManageSubscription = async () => {
-        try {
-            setIsLoading(true);
+        setIsLoading(true);
 
-            // Create a customer portal session and redirect
-            const {
-                data: { url },
-            } = await createPortalSession();
+        // Create a customer portal session and redirect
+        const portalSessionResult = await createPortalSession();
+
+        if (portalSessionResult.error) {
+            toast.error('Unable to manage subscription. Please try again.');
+        } else {
+            const { url } = portalSessionResult.data;
 
             // Redirect to Stripe customer portal
-            if (url) {
-                window.open(url, '_blank');
-            }
-        } catch (error) {
-            console.error('Failed to create portal session', error);
-            setIsLoading(false);
+            window.open(url, '_blank');
         }
+
+        setIsLoading(false);
     };
 
     // If we're still checking subscription status, show loading state
-    if (isLoadingSubscription) {
+    if (!subscriptionQuery) {
         return (
             <Button disabled className={className}>
                 <Spinner className="mr-2" />
@@ -76,11 +80,18 @@ export function CheckoutButton({
         );
     }
 
+    if (subscriptionQuery.error) {
+        toast.error('Error checking subscription status. Please try again.');
+        return;
+    }
+
+    const { data: subscription } = subscriptionQuery;
+
     // If user has an active subscription, show manage subscription button instead
     const hasActiveSubscription =
-        subscription?.data &&
-        (subscription.data.status === 'active' ||
-            subscription.data.status === 'trialing');
+        subscription &&
+        (subscription.status === 'active' ||
+            subscription.status === 'trialing');
 
     return (
         <Button

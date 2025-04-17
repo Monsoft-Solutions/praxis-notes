@@ -1,14 +1,17 @@
-import { TRPCError } from '@trpc/server';
-
 import { protectedEndpoint } from '@api/providers/server';
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
+
 import { catchError } from '@errors/utils/catch-error.util';
-import { Success } from '@errors/utils';
+import { Error, Success } from '@errors/utils';
 
 import { db } from '@db/providers/server';
-import { Subscription, SubscriptionStatus } from '../types';
+
+import { StripeSubscription, StripeSubscriptionStatus } from '../types';
+
 import { authenticationTable } from '@db/db.tables';
-import { stripe } from '../config/stripe';
+
+import { createStripeSdk } from '../utils';
+
 import { eq } from 'drizzle-orm';
 
 // Query to get the current user's subscription status
@@ -18,46 +21,50 @@ export const getSubscriptionStatus = protectedEndpoint.query(
             ctx: {
                 session: { user: sessionUser },
             },
-        }): Promise<{ data: Subscription | null; error: null }> => {
+        }) => {
+            const { data: stripe, error: stripeCreateError } =
+                await createStripeSdk();
+
+            if (stripeCreateError) return Error();
+
             const { data: userAuthentication, error: userAuthenticationError } =
                 await catchError(
-                    db
-                        .select({
-                            email: authenticationTable.email,
-                        })
-                        .from(authenticationTable)
-                        .where(eq(authenticationTable.userId, sessionUser.id))
-                        .limit(1),
+                    db.query.authenticationTable.findFirst({
+                        where: eq(authenticationTable.userId, sessionUser.id),
+                    }),
                 );
 
-            if (userAuthenticationError || userAuthentication.length === 0) {
-                return Success(null);
-            }
+            if (userAuthenticationError) return Error();
 
-            const { email: userEmail } = userAuthentication[0];
+            if (!userAuthentication) return Success(null);
 
-            try {
-                // Find the Stripe customer by email
-                const customerSearchResult = await catchError(
+            const { email: userEmail } = userAuthentication;
+
+            // Find the Stripe customer by email
+            const { data: customersList, error: customersListError } =
+                await catchError(
                     stripe.customers.list({
                         email: userEmail,
                         limit: 1,
                     }),
                 );
 
-                if (
-                    customerSearchResult.error ||
-                    customerSearchResult.data.data.length === 0
-                ) {
-                    // No customer found with this email
-                    return Success(null);
-                }
+            if (customersListError) return Error();
 
-                const stripeCustomer = customerSearchResult.data.data[0];
-                const stripeCustomerId = stripeCustomer.id;
+            const { data: customers } = customersList;
 
-                // Get the customer's subscriptions directly from Stripe
-                const subscriptionListResult = await catchError(
+            const stripeCustomer = customers.at(0);
+
+            if (stripeCustomer === undefined) {
+                // No customer found with this email
+                return Success(null);
+            }
+
+            const { id: stripeCustomerId } = stripeCustomer;
+
+            // Get the customer's subscriptions directly from Stripe
+            const { data: subscriptionsList, error: subscriptionsListError } =
+                await catchError(
                     stripe.subscriptions.list({
                         customer: stripeCustomerId,
                         status: 'all',
@@ -66,78 +73,86 @@ export const getSubscriptionStatus = protectedEndpoint.query(
                     }),
                 );
 
-                if (
-                    subscriptionListResult.error ||
-                    subscriptionListResult.data.data.length === 0
-                ) {
-                    // No subscriptions found for this customer
-                    return Success(null);
-                }
+            if (subscriptionsListError) return Error();
 
-                const stripeSubscription = subscriptionListResult.data.data[0];
+            const { data: subscriptions } = subscriptionsList;
 
-                const subscriptionItems = await stripe.subscriptionItems.list({
-                    subscription: stripeSubscription.id,
-                    limit: 1,
-                });
+            const stripeSubscription = subscriptions.at(0);
 
-                const subscriptionItem = subscriptionItems.data[0];
-
-                // Map Stripe subscription status to our application's SubscriptionStatus type
-                let status: SubscriptionStatus;
-                const subStatus = stripeSubscription.status;
-                switch (subStatus) {
-                    case 'active':
-                    case 'canceled':
-                    case 'incomplete':
-                    case 'incomplete_expired':
-                    case 'past_due':
-                    case 'trialing':
-                    case 'unpaid':
-                        status = subStatus;
-                        break;
-                    default:
-                        // Map 'paused' or any other unknown status to 'canceled'
-                        status = 'canceled';
-                }
-
-                // Get the price ID safely
-                const priceId = subscriptionItem.price.id;
-
-                // Construct the subscription object matching the expected type
-                const output: Subscription = {
-                    id: stripeSubscription.id,
-                    status,
-                    priceId,
-                    customerId: stripeCustomerId,
-                    currentPeriodStart: stripeSubscription.start_date
-                        ? Number(stripeSubscription.start_date)
-                        : undefined,
-                    currentPeriodEnd: stripeSubscription.ended_at
-                        ? Number(stripeSubscription.ended_at)
-                        : undefined,
-                    cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-                    plan: {
-                        id: subscriptionItem.price.id,
-                        name: subscriptionItem.price.nickname ?? '',
-                        amount: subscriptionItem.price.unit_amount ?? 0,
-                        interval:
-                            subscriptionItem.price.recurring?.interval ?? '',
-                        metadata: subscriptionItem.price.metadata,
-                    },
-                };
-
-                return Success(output);
-            } catch (error) {
-                console.error(
-                    'Error fetching subscription status from Stripe:',
-                    error,
-                );
-                throw new TRPCError({
-                    code: 'INTERNAL_SERVER_ERROR',
-                    message: 'Failed to fetch subscription status from Stripe.',
-                });
+            if (stripeSubscription === undefined) {
+                // No subscriptions found for this customer
+                return Success(null);
             }
+
+            const { id: stripeSubscriptionId } = stripeSubscription;
+
+            const {
+                data: subscriptionItemsList,
+                error: subscriptionItemsListError,
+            } = await catchError(
+                stripe.subscriptionItems.list({
+                    subscription: stripeSubscriptionId,
+                    limit: 1,
+                }),
+            );
+
+            if (subscriptionItemsListError) return Error();
+
+            const { data: subscriptionItems } = subscriptionItemsList;
+
+            const subscriptionItem = subscriptionItems.at(0);
+
+            if (subscriptionItem === undefined) {
+                // No subscription items found for this customer
+                return Success(null);
+            }
+
+            // Map Stripe subscription status to our application's SubscriptionStatus type
+            let status: StripeSubscriptionStatus;
+
+            const { status: subscriptionStatus } = stripeSubscription;
+
+            switch (subscriptionStatus) {
+                case 'active':
+                case 'canceled':
+                case 'incomplete':
+                case 'incomplete_expired':
+                case 'past_due':
+                case 'trialing':
+                case 'unpaid':
+                    status = subscriptionStatus;
+                    break;
+                default:
+                    // Map 'paused' or any other unknown status to 'canceled'
+                    status = 'canceled';
+            }
+
+            // Get the price ID safely
+            const priceId = subscriptionItem.price.id;
+
+            // Construct the subscription object matching the expected type
+            const output: StripeSubscription = {
+                id: stripeSubscription.id,
+                status,
+                priceId,
+                customerId: stripeCustomerId,
+                currentPeriodStart: subscriptionItem.current_period_start
+                    ? Number(subscriptionItem.current_period_start)
+                    : undefined,
+                currentPeriodEnd: subscriptionItem.current_period_end
+                    ? Number(subscriptionItem.current_period_end)
+                    : undefined,
+                cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+                plan: {
+                    id: subscriptionItem.price.id,
+                    name: subscriptionItem.price.nickname ?? '',
+                    amount: subscriptionItem.price.unit_amount ?? 0,
+                    interval: subscriptionItem.price.recurring?.interval ?? '',
+                    metadata: subscriptionItem.price.metadata,
+                },
+            };
+
+            return Success(output);
         },
     ),
 );
