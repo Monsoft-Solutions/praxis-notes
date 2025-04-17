@@ -43,7 +43,6 @@ export const getClientLocations = protectedEndpoint
                 name: cl.location.name,
                 description: cl.location.description,
                 address: cl.location.address,
-                clientLocationId: cl.client_location.id,
             }));
 
             // return the locations for the client

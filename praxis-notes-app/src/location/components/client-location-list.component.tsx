@@ -71,7 +71,7 @@ export const ClientLocationList: React.FC<ClientLocationListProps> = ({
                     <div className="space-y-2">
                         {locations.map((location) => (
                             <div
-                                key={location.clientLocationId}
+                                key={location.id}
                                 className="flex items-center justify-between rounded-lg border p-2 pl-4 shadow-sm transition-shadow duration-200 hover:shadow-md"
                             >
                                 <div>
