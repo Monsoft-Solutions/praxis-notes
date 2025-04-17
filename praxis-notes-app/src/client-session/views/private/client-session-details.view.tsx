@@ -190,8 +190,7 @@ export function ClientSessionDetailsView() {
                                                 </h4>
 
                                                 <p className="mt-1 text-sm">
-                                                    {antecedent?.name ??
-                                                        'Not specified'}
+                                                    {antecedent.name}
                                                 </p>
                                             </div>
 
@@ -200,7 +199,7 @@ export function ClientSessionDetailsView() {
                                                     Behavior
                                                 </h4>
 
-                                                {behavior?.name}
+                                                {behavior.name}
                                             </div>
 
                                             <div>
@@ -208,7 +207,7 @@ export function ClientSessionDetailsView() {
                                                     Intervention
                                                 </h4>
 
-                                                {intervention?.name}
+                                                {intervention.name}
                                             </div>
                                         </div>
                                     </div>

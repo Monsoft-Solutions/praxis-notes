@@ -27,8 +27,16 @@ export const generateNotes = protectedEndpoint
                         abcEntries: {
                             with: {
                                 antecedent: true,
-                                behavior: true,
-                                intervention: true,
+                                clientBehavior: {
+                                    with: {
+                                        behavior: true,
+                                    },
+                                },
+                                clientIntervention: {
+                                    with: {
+                                        intervention: true,
+                                    },
+                                },
                             },
                         },
                     },
@@ -39,6 +47,26 @@ export const generateNotes = protectedEndpoint
 
             if (!clientSession) return Error('NOT_FOUND');
 
+            const abcEntriesNullable = clientSession.abcEntries.map(
+                ({ antecedent, clientBehavior, clientIntervention }) => {
+                    if (!antecedent || !clientBehavior || !clientIntervention)
+                        return null;
+
+                    const antecedentName = antecedent.name;
+                    const behaviorName = clientBehavior.behavior.name;
+                    const interventionName =
+                        clientIntervention.intervention.name;
+
+                    return {
+                        antecedentName,
+                        behaviorName,
+                        interventionName,
+                    };
+                },
+            );
+
+            const abcEntries = abcEntriesNullable.filter((abc) => abc !== null);
+
             const sessionData = {
                 ...clientSession,
                 sessionDate: new Date(clientSession.sessionDate),
@@ -48,11 +76,7 @@ export const generateNotes = protectedEndpoint
                 environmentalChanges: clientSession.environmentalChanges.map(
                     (change) => change.name,
                 ),
-                abcEntries: clientSession.abcEntries.map((abc) => ({
-                    antecedent: abc.antecedent?.name ?? '',
-                    behavior: abc.behavior?.name ?? '',
-                    intervention: abc.intervention?.name ?? '',
-                })),
+                abcEntries,
             };
 
             const { data: generatedNotes, error: generatedNotesError } =

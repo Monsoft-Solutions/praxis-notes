@@ -21,7 +21,7 @@ export const getClientSession = protectedEndpoint
     .query(
         queryMutationCallback(async ({ input: { sessionId } }) => {
             // get the templates matching the search query
-            const { data: clientSession, error } = await catchError(
+            const { data: clientSessionRecords, error } = await catchError(
                 db.query.clientSessionTable.findFirst({
                     where: (record) => eq(record.id, sessionId),
 
@@ -32,8 +32,16 @@ export const getClientSession = protectedEndpoint
                         abcEntries: {
                             with: {
                                 antecedent: true,
-                                behavior: true,
-                                intervention: true,
+                                clientBehavior: {
+                                    with: {
+                                        behavior: true,
+                                    },
+                                },
+                                clientIntervention: {
+                                    with: {
+                                        intervention: true,
+                                    },
+                                },
                             },
                         },
                     },
@@ -42,7 +50,34 @@ export const getClientSession = protectedEndpoint
 
             if (error) return Error();
 
-            if (!clientSession) return Error('NOT_FOUND');
+            if (!clientSessionRecords) return Error('NOT_FOUND');
+
+            const abcEntriesNullable = clientSessionRecords.abcEntries.map(
+                ({ id, antecedent, clientBehavior, clientIntervention }) => {
+                    if (!antecedent || !clientBehavior || !clientIntervention)
+                        return null;
+
+                    const { behavior } = clientBehavior;
+
+                    const { intervention } = clientIntervention;
+
+                    return {
+                        id,
+                        antecedent,
+                        behavior,
+                        intervention,
+                    };
+                },
+            );
+
+            const abcEntries = abcEntriesNullable.filter(
+                (abcEntry) => abcEntry !== null,
+            );
+
+            const clientSession = {
+                ...clientSessionRecords,
+                abcEntries,
+            };
 
             // return the templates matching the search query
             return Success(clientSession);

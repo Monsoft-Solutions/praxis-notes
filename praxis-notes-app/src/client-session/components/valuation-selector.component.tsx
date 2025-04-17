@@ -14,10 +14,10 @@ import { RadioGroup, RadioGroupItem } from '@ui/radio-group.ui';
 
 import { Label } from '@ui/label.ui';
 
-import { ClientSession } from '../schemas';
+import { ClientSessionForm } from '../schemas';
 
 export function ValuationSelector() {
-    const { control } = useFormContext<ClientSession>();
+    const { control } = useFormContext<ClientSessionForm>();
 
     return (
         <Card>

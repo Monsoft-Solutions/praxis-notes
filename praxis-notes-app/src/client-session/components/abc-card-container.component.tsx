@@ -16,7 +16,7 @@ import {
     CardDescription,
 } from '@ui/card.ui';
 
-export function ABCCardContainer() {
+export function ABCCardContainer({ clientId }: { clientId: string }) {
     const { control } = useFormContext();
 
     const { fields, append, remove } = useFieldArray({
@@ -51,6 +51,7 @@ export function ABCCardContainer() {
                     <ABCCard
                         key={field.id}
                         index={index}
+                        clientId={clientId}
                         onRemove={
                             fields.length > 1
                                 ? () => {

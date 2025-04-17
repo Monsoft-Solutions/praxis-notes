@@ -10,23 +10,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
 
 import { cn } from '@css/utils';
 
-import { ClientSession } from '../schemas';
+import { ClientSessionForm } from '../schemas';
 
 import { api } from '@api/providers/web';
 import { AbcSelector } from './abc-selector.component';
 
 type ABCCardProps = {
     index: number;
+    clientId: string;
     onRemove?: () => void;
 };
 
-export function ABCCard({ index, onRemove }: ABCCardProps) {
-    const { control } = useFormContext<ClientSession>();
+export function ABCCard({ index, clientId, onRemove }: ABCCardProps) {
+    const { control } = useFormContext<ClientSessionForm>();
 
     const { data: antecedentsQuery } = api.antecedent.getAntecedents.useQuery();
-    const { data: behaviorsQuery } = api.behavior.getBehaviors.useQuery();
+    const { data: behaviorsQuery } = api.behavior.getClientBehaviors.useQuery({
+        clientId: clientId,
+    });
     const { data: interventionsQuery } =
-        api.intervention.getInterventions.useQuery();
+        api.intervention.getClientInterventions.useQuery({
+            clientId: clientId,
+        });
 
     if (!antecedentsQuery) return null;
     const { error: antecedentsError } = antecedentsQuery;
@@ -68,7 +73,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                 {/* Activity/Antecedent */}
                 <FormField
                     control={control}
-                    name={`abcEntries.${index}.antecedent`}
+                    name={`abcIdEntries.${index}.antecedentId`}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Activity/Antecedent</FormLabel>
@@ -86,7 +91,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                 {/* Behaviors */}
                 <FormField
                     control={control}
-                    name={`abcEntries.${index}.behavior`}
+                    name={`abcIdEntries.${index}.clientBehaviorId`}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Behaviors</FormLabel>
@@ -104,7 +109,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                 {/* Interventions */}
                 <FormField
                     control={control}
-                    name={`abcEntries.${index}.intervention`}
+                    name={`abcIdEntries.${index}.clientInterventionId`}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Interventions</FormLabel>

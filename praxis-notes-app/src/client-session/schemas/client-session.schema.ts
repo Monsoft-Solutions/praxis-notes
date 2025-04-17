@@ -1,10 +1,10 @@
 import { z } from 'zod';
 
-import { clientSessionFormAbcEntrySchema } from './client-session-form-abc-entry.schema';
+import { clientSessionAbcEntrySchema } from './client-session-abc-entry.schema';
 
 import { clientSessionValuationEnum } from '../enum';
 
-export const clientSessionFormSchema = z.object({
+export const clientSessionSchema = z.object({
     location: z.string(),
     sessionDate: z.date(),
     startTime: z.string(),
@@ -16,7 +16,7 @@ export const clientSessionFormSchema = z.object({
     presentParticipants: z.array(z.string()),
     environmentalChanges: z.array(z.string()),
 
-    abcIdEntries: z.array(clientSessionFormAbcEntrySchema),
+    abcEntries: z.array(clientSessionAbcEntrySchema),
 });
 
-export type ClientSessionForm = z.infer<typeof clientSessionFormSchema>;
+export type ClientSession = z.infer<typeof clientSessionSchema>;
