@@ -26,9 +26,7 @@ export const Route = createFileRoute('/_public/auth/verify-email')({
         });
 
         if (!verifyEmailResult.error) {
-            toast.success('Email verified successfully', {
-                description: 'You can now log in to your account',
-            });
+            toast.success('Welcome to Praxis Notes !');
 
             const { sessionId } = verifyEmailResult.data;
 
