@@ -8,13 +8,19 @@ import {
     CardHeader,
     CardTitle,
 } from '@shared/ui/card.ui';
+
 import { Tabs, TabsList, TabsTrigger } from '@shared/ui/tabs.ui';
+
 import { Badge } from '@shared/ui/badge.ui';
 
-import { AppLayout } from '@shared/views/app-layout.view';
-import { CheckoutButton } from '../components/checkout-button.component';
-import { api } from '@api/providers/web';
 import { Spinner } from '@shared/ui/spinner.ui';
+
+import { AppLayout } from '@shared/views/app-layout.view';
+
+import { CheckoutButton } from '../components/checkout-button.component';
+
+import { api } from '@api/providers/web';
+
 import { SubscriptionManagement } from '../components/subscription-management.component';
 
 import Stripe from 'stripe';
@@ -22,16 +28,15 @@ import Stripe from 'stripe';
 type BillingInterval = 'month' | 'year';
 
 export function PricingView(): ReactElement {
-    console.log('PricingView');
     const [billingInterval, setBillingInterval] =
         useState<BillingInterval>('month');
 
     // Check if user already has a subscription
-    const { data: subscription, isLoading: isLoadingSubscription } =
+    const { data: subscriptionQuery } =
         api.stripe.getSubscriptionStatus.useQuery();
 
     // Fetch products and prices from the API
-    const { data, isLoading, error } =
+    const { data: productsAndPricesQuery } =
         api.stripe.getProductsAndPrices.useQuery();
 
     // Format currency for display
@@ -57,13 +62,7 @@ export function PricingView(): ReactElement {
         return price;
     };
 
-    // Check if the user has an active subscription
-    const hasActiveSubscription =
-        subscription?.data &&
-        (subscription.data.status === 'active' ||
-            subscription.data.status === 'trialing');
-
-    if (isLoading || isLoadingSubscription) {
+    if (!subscriptionQuery || !productsAndPricesQuery) {
         return (
             <AppLayout>
                 <div className="flex h-96 items-center justify-center">
@@ -73,7 +72,7 @@ export function PricingView(): ReactElement {
         );
     }
 
-    if (error || !data) {
+    if (subscriptionQuery.error || productsAndPricesQuery.error) {
         return (
             <AppLayout>
                 <div className="container mx-auto py-12 text-center">
@@ -87,10 +86,19 @@ export function PricingView(): ReactElement {
         );
     }
 
+    const { data: subscription } = subscriptionQuery;
+
+    const { data: productsAndPrices } = productsAndPricesQuery;
+
+    // Check if the user has an active subscription
+    const hasActiveSubscription =
+        subscription &&
+        (subscription.status === 'active' ||
+            subscription.status === 'trialing');
+
     // Filter active products with at least one price
-    const products = data.data.products.filter(
-        (product) =>
-            product.active && product.prices.some((price) => price.active),
+    const products = productsAndPrices.products.filter((product) =>
+        product.prices.some((price) => price.active),
     );
 
     return (
@@ -151,7 +159,7 @@ export function PricingView(): ReactElement {
                             // Check if this is the user's current plan
                             const isCurrentPlan = Boolean(
                                 hasActiveSubscription &&
-                                    subscription.data?.priceId === price.id,
+                                    subscription.priceId === price.id,
                             );
 
                             return (

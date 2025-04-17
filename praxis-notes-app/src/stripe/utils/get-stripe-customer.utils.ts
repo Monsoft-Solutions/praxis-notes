@@ -1,34 +1,47 @@
-import { TRPCError } from '@trpc/server';
-
 import { catchError } from '@errors/utils/catch-error.util';
-import { stripe } from '@src/stripe/config/stripe';
+
+import { createStripeSdk } from './create-stripe-sdk.util';
+
 import { createStripeCustomer } from './create-stripe-customer.utils';
+import { Error, Success } from '@errors/utils';
+
+import { Function } from '@errors/types';
+import Stripe from 'stripe';
 
 /**
  * Fetches a Stripe customer for a user.
  * @param userId - The ID of the user to fetch a Stripe customer for.
  * @returns The Stripe customer object.
  */
-export const getStripeCustomer = async (userId: string) => {
-    const { data: customer, error: customerFetchError } = await catchError(
-        stripe.customers.search({
-            query: `metadata['userId']:'${userId}'`,
-        }),
-    );
+export const getStripeCustomer = (async ({ customerId }) => {
+    const { data: stripe, error: stripeCreateError } = await createStripeSdk();
 
-    if (customerFetchError) {
-        console.error('Stripe Error fetching customer:', customerFetchError);
-        throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'Failed to fetch Stripe customer.',
-        });
+    if (stripeCreateError) return Error();
+
+    const { data: matchingCustomers, error: matchingCustomersFetchError } =
+        await catchError(
+            stripe.customers.search({
+                query: `metadata['customerId']:'${customerId}'`,
+            }),
+        );
+
+    if (matchingCustomersFetchError) return Error();
+
+    const customer = matchingCustomers.data.at(0);
+
+    // if no matching customer found, create a new one
+    if (customer === undefined) {
+        const { data: newCustomer, error: newCustomerCreateError } =
+            await createStripeCustomer({
+                email: '',
+                name: '',
+                metadata: { customerId },
+            });
+
+        if (newCustomerCreateError) return Error();
+
+        return Success(newCustomer);
     }
 
-    // if the customer is not found, create a new one
-    if (customer.data.length === 0) {
-        const newCustomer = await createStripeCustomer(userId);
-        return newCustomer;
-    }
-
-    return customer.data[0];
-};
+    return Success(customer);
+}) satisfies Function<{ customerId: string }, Stripe.Customer>;
