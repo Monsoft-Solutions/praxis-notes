@@ -2,7 +2,58 @@ import { StrictMode } from 'react';
 
 import { createRoot } from 'react-dom/client';
 
+import * as Sentry from '@sentry/react';
+
 import { App } from './app';
+
+import { z } from 'zod';
+
+const { hostname } = window.location;
+
+const dsn = z.string().parse(import.meta.env.MSS_CLIENT_SENTRY_DSN);
+
+Sentry.init({
+    dsn,
+    // enabled: hostname !== 'localhost',
+
+    // use the hostname as environment tag
+    // so different deployments platforms can be easily identified
+    environment: hostname,
+
+    integrations: [
+        Sentry.browserTracingIntegration(),
+        Sentry.replayIntegration(),
+
+        Sentry.feedbackIntegration({
+            triggerLabel: '',
+            formTitle: 'Report anything !',
+            submitButtonLabel: 'Submit',
+            messageLabel: 'Brief explanation',
+            messagePlaceholder:
+                'Please describe what you want to report: \n- feature request, found bug, or improvement suggestion?\n- all specific details you can provide \n- priority low, medium, high?',
+
+            // Additional SDK configuration goes in here, for example:
+            colorScheme: 'system',
+            showName: false,
+            showEmail: false,
+            useSentryUser: {
+                id: 'id',
+                name: 'name',
+                email: 'email',
+            },
+        }),
+    ],
+    // Tracing
+    tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0, // Lower sample rate in production
+    tracePropagationTargets: [
+        /^https:\/\/main\.monsoftlabs\.com\/trpc/,
+        /^https:\/\/sps-deployment-prod\.linkkonnect\.com\/trpc/,
+        /^https:\/\/p[0-9]+\.monsoftlabs\.com\/trpc/,
+    ],
+    // Session Replay
+    replaysSessionSampleRate: import.meta.env.PROD ? 0.2 : 0.6, // Lower sample rate in production
+    replaysOnErrorSampleRate: 1.0,
+});
 
 // get element to mount app root component into
 const rootElement = document.getElementById('app');
