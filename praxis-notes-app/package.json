@@ -173,6 +173,9 @@
 
         "stripe": "18.0.0 || payments (stripe)",
 
+        "@sentry/react": "8.54.0",
+        "@sentry/vite-plugin": "3.1.2",
+
         "bcryptjs": "2.4.3 || password hashing (bcryptjs)",
         "@types/bcryptjs": "2.4.6"
     }
