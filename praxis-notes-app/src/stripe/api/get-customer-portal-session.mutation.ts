@@ -1,56 +1,50 @@
-import { TRPCError } from '@trpc/server';
-
 import { protectedEndpoint } from '@api/providers/server';
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
-import { catchError } from '@errors/utils/catch-error.util';
-import { Success } from '@errors/utils';
 
-import { stripe } from '@src/stripe/config/stripe';
-import { connectionEnv } from '@env/constants/connection-env.constant';
+import { catchError } from '@errors/utils/catch-error.util';
+import { Error, Success } from '@errors/utils';
+
+import { appUrl } from '@dist/constants';
+
 import { getStripeCustomer } from '../utils';
+
+import { createStripeSdk } from '../utils';
 
 export const getCustomerPortalSession = protectedEndpoint.mutation(
     queryMutationCallback(
         async ({
             ctx: {
-                session: { user: sessionUser },
+                session: { user },
             },
         }) => {
-            const fqdn = connectionEnv.MSS_FQDN;
-            if (!fqdn) {
-                console.error('MSS_FQDN environment variable is not set.');
-                throw new TRPCError({
-                    code: 'INTERNAL_SERVER_ERROR',
-                    message: 'Application FQDN is not configured.',
-                });
-            }
-            const returnUrl = `${fqdn}/account`;
+            const { data: stripe, error: stripeCreateError } =
+                await createStripeSdk();
 
-            const stripeCustomer = await getStripeCustomer(sessionUser.id);
+            if (stripeCreateError) return Error();
+
+            const returnUrl = `${appUrl}/account`;
+
+            const { data: stripeCustomer, error: stripeCustomerError } =
+                await getStripeCustomer({ customerId: user.id });
+
+            if (stripeCustomerError) return Error();
 
             const stripeCustomerId = stripeCustomer.id;
 
-            // --- Create Stripe Billing Portal Session ---
-            const portalSessionResult = await catchError(
-                stripe.billingPortal.sessions.create({
-                    customer: stripeCustomerId,
-                    return_url: returnUrl,
-                }),
-            );
-
-            if (portalSessionResult.error) {
-                console.error(
-                    'Stripe Error creating billing portal session:',
-                    portalSessionResult.error,
+            // create Stripe Billing Portal Session
+            const { data: portalSession, error: portalSessionError } =
+                await catchError(
+                    stripe.billingPortal.sessions.create({
+                        customer: stripeCustomerId,
+                        return_url: returnUrl,
+                    }),
                 );
-                throw new TRPCError({
-                    code: 'INTERNAL_SERVER_ERROR',
-                    message: 'Failed to create Stripe billing portal session.',
-                });
-            }
-            // --- End Create Stripe Billing Portal Session ---
 
-            return Success({ url: portalSessionResult.data.url });
+            if (portalSessionError) return Error();
+
+            const { url } = portalSession;
+
+            return Success({ url });
         },
     ),
 );
