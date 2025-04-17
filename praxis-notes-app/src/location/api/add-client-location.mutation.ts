@@ -6,8 +6,6 @@ import { db } from '@db/providers/server';
 
 import { catchError } from '@errors/utils/catch-error.util';
 
-import { v4 as uuidv4 } from 'uuid';
-
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
 
 import { clientLocationTable } from '../db';
@@ -27,11 +25,8 @@ export const addClientLocation = protectedEndpoint
             const { clientId, locationId } = input;
             const now = Date.now();
 
-            const clientLocationId = uuidv4();
-
             const { error } = await catchError(
                 db.insert(clientLocationTable).values({
-                    id: clientLocationId,
                     clientId,
                     locationId,
                     createdAt: now,
