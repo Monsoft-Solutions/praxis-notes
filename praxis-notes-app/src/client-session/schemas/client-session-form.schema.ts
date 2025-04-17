@@ -11,6 +11,7 @@ export const clientSessionSchema = z.object({
     endTime: z.string(),
 
     valuation: clientSessionValuationEnum,
+    observations: z.string(),
 
     presentParticipants: z.array(z.string()),
     environmentalChanges: z.array(z.string()),

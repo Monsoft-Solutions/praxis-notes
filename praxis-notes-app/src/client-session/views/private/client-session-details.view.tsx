@@ -247,6 +247,16 @@ export function ClientSessionDetailsView() {
                 </CardContent>
             </Card>
 
+            <Card>
+                <CardHeader>
+                    <CardTitle>Observations</CardTitle>
+                </CardHeader>
+
+                <CardContent>
+                    <p className="text-sm">{session.observations}</p>
+                </CardContent>
+            </Card>
+
             <NotesEditor
                 sessionId={sessionId}
                 initialData={session.notes ?? undefined}

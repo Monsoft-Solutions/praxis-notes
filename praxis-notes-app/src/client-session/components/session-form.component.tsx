@@ -15,6 +15,7 @@ import { SessionHeader } from './session-header.component';
 import { SessionBasicInfo } from './session-basic-info.component';
 import { ABCCardContainer } from './abc-card-container.component';
 import { ValuationSelector } from './valuation-selector.component';
+import { SessionObservations } from './session-observations.component';
 
 import { api } from '@api/providers/web';
 
@@ -50,6 +51,7 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                 },
             ],
             valuation: 'good',
+            observations: '',
         },
     });
 
@@ -100,6 +102,8 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                 <ABCCardContainer />
 
                 <ValuationSelector />
+
+                <SessionObservations />
 
                 <div className="flex justify-end space-x-4 pt-6">
                     <Button variant="outline" onClick={handleCancel}>

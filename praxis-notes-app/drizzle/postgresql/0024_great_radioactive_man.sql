@@ -1,0 +1,1 @@
+ALTER TABLE "client_session" ALTER COLUMN "observations" SET NOT NULL;
