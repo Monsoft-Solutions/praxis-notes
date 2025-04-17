@@ -141,7 +141,7 @@ export function InterventionsTable() {
                                                     <span className="sr-only">
                                                         Scope:
                                                     </span>
-                                                    {intervention.organizationId ? (
+                                                    {intervention.isCustom ? (
                                                         <Badge className="text-xs">
                                                             Org
                                                         </Badge>
@@ -167,7 +167,7 @@ export function InterventionsTable() {
                                             </Badge> */}
                                         </TableCell>
                                         <TableCell className="hidden md:table-cell">
-                                            {intervention.organizationId ? (
+                                            {intervention.isCustom ? (
                                                 <Badge>Organization</Badge>
                                             ) : (
                                                 <Badge variant="secondary">
@@ -180,7 +180,7 @@ export function InterventionsTable() {
                                                 'No description'}
                                         </TableCell>
                                         <TableCell>
-                                            {intervention.organizationId && (
+                                            {intervention.isCustom && (
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger
                                                         asChild
