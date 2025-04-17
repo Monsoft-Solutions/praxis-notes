@@ -38,6 +38,7 @@ export const createClientSession = protectedEndpoint
                 endTime: z.string(),
 
                 valuation: clientSessionValuationEnum,
+                observations: z.string(),
 
                 presentParticipants: z.array(z.string()),
                 environmentalChanges: z.array(z.string()),
@@ -68,6 +69,7 @@ export const createClientSession = protectedEndpoint
                     endTime,
                     location,
                     valuation,
+                    observations,
 
                     presentParticipants,
                     environmentalChanges,
@@ -100,6 +102,7 @@ export const createClientSession = protectedEndpoint
                     endTime,
 
                     valuation,
+                    observations,
 
                     notes,
                 };
