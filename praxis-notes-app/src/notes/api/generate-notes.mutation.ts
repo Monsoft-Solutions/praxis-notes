@@ -27,12 +27,12 @@ export const generateNotes = protectedEndpoint
                         abcEntries: {
                             with: {
                                 antecedent: true,
-                                clientBehavior: {
+                                behaviors: {
                                     with: {
                                         behavior: true,
                                     },
                                 },
-                                clientIntervention: {
+                                interventions: {
                                     with: {
                                         intervention: true,
                                     },
@@ -48,19 +48,36 @@ export const generateNotes = protectedEndpoint
             if (!clientSession) return Error('NOT_FOUND');
 
             const abcEntriesNullable = clientSession.abcEntries.map(
-                ({ antecedent, clientBehavior, clientIntervention }) => {
-                    if (!antecedent || !clientBehavior || !clientIntervention)
-                        return null;
+                ({ antecedent, behaviors, interventions }) => {
+                    if (!antecedent) return null;
 
                     const antecedentName = antecedent.name;
-                    const behaviorName = clientBehavior.behavior.name;
-                    const interventionName =
-                        clientIntervention.intervention.name;
+
+                    const behaviorNamesNullable = behaviors.map(
+                        ({ behavior }) => behavior?.name,
+                    );
+
+                    const behaviorNames = behaviorNamesNullable.filter(
+                        (behaviorName) => behaviorName !== undefined,
+                    );
+
+                    if (behaviorNames.length !== behaviors.length) return null;
+
+                    const interventionNamesNullable = interventions.map(
+                        ({ intervention }) => intervention?.name,
+                    );
+
+                    const interventionNames = interventionNamesNullable.filter(
+                        (interventionName) => interventionName !== undefined,
+                    );
+
+                    if (interventionNames.length !== interventions.length)
+                        return null;
 
                     return {
                         antecedentName,
-                        behaviorName,
-                        interventionName,
+                        behaviorNames,
+                        interventionNames,
                     };
                 },
             );

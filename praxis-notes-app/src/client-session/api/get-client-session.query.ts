@@ -20,7 +20,6 @@ export const getClientSession = protectedEndpoint
     )
     .query(
         queryMutationCallback(async ({ input: { sessionId } }) => {
-            // get the templates matching the search query
             const { data: clientSessionRecords, error } = await catchError(
                 db.query.clientSessionTable.findFirst({
                     where: (record) => eq(record.id, sessionId),
@@ -32,12 +31,12 @@ export const getClientSession = protectedEndpoint
                         abcEntries: {
                             with: {
                                 antecedent: true,
-                                clientBehavior: {
+                                behaviors: {
                                     with: {
                                         behavior: true,
                                     },
                                 },
-                                clientIntervention: {
+                                interventions: {
                                     with: {
                                         intervention: true,
                                     },
@@ -53,19 +52,41 @@ export const getClientSession = protectedEndpoint
             if (!clientSessionRecords) return Error('NOT_FOUND');
 
             const abcEntriesNullable = clientSessionRecords.abcEntries.map(
-                ({ id, antecedent, clientBehavior, clientIntervention }) => {
-                    if (!antecedent || !clientBehavior || !clientIntervention)
+                ({
+                    id,
+                    antecedent,
+                    behaviors: abcEntryBehaviors,
+                    interventions: abcEntryInterventions,
+                }) => {
+                    if (!antecedent) return null;
+
+                    const behaviorsNullable = abcEntryBehaviors.map(
+                        ({ behavior }) => behavior,
+                    );
+
+                    const behaviors = behaviorsNullable.filter(
+                        (behavior) => behavior !== null,
+                    );
+
+                    if (behaviors.length !== abcEntryBehaviors.length)
                         return null;
 
-                    const { behavior } = clientBehavior;
+                    const interventionsNullable = abcEntryInterventions.map(
+                        ({ intervention }) => intervention,
+                    );
 
-                    const { intervention } = clientIntervention;
+                    const interventions = interventionsNullable.filter(
+                        (intervention) => intervention !== null,
+                    );
+
+                    if (interventions.length !== abcEntryInterventions.length)
+                        return null;
 
                     return {
                         id,
                         antecedent,
-                        behavior,
-                        intervention,
+                        behaviors,
+                        interventions,
                     };
                 },
             );
@@ -79,7 +100,6 @@ export const getClientSession = protectedEndpoint
                 abcEntries,
             };
 
-            // return the templates matching the search query
             return Success(clientSession);
         }),
     );

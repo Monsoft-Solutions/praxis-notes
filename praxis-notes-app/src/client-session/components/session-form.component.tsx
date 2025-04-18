@@ -46,8 +46,8 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             abcIdEntries: [
                 {
                     antecedentId: '',
-                    clientBehaviorId: '',
-                    clientInterventionId: '',
+                    behaviorIds: [],
+                    interventionIds: [],
                 },
             ],
             valuation: 'good',
@@ -99,7 +99,7 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
 
                 <SessionBasicInfo />
 
-                <ABCCardContainer clientId={clientId} />
+                <ABCCardContainer />
 
                 <ValuationSelector />
 
