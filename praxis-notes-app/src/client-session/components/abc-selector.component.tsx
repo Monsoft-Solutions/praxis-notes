@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { cn } from '@css/utils';
 
@@ -65,9 +65,9 @@ export function AbcSelector({
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-    const selectedOptions = useMemo(() => {
-        return options.filter((option) => selectedIds.includes(option.value));
-    }, [options, selectedIds]);
+    const selectedOptions = selectedIds
+        .map((id) => options.find((option) => option.value === id))
+        .filter((option) => option !== undefined);
 
     const [search, setSearch] = useState('');
 
@@ -100,7 +100,7 @@ export function AbcSelector({
         <>
             {multiple ? (
                 <MultipleSelector
-                    defaultOptions={options}
+                    options={options}
                     groupBy={groupBy}
                     placeholder={placeholder}
                     value={selectedOptions}
@@ -110,18 +110,20 @@ export function AbcSelector({
                             no results found.
                         </p>
                     }
-                    onChange={(selectedOptions) => {
-                        const newSelectedIds = selectedOptions.map(
+                    onChange={(newSelectedOptions) => {
+                        const newSelectedIds = newSelectedOptions.map(
                             ({ value }) => value,
                         );
 
                         const lastValue = newSelectedIds.at(-1);
+                        if (lastValue === undefined) {
+                            setSelectedIds([]);
+                            onSelect([]);
+                            return;
+                        }
 
-                        if (
-                            lastValue === undefined ||
-                            options.some(({ value }) => value === lastValue)
-                        ) {
-                            setSelectedIds(newSelectedIds);
+                        if (options.some(({ value }) => value === lastValue)) {
+                            setSelectedIds((prev) => [...prev, lastValue]);
                             onSelect(newSelectedIds);
                         } else {
                             setSearch(lastValue);
