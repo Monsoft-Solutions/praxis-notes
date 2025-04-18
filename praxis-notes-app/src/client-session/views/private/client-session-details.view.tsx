@@ -172,7 +172,12 @@ export function ClientSessionDetailsView() {
                         <div className="space-y-6">
                             {session.abcEntries.map(
                                 (
-                                    { id, antecedent, behavior, intervention },
+                                    {
+                                        id,
+                                        antecedent,
+                                        behaviors,
+                                        interventions,
+                                    },
                                     index: number,
                                 ) => (
                                     <div
@@ -199,7 +204,14 @@ export function ClientSessionDetailsView() {
                                                     Behavior
                                                 </h4>
 
-                                                {behavior.name}
+                                                {behaviors.map((behavior) => (
+                                                    <p
+                                                        key={behavior.id}
+                                                        className="mt-1 text-sm"
+                                                    >
+                                                        {behavior.name}
+                                                    </p>
+                                                ))}
                                             </div>
 
                                             <div>
@@ -207,7 +219,18 @@ export function ClientSessionDetailsView() {
                                                     Intervention
                                                 </h4>
 
-                                                {intervention.name}
+                                                {interventions.map(
+                                                    (intervention) => (
+                                                        <p
+                                                            key={
+                                                                intervention.id
+                                                            }
+                                                            className="mt-1 text-sm"
+                                                        >
+                                                            {intervention.name}
+                                                        </p>
+                                                    ),
+                                                )}
                                             </div>
                                         </div>
                                     </div>

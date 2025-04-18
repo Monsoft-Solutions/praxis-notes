@@ -24,8 +24,8 @@ ${sessionData.abcEntries
         (abc, index) => `
 ABC Entry #${(index + 1).toString()}:
 - Activity/Antecedent: ${abc.antecedentName}
-- Behaviors: ${abc.behaviorName}
-- Interventions: ${abc.interventionName}
+- Behaviors: ${abc.behaviorNames.join(', ')}
+- Interventions: ${abc.interventionNames.join(', ')}
 `,
     )
     .join('\n')}

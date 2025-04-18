@@ -5,8 +5,9 @@ import { char, table } from '@db/sql';
 import { clientSessionTable } from '@src/client-session/db/client-session.table';
 
 import { antecedentTable } from '@src/antecedent/db';
-import { clientBehaviorTable } from '@src/behavior/db';
-import { clientInterventionTable } from '@src/intervention/db';
+
+import { clientSessionAbcEntryInterventionTable } from '@src/client-session/db/client-session-abc-entry-intervention.table';
+import { clientSessionAbcEntryBehaviorTable } from '@src/client-session/db/client-session-abc-entry-behavior.table';
 
 /**
  * client session abc entry
@@ -22,20 +23,12 @@ export const clientSessionAbcEntryTable = table('client_session_abc_entry', {
     antecedentId: char('antecedent_id', { length: 36 }).references(
         () => antecedentTable.id,
     ),
-
-    clientBehaviorId: char('client_behavior_id', { length: 36 }).references(
-        () => clientBehaviorTable.id,
-    ),
-
-    clientInterventionId: char('client_intervention_id', {
-        length: 36,
-    }).references(() => clientInterventionTable.id),
 });
 
 export const clientSessionAbcEntryTableRelations = relations(
     clientSessionAbcEntryTable,
 
-    ({ one }) => ({
+    ({ one, many }) => ({
         clientSession: one(clientSessionTable, {
             fields: [clientSessionAbcEntryTable.clientSessionId],
             references: [clientSessionTable.id],
@@ -46,14 +39,8 @@ export const clientSessionAbcEntryTableRelations = relations(
             references: [antecedentTable.id],
         }),
 
-        clientBehavior: one(clientBehaviorTable, {
-            fields: [clientSessionAbcEntryTable.clientBehaviorId],
-            references: [clientBehaviorTable.id],
-        }),
+        behaviors: many(clientSessionAbcEntryBehaviorTable),
 
-        clientIntervention: one(clientInterventionTable, {
-            fields: [clientSessionAbcEntryTable.clientInterventionId],
-            references: [clientInterventionTable.id],
-        }),
+        interventions: many(clientSessionAbcEntryInterventionTable),
     }),
 );

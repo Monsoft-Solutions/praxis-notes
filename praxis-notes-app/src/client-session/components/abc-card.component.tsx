@@ -17,21 +17,16 @@ import { AbcSelector } from './abc-selector.component';
 
 type ABCCardProps = {
     index: number;
-    clientId: string;
     onRemove?: () => void;
 };
 
-export function ABCCard({ index, clientId, onRemove }: ABCCardProps) {
+export function ABCCard({ index, onRemove }: ABCCardProps) {
     const { control } = useFormContext<ClientSessionForm>();
 
     const { data: antecedentsQuery } = api.antecedent.getAntecedents.useQuery();
-    const { data: behaviorsQuery } = api.behavior.getClientBehaviors.useQuery({
-        clientId: clientId,
-    });
+    const { data: behaviorsQuery } = api.behavior.getBehaviors.useQuery();
     const { data: interventionsQuery } =
-        api.intervention.getClientInterventions.useQuery({
-            clientId: clientId,
-        });
+        api.intervention.getInterventions.useQuery();
 
     if (!antecedentsQuery) return null;
     const { error: antecedentsError } = antecedentsQuery;
@@ -79,6 +74,7 @@ export function ABCCard({ index, clientId, onRemove }: ABCCardProps) {
                             <FormLabel>Activity/Antecedent</FormLabel>
 
                             <AbcSelector
+                                placeholder="Select activity/antecedent"
                                 items={antecedents}
                                 onSelect={field.onChange}
                             />
@@ -91,12 +87,14 @@ export function ABCCard({ index, clientId, onRemove }: ABCCardProps) {
                 {/* Behaviors */}
                 <FormField
                     control={control}
-                    name={`abcIdEntries.${index}.clientBehaviorId`}
+                    name={`abcIdEntries.${index}.behaviorIds`}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Behaviors</FormLabel>
 
                             <AbcSelector
+                                placeholder="Select behavior"
+                                multiple
                                 items={behaviors}
                                 onSelect={field.onChange}
                             />
@@ -109,12 +107,14 @@ export function ABCCard({ index, clientId, onRemove }: ABCCardProps) {
                 {/* Interventions */}
                 <FormField
                     control={control}
-                    name={`abcIdEntries.${index}.clientInterventionId`}
+                    name={`abcIdEntries.${index}.interventionIds`}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Interventions</FormLabel>
 
                             <AbcSelector
+                                placeholder="Select intervention"
+                                multiple
                                 items={interventions}
                                 onSelect={field.onChange}
                             />
