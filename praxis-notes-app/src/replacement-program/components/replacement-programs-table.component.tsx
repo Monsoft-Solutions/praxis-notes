@@ -36,7 +36,7 @@ import { ReplacementProgramForm } from './replacement-programs-form.component';
 export function ReplacementProgramsTable() {
     const navigate = Route.useNavigate();
 
-    const { searchQuery } = Route.useSearch();
+    const { searchQuery = '' } = Route.useSearch();
 
     const [isAddOpen, setIsAddOpen] = useState(false);
 
@@ -50,9 +50,21 @@ export function ReplacementProgramsTable() {
 
     const setSearchQuery = (searchQuery: string) => {
         void navigate({
-            search: (prev) => ({ ...prev, searchQuery, page: 1 }),
+            search: (prev) => ({
+                ...prev,
+                searchQuery: searchQuery === '' ? undefined : searchQuery,
+                page: 1,
+            }),
         });
     };
+
+    const filteredReplacementPrograms = searchQuery
+        ? replacementPrograms.filter((replacementProgram) =>
+              replacementProgram.name
+                  .toLowerCase()
+                  .includes(searchQuery.toLowerCase()),
+          )
+        : replacementPrograms;
 
     return (
         <div className="space-y-4">
@@ -75,20 +87,18 @@ export function ReplacementProgramsTable() {
 
                 <CardContent>
                     {/* Search input */}
-                    <form className="mb-4 flex w-full max-w-md items-center space-x-2">
-                        <div className="relative flex-1">
-                            <Search className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
-                            <Input
-                                type="search"
-                                placeholder="Search replacementPrograms..."
-                                className="pl-8"
-                                value={searchQuery}
-                                onChange={(e) => {
-                                    setSearchQuery(e.target.value);
-                                }}
-                            />
-                        </div>
-                    </form>
+                    <div className="relative mb-4 flex w-full max-w-md items-center">
+                        <Search className="text-muted-foreground absolute left-2 h-4 w-4" />
+                        <Input
+                            type="search"
+                            placeholder="Search replacement programs..."
+                            className="pl-8"
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                            }}
+                        />
+                    </div>
 
                     <div className="-mx-4 overflow-x-auto sm:mx-0">
                         <Table>
@@ -115,7 +125,7 @@ export function ReplacementProgramsTable() {
                             </TableHeader>
 
                             <TableBody>
-                                {replacementPrograms.map(
+                                {filteredReplacementPrograms.map(
                                     (replacementProgram) => (
                                         <TableRow key={replacementProgram.id}>
                                             <TableCell className="font-medium">
@@ -205,13 +215,14 @@ export function ReplacementProgramsTable() {
                                     ),
                                 )}
 
-                                {replacementPrograms.length === 0 && (
+                                {filteredReplacementPrograms.length === 0 && (
                                     <TableRow>
                                         <TableCell
                                             colSpan={5}
                                             className="h-24 text-center"
                                         >
-                                            No replacement programs found
+                                            No matching replacement programs
+                                            found
                                         </TableCell>
                                     </TableRow>
                                 )}
