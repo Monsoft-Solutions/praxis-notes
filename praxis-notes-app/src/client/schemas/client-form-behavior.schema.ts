@@ -9,8 +9,6 @@ export const clientFormBehaviorSchema = z.object({
     baseline: z.coerce.number(),
 
     type: z.enum(['frequency', 'percentage']),
-
-    name: z.string(),
 });
 
 export type ClientFormBehavior = z.infer<typeof clientFormBehaviorSchema>;

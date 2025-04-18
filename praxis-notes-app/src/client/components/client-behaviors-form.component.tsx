@@ -40,7 +40,7 @@ export function ClientBehaviorsForm({
 }: {
     existingBehaviors: Behavior[];
 }) {
-    const { control, setValue, watch } = useFormContext<ClientForm>();
+    const { control, watch } = useFormContext<ClientForm>();
     const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
     const previousFieldIds = useRef<string[]>([]);
 
@@ -70,7 +70,6 @@ export function ClientBehaviorsForm({
             id: id,
             baseline: 0,
             type: 'frequency',
-            name: 'Add a behavior',
         });
     };
 
@@ -167,30 +166,8 @@ export function ClientBehaviorsForm({
                                                         </FormLabel>
 
                                                         <Select
-                                                            onValueChange={(
-                                                                value,
-                                                            ) => {
-                                                                formField.onChange(
-                                                                    value,
-                                                                );
-                                                                // Find the selected behavior and update the name
-                                                                const behaviorData =
-                                                                    existingBehaviors.find(
-                                                                        (b) =>
-                                                                            b.id ===
-                                                                            value,
-                                                                    );
-                                                                if (
-                                                                    behaviorData
-                                                                ) {
-                                                                    setValue(
-                                                                        `behaviors.${index}.name`,
-                                                                        behaviorData.name,
-                                                                    );
-                                                                }
-                                                            }}
-                                                            value={
-                                                                formField.value
+                                                            onValueChange={
+                                                                formField.onChange
                                                             }
                                                         >
                                                             <FormControl>
