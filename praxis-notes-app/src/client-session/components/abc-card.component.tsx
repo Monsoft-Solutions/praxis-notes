@@ -12,7 +12,7 @@ import { cn } from '@css/utils';
 
 import { ClientSessionForm } from '../schemas';
 
-import { api } from '@api/providers/web';
+import { api, apiClientUtils } from '@api/providers/web';
 import { AbcSelector } from './abc-selector.component';
 
 type ABCCardProps = {
@@ -27,6 +27,13 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
     const { data: behaviorsQuery } = api.behavior.getBehaviors.useQuery();
     const { data: interventionsQuery } =
         api.intervention.getInterventions.useQuery();
+
+    const { mutateAsync: createAntecedent } =
+        api.antecedent.createAntecedent.useMutation();
+    const { mutateAsync: createBehavior } =
+        api.behavior.createBehavior.useMutation();
+    const { mutateAsync: createIntervention } =
+        api.intervention.createIntervention.useMutation();
 
     if (!antecedentsQuery) return null;
     const { error: antecedentsError } = antecedentsQuery;
@@ -77,6 +84,14 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                                 placeholder="Select activity/antecedent"
                                 items={antecedents}
                                 onSelect={field.onChange}
+                                create={async ({ name }) => {
+                                    const result = await createAntecedent({
+                                        name,
+                                    });
+                                    if (result.error) return null;
+                                    await apiClientUtils.antecedent.getAntecedents.invalidate();
+                                    return result.data;
+                                }}
                             />
 
                             <FormMessage />
@@ -97,6 +112,15 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                                 multiple
                                 items={behaviors}
                                 onSelect={field.onChange}
+                                create={async ({ name }) => {
+                                    const result = await createBehavior({
+                                        name,
+                                        description: '',
+                                    });
+                                    if (result.error) return null;
+                                    await apiClientUtils.behavior.getBehaviors.invalidate();
+                                    return result.data;
+                                }}
                             />
 
                             <FormMessage />
@@ -117,6 +141,15 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                                 multiple
                                 items={interventions}
                                 onSelect={field.onChange}
+                                create={async ({ name }) => {
+                                    const result = await createIntervention({
+                                        name,
+                                        description: '',
+                                    });
+                                    if (result.error) return null;
+                                    await apiClientUtils.intervention.getInterventions.invalidate();
+                                    return result.data;
+                                }}
                             />
 
                             <FormMessage />
