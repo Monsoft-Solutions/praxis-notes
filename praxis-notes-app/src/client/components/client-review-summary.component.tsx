@@ -109,13 +109,6 @@ export function ClientReviewSummary({
     return (
         <div className="space-y-6">
             <Card>
-                <CardHeader>
-                    <CardTitle>Review Client Information</CardTitle>
-                    <CardDescription>
-                        Please review all client information before submitting
-                    </CardDescription>
-                </CardHeader>
-
                 <CardContent className="space-y-6">
                     <section>
                         <h3 className="mb-3 text-lg font-medium">

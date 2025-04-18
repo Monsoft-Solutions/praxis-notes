@@ -80,8 +80,7 @@ export function ClientBehaviorsForm({
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Client Behaviors</h3>
+            <div className="flex items-center justify-end">
                 <Button
                     type="button"
                     onClick={() => {
