@@ -46,8 +46,8 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             abcIdEntries: [
                 {
                     antecedentId: '',
-                    behaviorId: '',
-                    interventionId: '',
+                    behaviorIds: [],
+                    interventionIds: [],
                 },
             ],
             valuation: 'good',

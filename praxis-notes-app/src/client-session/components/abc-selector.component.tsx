@@ -14,12 +14,30 @@ type AbcSelectorProps = {
         name: string;
         isCustom: boolean;
     }[];
-    onSelect: (id: string) => void;
-};
+} & (
+    | {
+          multiple: true;
+          onSelect: (ids: string[]) => void;
+      }
+    | {
+          multiple?: false;
+          onSelect: (id: string) => void;
+      }
+);
 
-export function AbcSelector({ items, onSelect }: AbcSelectorProps) {
+export function AbcSelector({ items, onSelect, multiple }: AbcSelectorProps) {
     return (
-        <Select onValueChange={onSelect}>
+        <Select
+            onValueChange={
+                multiple
+                    ? (id) => {
+                          onSelect([id]);
+                      }
+                    : (id) => {
+                          onSelect(id);
+                      }
+            }
+        >
             <FormControl>
                 <SelectTrigger>
                     <SelectValue placeholder="Select activity/antecedent" />

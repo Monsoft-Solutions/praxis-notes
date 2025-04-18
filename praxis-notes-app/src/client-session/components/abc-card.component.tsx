@@ -86,12 +86,13 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                 {/* Behaviors */}
                 <FormField
                     control={control}
-                    name={`abcIdEntries.${index}.behaviorId`}
+                    name={`abcIdEntries.${index}.behaviorIds`}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Behaviors</FormLabel>
 
                             <AbcSelector
+                                multiple
                                 items={behaviors}
                                 onSelect={field.onChange}
                             />
@@ -104,12 +105,13 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                 {/* Interventions */}
                 <FormField
                     control={control}
-                    name={`abcIdEntries.${index}.interventionId`}
+                    name={`abcIdEntries.${index}.interventionIds`}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Interventions</FormLabel>
 
                             <AbcSelector
+                                multiple
                                 items={interventions}
                                 onSelect={field.onChange}
                             />

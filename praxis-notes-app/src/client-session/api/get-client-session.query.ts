@@ -31,8 +31,16 @@ export const getClientSession = protectedEndpoint
                         abcEntries: {
                             with: {
                                 antecedent: true,
-                                behavior: true,
-                                intervention: true,
+                                behaviors: {
+                                    with: {
+                                        behavior: true,
+                                    },
+                                },
+                                interventions: {
+                                    with: {
+                                        intervention: true,
+                                    },
+                                },
                             },
                         },
                     },
@@ -44,14 +52,41 @@ export const getClientSession = protectedEndpoint
             if (!clientSessionRecords) return Error('NOT_FOUND');
 
             const abcEntriesNullable = clientSessionRecords.abcEntries.map(
-                ({ id, antecedent, behavior, intervention }) => {
-                    if (!antecedent || !behavior || !intervention) return null;
+                ({
+                    id,
+                    antecedent,
+                    behaviors: abcEntryBehaviors,
+                    interventions: abcEntryInterventions,
+                }) => {
+                    if (!antecedent) return null;
+
+                    const behaviorsNullable = abcEntryBehaviors.map(
+                        ({ behavior }) => behavior,
+                    );
+
+                    const behaviors = behaviorsNullable.filter(
+                        (behavior) => behavior !== null,
+                    );
+
+                    if (behaviors.length !== abcEntryBehaviors.length)
+                        return null;
+
+                    const interventionsNullable = abcEntryInterventions.map(
+                        ({ intervention }) => intervention,
+                    );
+
+                    const interventions = interventionsNullable.filter(
+                        (intervention) => intervention !== null,
+                    );
+
+                    if (interventions.length !== abcEntryInterventions.length)
+                        return null;
 
                     return {
                         id,
                         antecedent,
-                        behavior,
-                        intervention,
+                        behaviors,
+                        interventions,
                     };
                 },
             );

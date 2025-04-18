@@ -15,6 +15,8 @@ import {
     clientSessionParticipantTable,
     clientSessionEnvironmentalChangeTable,
     clientSessionAbcEntryTable,
+    clientSessionAbcEntryBehaviorTable,
+    clientSessionAbcEntryInterventionTable,
 } from '../db';
 
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
@@ -48,8 +50,8 @@ export const createClientSession = protectedEndpoint
                 abcIdEntries: z.array(
                     z.object({
                         antecedentId: z.string(),
-                        behaviorId: z.string(),
-                        interventionId: z.string(),
+                        behaviorIds: z.array(z.string()),
+                        interventionIds: z.array(z.string()),
                     }),
                 ),
             }),
@@ -81,8 +83,8 @@ export const createClientSession = protectedEndpoint
                     abcIdEntries.map(
                         async ({
                             antecedentId,
-                            behaviorId,
-                            interventionId,
+                            behaviorIds,
+                            interventionIds,
                         }) => {
                             const { data: antecedent, error: antecedentError } =
                                 await catchError(
@@ -94,40 +96,97 @@ export const createClientSession = protectedEndpoint
 
                             if (antecedentError || !antecedent) return null;
 
+                            const { data: behaviors, error: behaviorsError } =
+                                await catchError(
+                                    db.transaction(async (tx) => {
+                                        const behaviorsNullable =
+                                            await Promise.all(
+                                                behaviorIds.map(
+                                                    async (behaviorId) =>
+                                                        await tx.query.behaviorTable.findFirst(
+                                                            {
+                                                                where: (
+                                                                    record,
+                                                                ) =>
+                                                                    eq(
+                                                                        record.id,
+                                                                        behaviorId,
+                                                                    ),
+                                                            },
+                                                        ),
+                                                ),
+                                            );
+
+                                        const behaviors =
+                                            behaviorsNullable.filter(
+                                                (behavior) =>
+                                                    behavior !== undefined,
+                                            );
+
+                                        if (
+                                            behaviors.length !==
+                                            behaviorIds.length
+                                        )
+                                            throw 'BEHAVIORS_NOT_FOUND';
+
+                                        return behaviors;
+                                    }),
+                                );
+
+                            if (behaviorsError) return null;
+
                             const {
-                                data: clientBehavior,
-                                error: clientBehaviorError,
+                                data: interventions,
+                                error: interventionsError,
                             } = await catchError(
-                                db.query.behaviorTable.findFirst({
-                                    where: (record) =>
-                                        eq(record.id, behaviorId),
+                                db.transaction(async (tx) => {
+                                    const interventionsNullable =
+                                        await Promise.all(
+                                            interventionIds.map(
+                                                async (interventionId) =>
+                                                    await tx.query.interventionTable.findFirst(
+                                                        {
+                                                            where: (record) =>
+                                                                eq(
+                                                                    record.id,
+                                                                    interventionId,
+                                                                ),
+                                                        },
+                                                    ),
+                                            ),
+                                        );
+
+                                    const interventions =
+                                        interventionsNullable.filter(
+                                            (intervention) =>
+                                                intervention !== undefined,
+                                        );
+
+                                    if (
+                                        interventions.length !==
+                                        interventionIds.length
+                                    )
+                                        throw 'INTERVENTIONS_NOT_FOUND';
+
+                                    return interventions;
                                 }),
                             );
 
-                            if (clientBehaviorError || !clientBehavior)
-                                return null;
-
-                            const {
-                                data: clientIntervention,
-                                error: clientInterventionError,
-                            } = await catchError(
-                                db.query.interventionTable.findFirst({
-                                    where: (record) =>
-                                        eq(record.id, interventionId),
-                                }),
-                            );
-
-                            if (clientInterventionError || !clientIntervention)
-                                return null;
+                            if (interventionsError) return null;
 
                             const antecedentName = antecedent.name;
-                            const behaviorName = clientBehavior.name;
-                            const interventionName = clientIntervention.name;
+
+                            const behaviorNames = behaviors.map(
+                                (behavior) => behavior.name,
+                            );
+                            const interventionNames = interventions.map(
+                                (intervention) => intervention.name,
+                            );
 
                             return {
                                 antecedentName,
-                                behaviorName,
-                                interventionName,
+                                behaviorNames,
+                                interventionNames,
                             };
                         },
                     ),
@@ -136,6 +195,9 @@ export const createClientSession = protectedEndpoint
                 const abcEntries = abcEntriesNullable.filter(
                     (abcEntry) => abcEntry !== null,
                 );
+
+                if (abcEntries.length !== abcIdEntries.length)
+                    return Error('ABC_ENTRIES_NOT_FOUND');
 
                 // generate a unique id for the client session
                 const id = uuidv4();
@@ -173,62 +235,75 @@ export const createClientSession = protectedEndpoint
                     notes,
                 };
 
-                // insert the client session into db
                 const { error } = await catchError(
-                    db.insert(clientSessionTable).values(clientSession),
+                    db.transaction(async (tx) => {
+                        // insert the client session
+                        await tx
+                            .insert(clientSessionTable)
+                            .values(clientSession);
+
+                        // insert the participants
+                        for (const participant of presentParticipants) {
+                            await tx
+                                .insert(clientSessionParticipantTable)
+                                .values({
+                                    id: uuidv4(),
+                                    clientSessionId: id,
+                                    name: participant,
+                                });
+                        }
+
+                        // insert the environmental changes
+                        for (const change of environmentalChanges) {
+                            await tx
+                                .insert(clientSessionEnvironmentalChangeTable)
+                                .values({
+                                    id: uuidv4(),
+                                    clientSessionId: id,
+                                    name: change,
+                                });
+                        }
+
+                        // insert the abc entries
+                        for (const {
+                            antecedentId,
+                            behaviorIds,
+                            interventionIds,
+                        } of abcIdEntries) {
+                            const clientSessionAbcEntryId = uuidv4();
+
+                            await tx.insert(clientSessionAbcEntryTable).values({
+                                id: clientSessionAbcEntryId,
+                                clientSessionId: id,
+                                antecedentId,
+                            });
+
+                            for (const behaviorId of behaviorIds) {
+                                await tx
+                                    .insert(clientSessionAbcEntryBehaviorTable)
+                                    .values({
+                                        id: uuidv4(),
+                                        clientSessionAbcEntryId,
+                                        behaviorId,
+                                    });
+                            }
+
+                            for (const interventionId of interventionIds) {
+                                await tx
+                                    .insert(
+                                        clientSessionAbcEntryInterventionTable,
+                                    )
+                                    .values({
+                                        id: uuidv4(),
+                                        clientSessionAbcEntryId,
+                                        interventionId,
+                                    });
+                            }
+                        }
+                    }),
                 );
 
-                // if insertion failed, return the error
-                if (error) {
-                    if (error === 'DUPLICATE_ENTRY') return Error('DUPLICATE');
-
-                    return Error();
-                }
-                // otherwise...
-
-                for (const participant of presentParticipants) {
-                    const { error } = await catchError(
-                        db.insert(clientSessionParticipantTable).values({
-                            id: uuidv4(),
-                            clientSessionId: id,
-                            name: participant,
-                        }),
-                    );
-
-                    if (error) return Error();
-                }
-
-                for (const change of environmentalChanges) {
-                    const { error } = await catchError(
-                        db
-                            .insert(clientSessionEnvironmentalChangeTable)
-                            .values({
-                                id: uuidv4(),
-                                clientSessionId: id,
-                                name: change,
-                            }),
-                    );
-
-                    if (error) return Error();
-                }
-
-                for (const {
-                    antecedentId,
-                    behaviorId,
-                    interventionId,
-                } of abcIdEntries) {
-                    const { error } = await catchError(
-                        db.insert(clientSessionAbcEntryTable).values({
-                            id: uuidv4(),
-                            clientSessionId: id,
-                            antecedentId,
-                            behaviorId,
-                            interventionId,
-                        }),
-                    );
-
-                    if (error) return Error();
-                }
+                if (error) return Error();
 
                 return Success({ id });
             },
