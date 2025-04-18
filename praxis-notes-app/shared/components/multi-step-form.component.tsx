@@ -1,4 +1,4 @@
-import { useState, ReactNode, useEffect } from 'react';
+import { useState, ReactNode, useEffect, useCallback } from 'react';
 
 import { Button } from '@ui/button.ui';
 
@@ -46,23 +46,41 @@ export function MultiStepForm({
         }
     }, [currentStep, completedSteps]);
 
-    const goToNextStep = (e: React.MouseEvent<HTMLButtonElement>) => {
-        // Prevent any default form submission
-        e.preventDefault();
-
+    const goToNextStep = useCallback(() => {
         if (currentStep < steps.length) {
             onStepChange(currentStep + 1);
         }
-    };
+    }, [currentStep, steps.length, onStepChange]);
 
-    const goToPreviousStep = (e: React.MouseEvent<HTMLButtonElement>) => {
-        // Prevent any default form submission
-        e.preventDefault();
-
+    const goToPreviousStep = useCallback(() => {
         if (currentStep > 1) {
             onStepChange(currentStep - 1);
         }
-    };
+    }, [currentStep, onStepChange]);
+
+    // Handle keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // Prevent navigation if focus is inside an input/textarea/select
+            const target = event.target as HTMLElement;
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
+                return;
+            }
+
+            if (event.key === 'ArrowRight') {
+                event.preventDefault(); // Prevent potential browser scrolling
+                goToNextStep();
+            } else if (event.key === 'ArrowLeft') {
+                event.preventDefault(); // Prevent potential browser scrolling
+                goToPreviousStep();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [goToNextStep, goToPreviousStep]);
 
     const handleComplete = (e: React.MouseEvent<HTMLButtonElement>) => {
         // Prevent any default form submission
@@ -86,7 +104,9 @@ export function MultiStepForm({
     return (
         <div className="space-y-8">
             {/* Progress Indicator */}
-            <div className="flex justify-between">
+            <ol className="flex justify-between" role="list">
+                {' '}
+                {/* Use <ol> for semantic list */}
                 {steps.map((step, index) => {
                     const stepNumber = index + 1;
                     const isActive = stepNumber === currentStep;
@@ -106,15 +126,17 @@ export function MultiStepForm({
                         >
                             <button
                                 type="button"
+                                aria-label={`Go to step ${stepNumber}: ${step.title}`}
+                                aria-current={isActive ? 'step' : undefined}
                                 onClick={() => {
                                     handleStepClick(stepNumber);
                                 }}
-                                className={`flex cursor-pointer flex-col items-center justify-center rounded-full`}
+                                className={`focus-visible:ring-primary flex cursor-pointer flex-col items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`} // Use focus-visible for ring
                             >
                                 <span
                                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 ${
                                         isActive
-                                            ? 'border-primary text-primary ring-primary font-bold ring-2 ring-offset-2'
+                                            ? 'border-primary text-primary ring-primary font-bold ring-2 ring-offset-2' // Ring already here for active
                                             : isCompleted
                                               ? 'border-primary text-primary'
                                               : 'border-muted text-muted-foreground'
@@ -140,7 +162,7 @@ export function MultiStepForm({
                         </li>
                     );
                 })}
-            </div>
+            </ol>
 
             {/* Current Step Content */}
             <Card className="w-full">
@@ -154,7 +176,10 @@ export function MultiStepForm({
                 <CardFooter className="flex justify-between">
                     <Button
                         variant="outline"
-                        onClick={goToPreviousStep}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            goToPreviousStep();
+                        }} // Keep preventDefault for button clicks
                         disabled={currentStep === 1 || isSubmitting}
                         type="button"
                     >
@@ -164,7 +189,10 @@ export function MultiStepForm({
                     <div className="flex gap-2">
                         {!isLastStep && (
                             <Button
-                                onClick={goToNextStep}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    goToNextStep();
+                                }} // Keep preventDefault for button clicks
                                 disabled={isSubmitting}
                                 type="button"
                             >
