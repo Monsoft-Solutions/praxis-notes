@@ -57,7 +57,7 @@ export const createIntervention = protectedEndpoint
                     return Error();
                 }
 
-                return Success();
+                return Success({ id: interventionId });
             },
         ),
     );
