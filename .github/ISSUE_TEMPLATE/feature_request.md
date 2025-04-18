@@ -1,37 +1,35 @@
----
-name: Feature Request
-about: Suggest an enhancement or new feature for this project
-labels: "enhancement, needs triage"
----
+## 📝 Problem Statement (Required)
 
-## 📝 Problem Statement
+<!-- Clearly describe the problem this feature addresses. What user pain point or limitation are you solving? Focus on *why* this matters. -->
 
-<!-- Provide a clear, concise description of the problem this feature would solve. What user need or pain point are you addressing? -->
+## 🎯 Expected Behavior (Required)
 
-## 🎯 Expected Behavior
+<!-- What should happen when this feature is implemented? Describe the desired functionality and outcomes in clear, testable terms. -->
 
-<!-- Describe what you want to happen when this feature is implemented. Be specific about the desired outcome. -->
+## 🔍 Use Cases (Required)
 
-## 🔍 Use Case(s)
+<!-- List 1–3 realistic scenarios where this feature would be used. Explain how it improves the workflow or experience. -->
 
-<!-- Describe specific scenarios where this feature would be valuable. Include examples of how you or others would use this feature. -->
+## 💡 Proposed Solution (Optional)
 
-## 💡 Proposed Solution
+<!-- Suggest how this feature could be implemented. Mention components, APIs, or approaches if applicable. -->
 
-<!-- Optional: Share your ideas on how to implement this feature. This section helps start the discussion but isn't required. -->
+## 🤔 Alternatives Considered (Optional)
 
-## 🤔 Alternatives Considered
+<!-- List any alternative approaches or workarounds you've considered and why they don't work as well. -->
 
-<!-- Optional: What alternative solutions or workarounds have you considered? Why are they insufficient? -->
+## 📊 Business or User Impact (Optional)
 
-## 📊 Business Impact
+<!-- Explain how this feature benefits the business or users. Consider metrics like time saved, increased efficiency, better UX, etc. -->
 
-<!-- Optional: How would this feature benefit the project or its users? Consider metrics like time saved, improved experience, etc. -->
+## 🧠 Technical Context (Optional)
 
-## 📋 Additional Context
+<!-- If known, mention relevant parts of the codebase, existing logic, or dependencies this change might affect. -->
 
-<!-- Add any other context, screenshots, mockups, or examples that might help explain your request. -->
+## 📋 Additional Context (Optional)
 
-## 🔄 Related Issues
+<!-- Include screenshots, mockups, diagrams, or links that provide more clarity. -->
 
-<!-- Link to any related issues or discussions. Format: #issue-number -->
+## 🔄 Related Issues or Discussions (Optional)
+
+<!-- Link any related GitHub issues, PRs, or discussions. Format: #123, #456 -->

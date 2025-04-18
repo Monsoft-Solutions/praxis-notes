@@ -1,4 +1,5 @@
 import { useFieldArray, useFormContext } from 'react-hook-form';
+import { useState, useEffect, useRef } from 'react';
 
 import {
     FormField,
@@ -20,9 +21,14 @@ import {
     SelectValue,
 } from '@ui/select.ui';
 
-import { Plus, Trash2 } from 'lucide-react';
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from '@ui/accordion.ui';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
+import { Plus, Trash2 } from 'lucide-react';
 
 import { ClientForm } from '../schemas';
 
@@ -34,29 +40,51 @@ export function ClientBehaviorsForm({
 }: {
     existingBehaviors: Behavior[];
 }) {
-    const { control } = useFormContext<ClientForm>();
+    const { control, watch } = useFormContext<ClientForm>();
+    const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
+    const previousFieldIds = useRef<string[]>([]);
 
-    const { fields, append, remove } = useFieldArray({
+    const { fields, prepend, remove } = useFieldArray({
         control,
         name: 'behaviors',
     });
 
+    useEffect(() => {
+        // Find any new fields by comparing with previous field IDs
+        const currentFieldIds = fields.map((field) => field.id);
+        const newFieldIds = currentFieldIds.filter(
+            (id) => !previousFieldIds.current.includes(id),
+        );
+
+        // If new fields exist, replace open accordion items with only the new ones
+        if (newFieldIds.length > 0) {
+            setOpenAccordionItems(newFieldIds);
+        }
+
+        // Update the ref with current field IDs
+        previousFieldIds.current = currentFieldIds;
+    }, [fields]);
+
     const addBehavior = ({ id }: { id: string }) => {
-        append({
-            id,
+        prepend({
+            id: id,
             baseline: 0,
             type: 'frequency',
         });
     };
 
+    const handleRemoveBehavior = (index: number, fieldId: string) => {
+        remove(index);
+        setOpenAccordionItems((prev) => prev.filter((id) => id !== fieldId));
+    };
+
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Client Behaviors</h3>
+            <div className="flex items-center justify-end">
                 <Button
                     type="button"
                     onClick={() => {
-                        addBehavior({ id: '' });
+                        addBehavior({ id: 'Add a behavior' });
                     }}
                     size="sm"
                     className="flex items-center gap-1"
@@ -74,158 +102,203 @@ export function ClientBehaviorsForm({
                     </p>
                 </div>
             ) : (
-                <div className="space-y-4">
-                    {fields.map((field, index) => (
-                        <Card key={field.id}>
-                            <CardHeader className="pb-2">
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="text-base">
-                                        Behavior {index + 1}
-                                    </CardTitle>
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => {
-                                            remove(index);
-                                        }}
-                                        className="h-8 w-8"
-                                    >
-                                        <Trash2 className="text-destructive h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </CardHeader>
+                <Accordion
+                    type="multiple"
+                    value={openAccordionItems}
+                    onValueChange={setOpenAccordionItems}
+                    className="space-y-4"
+                >
+                    {fields.map((field, index) => {
+                        const currentBehaviorId = watch(
+                            `behaviors.${index}.id`,
+                        );
+                        const behaviorDetails = existingBehaviors.find(
+                            (b) => b.id === currentBehaviorId,
+                        );
 
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <FormField
-                                        control={control}
-                                        name={`behaviors.${index}.id`}
-                                        render={({ field }) => (
-                                            <FormItem className="flex flex-col">
-                                                <FormLabel>
-                                                    Behavior{' '}
-                                                    <span className="text-destructive">
-                                                        *
-                                                    </span>
-                                                </FormLabel>
+                        return (
+                            <AccordionItem
+                                key={field.id}
+                                value={field.id}
+                                className="rounded-md border p-1"
+                            >
+                                <AccordionTrigger className="px-4">
+                                    <div className="flex w-full items-center justify-between">
+                                        <span className="font-medium">
+                                            {behaviorDetails?.name
+                                                ? behaviorDetails.name
+                                                : 'Select Behavior'}
+                                        </span>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleRemoveBehavior(
+                                                    index,
+                                                    field.id,
+                                                );
+                                            }}
+                                            className="ml-2 h-8 w-8"
+                                        >
+                                            <Trash2 className="text-destructive h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </AccordionTrigger>
 
-                                                <Select
-                                                    onValueChange={
-                                                        field.onChange
-                                                    }
-                                                >
+                                <AccordionContent className="px-4">
+                                    <div className="space-y-4 pt-2">
+                                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                            <FormField
+                                                control={control}
+                                                name={`behaviors.${index}.id`}
+                                                render={({
+                                                    field: formField,
+                                                }) => (
+                                                    <FormItem className="flex flex-col">
+                                                        <FormLabel>
+                                                            Behavior{' '}
+                                                            <span className="text-destructive">
+                                                                *
+                                                            </span>
+                                                        </FormLabel>
+
+                                                        <Select
+                                                            onValueChange={
+                                                                formField.onChange
+                                                            }
+                                                        >
+                                                            <FormControl>
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Select behavior" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+
+                                                            <SelectContent>
+                                                                {existingBehaviors.map(
+                                                                    (
+                                                                        behavior,
+                                                                    ) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                behavior.id
+                                                                            }
+                                                                            value={
+                                                                                behavior.id
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                behavior.name
+                                                                            }
+                                                                        </SelectItem>
+                                                                    ),
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                            <FormField
+                                                control={control}
+                                                name={`behaviors.${index}.type`}
+                                                render={({
+                                                    field: formField,
+                                                }) => (
+                                                    <FormItem className="flex flex-col">
+                                                        <FormLabel>
+                                                            Type{' '}
+                                                            <span className="text-destructive">
+                                                                *
+                                                            </span>
+                                                        </FormLabel>
+
+                                                        <Select
+                                                            onValueChange={
+                                                                formField.onChange
+                                                            }
+                                                            defaultValue={
+                                                                formField.value
+                                                            }
+                                                            value={
+                                                                formField.value
+                                                            }
+                                                        >
+                                                            <FormControl>
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Select type" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+
+                                                            <SelectContent>
+                                                                {clientBehaviorTypeEnum.options.map(
+                                                                    (type) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                type
+                                                                            }
+                                                                            value={
+                                                                                type
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                type
+                                                                            }
+                                                                        </SelectItem>
+                                                                    ),
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+
+                                        <FormField
+                                            control={control}
+                                            name={`behaviors.${index}.baseline`}
+                                            render={({ field: formField }) => (
+                                                <FormItem>
+                                                    <FormLabel>
+                                                        Baseline{' '}
+                                                        <span className="text-destructive">
+                                                            *
+                                                        </span>
+                                                    </FormLabel>
                                                     <FormControl>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select behavior" />
-                                                        </SelectTrigger>
+                                                        <Input
+                                                            type="number"
+                                                            placeholder="Enter baseline value"
+                                                            {...formField}
+                                                            onChange={(e) => {
+                                                                formField.onChange(
+                                                                    e.target
+                                                                        .value ===
+                                                                        ''
+                                                                        ? 0
+                                                                        : parseFloat(
+                                                                              e
+                                                                                  .target
+                                                                                  .value,
+                                                                          ),
+                                                                );
+                                                            }}
+                                                        />
                                                     </FormControl>
-
-                                                    <SelectContent>
-                                                        {existingBehaviors.map(
-                                                            (behavior) => (
-                                                                <SelectItem
-                                                                    key={
-                                                                        behavior.id
-                                                                    }
-                                                                    value={
-                                                                        behavior.id
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        behavior.name
-                                                                    }
-                                                                </SelectItem>
-                                                            ),
-                                                        )}
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={control}
-                                        name={`behaviors.${index}.type`}
-                                        render={({ field }) => (
-                                            <FormItem className="flex flex-col">
-                                                <FormLabel>
-                                                    Type{' '}
-                                                    <span className="text-destructive">
-                                                        *
-                                                    </span>
-                                                </FormLabel>
-
-                                                <Select
-                                                    onValueChange={
-                                                        field.onChange
-                                                    }
-                                                    defaultValue={field.value}
-                                                >
-                                                    <FormControl>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select type" />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-
-                                                    <SelectContent>
-                                                        {clientBehaviorTypeEnum.options.map(
-                                                            (type) => (
-                                                                <SelectItem
-                                                                    key={type}
-                                                                    value={type}
-                                                                >
-                                                                    {type}
-                                                                </SelectItem>
-                                                            ),
-                                                        )}
-                                                    </SelectContent>
-                                                </Select>
-
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-
-                                <FormField
-                                    control={control}
-                                    name={`behaviors.${index}.baseline`}
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                Baseline{' '}
-                                                <span className="text-destructive">
-                                                    *
-                                                </span>
-                                            </FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="number"
-                                                    placeholder="Enter baseline value"
-                                                    {...field}
-                                                    onChange={(e) => {
-                                                        field.onChange(
-                                                            e.target.value ===
-                                                                ''
-                                                                ? 0
-                                                                : parseFloat(
-                                                                      e.target
-                                                                          .value,
-                                                                  ),
-                                                        );
-                                                    }}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        );
+                    })}
+                </Accordion>
             )}
         </div>
     );
