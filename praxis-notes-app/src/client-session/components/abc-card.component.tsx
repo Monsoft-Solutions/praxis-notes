@@ -74,6 +74,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                             <FormLabel>Activity/Antecedent</FormLabel>
 
                             <AbcSelector
+                                placeholder="Select activity/antecedent"
                                 items={antecedents}
                                 onSelect={field.onChange}
                             />
@@ -92,6 +93,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                             <FormLabel>Behaviors</FormLabel>
 
                             <AbcSelector
+                                placeholder="Select behavior"
                                 multiple
                                 items={behaviors}
                                 onSelect={field.onChange}
@@ -111,6 +113,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                             <FormLabel>Interventions</FormLabel>
 
                             <AbcSelector
+                                placeholder="Select intervention"
                                 multiple
                                 items={interventions}
                                 onSelect={field.onChange}
