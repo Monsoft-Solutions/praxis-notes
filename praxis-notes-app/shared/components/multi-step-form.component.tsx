@@ -11,7 +11,7 @@ import {
     CardTitle,
 } from '@ui/card.ui';
 
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export type MultiStepFormStep = {
     title: string;
@@ -75,6 +75,11 @@ export function MultiStepForm({
         onComplete();
     };
 
+    const handleStepClick = (stepNumber: number) => {
+        // Allow clicking on any step number to navigate directly
+        onStepChange(stepNumber);
+    };
+
     const isLastStep = currentStep === steps.length;
     const currentStepData = steps[currentStep - 1];
 
@@ -86,45 +91,53 @@ export function MultiStepForm({
                     const stepNumber = index + 1;
                     const isActive = stepNumber === currentStep;
                     const isCompleted = completedSteps.includes(stepNumber);
+                    const isLast = stepNumber === steps.length;
 
                     return (
-                        <div
-                            key={index}
-                            className="flex w-full flex-col items-center"
+                        <li
+                            key={step.title}
+                            className={`relative flex w-full items-center ${
+                                !isLast
+                                    ? isCompleted
+                                        ? "after:border-primary after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
+                                        : "after:border-muted after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
+                                    : ''
+                            } ${isCompleted || isActive ? 'text-primary' : 'text-muted-foreground'}`}
                         >
-                            <div
-                                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
-                                    isActive
-                                        ? 'border-primary bg-primary text-primary-foreground'
-                                        : isCompleted
-                                          ? 'border-primary bg-primary text-primary-foreground'
-                                          : 'border-muted bg-background text-muted-foreground'
-                                }`}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    handleStepClick(stepNumber);
+                                }}
+                                className={`flex cursor-pointer flex-col items-center justify-center rounded-full`}
                             >
-                                {isCompleted ? (
-                                    <Check className="h-5 w-5" />
-                                ) : (
-                                    <span>{stepNumber}</span>
-                                )}
-                            </div>
-                            <div className="mt-2 w-full text-center">
-                                <div className="text-sm font-medium">
-                                    {step.title}
-                                </div>
-                                {isActive && (
-                                    <div className="text-muted-foreground hidden text-xs sm:block">
-                                        {step.description}
-                                    </div>
-                                )}
-                            </div>
-                            {index < steps.length - 1 && (
-                                <div
-                                    className={`mt-5 h-0.5 w-full ${
-                                        isCompleted ? 'bg-primary' : 'bg-muted'
+                                <span
+                                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 ${
+                                        isActive
+                                            ? 'border-primary text-primary ring-primary font-bold ring-2 ring-offset-2'
+                                            : isCompleted
+                                              ? 'border-primary text-primary'
+                                              : 'border-muted text-muted-foreground'
                                     }`}
-                                ></div>
-                            )}
-                        </div>
+                                >
+                                    <span
+                                        className={isActive ? 'font-bold' : ''}
+                                    >
+                                        {stepNumber}
+                                    </span>
+                                </span>
+                                <div className="mt-2 w-full text-center">
+                                    <div className="text-sm font-medium">
+                                        {step.title}
+                                    </div>
+                                    {isActive && (
+                                        <div className="text-muted-foreground hidden text-xs sm:block">
+                                            {step.description}
+                                        </div>
+                                    )}
+                                </div>
+                            </button>
+                        </li>
                     );
                 })}
             </div>
