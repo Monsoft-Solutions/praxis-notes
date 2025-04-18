@@ -1,38 +1,44 @@
-# Pull Request
+# 🚀 Pull Request
 
-## Description
+## 📄 Description
 
-Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context.
+<!-- Summarize the changes made in this PR. Mention what the change does and why it was needed. -->
 
-Fixes # (issue)
+Fixes: #<issue_number>  
+Related: #<related_issue_number> (optional)
 
-## Type of change
+## 🧱 Type of Change
 
-Please delete options that are not relevant.
+<!-- Select the type(s) that best describe your changes. -->
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-- [ ] MCP implementation or update
+- [ ] 🐛 Bug fix – non-breaking fix for an issue
+- [ ] ✨ New feature – adds new functionality, no breaking changes
+- [ ] 💥 Breaking change – existing functionality may break
+- [ ] 📝 Documentation update
+- [ ] 🔧 MCP implementation/update
+- [ ] 🔁 Refactor – code change without altering behavior
 
-## How Has This Been Tested?
+## 🧪 How Has This Been Tested?
 
-Please describe the tests that you ran to verify your changes. Provide instructions so we can reproduce.
+<!-- Describe the testing done to ensure correctness. List manual tests, unit tests, integration steps, etc. -->
 
-## Checklist:
+## ✅ Checklist
 
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published in downstream modules
+<!-- Please verify the following tasks before submitting. -->
 
-## Screenshots (if appropriate):
+- [ ] Code follows project style guidelines
+- [ ] I reviewed and cleaned up my own code
+- [ ] I added clear comments for complex logic
+- [ ] Relevant documentation has been updated
+- [ ] No new warnings are generated
+- [ ] Added or updated tests for new/existing functionality
+- [ ] All tests pass locally
+- [ ] Dependent changes (if any) have been merged
 
-## Additional context
+## 📸 Screenshots (Optional)
 
-Add any other context about the pull request here.
+<!-- Add before/after visuals or animations if applicable. -->
+
+## 🧠 Additional Context (Optional)
+
+<!-- Include anything else that helps reviewers understand the PR, like design decisions, dependencies, or related tickets. -->

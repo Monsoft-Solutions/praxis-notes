@@ -27,7 +27,7 @@ export const generateText = (async ({ prompt }: { prompt: string }) => {
     const { data: textGenerationData, error: textGenerationError } =
         await catchError(
             aiSdkGenerateText({
-                model: anthropic('claude-3-7-sonnet-latest'),
+                model: anthropic('claude-3-haiku-20240307'),
                 prompt,
             }),
         );
