@@ -27,16 +27,8 @@ export const generateNotes = protectedEndpoint
                         abcEntries: {
                             with: {
                                 antecedent: true,
-                                clientBehavior: {
-                                    with: {
-                                        behavior: true,
-                                    },
-                                },
-                                clientIntervention: {
-                                    with: {
-                                        intervention: true,
-                                    },
-                                },
+                                behavior: true,
+                                intervention: true,
                             },
                         },
                     },
@@ -48,14 +40,12 @@ export const generateNotes = protectedEndpoint
             if (!clientSession) return Error('NOT_FOUND');
 
             const abcEntriesNullable = clientSession.abcEntries.map(
-                ({ antecedent, clientBehavior, clientIntervention }) => {
-                    if (!antecedent || !clientBehavior || !clientIntervention)
-                        return null;
+                ({ antecedent, behavior, intervention }) => {
+                    if (!antecedent || !behavior || !intervention) return null;
 
                     const antecedentName = antecedent.name;
-                    const behaviorName = clientBehavior.behavior.name;
-                    const interventionName =
-                        clientIntervention.intervention.name;
+                    const behaviorName = behavior.name;
+                    const interventionName = intervention.name;
 
                     return {
                         antecedentName,

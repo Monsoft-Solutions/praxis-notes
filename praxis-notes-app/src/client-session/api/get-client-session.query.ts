@@ -20,7 +20,6 @@ export const getClientSession = protectedEndpoint
     )
     .query(
         queryMutationCallback(async ({ input: { sessionId } }) => {
-            // get the templates matching the search query
             const { data: clientSessionRecords, error } = await catchError(
                 db.query.clientSessionTable.findFirst({
                     where: (record) => eq(record.id, sessionId),
@@ -32,16 +31,8 @@ export const getClientSession = protectedEndpoint
                         abcEntries: {
                             with: {
                                 antecedent: true,
-                                clientBehavior: {
-                                    with: {
-                                        behavior: true,
-                                    },
-                                },
-                                clientIntervention: {
-                                    with: {
-                                        intervention: true,
-                                    },
-                                },
+                                behavior: true,
+                                intervention: true,
                             },
                         },
                     },
@@ -53,13 +44,8 @@ export const getClientSession = protectedEndpoint
             if (!clientSessionRecords) return Error('NOT_FOUND');
 
             const abcEntriesNullable = clientSessionRecords.abcEntries.map(
-                ({ id, antecedent, clientBehavior, clientIntervention }) => {
-                    if (!antecedent || !clientBehavior || !clientIntervention)
-                        return null;
-
-                    const { behavior } = clientBehavior;
-
-                    const { intervention } = clientIntervention;
+                ({ id, antecedent, behavior, intervention }) => {
+                    if (!antecedent || !behavior || !intervention) return null;
 
                     return {
                         id,
@@ -79,7 +65,6 @@ export const getClientSession = protectedEndpoint
                 abcEntries,
             };
 
-            // return the templates matching the search query
             return Success(clientSession);
         }),
     );

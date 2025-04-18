@@ -48,8 +48,8 @@ export const createClientSession = protectedEndpoint
                 abcIdEntries: z.array(
                     z.object({
                         antecedentId: z.string(),
-                        clientBehaviorId: z.string(),
-                        clientInterventionId: z.string(),
+                        behaviorId: z.string(),
+                        interventionId: z.string(),
                     }),
                 ),
             }),
@@ -81,8 +81,8 @@ export const createClientSession = protectedEndpoint
                     abcIdEntries.map(
                         async ({
                             antecedentId,
-                            clientBehaviorId,
-                            clientInterventionId,
+                            behaviorId,
+                            interventionId,
                         }) => {
                             const { data: antecedent, error: antecedentError } =
                                 await catchError(
@@ -98,12 +98,9 @@ export const createClientSession = protectedEndpoint
                                 data: clientBehavior,
                                 error: clientBehaviorError,
                             } = await catchError(
-                                db.query.clientBehaviorTable.findFirst({
+                                db.query.behaviorTable.findFirst({
                                     where: (record) =>
-                                        eq(record.id, clientBehaviorId),
-                                    with: {
-                                        behavior: true,
-                                    },
+                                        eq(record.id, behaviorId),
                                 }),
                             );
 
@@ -114,12 +111,9 @@ export const createClientSession = protectedEndpoint
                                 data: clientIntervention,
                                 error: clientInterventionError,
                             } = await catchError(
-                                db.query.clientInterventionTable.findFirst({
+                                db.query.interventionTable.findFirst({
                                     where: (record) =>
-                                        eq(record.id, clientInterventionId),
-                                    with: {
-                                        intervention: true,
-                                    },
+                                        eq(record.id, interventionId),
                                 }),
                             );
 
@@ -127,9 +121,8 @@ export const createClientSession = protectedEndpoint
                                 return null;
 
                             const antecedentName = antecedent.name;
-                            const behaviorName = clientBehavior.behavior.name;
-                            const interventionName =
-                                clientIntervention.intervention.name;
+                            const behaviorName = clientBehavior.name;
+                            const interventionName = clientIntervention.name;
 
                             return {
                                 antecedentName,
@@ -221,16 +214,16 @@ export const createClientSession = protectedEndpoint
 
                 for (const {
                     antecedentId,
-                    clientBehaviorId,
-                    clientInterventionId,
+                    behaviorId,
+                    interventionId,
                 } of abcIdEntries) {
                     const { error } = await catchError(
                         db.insert(clientSessionAbcEntryTable).values({
                             id: uuidv4(),
                             clientSessionId: id,
                             antecedentId,
-                            clientBehaviorId,
-                            clientInterventionId,
+                            behaviorId,
+                            interventionId,
                         }),
                     );
 

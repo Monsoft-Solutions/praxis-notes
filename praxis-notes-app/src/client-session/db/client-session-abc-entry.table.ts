@@ -5,8 +5,8 @@ import { char, table } from '@db/sql';
 import { clientSessionTable } from '@src/client-session/db/client-session.table';
 
 import { antecedentTable } from '@src/antecedent/db';
-import { clientBehaviorTable } from '@src/behavior/db';
-import { clientInterventionTable } from '@src/intervention/db';
+import { behaviorTable } from '@src/behavior/db';
+import { interventionTable } from '@src/intervention/db';
 
 /**
  * client session abc entry
@@ -23,13 +23,13 @@ export const clientSessionAbcEntryTable = table('client_session_abc_entry', {
         () => antecedentTable.id,
     ),
 
-    clientBehaviorId: char('client_behavior_id', { length: 36 }).references(
-        () => clientBehaviorTable.id,
+    behaviorId: char('behavior_id', { length: 36 }).references(
+        () => behaviorTable.id,
     ),
 
-    clientInterventionId: char('client_intervention_id', {
-        length: 36,
-    }).references(() => clientInterventionTable.id),
+    interventionId: char('intervention_id', { length: 36 }).references(
+        () => interventionTable.id,
+    ),
 });
 
 export const clientSessionAbcEntryTableRelations = relations(
@@ -46,14 +46,14 @@ export const clientSessionAbcEntryTableRelations = relations(
             references: [antecedentTable.id],
         }),
 
-        clientBehavior: one(clientBehaviorTable, {
-            fields: [clientSessionAbcEntryTable.clientBehaviorId],
-            references: [clientBehaviorTable.id],
+        behavior: one(behaviorTable, {
+            fields: [clientSessionAbcEntryTable.behaviorId],
+            references: [behaviorTable.id],
         }),
 
-        clientIntervention: one(clientInterventionTable, {
-            fields: [clientSessionAbcEntryTable.clientInterventionId],
-            references: [clientInterventionTable.id],
+        intervention: one(interventionTable, {
+            fields: [clientSessionAbcEntryTable.interventionId],
+            references: [interventionTable.id],
         }),
     }),
 );
