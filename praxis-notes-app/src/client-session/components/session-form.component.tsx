@@ -48,6 +48,7 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                     antecedentId: '',
                     behaviorIds: [],
                     interventionIds: [],
+                    function: 'atention',
                 },
             ],
             valuation: 'good',

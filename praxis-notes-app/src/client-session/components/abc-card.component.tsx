@@ -4,7 +4,13 @@ import { Button } from '@ui/button.ui';
 
 import { Trash2 } from 'lucide-react';
 
-import { FormField, FormItem, FormLabel, FormMessage } from '@ui/form.ui';
+import {
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@ui/form.ui';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
 
@@ -12,8 +18,18 @@ import { cn } from '@css/utils';
 
 import { ClientSessionForm } from '../schemas';
 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@ui/select.ui';
+
 import { api, apiClientUtils } from '@api/providers/web';
 import { AbcSelector } from './abc-selector.component';
+
+import { abcFunctionEnum } from '../enum';
 
 type ABCCardProps = {
     index: number;
@@ -94,6 +110,34 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                                 }}
                             />
 
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                {/* Function */}
+                <FormField
+                    control={control}
+                    name={`abcIdEntries.${index}.function`}
+                    render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                            <FormLabel>Function</FormLabel>
+
+                            <Select onValueChange={field.onChange}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select function" />
+                                    </SelectTrigger>
+                                </FormControl>
+
+                                <SelectContent>
+                                    {abcFunctionEnum.options.map((option) => (
+                                        <SelectItem key={option} value={option}>
+                                            {option}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
                             <FormMessage />
                         </FormItem>
                     )}

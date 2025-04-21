@@ -21,7 +21,7 @@ import {
 
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
 
-import { clientSessionValuationEnum } from '../enum';
+import { abcFunctionEnum, clientSessionValuationEnum } from '../enum';
 
 import { generateNotes as generateNotesProvider } from '@src/notes/providers/server';
 
@@ -52,6 +52,7 @@ export const createClientSession = protectedEndpoint
                         antecedentId: z.string(),
                         behaviorIds: z.array(z.string()),
                         interventionIds: z.array(z.string()),
+                        function: abcFunctionEnum,
                     }),
                 ),
             }),
@@ -269,6 +270,7 @@ export const createClientSession = protectedEndpoint
                             antecedentId,
                             behaviorIds,
                             interventionIds,
+                            function: abcFunction,
                         } of abcIdEntries) {
                             const clientSessionAbcEntryId = uuidv4();
 
@@ -276,6 +278,7 @@ export const createClientSession = protectedEndpoint
                                 id: clientSessionAbcEntryId,
                                 clientSessionId: id,
                                 antecedentId,
+                                function: abcFunction,
                             });
 
                             for (const behaviorId of behaviorIds) {
