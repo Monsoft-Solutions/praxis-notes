@@ -31,18 +31,27 @@ import { AbcSelector } from './abc-selector.component';
 
 import { abcFunctionEnum } from '../enum';
 
+import { Route } from '@routes/_private/_app/clients/$clientId/sessions/new';
+
 type ABCCardProps = {
     index: number;
     onRemove?: () => void;
 };
 
 export function ABCCard({ index, onRemove }: ABCCardProps) {
+    const { clientId } = Route.useParams();
+
     const { control } = useFormContext<ClientSessionForm>();
 
     const { data: antecedentsQuery } = api.antecedent.getAntecedents.useQuery();
     const { data: behaviorsQuery } = api.behavior.getBehaviors.useQuery();
     const { data: interventionsQuery } =
         api.intervention.getInterventions.useQuery();
+
+    const { data: clientBehaviorsQuery } =
+        api.behavior.getClientBehaviors.useQuery({ clientId });
+    const { data: clientInterventionsQuery } =
+        api.intervention.getClientInterventions.useQuery({ clientId });
 
     const { mutateAsync: createAntecedent } =
         api.antecedent.createAntecedent.useMutation();
@@ -59,12 +68,32 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
     if (!behaviorsQuery) return null;
     const { error: behaviorsError } = behaviorsQuery;
     if (behaviorsError) return null;
-    const { data: behaviors } = behaviorsQuery;
+    const { data: rawBehaviors } = behaviorsQuery;
 
     if (!interventionsQuery) return null;
     const { error: interventionsError } = interventionsQuery;
     if (interventionsError) return null;
-    const { data: interventions } = interventionsQuery;
+    const { data: rawInterventions } = interventionsQuery;
+
+    if (!clientBehaviorsQuery) return null;
+    const { error: clientBehaviorsError } = clientBehaviorsQuery;
+    if (clientBehaviorsError) return null;
+    const { data: clientBehaviors } = clientBehaviorsQuery;
+
+    if (!clientInterventionsQuery) return null;
+    const { error: clientInterventionsError } = clientInterventionsQuery;
+    if (clientInterventionsError) return null;
+    const { data: clientInterventions } = clientInterventionsQuery;
+
+    const behaviors = rawBehaviors.map((behavior) => ({
+        ...behavior,
+        isClient: clientBehaviors.some((b) => b.id === behavior.id),
+    }));
+
+    const interventions = rawInterventions.map((intervention) => ({
+        ...intervention,
+        isClient: clientInterventions.some((i) => i.id === intervention.id),
+    }));
 
     return (
         <Card className={cn('relative', index > 0 && 'mt-8')}>
