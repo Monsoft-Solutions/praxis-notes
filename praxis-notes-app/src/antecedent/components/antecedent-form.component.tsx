@@ -46,20 +46,25 @@ type AntecedentsFormProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess?: () => void;
+    values?: FormValues & { id: string };
 };
 
 export function AntecedentForm({
     open,
     onOpenChange,
     onSuccess,
+    values,
 }: AntecedentsFormProps) {
     const { mutateAsync: createAntecedent } =
         api.antecedent.createAntecedent.useMutation();
 
+    const { mutateAsync: updateAntecedent } =
+        api.antecedent.updateAntecedent.useMutation();
+
     // Initialize form
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
+        defaultValues: values ?? {
             name: '',
             description: '',
         },
@@ -68,10 +73,14 @@ export function AntecedentForm({
     const onSubmit = async (data: FormValues) => {
         console.log('-->   ~ onSubmit ~ data:', data);
 
-        const { error } = await createAntecedent(data);
-
-        if (error) {
-            console.error('-->   ~ onSubmit ~ error:', error);
+        if (values) {
+            await updateAntecedent({
+                id: values.id,
+                description: data.description,
+                name: data.name,
+            });
+        } else {
+            await createAntecedent(data);
         }
 
         // Close modal and refresh data
@@ -83,7 +92,9 @@ export function AntecedentForm({
             onSuccess();
         }
 
-        toast.success('Antecedent created successfully');
+        toast.success(
+            `Antecedent ${values ? 'updated' : 'created'} successfully`,
+        );
 
         void apiClientUtils.antecedent.getAntecedents.reset();
     };
@@ -151,7 +162,9 @@ export function AntecedentForm({
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit">Create</Button>
+                            <Button type="submit">
+                                {values ? 'Update' : 'Create'}
+                            </Button>
                         </DialogFooter>
                     </form>
                 </Form>
