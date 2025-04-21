@@ -33,6 +33,7 @@ type AbcSelectorProps = {
         id: string;
         name: string;
         isCustom: boolean;
+        isClient?: boolean;
     }[];
     create: (args: { name: string }) => Promise<{ id: string } | null>;
 } & (
@@ -46,6 +47,9 @@ type AbcSelectorProps = {
       }
 );
 
+const types = ['client', 'custom', 'global'] as const;
+type Type = (typeof types)[number];
+
 export function AbcSelector({
     placeholder,
     items,
@@ -53,11 +57,17 @@ export function AbcSelector({
     multiple,
     create,
 }: AbcSelectorProps) {
-    const options = items.map((item) => ({
-        value: item.id,
-        label: item.name,
-        type: item.isCustom ? 'custom' : 'global',
-    }));
+    const options = items
+        .map((item) => ({
+            value: item.id,
+            label: item.name,
+            type: item.isClient
+                ? 'client'
+                : item.isCustom
+                  ? 'custom'
+                  : ('global' as Type),
+        }))
+        .toSorted((a, b) => types.indexOf(a.type) - types.indexOf(b.type));
 
     const [open, setOpen] = useState(false);
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -166,7 +176,7 @@ export function AbcSelector({
                                     options.reduce<
                                         Record<string, typeof options>
                                     >((acc, option) => {
-                                        const key = option[groupBy] || '';
+                                        const key = option[groupBy];
                                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                                         if (!acc[key]) acc[key] = [];
                                         acc[key].push(option);
@@ -216,6 +226,7 @@ export function AbcSelector({
                     </PopoverContent>
                 </Popover>
             )}
+
             {/* confirmation dialog for creating custom options */}
             <ConfirmationDialog
                 open={createDialogOpen}
