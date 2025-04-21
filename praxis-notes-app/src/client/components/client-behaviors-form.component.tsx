@@ -34,12 +34,18 @@ import { ClientForm } from '../schemas';
 
 import { Behavior } from '@src/behavior/schemas';
 import { clientBehaviorTypeEnum } from '@src/behavior/enums';
+import { AbcSelector } from '@src/client-session/components/abc-selector.component';
+
+import { api, apiClientUtils } from '@api/providers/web';
 
 export function ClientBehaviorsForm({
     existingBehaviors,
 }: {
     existingBehaviors: Behavior[];
 }) {
+    const { mutateAsync: createBehavior } =
+        api.behavior.createBehavior.useMutation();
+
     const { control, watch } = useFormContext<ClientForm>();
     const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
     const previousFieldIds = useRef<string[]>([]);
@@ -153,9 +159,7 @@ export function ClientBehaviorsForm({
                                             <FormField
                                                 control={control}
                                                 name={`behaviors.${index}.id`}
-                                                render={({
-                                                    field: formField,
-                                                }) => (
+                                                render={({ field }) => (
                                                     <FormItem className="flex flex-col">
                                                         <FormLabel>
                                                             Behavior{' '}
@@ -164,38 +168,36 @@ export function ClientBehaviorsForm({
                                                             </span>
                                                         </FormLabel>
 
-                                                        <Select
-                                                            onValueChange={
-                                                                formField.onChange
+                                                        <AbcSelector
+                                                            placeholder="Select behavior"
+                                                            items={
+                                                                existingBehaviors
                                                             }
-                                                        >
-                                                            <FormControl>
-                                                                <SelectTrigger>
-                                                                    <SelectValue placeholder="Select behavior" />
-                                                                </SelectTrigger>
-                                                            </FormControl>
+                                                            onSelect={
+                                                                field.onChange
+                                                            }
+                                                            create={async ({
+                                                                name,
+                                                            }) => {
+                                                                const result =
+                                                                    await createBehavior(
+                                                                        {
+                                                                            name,
+                                                                            description:
+                                                                                '',
+                                                                        },
+                                                                    );
+                                                                if (
+                                                                    result.error
+                                                                )
+                                                                    return null;
 
-                                                            <SelectContent>
-                                                                {existingBehaviors.map(
-                                                                    (
-                                                                        behavior,
-                                                                    ) => (
-                                                                        <SelectItem
-                                                                            key={
-                                                                                behavior.id
-                                                                            }
-                                                                            value={
-                                                                                behavior.id
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                behavior.name
-                                                                            }
-                                                                        </SelectItem>
-                                                                    ),
-                                                                )}
-                                                            </SelectContent>
-                                                        </Select>
+                                                                await apiClientUtils.behavior.getBehaviors.invalidate();
+
+                                                                return result.data;
+                                                            }}
+                                                        />
+
                                                         <FormMessage />
                                                     </FormItem>
                                                 )}

@@ -1,13 +1,7 @@
 import { useFormContext, useFieldArray } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
 
-import {
-    FormField,
-    FormItem,
-    FormLabel,
-    FormControl,
-    FormMessage,
-} from '@ui/form.ui';
+import { FormField, FormItem, FormLabel, FormMessage } from '@ui/form.ui';
 
 import { Button } from '@ui/button.ui';
 
@@ -20,19 +14,14 @@ import {
     AccordionTrigger,
 } from '@ui/accordion.ui';
 
-import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-} from '@ui/select.ui';
-
 import { BehaviorCheckItem } from './behavior-check-item.component';
 
 import { ClientForm } from '../schemas';
 import { Intervention } from '@src/intervention/schemas';
 import { Behavior } from '@src/behavior/schemas';
+import { AbcSelector } from '@src/client-session/components/abc-selector.component';
+
+import { api, apiClientUtils } from '@api/providers/web';
 
 type ClientInterventionsFormProps = {
     existingInterventions: Intervention[];
@@ -43,6 +32,9 @@ export function ClientInterventionsForm({
     existingInterventions,
     existingBehaviors,
 }: ClientInterventionsFormProps) {
+    const { mutateAsync: createIntervention } =
+        api.intervention.createIntervention.useMutation();
+
     const { control, watch } = useFormContext<ClientForm>();
     const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
     const previousFieldIds = useRef<string[]>([]);
@@ -186,38 +178,34 @@ export function ClientInterventionsForm({
                                                         </span>
                                                     </FormLabel>
 
-                                                    <Select
-                                                        onValueChange={
+                                                    <AbcSelector
+                                                        placeholder="Select intervention"
+                                                        items={
+                                                            existingInterventions
+                                                        }
+                                                        onSelect={
                                                             field.onChange
                                                         }
-                                                    >
-                                                        <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Select intervention" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
+                                                        create={async ({
+                                                            name,
+                                                        }) => {
+                                                            const result =
+                                                                await createIntervention(
+                                                                    {
+                                                                        name,
+                                                                        description:
+                                                                            '',
+                                                                    },
+                                                                );
+                                                            if (result.error)
+                                                                return null;
 
-                                                        <SelectContent>
-                                                            {existingInterventions.map(
-                                                                (
-                                                                    intervention,
-                                                                ) => (
-                                                                    <SelectItem
-                                                                        key={
-                                                                            intervention.id
-                                                                        }
-                                                                        value={
-                                                                            intervention.id
-                                                                        }
-                                                                    >
-                                                                        {
-                                                                            intervention.name
-                                                                        }
-                                                                    </SelectItem>
-                                                                ),
-                                                            )}
-                                                        </SelectContent>
-                                                    </Select>
+                                                            await apiClientUtils.intervention.getInterventions.invalidate();
+
+                                                            return result.data;
+                                                        }}
+                                                    />
+
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
