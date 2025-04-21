@@ -1,0 +1,2 @@
+CREATE TYPE "public"."client_session_abc_entry_function" AS ENUM('atention', 'escape', 'sensory', 'tangible');--> statement-breakpoint
+ALTER TABLE "client_session_abc_entry" ADD COLUMN "function" "client_session_abc_entry_function" NOT NULL;
