@@ -5,6 +5,7 @@ RUN apk add --no-cache nodejs npm
 
 ARG MSS_APP_FOLDER
 ARG MSS_DEPLOYMENT_TYPE
+ARG MSS_CLIENT_SENTRY_DSN
 
 WORKDIR /app/
 
