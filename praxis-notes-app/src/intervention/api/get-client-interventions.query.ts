@@ -31,8 +31,9 @@ export const getClientInterventions = protectedEndpoint
             if (error) return Error();
 
             const interventions = interventionRecords.map(
-                ({ id, intervention }) => {
-                    const { name, description, organizationId } = intervention;
+                ({ intervention }) => {
+                    const { id, name, description, organizationId } =
+                        intervention;
 
                     return {
                         id,
