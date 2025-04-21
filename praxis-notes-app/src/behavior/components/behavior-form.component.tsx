@@ -46,32 +46,39 @@ type BehaviorFormProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess?: () => void;
+    values?: FormValues & { id: string };
 };
 
 export function BehaviorForm({
     open,
     onOpenChange,
     onSuccess,
+    values,
 }: BehaviorFormProps) {
     const { mutateAsync: createBehavior } =
         api.behavior.createBehavior.useMutation();
 
+    const { mutateAsync: updateBehavior } =
+        api.behavior.updateBehavior.useMutation();
+
     // Initialize form
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
+        defaultValues: values ?? {
             name: '',
             description: '',
         },
     });
 
     const onSubmit = async (data: FormValues) => {
-        console.log('-->   ~ onSubmit ~ data:', data);
-
-        const { error } = await createBehavior(data);
-
-        if (error) {
-            console.error('-->   ~ onSubmit ~ error:', error);
+        if (values) {
+            await updateBehavior({
+                id: values.id,
+                name: data.name,
+                description: data.description,
+            });
+        } else {
+            await createBehavior(data);
         }
 
         // Close modal and refresh data
@@ -83,7 +90,9 @@ export function BehaviorForm({
             onSuccess();
         }
 
-        toast.success('Behavior created successfully');
+        toast.success(
+            `Behavior ${values ? 'updated' : 'created'} successfully`,
+        );
 
         void apiClientUtils.behavior.getBehaviors.reset();
     };
@@ -151,7 +160,9 @@ export function BehaviorForm({
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit">Create</Button>
+                            <Button type="submit">
+                                {values ? 'Update' : 'Create'}
+                            </Button>
                         </DialogFooter>
                     </form>
                 </Form>

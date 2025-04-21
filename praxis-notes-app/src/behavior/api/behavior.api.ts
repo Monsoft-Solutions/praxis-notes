@@ -6,7 +6,7 @@ import { getClientBehaviors } from './get-client-behaviors.query';
 
 // mutations
 import { createBehavior } from './create-behavior.mutation';
-
+import { updateBehavior } from './update-behavior.mutation';
 // subscriptions
 
 export const behavior = endpoints({
@@ -16,6 +16,6 @@ export const behavior = endpoints({
 
     // mutations
     createBehavior,
-
+    updateBehavior,
     // subscriptions
 });
