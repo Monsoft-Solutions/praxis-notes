@@ -6,6 +6,7 @@ import { getClientInterventions } from './get-client-interventions.query';
 
 // mutations
 import { createIntervention } from './create-intervention.mutation';
+import { updateIntervention } from './update-intervention.mutation';
 
 // subscriptions
 
@@ -16,6 +17,7 @@ export const intervention = endpoints({
 
     // mutations
     createIntervention,
+    updateIntervention,
 
     // subscriptions
 });
