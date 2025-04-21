@@ -29,8 +29,8 @@ export const getClientBehaviors = protectedEndpoint
 
             if (error) return Error();
 
-            const behaviors = behaviorRecords.map(({ id, behavior }) => {
-                const { name, description, organizationId } = behavior;
+            const behaviors = behaviorRecords.map(({ behavior }) => {
+                const { id, name, description, organizationId } = behavior;
 
                 return {
                     id,
