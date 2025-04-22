@@ -65,5 +65,10 @@ export const clientSessionTableRelations = relations(
         replacementProgramEntries: many(
             clientSessionReplacementProgramEntryTable,
         ),
+
+        user: one(userTable, {
+            fields: [clientSessionTable.userId],
+            references: [userTable.id],
+        }),
     }),
 );
