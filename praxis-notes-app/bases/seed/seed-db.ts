@@ -14,11 +14,9 @@ export async function seedDb() {
     await reset(seeder, schema);
     console.log('DB reset');
 
-    await Promise.all(
-        Object.values(seeds).map(async (seed) => {
-            await seed();
-        }),
-    );
+    for (const seed of Object.values(seeds)) {
+        await seed();
+    }
 
     console.log('DB seeded !');
 }
