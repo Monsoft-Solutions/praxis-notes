@@ -16,7 +16,7 @@ export const sendVerificationEmail = (async ({ email, id }) => {
         from: 'Praxis Notes <verify@praxisnote.com>',
         to: email,
 
-        subject: 'Verify your email',
+        subject: 'Welcome to Praxis Notes. Please verify your email',
 
         html: `<p>Please verify your email by clicking <a href="${link}">here</a></p>`,
 
