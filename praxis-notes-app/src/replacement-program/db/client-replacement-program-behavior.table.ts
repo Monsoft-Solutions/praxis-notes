@@ -1,6 +1,6 @@
 import { relations } from 'drizzle-orm';
 
-import { table, char, bigint } from '@db/sql';
+import { table, char } from '@db/sql';
 
 import { clientReplacementProgramTable } from './client-replacement-program.table';
 import { clientBehaviorTable } from '@src/behavior/db';
@@ -25,10 +25,6 @@ export const clientReplacementProgramBehaviorTable = table(
         clientBehaviorId: char('client_behavior_id', { length: 36 })
             .references(() => clientBehaviorTable.id)
             .notNull(),
-
-        createdAt: bigint('created_at', {
-            mode: 'number',
-        }).notNull(),
     },
 );
 
