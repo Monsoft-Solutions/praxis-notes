@@ -176,6 +176,27 @@
       "when": 1744894144549,
       "tag": "0024_great_radioactive_man",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1745332139712,
+      "tag": "0025_charming_patriot",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1745332377045,
+      "tag": "0026_cheerful_prima",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1745333180202,
+      "tag": "0027_careful_slipstream",
+      "breakpoints": true
     }
   ]
 }

@@ -41,12 +41,6 @@ export const createIntervention = protectedEndpoint
 
                         name,
                         description,
-
-                        createdBy: user.id,
-                        updatedBy: user.id,
-
-                        createdAt: Date.now(),
-                        updatedAt: Date.now(),
                     }),
                 );
 

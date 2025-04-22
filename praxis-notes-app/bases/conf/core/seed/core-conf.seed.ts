@@ -1,16 +1,10 @@
-import { Seed } from '@seed/types';
+import { db } from '@db/providers/server/db-client.provider';
 
 import { coreConfTable } from '../db';
 
-const _partialSchema = { coreConfTable };
+import { coreConfigData } from './constants';
 
 // Core configuration seeds
-export const coreConfSeed: Seed<typeof _partialSchema> = (f) => ({
-    coreConfTable: {
-        count: 1,
-        columns: {
-            id: f.uuid(),
-            name: f.companyName(),
-        },
-    },
-});
+export const coreConfSeed = async () => {
+    await db.insert(coreConfTable).values(coreConfigData);
+};

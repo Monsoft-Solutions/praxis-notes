@@ -1,29 +1,24 @@
-import { Seed } from '@seed/types';
+import { eq } from 'drizzle-orm';
+import { db } from '@db/providers/server/db-client.provider';
 
-import { authenticationTable, userTable } from '../db';
-import { userRoleTable } from '@guard/db';
+import { userTable } from '../db';
 
-const _partialSchema = { userTable, authenticationTable, userRoleTable };
+import { testUser } from './constants';
 
-// User seeds
-export const userSeed: Seed<typeof _partialSchema> = (f) => ({
-    userTable: {
-        count: 100,
-        columns: {
-            id: f.uuid(),
-            firstName: f.firstName(),
-            lastName: f.lastName(),
-            bookmarked: f.valuesFromArray({ values: [true] }),
-        },
+// user seeds
+export const userSeed = async () => {
+    console.log('seeding test user...');
 
-        with: {
-            authenticationTable: 1,
-            userRoleTable: [
-                { count: 1, weight: 0.25 },
-                { count: 2, weight: 0.25 },
-                { count: 3, weight: 0.25 },
-                { count: 4, weight: 0.25 },
-            ],
-        },
-    },
-});
+    const user = await db.query.userTable.findFirst({
+        where: eq(userTable.id, testUser.id),
+    });
+
+    if (user) {
+        console.log('test user already exists');
+        return;
+    }
+
+    await db.insert(userTable).values(testUser);
+
+    console.log('test user seeded');
+};

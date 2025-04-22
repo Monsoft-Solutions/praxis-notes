@@ -4,3 +4,6 @@
 # build
 **/vite.config.mts.timestamp-*.mjs
 **/routeTree.gen.ts
+
+# core-config
+**/core-config-data.constant.json
