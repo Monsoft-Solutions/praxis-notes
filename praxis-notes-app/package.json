@@ -50,6 +50,7 @@
         "migrate"      : "env-cmd -e local npm run db:migrate ",
         "migrate:prod" : "env-cmd -e prod  npm run db:migrate ",
         "seed"         : "env-cmd -e local npm run db:seed",
+        "seed:prod"    : "env-cmd -e prod  npm run db:seed",
         "data"         : "npm-run-all drop create generate migrate seed",
 
         
