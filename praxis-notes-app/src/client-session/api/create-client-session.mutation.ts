@@ -31,6 +31,7 @@ import { generateNotes as generateNotesProvider } from '@src/notes/providers/ser
 
 import { eq } from 'drizzle-orm';
 import { userTable } from '@db/db.tables';
+import { ClientSessionReplacementProgramEntry } from '../schemas/client-session-replacement-program-entry.schema';
 
 // mutation to create a client session
 export const createClientSession = protectedEndpoint
@@ -217,126 +218,137 @@ export const createClientSession = protectedEndpoint
                 if (abcEntries.length !== abcIdEntries.length)
                     return Error('ABC_ENTRIES_NOT_FOUND');
 
-                const replacementProgramEntriesNullable = await Promise.all(
-                    replacementProgramEntries.map(
-                        async ({
-                            replacementProgramId,
-                            teachingProcedureId,
-                            promptingProcedureId,
-                            promptTypesIds,
-                        }) => {
-                            const {
-                                data: replacementProgram,
-                                error: replacementProgramError,
-                            } = await catchError(
-                                db.query.replacementProgramTable.findFirst({
-                                    where: (record) =>
-                                        eq(record.id, replacementProgramId),
-                                }),
-                            );
-
-                            if (replacementProgramError || !replacementProgram)
-                                return null;
-
-                            const {
-                                data: teachingProcedure,
-                                error: teachingProcedureError,
-                            } = await catchError(
-                                db.query.teachingProcedureTable.findFirst({
-                                    where: (record) =>
-                                        eq(record.id, teachingProcedureId),
-                                }),
-                            );
-
-                            if (teachingProcedureError || !teachingProcedure)
-                                return null;
-
-                            const {
-                                data: promptingProcedure,
-                                error: promptingProcedureError,
-                            } = await catchError(
-                                db.query.promptingProcedureTable.findFirst({
-                                    where: (record) =>
-                                        eq(record.id, promptingProcedureId),
-                                }),
-                            );
-
-                            if (promptingProcedureError || !promptingProcedure)
-                                return null;
-
-                            const {
-                                data: promptTypesData,
-                                error: promptTypesError,
-                            } = await catchError(
-                                db.transaction(async (tx) => {
-                                    const promptTypesNullable =
-                                        await Promise.all(
-                                            promptTypesIds.map(
-                                                async (promptTypeId) =>
-                                                    await tx.query.promptTypeTable.findFirst(
-                                                        {
-                                                            where: (record) =>
-                                                                eq(
-                                                                    record.id,
-                                                                    promptTypeId,
-                                                                ),
-                                                        },
-                                                    ),
-                                            ),
-                                        );
-
-                                    const filteredPromptTypes =
-                                        promptTypesNullable.filter(
-                                            (
-                                                promptType,
-                                            ): promptType is NonNullable<
-                                                typeof promptType
-                                            > => promptType != null,
-                                        );
-
-                                    if (
-                                        filteredPromptTypes.length !==
-                                        promptTypesIds.length
-                                    )
-                                        throw 'PROMPT_TYPES_NOT_FOUND';
-
-                                    return filteredPromptTypes;
-                                }),
-                            );
-
-                            if (promptTypesError || !promptTypesData.length)
-                                return null;
-
-                            const replacementProgramName =
-                                replacementProgram.name;
-                            const teachingProcedureName =
-                                teachingProcedure.name;
-                            const promptingProcedureName =
-                                promptingProcedure.name;
-                            const promptTypeNames = promptTypesData.map(
-                                (promptType) => promptType.name,
-                            );
-
-                            return {
-                                replacementProgram: replacementProgramName,
-                                teachingProcedure: teachingProcedureName,
-                                promptingProcedure: promptingProcedureName,
-                                promptTypes: promptTypeNames,
-                            };
-                        },
+                // 1. Collect all unique IDs
+                const allReplacementProgramIds = [
+                    ...new Set(
+                        replacementProgramEntries.map(
+                            (entry) => entry.replacementProgramId,
+                        ),
                     ),
+                ];
+                const allTeachingProcedureIds = [
+                    ...new Set(
+                        replacementProgramEntries.map(
+                            (entry) => entry.teachingProcedureId,
+                        ),
+                    ),
+                ];
+                const allPromptingProcedureIds = [
+                    ...new Set(
+                        replacementProgramEntries.map(
+                            (entry) => entry.promptingProcedureId,
+                        ),
+                    ),
+                ];
+                const allPromptTypeIds = [
+                    ...new Set(
+                        replacementProgramEntries.flatMap(
+                            (entry) => entry.promptTypesIds,
+                        ),
+                    ),
+                ];
+
+                // 2. Bulk fetch records
+                const [
+                    replacementProgramsResult,
+                    teachingProceduresResult,
+                    promptingProceduresResult,
+                    promptTypesResult,
+                ] = await Promise.all([
+                    catchError(
+                        db.query.replacementProgramTable.findMany({
+                            where: (record, { inArray }) =>
+                                inArray(record.id, allReplacementProgramIds),
+                        }),
+                    ),
+                    catchError(
+                        db.query.teachingProcedureTable.findMany({
+                            where: (record, { inArray }) =>
+                                inArray(record.id, allTeachingProcedureIds),
+                        }),
+                    ),
+                    catchError(
+                        db.query.promptingProcedureTable.findMany({
+                            where: (record, { inArray }) =>
+                                inArray(record.id, allPromptingProcedureIds),
+                        }),
+                    ),
+                    catchError(
+                        db.query.promptTypeTable.findMany({
+                            where: (record, { inArray }) =>
+                                inArray(record.id, allPromptTypeIds),
+                        }),
+                    ),
+                ]);
+
+                // Handle potential errors during fetch
+                if (
+                    replacementProgramsResult.error ||
+                    teachingProceduresResult.error ||
+                    promptingProceduresResult.error ||
+                    promptTypesResult.error
+                ) {
+                    console.error('Error fetching replacement program data');
+                    return Error('DATABASE_FETCH_ERROR');
+                }
+
+                // 3. Create lookup maps
+                const replacementProgramsMap = new Map(
+                    replacementProgramsResult.data.map((p) => [p.id, p]),
+                );
+                const teachingProceduresMap = new Map(
+                    teachingProceduresResult.data.map((p) => [p.id, p]),
+                );
+                const promptingProceduresMap = new Map(
+                    promptingProceduresResult.data.map((p) => [p.id, p]),
+                );
+                const promptTypesMap = new Map(
+                    promptTypesResult.data.map((p) => [p.id, p]),
                 );
 
-                const replacementProgramNoteEntries =
-                    replacementProgramEntriesNullable.filter(
-                        (entry) => entry !== null,
-                    );
+                // 4. Validate entries in memory and build note entries
+                const validatedReplacementProgramNoteEntries: ClientSessionReplacementProgramEntry[] =
+                    [];
+                let allEntriesValid = true;
 
-                if (
-                    replacementProgramNoteEntries.length !==
-                    replacementProgramEntries.length
-                )
+                for (const entry of replacementProgramEntries) {
+                    const replacementProgram = replacementProgramsMap.get(
+                        entry.replacementProgramId,
+                    );
+                    const teachingProcedure = teachingProceduresMap.get(
+                        entry.teachingProcedureId,
+                    );
+                    const promptingProcedure = promptingProceduresMap.get(
+                        entry.promptingProcedureId,
+                    );
+                    const promptTypes = entry.promptTypesIds
+                        .map((id) => promptTypesMap.get(id))
+                        .filter((pt): pt is NonNullable<typeof pt> => !!pt);
+
+                    if (
+                        !replacementProgram ||
+                        !teachingProcedure ||
+                        !promptingProcedure ||
+                        promptTypes.length !== entry.promptTypesIds.length
+                    ) {
+                        allEntriesValid = false;
+                        break; // Stop validation on first invalid entry
+                    }
+
+                    validatedReplacementProgramNoteEntries.push({
+                        replacementProgram: replacementProgram.name,
+                        teachingProcedure: teachingProcedure.name,
+                        promptingProcedure: promptingProcedure.name,
+                        promptTypes: promptTypes.map((pt) => pt.name),
+                    });
+                }
+
+                if (!allEntriesValid) {
                     return Error('REPLACEMENT_PROGRAM_DATA_NOT_FOUND');
+                }
+
+                const replacementProgramNoteEntries =
+                    validatedReplacementProgramNoteEntries;
 
                 const { data: client, error: clientError } = await catchError(
                     db.query.clientTable.findFirst({
@@ -363,8 +375,19 @@ export const createClientSession = protectedEndpoint
 
                 const userData = userQueryResult[0];
 
-                const userInitials = `${userData.firstName.charAt(0)}${userData.lastName?.charAt(0)}`;
-                const clientInitials = `${client.firstName.charAt(0)}${client.lastName.charAt(0)}`;
+                const getInitials = (
+                    first?: string | null,
+                    last?: string | null,
+                ) => `${first?.charAt(0) ?? ''}${last?.charAt(0) ?? ''}`;
+
+                const userInitials = getInitials(
+                    userData.firstName,
+                    userData.lastName,
+                );
+                const clientInitials = getInitials(
+                    client.firstName,
+                    client.lastName,
+                );
 
                 // generate a unique id for the client session
                 const id = uuidv4();

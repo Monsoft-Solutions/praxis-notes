@@ -99,26 +99,41 @@ export const generateNotes = protectedEndpoint
             const abcEntries = abcEntriesNullable.filter((abc) => abc !== null);
 
             const replacementProgramEntries =
-                clientSession.replacementProgramEntries.map(
-                    ({
-                        replacementProgram,
-                        teachingProcedure,
-                        promptingProcedure,
-                        promptTypes,
-                    }) => {
-                        return {
-                            replacementProgram: replacementProgram.name,
-                            teachingProcedure: teachingProcedure?.name ?? '',
-                            promptingProcedure: promptingProcedure?.name ?? '',
-                            promptTypes: promptTypes.map(
-                                ({ promptType }) => promptType?.name ?? '',
-                            ),
-                        };
-                    },
-                );
+                clientSession.replacementProgramEntries
+                    .map(
+                        ({
+                            replacementProgram,
+                            teachingProcedure,
+                            promptingProcedure,
+                            promptTypes,
+                        }) => {
+                            return {
+                                replacementProgram: replacementProgram.name,
+                                teachingProcedure: teachingProcedure?.name,
+                                promptingProcedure: promptingProcedure?.name,
+                                promptTypes: promptTypes
+                                    .map(({ promptType }) => promptType?.name)
+                                    .filter((name): name is string => !!name),
+                            };
+                        },
+                    )
+                    .map((entry) => ({
+                        ...entry,
+                        teachingProcedure: entry.teachingProcedure ?? '',
+                        promptingProcedure: entry.promptingProcedure ?? '',
+                    }));
 
-            const userInitials = `${clientSession.user.firstName.charAt(0)}${clientSession.user.lastName?.charAt(0)}`;
-            const clientInitials = `${clientSession.client.firstName.charAt(0)}${clientSession.client.lastName.charAt(0)}`;
+            const getInitials = (first?: string | null, last?: string | null) =>
+                `${first?.charAt(0) ?? ''}${last?.charAt(0) ?? ''}`;
+
+            const userInitials = getInitials(
+                clientSession.user.firstName,
+                clientSession.user.lastName,
+            );
+            const clientInitials = getInitials(
+                clientSession.client.firstName,
+                clientSession.client.lastName,
+            );
 
             const sessionData = {
                 ...clientSession,
