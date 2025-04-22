@@ -12,6 +12,7 @@ export const clientSession = endpoints({
     // queries
     getClientSessions,
     getClientSession,
+
     // mutations
     createClientSession,
 

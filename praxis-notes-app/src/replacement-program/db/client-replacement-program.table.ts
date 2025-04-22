@@ -37,6 +37,11 @@ export const clientReplacementProgramTableRelations = relations(
             references: [clientTable.id],
         }),
 
+        replacementProgram: one(replacementProgramTable, {
+            fields: [clientReplacementProgramTable.replacementProgramId],
+            references: [replacementProgramTable.id],
+        }),
+
         behaviors: many(clientReplacementProgramBehaviorTable),
     }),
 );

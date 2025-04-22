@@ -17,11 +17,15 @@ import {
     clientSessionAbcEntryTable,
     clientSessionAbcEntryBehaviorTable,
     clientSessionAbcEntryInterventionTable,
+    clientSessionReplacementProgramEntryTable,
+    clientSessionReplacementProgramEntryPromptTypeTable,
 } from '../db';
 
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
 
 import { abcFunctionEnum, clientSessionValuationEnum } from '../enum';
+
+import { replacementProgramResponseEnum } from '@src/replacement-program/enums';
 
 import { generateNotes as generateNotesProvider } from '@src/notes/providers/server';
 
@@ -55,6 +59,17 @@ export const createClientSession = protectedEndpoint
                         function: abcFunctionEnum,
                     }),
                 ),
+
+                replacementProgramEntries: z.array(
+                    z.object({
+                        replacementProgramId: z.string(),
+                        teachingProcedureId: z.string(),
+                        promptTypesIds: z.array(z.string()),
+                        promptingProcedureId: z.string(),
+                        clientResponse: replacementProgramResponseEnum,
+                        progress: z.number(),
+                    }),
+                ),
             }),
         }),
     )
@@ -78,6 +93,7 @@ export const createClientSession = protectedEndpoint
                     environmentalChanges,
 
                     abcIdEntries,
+                    replacementProgramEntries,
                 } = sessionForm;
 
                 const abcEntriesNullable = await Promise.all(
@@ -300,6 +316,53 @@ export const createClientSession = protectedEndpoint
                                         id: uuidv4(),
                                         clientSessionAbcEntryId,
                                         interventionId,
+                                    });
+                            }
+                        }
+
+                        // insert the replacement program entries
+                        for (const {
+                            replacementProgramId,
+                            teachingProcedureId,
+                            promptingProcedureId,
+                            clientResponse,
+                            progress,
+                            promptTypesIds,
+                        } of replacementProgramEntries) {
+                            const clientSessionReplacementProgramEntryId =
+                                uuidv4();
+
+                            await tx
+                                .insert(
+                                    clientSessionReplacementProgramEntryTable,
+                                )
+                                .values({
+                                    id: clientSessionReplacementProgramEntryId,
+                                    clientSessionId: id,
+                                    replacementProgramId,
+                                    teachingProcedureId,
+                                    promptingProcedureId,
+                                    clientResponse,
+                                    progress,
+                                })
+                                .catch((error: unknown) => {
+                                    console.error(error);
+                                    throw error;
+                                });
+
+                            for (const promptTypeId of promptTypesIds) {
+                                await tx
+                                    .insert(
+                                        clientSessionReplacementProgramEntryPromptTypeTable,
+                                    )
+                                    .values({
+                                        id: uuidv4(),
+                                        clientSessionReplacementProgramEntryId,
+                                        promptTypeId,
+                                    })
+                                    .catch((error: unknown) => {
+                                        console.error(error);
+                                        throw error;
                                     });
                             }
                         }
