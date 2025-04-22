@@ -30,6 +30,7 @@ import { replacementProgramResponseEnum } from '@src/replacement-program/enums';
 import { generateNotes as generateNotesProvider } from '@src/notes/providers/server';
 
 import { eq } from 'drizzle-orm';
+import { userTable } from '@db/db.tables';
 
 // mutation to create a client session
 export const createClientSession = protectedEndpoint
@@ -216,6 +217,155 @@ export const createClientSession = protectedEndpoint
                 if (abcEntries.length !== abcIdEntries.length)
                     return Error('ABC_ENTRIES_NOT_FOUND');
 
+                const replacementProgramEntriesNullable = await Promise.all(
+                    replacementProgramEntries.map(
+                        async ({
+                            replacementProgramId,
+                            teachingProcedureId,
+                            promptingProcedureId,
+                            promptTypesIds,
+                        }) => {
+                            const {
+                                data: replacementProgram,
+                                error: replacementProgramError,
+                            } = await catchError(
+                                db.query.replacementProgramTable.findFirst({
+                                    where: (record) =>
+                                        eq(record.id, replacementProgramId),
+                                }),
+                            );
+
+                            if (replacementProgramError || !replacementProgram)
+                                return null;
+
+                            const {
+                                data: teachingProcedure,
+                                error: teachingProcedureError,
+                            } = await catchError(
+                                db.query.teachingProcedureTable.findFirst({
+                                    where: (record) =>
+                                        eq(record.id, teachingProcedureId),
+                                }),
+                            );
+
+                            if (teachingProcedureError || !teachingProcedure)
+                                return null;
+
+                            const {
+                                data: promptingProcedure,
+                                error: promptingProcedureError,
+                            } = await catchError(
+                                db.query.promptingProcedureTable.findFirst({
+                                    where: (record) =>
+                                        eq(record.id, promptingProcedureId),
+                                }),
+                            );
+
+                            if (promptingProcedureError || !promptingProcedure)
+                                return null;
+
+                            const {
+                                data: promptTypesData,
+                                error: promptTypesError,
+                            } = await catchError(
+                                db.transaction(async (tx) => {
+                                    const promptTypesNullable =
+                                        await Promise.all(
+                                            promptTypesIds.map(
+                                                async (promptTypeId) =>
+                                                    await tx.query.promptTypeTable.findFirst(
+                                                        {
+                                                            where: (record) =>
+                                                                eq(
+                                                                    record.id,
+                                                                    promptTypeId,
+                                                                ),
+                                                        },
+                                                    ),
+                                            ),
+                                        );
+
+                                    const filteredPromptTypes =
+                                        promptTypesNullable.filter(
+                                            (
+                                                promptType,
+                                            ): promptType is NonNullable<
+                                                typeof promptType
+                                            > => promptType != null,
+                                        );
+
+                                    if (
+                                        filteredPromptTypes.length !==
+                                        promptTypesIds.length
+                                    )
+                                        throw 'PROMPT_TYPES_NOT_FOUND';
+
+                                    return filteredPromptTypes;
+                                }),
+                            );
+
+                            if (promptTypesError || !promptTypesData.length)
+                                return null;
+
+                            const replacementProgramName =
+                                replacementProgram.name;
+                            const teachingProcedureName =
+                                teachingProcedure.name;
+                            const promptingProcedureName =
+                                promptingProcedure.name;
+                            const promptTypeNames = promptTypesData.map(
+                                (promptType) => promptType.name,
+                            );
+
+                            return {
+                                replacementProgram: replacementProgramName,
+                                teachingProcedure: teachingProcedureName,
+                                promptingProcedure: promptingProcedureName,
+                                promptTypes: promptTypeNames,
+                            };
+                        },
+                    ),
+                );
+
+                const replacementProgramNoteEntries =
+                    replacementProgramEntriesNullable.filter(
+                        (entry) => entry !== null,
+                    );
+
+                if (
+                    replacementProgramNoteEntries.length !==
+                    replacementProgramEntries.length
+                )
+                    return Error('REPLACEMENT_PROGRAM_DATA_NOT_FOUND');
+
+                const { data: client, error: clientError } = await catchError(
+                    db.query.clientTable.findFirst({
+                        where: (record) => eq(record.id, clientId),
+                    }),
+                );
+
+                if (clientError || !client) return Error('CLIENT_NOT_FOUND');
+
+                const { data: userQueryResult, error: userError } =
+                    await catchError(
+                        db
+                            .select({
+                                firstName: userTable.firstName,
+                                lastName: userTable.lastName,
+                            })
+                            .from(userTable)
+                            .where(eq(userTable.id, user.id))
+                            .limit(1),
+                    );
+
+                if (userError || !userQueryResult.length)
+                    return Error('USER_NOT_FOUND');
+
+                const userData = userQueryResult[0];
+
+                const userInitials = `${userData.firstName.charAt(0)}${userData.lastName?.charAt(0)}`;
+                const clientInitials = `${client.firstName.charAt(0)}${client.lastName.charAt(0)}`;
+
                 // generate a unique id for the client session
                 const id = uuidv4();
 
@@ -223,9 +373,19 @@ export const createClientSession = protectedEndpoint
 
                 if (initNotes) {
                     const generateNotesResult = await generateNotesProvider({
-                        ...sessionForm,
+                        location,
+                        valuation,
+                        observations,
+                        presentParticipants,
+                        environmentalChanges,
                         abcEntries,
+                        replacementProgramEntries:
+                            replacementProgramNoteEntries,
                         sessionDate: new Date(sessionForm.sessionDate),
+                        startTime,
+                        endTime,
+                        userInitials,
+                        clientInitials,
                     });
 
                     if (generateNotesResult.error)

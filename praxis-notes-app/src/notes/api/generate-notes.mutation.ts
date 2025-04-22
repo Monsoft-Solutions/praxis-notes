@@ -39,6 +39,20 @@ export const generateNotes = protectedEndpoint
                                 },
                             },
                         },
+                        replacementProgramEntries: {
+                            with: {
+                                replacementProgram: true,
+                                teachingProcedure: true,
+                                promptingProcedure: true,
+                                promptTypes: {
+                                    with: {
+                                        promptType: true,
+                                    },
+                                },
+                            },
+                        },
+                        client: true,
+                        user: true,
                     },
                 }),
             );
@@ -84,6 +98,30 @@ export const generateNotes = protectedEndpoint
 
             const abcEntries = abcEntriesNullable.filter((abc) => abc !== null);
 
+            const replacementProgramEntries =
+                clientSession.replacementProgramEntries.map(
+                    ({
+                        replacementProgram,
+                        teachingProcedure,
+                        promptingProcedure,
+                        promptTypes,
+                    }) => {
+                        return {
+                            replacementProgram: replacementProgram.name,
+                            teachingProcedure: teachingProcedure?.name ?? '',
+                            promptingProcedure: promptingProcedure?.name ?? '',
+                            promptTypes: promptTypes.map(
+                                ({ promptType }) => promptType?.name ?? '',
+                            ),
+                        };
+                    },
+                );
+
+            console.log(replacementProgramEntries);
+
+            const userInitials = `${clientSession.user.firstName.charAt(0)}${clientSession.user.lastName?.charAt(0)}`;
+            const clientInitials = `${clientSession.client.firstName.charAt(0)}${clientSession.client.lastName.charAt(0)}`;
+
             const sessionData = {
                 ...clientSession,
                 sessionDate: new Date(clientSession.sessionDate),
@@ -94,6 +132,9 @@ export const generateNotes = protectedEndpoint
                     (change) => change.name,
                 ),
                 abcEntries,
+                replacementProgramEntries,
+                userInitials,
+                clientInitials,
             };
 
             const { data: generatedNotes, error: generatedNotesError } =
