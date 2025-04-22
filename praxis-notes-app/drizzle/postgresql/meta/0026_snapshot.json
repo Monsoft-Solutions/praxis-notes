@@ -1,6 +1,6 @@
 {
-  "id": "9cae47c5-39fa-4290-a151-29da49c2fad6",
-  "prevId": "17a3015c-61d5-44b3-8b68-73e6dc35efd0",
+  "id": "797250a0-0d51-4de4-b009-3be36cd37a68",
+  "prevId": "1fd0a7a2-5f41-4b9a-915b-ffd6518564bb",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -250,13 +250,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "user_id"
-          ]
-        },
-        "unverified_email_email_unique": {
-          "name": "unverified_email_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
           ]
         }
       },
@@ -798,6 +791,30 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
@@ -813,6 +830,32 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "behavior_created_by_users_id_fk": {
+          "name": "behavior_created_by_users_id_fk",
+          "tableFrom": "behavior",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "behavior_updated_by_users_id_fk": {
+          "name": "behavior_updated_by_users_id_fk",
+          "tableFrom": "behavior",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -938,6 +981,30 @@
           "type": "char(36)",
           "primaryKey": false,
           "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
@@ -953,6 +1020,32 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "interventions_created_by_users_id_fk": {
+          "name": "interventions_created_by_users_id_fk",
+          "tableFrom": "interventions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "interventions_updated_by_users_id_fk": {
+          "name": "interventions_updated_by_users_id_fk",
+          "tableFrom": "interventions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -1454,14 +1547,14 @@
           "primaryKey": false,
           "notNull": false
         },
-        "behavior_id": {
-          "name": "behavior_id",
+        "client_behavior_id": {
+          "name": "client_behavior_id",
           "type": "char(36)",
           "primaryKey": false,
           "notNull": false
         },
-        "intervention_id": {
-          "name": "intervention_id",
+        "client_intervention_id": {
+          "name": "client_intervention_id",
           "type": "char(36)",
           "primaryKey": false,
           "notNull": false
@@ -1495,12 +1588,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "client_session_abc_entry_behavior_id_behavior_id_fk": {
-          "name": "client_session_abc_entry_behavior_id_behavior_id_fk",
+        "client_session_abc_entry_client_behavior_id_client_behavior_id_fk": {
+          "name": "client_session_abc_entry_client_behavior_id_client_behavior_id_fk",
           "tableFrom": "client_session_abc_entry",
-          "tableTo": "behavior",
+          "tableTo": "client_behavior",
           "columnsFrom": [
-            "behavior_id"
+            "client_behavior_id"
           ],
           "columnsTo": [
             "id"
@@ -1508,12 +1601,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "client_session_abc_entry_intervention_id_interventions_id_fk": {
-          "name": "client_session_abc_entry_intervention_id_interventions_id_fk",
+        "client_session_abc_entry_client_intervention_id_client_intervention_id_fk": {
+          "name": "client_session_abc_entry_client_intervention_id_client_intervention_id_fk",
           "tableFrom": "client_session_abc_entry",
-          "tableTo": "interventions",
+          "tableTo": "client_intervention",
           "columnsFrom": [
-            "intervention_id"
+            "client_intervention_id"
           ],
           "columnsTo": [
             "id"

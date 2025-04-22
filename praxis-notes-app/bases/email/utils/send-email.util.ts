@@ -3,7 +3,6 @@ import { Resend } from 'resend';
 import { Function } from '@errors/types';
 import { Success, Error } from '@errors/utils';
 
-import { catchError } from '@errors/utils/catch-error.util';
 import { getCoreConf } from '@conf/providers/server';
 
 type SendEmailProps = Parameters<typeof Resend.prototype.emails.send>[0];
@@ -21,7 +20,7 @@ export const sendEmail = (async (props: SendEmailProps) => {
 
     const resend = new Resend(resendApiKey);
 
-    const { error } = await catchError(resend.emails.send(props));
+    const { error } = await resend.emails.send(props);
 
     if (error) return Error();
 

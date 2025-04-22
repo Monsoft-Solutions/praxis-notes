@@ -51,7 +51,7 @@ export const createReplacementProgram = protectedEndpoint
                     return Error();
                 }
 
-                return Success();
+                return Success({ id: replacementProgramId });
             },
         ),
     );

@@ -93,8 +93,6 @@ export const createClient = protectedEndpoint
                                 id: clientReplacementProgramId,
                                 clientId,
                                 replacementProgramId: replacementProgram.id,
-                                createdAt: Date.now(),
-                                updatedAt: Date.now(),
                             }),
                         );
 
@@ -117,7 +115,6 @@ export const createClient = protectedEndpoint
                                         id: uuidv4(),
                                         clientReplacementProgramId,
                                         clientBehaviorId: clientBehavior.id,
-                                        createdAt: Date.now(),
                                     }),
                             );
 

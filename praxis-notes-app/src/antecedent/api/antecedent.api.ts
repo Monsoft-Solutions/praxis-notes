@@ -5,6 +5,7 @@ import { getAntecedents } from './get-antecedents.query';
 
 // mutations
 import { createAntecedent } from './create-antecedent.mutation';
+import { updateAntecedent } from './update-antecedent.mutation';
 
 // subscriptions
 
@@ -14,6 +15,7 @@ export const antecedent = endpoints({
 
     // mutations
     createAntecedent,
+    updateAntecedent,
 
     // subscriptions
 });

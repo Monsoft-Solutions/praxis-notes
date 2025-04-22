@@ -37,7 +37,11 @@ export function InterventionsTable() {
 
     const { searchQuery = '' } = Route.useSearch();
 
-    const [isAddOpen, setIsAddOpen] = useState(false);
+    const [interventionId, setInterventionId] = useState<string | boolean>(
+        false,
+    );
+
+    const isFormOpen = interventionId !== false;
 
     const { data: interventionsQuery } =
         api.intervention.getInterventions.useQuery();
@@ -64,6 +68,10 @@ export function InterventionsTable() {
           )
         : interventions;
 
+    const intervention = interventions.find(
+        (intervention) => intervention.id === interventionId,
+    );
+
     return (
         <div className="space-y-4">
             <Card>
@@ -74,7 +82,7 @@ export function InterventionsTable() {
                         <Button
                             size="sm"
                             onClick={() => {
-                                setIsAddOpen(true);
+                                setInterventionId(true);
                             }}
                         >
                             <PlusIcon className="mr-2 h-4 w-4" />
@@ -141,7 +149,7 @@ export function InterventionsTable() {
                                                     <span className="sr-only">
                                                         Scope:
                                                     </span>
-                                                    {intervention.organizationId ? (
+                                                    {intervention.isCustom ? (
                                                         <Badge className="text-xs">
                                                             Org
                                                         </Badge>
@@ -167,7 +175,7 @@ export function InterventionsTable() {
                                             </Badge> */}
                                         </TableCell>
                                         <TableCell className="hidden md:table-cell">
-                                            {intervention.organizationId ? (
+                                            {intervention.isCustom ? (
                                                 <Badge>Organization</Badge>
                                             ) : (
                                                 <Badge variant="secondary">
@@ -180,7 +188,7 @@ export function InterventionsTable() {
                                                 'No description'}
                                         </TableCell>
                                         <TableCell>
-                                            {intervention.organizationId && (
+                                            {intervention.isCustom && (
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger
                                                         asChild
@@ -197,7 +205,13 @@ export function InterventionsTable() {
                                                     </DropdownMenuTrigger>
 
                                                     <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={() => {
+                                                                setInterventionId(
+                                                                    intervention.id,
+                                                                );
+                                                            }}
+                                                        >
                                                             Edit
                                                         </DropdownMenuItem>
 
@@ -230,11 +244,21 @@ export function InterventionsTable() {
             </Card>
 
             {/* Intervention Form Dialog */}
-            <InterventionForm
-                open={isAddOpen}
-                onOpenChange={setIsAddOpen}
-                // onSuccess={onFormSuccess}
-            />
+            {isFormOpen && (
+                <InterventionForm
+                    open={isFormOpen}
+                    onOpenChange={setInterventionId}
+                    values={
+                        intervention
+                            ? {
+                                  id: intervention.id,
+                                  name: intervention.name,
+                                  description: intervention.description ?? '',
+                              }
+                            : undefined
+                    }
+                />
+            )}
         </div>
     );
 }

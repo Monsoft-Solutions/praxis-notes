@@ -172,7 +172,12 @@ export function ClientSessionDetailsView() {
                         <div className="space-y-6">
                             {session.abcEntries.map(
                                 (
-                                    { id, antecedent, behavior, intervention },
+                                    {
+                                        id,
+                                        antecedent,
+                                        behaviors,
+                                        interventions,
+                                    },
                                     index: number,
                                 ) => (
                                     <div
@@ -190,8 +195,7 @@ export function ClientSessionDetailsView() {
                                                 </h4>
 
                                                 <p className="mt-1 text-sm">
-                                                    {antecedent?.name ??
-                                                        'Not specified'}
+                                                    {antecedent.name}
                                                 </p>
                                             </div>
 
@@ -200,7 +204,14 @@ export function ClientSessionDetailsView() {
                                                     Behavior
                                                 </h4>
 
-                                                {behavior?.name}
+                                                {behaviors.map((behavior) => (
+                                                    <p
+                                                        key={behavior.id}
+                                                        className="mt-1 text-sm"
+                                                    >
+                                                        {behavior.name}
+                                                    </p>
+                                                ))}
                                             </div>
 
                                             <div>
@@ -208,7 +219,18 @@ export function ClientSessionDetailsView() {
                                                     Intervention
                                                 </h4>
 
-                                                {intervention?.name}
+                                                {interventions.map(
+                                                    (intervention) => (
+                                                        <p
+                                                            key={
+                                                                intervention.id
+                                                            }
+                                                            className="mt-1 text-sm"
+                                                        >
+                                                            {intervention.name}
+                                                        </p>
+                                                    ),
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -218,6 +240,115 @@ export function ClientSessionDetailsView() {
                     ) : (
                         <p className="text-muted-foreground text-sm">
                             No ABC entries recorded
+                        </p>
+                    )}
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Replacement Program</CardTitle>
+                </CardHeader>
+
+                <CardContent>
+                    {session.replacementProgramEntries.length ? (
+                        <div className="space-y-6">
+                            {session.replacementProgramEntries.map(
+                                (
+                                    {
+                                        id,
+                                        replacementProgram,
+                                        teachingProcedure,
+                                        promptingProcedure,
+                                        clientResponse,
+                                        progress,
+                                        promptTypes,
+                                    },
+                                    index: number,
+                                ) => (
+                                    <div
+                                        key={id}
+                                        className="rounded-lg border p-4"
+                                    >
+                                        <h3 className="mb-2 font-semibold">
+                                            Entry {index + 1}
+                                        </h3>
+
+                                        <div className="grid gap-4 md:grid-cols-3">
+                                            <div>
+                                                <h4 className="text-sm font-medium">
+                                                    Replacement Program
+                                                </h4>
+
+                                                <p className="mt-1 text-sm">
+                                                    {replacementProgram.name}
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <h4 className="text-sm font-medium">
+                                                    Teaching Procedure
+                                                </h4>
+
+                                                <p className="mt-1 text-sm">
+                                                    {teachingProcedure?.name}
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <h4 className="text-sm font-medium">
+                                                    Prompts Used
+                                                </h4>
+
+                                                {promptTypes.map(
+                                                    (promptType) => (
+                                                        <p
+                                                            key={promptType.id}
+                                                            className="mt-1 text-sm"
+                                                        >
+                                                            {promptType.name}
+                                                        </p>
+                                                    ),
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <h4 className="text-sm font-medium">
+                                                    Prompting Procedure
+                                                </h4>
+
+                                                <p className="mt-1 text-sm">
+                                                    {promptingProcedure?.name}
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <h4 className="text-sm font-medium">
+                                                    Client Response
+                                                </h4>
+
+                                                <p className="mt-1 text-sm">
+                                                    {clientResponse}
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <h4 className="text-sm font-medium">
+                                                    Progress
+                                                </h4>
+
+                                                <p className="mt-1 text-sm">
+                                                    {progress}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ),
+                            )}
+                        </div>
+                    ) : (
+                        <p className="text-muted-foreground text-sm">
+                            No replacement program entries recorded
                         </p>
                     )}
                 </CardContent>

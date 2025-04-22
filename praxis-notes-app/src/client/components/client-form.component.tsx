@@ -103,7 +103,8 @@ export function ClientForm() {
         },
         {
             title: 'Review',
-            description: 'Review all information',
+            description:
+                'Please review all client information before submitting',
             content: (
                 <ClientReviewSummary
                     existingBehaviors={behaviors}

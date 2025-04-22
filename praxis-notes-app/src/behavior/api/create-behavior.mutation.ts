@@ -51,7 +51,7 @@ export const createBehavior = protectedEndpoint
                     return Error();
                 }
 
-                return Success();
+                return Success({ id: behaviorId });
             },
         ),
     );

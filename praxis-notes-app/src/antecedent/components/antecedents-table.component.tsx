@@ -38,7 +38,9 @@ export function AntecedentsTable() {
 
     const { searchQuery = '' } = Route.useSearch();
 
-    const [isAddOpen, setIsAddOpen] = useState(false);
+    const [antecedentId, setAntecedentId] = useState<string | boolean>(false);
+
+    const isFormOpen = antecedentId !== false;
 
     const { data: antecedentsQuery } = api.antecedent.getAntecedents.useQuery();
 
@@ -62,6 +64,10 @@ export function AntecedentsTable() {
           )
         : antecedents;
 
+    const antecedent = antecedents.find(
+        (antecedent) => antecedent.id === antecedentId,
+    );
+
     return (
         <div className="space-y-4">
             <Card>
@@ -72,7 +78,7 @@ export function AntecedentsTable() {
                         <Button
                             size="sm"
                             onClick={() => {
-                                setIsAddOpen(true);
+                                setAntecedentId(true);
                             }}
                         >
                             <PlusIcon className="mr-2 h-4 w-4" />
@@ -134,7 +140,7 @@ export function AntecedentsTable() {
                                                         className="mr-1 text-xs"
                                                     ></Badge>
 
-                                                    {antecedent.organizationId ? (
+                                                    {antecedent.isCustom ? (
                                                         <Badge className="text-xs">
                                                             Org
                                                         </Badge>
@@ -160,7 +166,7 @@ export function AntecedentsTable() {
                                         </TableCell>
 
                                         <TableCell className="hidden md:table-cell">
-                                            {antecedent.organizationId ? (
+                                            {antecedent.isCustom ? (
                                                 <Badge>Organization</Badge>
                                             ) : (
                                                 <Badge variant="secondary">
@@ -175,7 +181,7 @@ export function AntecedentsTable() {
                                         </TableCell>
 
                                         <TableCell>
-                                            {antecedent.organizationId && (
+                                            {antecedent.isCustom && (
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger
                                                         asChild
@@ -192,7 +198,13 @@ export function AntecedentsTable() {
                                                     </DropdownMenuTrigger>
 
                                                     <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={() => {
+                                                                setAntecedentId(
+                                                                    antecedent.id,
+                                                                );
+                                                            }}
+                                                        >
                                                             Edit
                                                         </DropdownMenuItem>
 
@@ -225,11 +237,17 @@ export function AntecedentsTable() {
             </Card>
 
             {/* Antecedent Form Dialog */}
-            <AntecedentForm
-                open={isAddOpen}
-                onOpenChange={setIsAddOpen}
-                // onSuccess={onFormSuccess}
-            />
+            {isFormOpen && (
+                <AntecedentForm
+                    open={isFormOpen}
+                    onOpenChange={setAntecedentId}
+                    values={{
+                        id: antecedent?.id ?? '',
+                        name: antecedent?.name ?? '',
+                        description: antecedent?.description ?? '',
+                    }}
+                />
+            )}
         </div>
     );
 }

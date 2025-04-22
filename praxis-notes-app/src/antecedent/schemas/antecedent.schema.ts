@@ -2,8 +2,7 @@ import { z } from 'zod';
 
 export const antecedentSchema = z.object({
     id: z.string(),
-    organizationId: z.string().nullable(),
-    category: z.string().max(100).optional(),
+    isCustom: z.boolean(),
     name: z.string().min(1),
     description: z.string().optional(),
 });

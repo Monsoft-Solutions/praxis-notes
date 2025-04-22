@@ -21,7 +21,7 @@ export function ABCCardContainer() {
 
     const { fields, append, remove } = useFieldArray({
         control,
-        name: 'abcEntries',
+        name: 'abcIdEntries',
     });
 
     // Add a new empty ABC entry

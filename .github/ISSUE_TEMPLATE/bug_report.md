@@ -1,43 +1,43 @@
----
-name: Bug report
-about: Create a report to help us improve
-title: "[BUG] "
-labels: bug
-assignees: ""
----
+<!-- Clearly and concisely describe the bug. What is happening that shouldn't? -->
 
-## Bug Description
+## 🔁 Steps to Reproduce
 
-A clear and concise description of what the bug is.
-
-## Steps To Reproduce
-
-Steps to reproduce the behavior:
+<!-- List the exact steps to reproduce the issue. Be as specific as possible. -->
 
 1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+2. Click on '...'
+3. Scroll to '...'
+4. See the error
 
-## Expected Behavior
+## ✅ Expected Behavior
 
-A clear and concise description of what you expected to happen.
+<!-- Describe what you expected to happen instead. -->
 
-## Actual Behavior
+## 🚫 Actual Behavior
 
-A clear and concise description of what actually happened.
+<!-- Describe what actually happened. Include any error messages if available. -->
 
-## Screenshots
+## 📸 Screenshots (Optional)
 
-If applicable, add screenshots to help explain your problem.
+<!-- Add screenshots or screen recordings if they help illustrate the issue. -->
 
-## Environment
+## 🧪 Frequency & Impact
 
-- OS: [e.g. macOS, Windows, Linux]
-- Node.js version: [e.g. 16.14.0]
-- MCP version: [e.g. 1.0.0]
-- AI Assistant: [e.g. Claude Desktop, Cursor]
+- **How often does it occur?** (e.g. always, sometimes, rarely)
+- **How severe is the impact?** (e.g. blocks workflow, minor inconvenience)
 
-## Additional Context
+## 🧱 Environment
 
-Add any other context about the problem here.
+- **OS**: (e.g. macOS 14.1, Windows 11)
+- **Browser or App**: (e.g. Chrome 124, Cursor, Electron app)
+- **Node.js version**: (e.g. 18.16.1)
+- **MCP version**: (if applicable)
+- **AI Assistant (if used)**: (e.g. GPT-4, Claude, Cursor)
+
+## 🧾 Logs or Console Output (Optional)
+
+<!-- Paste any relevant logs, errors, or console messages. Use code blocks (```) when needed. -->
+
+## 📎 Additional Context (Optional)
+
+<!-- Include links to related issues, PRs, or any context that might help debug this problem. -->

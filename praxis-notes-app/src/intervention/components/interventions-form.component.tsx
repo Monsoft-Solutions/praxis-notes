@@ -46,32 +46,35 @@ type InterventionFormProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess?: () => void;
+    values?: FormValues & { id: string };
 };
 
 export function InterventionForm({
     open,
     onOpenChange,
     onSuccess,
+    values,
 }: InterventionFormProps) {
     const { mutateAsync: createIntervention } =
         api.intervention.createIntervention.useMutation();
 
+    const { mutateAsync: updateIntervention } =
+        api.intervention.updateIntervention.useMutation();
+
     // Initialize form
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues: {
+        defaultValues: values ?? {
             name: '',
             description: '',
         },
     });
 
     const onSubmit = async (data: FormValues) => {
-        console.log('-->   ~ onSubmit ~ data:', data);
-
-        const { error } = await createIntervention(data);
-
-        if (error) {
-            console.error('-->   ~ onSubmit ~ error:', error);
+        if (values) {
+            await updateIntervention({ ...data, id: values.id });
+        } else {
+            await createIntervention(data);
         }
 
         // Close modal and refresh data
@@ -151,7 +154,9 @@ export function InterventionForm({
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit">Create</Button>
+                            <Button type="submit">
+                                {values ? 'Update' : 'Create'}
+                            </Button>
                         </DialogFooter>
                     </form>
                 </Form>

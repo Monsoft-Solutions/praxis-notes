@@ -6,7 +6,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 
 import { toast } from 'sonner';
 
-import { ClientSession, clientSessionSchema } from '../schemas';
+import { ClientSessionForm, clientSessionFormSchema } from '../schemas';
 
 import { Button } from '@ui/button.ui';
 
@@ -14,6 +14,7 @@ import { SessionHeader } from './session-header.component';
 
 import { SessionBasicInfo } from './session-basic-info.component';
 import { ABCCardContainer } from './abc-card-container.component';
+import { ReplacementProgramCardContainer } from './replacement-program-card-container.component';
 import { ValuationSelector } from './valuation-selector.component';
 import { SessionObservations } from './session-observations.component';
 
@@ -33,8 +34,8 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
     const navigate = useNavigate();
 
     // Initialize form with default values or initial data if provided
-    const form = useForm<ClientSession>({
-        resolver: zodResolver(clientSessionSchema),
+    const form = useForm<ClientSessionForm>({
+        resolver: zodResolver(clientSessionFormSchema),
 
         defaultValues: {
             sessionDate: new Date(),
@@ -43,11 +44,22 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             location: '',
             presentParticipants: [],
             environmentalChanges: [],
-            abcEntries: [
+            abcIdEntries: [
                 {
-                    antecedent: '',
-                    behavior: '',
-                    intervention: '',
+                    antecedentId: '',
+                    behaviorIds: [],
+                    interventionIds: [],
+                    function: 'atention',
+                },
+            ],
+            replacementProgramEntries: [
+                {
+                    replacementProgramId: '',
+                    teachingProcedureId: '',
+                    promptingProcedureId: '',
+                    clientResponse: 'expected',
+                    progress: 0,
+                    promptTypesIds: [],
                 },
             ],
             valuation: 'good',
@@ -60,7 +72,7 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
         data,
         initNotes,
     }: {
-        data: ClientSession;
+        data: ClientSessionForm;
         initNotes: boolean;
     }) => {
         const response = await createClientSession({
@@ -100,6 +112,8 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                 <SessionBasicInfo />
 
                 <ABCCardContainer />
+
+                <ReplacementProgramCardContainer />
 
                 <ValuationSelector />
 

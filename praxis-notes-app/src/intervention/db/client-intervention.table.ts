@@ -38,5 +38,10 @@ export const clientInterventionTableRelations = relations(
             fields: [clientInterventionTable.clientId],
             references: [clientTable.id],
         }),
+
+        intervention: one(interventionTable, {
+            fields: [clientInterventionTable.interventionId],
+            references: [interventionTable.id],
+        }),
     }),
 );

@@ -1,5 +1,6 @@
 import { Function } from '@errors/types';
 
+import { catchError } from '@errors/utils/catch-error.util';
 import { Error, Success } from '@errors/utils';
 
 import { getCoreConf } from '@conf/providers/server';
@@ -23,10 +24,17 @@ export const generateText = (async ({ prompt }: { prompt: string }) => {
         apiKey: anthropicApiKey,
     });
 
-    const { text } = await aiSdkGenerateText({
-        model: anthropic('claude-3-7-sonnet-latest'),
-        prompt,
-    });
+    const { data: textGenerationData, error: textGenerationError } =
+        await catchError(
+            aiSdkGenerateText({
+                model: anthropic('claude-3-haiku-20240307'),
+                prompt,
+            }),
+        );
+
+    if (textGenerationError) return Error('TEXT_GENERATION_ERROR');
+
+    const { text } = textGenerationData;
 
     return Success(text);
 }) satisfies Function<{ prompt: string }, string>;

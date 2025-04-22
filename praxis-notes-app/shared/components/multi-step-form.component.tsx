@@ -1,4 +1,4 @@
-import { useState, ReactNode, useEffect } from 'react';
+import { useState, ReactNode, useEffect, useCallback } from 'react';
 
 import { Button } from '@ui/button.ui';
 
@@ -11,7 +11,7 @@ import {
     CardTitle,
 } from '@ui/card.ui';
 
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export type MultiStepFormStep = {
     title: string;
@@ -46,23 +46,41 @@ export function MultiStepForm({
         }
     }, [currentStep, completedSteps]);
 
-    const goToNextStep = (e: React.MouseEvent<HTMLButtonElement>) => {
-        // Prevent any default form submission
-        e.preventDefault();
-
+    const goToNextStep = useCallback(() => {
         if (currentStep < steps.length) {
             onStepChange(currentStep + 1);
         }
-    };
+    }, [currentStep, steps.length, onStepChange]);
 
-    const goToPreviousStep = (e: React.MouseEvent<HTMLButtonElement>) => {
-        // Prevent any default form submission
-        e.preventDefault();
-
+    const goToPreviousStep = useCallback(() => {
         if (currentStep > 1) {
             onStepChange(currentStep - 1);
         }
-    };
+    }, [currentStep, onStepChange]);
+
+    // Handle keyboard navigation
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // Prevent navigation if focus is inside an input/textarea/select
+            const target = event.target as HTMLElement;
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
+                return;
+            }
+
+            if (event.key === 'ArrowRight') {
+                event.preventDefault(); // Prevent potential browser scrolling
+                goToNextStep();
+            } else if (event.key === 'ArrowLeft') {
+                event.preventDefault(); // Prevent potential browser scrolling
+                goToPreviousStep();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [goToNextStep, goToPreviousStep]);
 
     const handleComplete = (e: React.MouseEvent<HTMLButtonElement>) => {
         // Prevent any default form submission
@@ -75,59 +93,76 @@ export function MultiStepForm({
         onComplete();
     };
 
+    const handleStepClick = (stepNumber: number) => {
+        // Allow clicking on any step number to navigate directly
+        onStepChange(stepNumber);
+    };
+
     const isLastStep = currentStep === steps.length;
     const currentStepData = steps[currentStep - 1];
 
     return (
         <div className="space-y-8">
             {/* Progress Indicator */}
-            <div className="flex justify-between">
+            <ol className="flex justify-between" role="list">
+                {' '}
+                {/* Use <ol> for semantic list */}
                 {steps.map((step, index) => {
                     const stepNumber = index + 1;
                     const isActive = stepNumber === currentStep;
                     const isCompleted = completedSteps.includes(stepNumber);
+                    const isLast = stepNumber === steps.length;
 
                     return (
-                        <div
-                            key={index}
-                            className="flex w-full flex-col items-center"
+                        <li
+                            key={step.title}
+                            className={`relative flex w-full items-center ${
+                                !isLast
+                                    ? isCompleted
+                                        ? "after:border-primary after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
+                                        : "after:border-muted after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
+                                    : ''
+                            } ${isCompleted || isActive ? 'text-primary' : 'text-muted-foreground'}`}
                         >
-                            <div
-                                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
-                                    isActive
-                                        ? 'border-primary bg-primary text-primary-foreground'
-                                        : isCompleted
-                                          ? 'border-primary bg-primary text-primary-foreground'
-                                          : 'border-muted bg-background text-muted-foreground'
-                                }`}
+                            <button
+                                type="button"
+                                aria-label={`Go to step ${stepNumber}: ${step.title}`}
+                                aria-current={isActive ? 'step' : undefined}
+                                onClick={() => {
+                                    handleStepClick(stepNumber);
+                                }}
+                                className={`focus-visible:ring-primary flex cursor-pointer flex-col items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`} // Use focus-visible for ring
                             >
-                                {isCompleted ? (
-                                    <Check className="h-5 w-5" />
-                                ) : (
-                                    <span>{stepNumber}</span>
-                                )}
-                            </div>
-                            <div className="mt-2 w-full text-center">
-                                <div className="text-sm font-medium">
-                                    {step.title}
-                                </div>
-                                {isActive && (
-                                    <div className="text-muted-foreground hidden text-xs sm:block">
-                                        {step.description}
-                                    </div>
-                                )}
-                            </div>
-                            {index < steps.length - 1 && (
-                                <div
-                                    className={`mt-5 h-0.5 w-full ${
-                                        isCompleted ? 'bg-primary' : 'bg-muted'
+                                <span
+                                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 ${
+                                        isActive
+                                            ? 'border-primary text-primary ring-primary font-bold ring-2 ring-offset-2' // Ring already here for active
+                                            : isCompleted
+                                              ? 'border-primary text-primary'
+                                              : 'border-muted text-muted-foreground'
                                     }`}
-                                ></div>
-                            )}
-                        </div>
+                                >
+                                    <span
+                                        className={isActive ? 'font-bold' : ''}
+                                    >
+                                        {stepNumber}
+                                    </span>
+                                </span>
+                                <div className="mt-2 w-full text-center">
+                                    <div className="text-sm font-medium">
+                                        {step.title}
+                                    </div>
+                                    {isActive && (
+                                        <div className="text-muted-foreground hidden text-xs sm:block">
+                                            {step.description}
+                                        </div>
+                                    )}
+                                </div>
+                            </button>
+                        </li>
                     );
                 })}
-            </div>
+            </ol>
 
             {/* Current Step Content */}
             <Card className="w-full">
@@ -141,7 +176,10 @@ export function MultiStepForm({
                 <CardFooter className="flex justify-between">
                     <Button
                         variant="outline"
-                        onClick={goToPreviousStep}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            goToPreviousStep();
+                        }} // Keep preventDefault for button clicks
                         disabled={currentStep === 1 || isSubmitting}
                         type="button"
                     >
@@ -151,7 +189,10 @@ export function MultiStepForm({
                     <div className="flex gap-2">
                         {!isLastStep && (
                             <Button
-                                onClick={goToNextStep}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    goToNextStep();
+                                }} // Keep preventDefault for button clicks
                                 disabled={isSubmitting}
                                 type="button"
                             >

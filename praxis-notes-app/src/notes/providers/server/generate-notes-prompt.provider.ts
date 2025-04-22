@@ -23,9 +23,9 @@ ${sessionData.abcEntries
     .map(
         (abc, index) => `
 ABC Entry #${(index + 1).toString()}:
-- Activity/Antecedent: ${abc.antecedent}
-- Behaviors: ${abc.behavior}
-- Interventions: ${abc.intervention}
+- Activity/Antecedent: ${abc.antecedentName}
+- Behaviors: ${abc.behaviorNames.join(', ')}
+- Interventions: ${abc.interventionNames.join(', ')}
 `,
     )
     .join('\n')}

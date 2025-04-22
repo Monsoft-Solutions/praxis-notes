@@ -37,7 +37,8 @@ export function BehaviorsTable() {
 
     const { searchQuery = '' } = Route.useSearch();
 
-    const [isAddOpen, setIsAddOpen] = useState(false);
+    const [behaviorId, setBehaviorId] = useState<string | boolean>(false);
+    const isFormOpen = behaviorId !== false;
 
     const { data: behaviorsQuery } = api.behavior.getBehaviors.useQuery();
 
@@ -61,6 +62,8 @@ export function BehaviorsTable() {
           )
         : behaviors;
 
+    const behavior = behaviors.find((behavior) => behavior.id === behaviorId);
+
     return (
         <div className="space-y-4">
             <Card>
@@ -71,7 +74,7 @@ export function BehaviorsTable() {
                         <Button
                             size="sm"
                             onClick={() => {
-                                setIsAddOpen(true);
+                                setBehaviorId(true);
                             }}
                         >
                             <PlusIcon className="mr-2 h-4 w-4" />
@@ -133,7 +136,7 @@ export function BehaviorsTable() {
                                                         className="mr-1 text-xs"
                                                     ></Badge>
 
-                                                    {behavior.organizationId ? (
+                                                    {behavior.isCustom ? (
                                                         <Badge className="text-xs">
                                                             Org
                                                         </Badge>
@@ -159,7 +162,7 @@ export function BehaviorsTable() {
                                         </TableCell>
 
                                         <TableCell className="hidden md:table-cell">
-                                            {behavior.organizationId ? (
+                                            {behavior.isCustom ? (
                                                 <Badge>Organization</Badge>
                                             ) : (
                                                 <Badge variant="secondary">
@@ -174,7 +177,7 @@ export function BehaviorsTable() {
                                         </TableCell>
 
                                         <TableCell>
-                                            {behavior.organizationId && (
+                                            {behavior.isCustom && (
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger
                                                         asChild
@@ -191,7 +194,13 @@ export function BehaviorsTable() {
                                                     </DropdownMenuTrigger>
 
                                                     <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={() => {
+                                                                setBehaviorId(
+                                                                    behavior.id,
+                                                                );
+                                                            }}
+                                                        >
                                                             Edit
                                                         </DropdownMenuItem>
 
@@ -224,11 +233,21 @@ export function BehaviorsTable() {
             </Card>
 
             {/* Behavior Form Dialog */}
-            <BehaviorForm
-                open={isAddOpen}
-                onOpenChange={setIsAddOpen}
-                // onSuccess={onFormSuccess}
-            />
+            {isFormOpen && (
+                <BehaviorForm
+                    open={isFormOpen}
+                    onOpenChange={setBehaviorId}
+                    values={
+                        behavior
+                            ? {
+                                  id: behavior.id,
+                                  name: behavior.name,
+                                  description: behavior.description ?? '',
+                              }
+                            : undefined
+                    }
+                />
+            )}
         </div>
     );
 }

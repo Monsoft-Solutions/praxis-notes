@@ -20,8 +20,7 @@ export const getClientSession = protectedEndpoint
     )
     .query(
         queryMutationCallback(async ({ input: { sessionId } }) => {
-            // get the templates matching the search query
-            const { data: clientSession, error } = await catchError(
+            const { data: clientSessionRecords, error } = await catchError(
                 db.query.clientSessionTable.findFirst({
                     where: (record) => eq(record.id, sessionId),
 
@@ -32,8 +31,28 @@ export const getClientSession = protectedEndpoint
                         abcEntries: {
                             with: {
                                 antecedent: true,
-                                behavior: true,
-                                intervention: true,
+                                behaviors: {
+                                    with: {
+                                        behavior: true,
+                                    },
+                                },
+                                interventions: {
+                                    with: {
+                                        intervention: true,
+                                    },
+                                },
+                            },
+                        },
+                        replacementProgramEntries: {
+                            with: {
+                                replacementProgram: true,
+                                teachingProcedure: true,
+                                promptTypes: {
+                                    with: {
+                                        promptType: true,
+                                    },
+                                },
+                                promptingProcedure: true,
                             },
                         },
                     },
@@ -42,9 +61,102 @@ export const getClientSession = protectedEndpoint
 
             if (error) return Error();
 
-            if (!clientSession) return Error('NOT_FOUND');
+            if (!clientSessionRecords) return Error('NOT_FOUND');
 
-            // return the templates matching the search query
+            const abcEntriesNullable = clientSessionRecords.abcEntries.map(
+                ({
+                    id,
+                    antecedent,
+                    behaviors: abcEntryBehaviors,
+                    interventions: abcEntryInterventions,
+                }) => {
+                    if (!antecedent) return null;
+
+                    const behaviorsNullable = abcEntryBehaviors.map(
+                        ({ behavior }) => behavior,
+                    );
+
+                    const behaviors = behaviorsNullable.filter(
+                        (behavior) => behavior !== null,
+                    );
+
+                    if (behaviors.length !== abcEntryBehaviors.length)
+                        return null;
+
+                    const interventionsNullable = abcEntryInterventions.map(
+                        ({ intervention }) => intervention,
+                    );
+
+                    const interventions = interventionsNullable.filter(
+                        (intervention) => intervention !== null,
+                    );
+
+                    if (interventions.length !== abcEntryInterventions.length)
+                        return null;
+
+                    return {
+                        id,
+                        antecedent,
+                        behaviors,
+                        interventions,
+                    };
+                },
+            );
+
+            const abcEntries = abcEntriesNullable.filter(
+                (abcEntry) => abcEntry !== null,
+            );
+
+            const replacementProgramEntriesNullable =
+                clientSessionRecords.replacementProgramEntries.map(
+                    ({
+                        id,
+                        replacementProgram,
+                        teachingProcedure,
+                        promptTypes: replacementProgramEntryPromptTypes,
+                        promptingProcedure,
+                        clientResponse,
+                        progress,
+                    }) => {
+                        const promptTypesNullable =
+                            replacementProgramEntryPromptTypes.map(
+                                ({ promptType }) => promptType,
+                            );
+
+                        const promptTypes = promptTypesNullable.filter(
+                            (promptTypeName) => promptTypeName !== null,
+                        );
+
+                        if (
+                            promptTypes.length !==
+                            replacementProgramEntryPromptTypes.length
+                        )
+                            return null;
+
+                        return {
+                            id,
+                            replacementProgram,
+                            teachingProcedure,
+                            promptTypes,
+                            promptingProcedure,
+                            clientResponse,
+                            progress,
+                        };
+                    },
+                );
+
+            const replacementProgramEntries =
+                replacementProgramEntriesNullable.filter(
+                    (replacementProgramEntry) =>
+                        replacementProgramEntry !== null,
+                );
+
+            const clientSession = {
+                ...clientSessionRecords,
+                abcEntries,
+                replacementProgramEntries,
+            };
+
             return Success(clientSession);
         }),
     );

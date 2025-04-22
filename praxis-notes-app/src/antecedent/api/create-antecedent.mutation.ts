@@ -49,7 +49,7 @@ export const createAntecedent = protectedEndpoint
                     return Error();
                 }
 
-                return Success();
+                return Success({ id: antecedentId });
             },
         ),
     );

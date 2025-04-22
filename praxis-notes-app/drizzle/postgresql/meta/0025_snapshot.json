@@ -1,5 +1,5 @@
 {
-  "id": "17a3015c-61d5-44b3-8b68-73e6dc35efd0",
+  "id": "1fd0a7a2-5f41-4b9a-915b-ffd6518564bb",
   "prevId": "4a19e95e-37c2-458b-a64e-12d59e7d36d5",
   "version": "7",
   "dialect": "postgresql",
@@ -250,13 +250,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "user_id"
-          ]
-        },
-        "unverified_email_email_unique": {
-          "name": "unverified_email_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
           ]
         }
       },
@@ -798,6 +791,30 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "char(36)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
@@ -813,6 +830,32 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "behavior_created_by_users_id_fk": {
+          "name": "behavior_created_by_users_id_fk",
+          "tableFrom": "behavior",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "behavior_updated_by_users_id_fk": {
+          "name": "behavior_updated_by_users_id_fk",
+          "tableFrom": "behavior",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },

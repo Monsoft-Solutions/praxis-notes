@@ -1,12 +1,20 @@
 import { relations } from 'drizzle-orm';
 
-import { char, table } from '@db/sql';
+import { char, enumType, sqlEnum, table } from '@db/sql';
 
 import { clientSessionTable } from '@src/client-session/db/client-session.table';
 
 import { antecedentTable } from '@src/antecedent/db';
-import { behaviorTable } from '@src/behavior/db';
-import { interventionTable } from '@src/intervention/db';
+
+import { clientSessionAbcEntryInterventionTable } from '@src/client-session/db/client-session-abc-entry-intervention.table';
+import { clientSessionAbcEntryBehaviorTable } from '@src/client-session/db/client-session-abc-entry-behavior.table';
+
+import { abcFunctionEnum } from '@src/client-session/enum';
+
+export const abcFunction = enumType(
+    'client_session_abc_entry_function',
+    abcFunctionEnum.options,
+);
 
 /**
  * client session abc entry
@@ -23,19 +31,13 @@ export const clientSessionAbcEntryTable = table('client_session_abc_entry', {
         () => antecedentTable.id,
     ),
 
-    behaviorId: char('behavior_id', { length: 36 }).references(
-        () => behaviorTable.id,
-    ),
-
-    interventionId: char('intervention_id', { length: 36 }).references(
-        () => interventionTable.id,
-    ),
+    function: sqlEnum('function', abcFunction).notNull(),
 });
 
 export const clientSessionAbcEntryTableRelations = relations(
     clientSessionAbcEntryTable,
 
-    ({ one }) => ({
+    ({ one, many }) => ({
         clientSession: one(clientSessionTable, {
             fields: [clientSessionAbcEntryTable.clientSessionId],
             references: [clientSessionTable.id],
@@ -46,14 +48,8 @@ export const clientSessionAbcEntryTableRelations = relations(
             references: [antecedentTable.id],
         }),
 
-        behavior: one(behaviorTable, {
-            fields: [clientSessionAbcEntryTable.behaviorId],
-            references: [behaviorTable.id],
-        }),
+        behaviors: many(clientSessionAbcEntryBehaviorTable),
 
-        intervention: one(interventionTable, {
-            fields: [clientSessionAbcEntryTable.interventionId],
-            references: [interventionTable.id],
-        }),
+        interventions: many(clientSessionAbcEntryInterventionTable),
     }),
 );

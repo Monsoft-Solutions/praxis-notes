@@ -15,13 +15,21 @@ import {
     clientSessionParticipantTable,
     clientSessionEnvironmentalChangeTable,
     clientSessionAbcEntryTable,
+    clientSessionAbcEntryBehaviorTable,
+    clientSessionAbcEntryInterventionTable,
+    clientSessionReplacementProgramEntryTable,
+    clientSessionReplacementProgramEntryPromptTypeTable,
 } from '../db';
 
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
 
-import { clientSessionValuationEnum } from '../enum';
+import { abcFunctionEnum, clientSessionValuationEnum } from '../enum';
+
+import { replacementProgramResponseEnum } from '@src/replacement-program/enums';
 
 import { generateNotes as generateNotesProvider } from '@src/notes/providers/server';
+
+import { eq } from 'drizzle-orm';
 
 // mutation to create a client session
 export const createClientSession = protectedEndpoint
@@ -43,11 +51,23 @@ export const createClientSession = protectedEndpoint
                 presentParticipants: z.array(z.string()),
                 environmentalChanges: z.array(z.string()),
 
-                abcEntries: z.array(
+                abcIdEntries: z.array(
                     z.object({
-                        antecedent: z.string(),
-                        behavior: z.string(),
-                        intervention: z.string(),
+                        antecedentId: z.string(),
+                        behaviorIds: z.array(z.string()),
+                        interventionIds: z.array(z.string()),
+                        function: abcFunctionEnum,
+                    }),
+                ),
+
+                replacementProgramEntries: z.array(
+                    z.object({
+                        replacementProgramId: z.string(),
+                        teachingProcedureId: z.string(),
+                        promptTypesIds: z.array(z.string()),
+                        promptingProcedureId: z.string(),
+                        clientResponse: replacementProgramResponseEnum,
+                        progress: z.number(),
                     }),
                 ),
             }),
@@ -61,8 +81,6 @@ export const createClientSession = protectedEndpoint
                 },
                 input: { clientId, initNotes, sessionForm },
             }) => {
-                console.log(sessionForm);
-
                 const {
                     sessionDate,
                     startTime,
@@ -74,20 +92,147 @@ export const createClientSession = protectedEndpoint
                     presentParticipants,
                     environmentalChanges,
 
-                    abcEntries,
+                    abcIdEntries,
+                    replacementProgramEntries,
                 } = sessionForm;
+
+                const abcEntriesNullable = await Promise.all(
+                    abcIdEntries.map(
+                        async ({
+                            antecedentId,
+                            behaviorIds,
+                            interventionIds,
+                        }) => {
+                            const { data: antecedent, error: antecedentError } =
+                                await catchError(
+                                    db.query.antecedentTable.findFirst({
+                                        where: (record) =>
+                                            eq(record.id, antecedentId),
+                                    }),
+                                );
+
+                            if (antecedentError || !antecedent) return null;
+
+                            const { data: behaviors, error: behaviorsError } =
+                                await catchError(
+                                    db.transaction(async (tx) => {
+                                        const behaviorsNullable =
+                                            await Promise.all(
+                                                behaviorIds.map(
+                                                    async (behaviorId) =>
+                                                        await tx.query.behaviorTable.findFirst(
+                                                            {
+                                                                where: (
+                                                                    record,
+                                                                ) =>
+                                                                    eq(
+                                                                        record.id,
+                                                                        behaviorId,
+                                                                    ),
+                                                            },
+                                                        ),
+                                                ),
+                                            );
+
+                                        const behaviors =
+                                            behaviorsNullable.filter(
+                                                (behavior) =>
+                                                    behavior !== undefined,
+                                            );
+
+                                        if (
+                                            behaviors.length !==
+                                            behaviorIds.length
+                                        )
+                                            throw 'BEHAVIORS_NOT_FOUND';
+
+                                        return behaviors;
+                                    }),
+                                );
+
+                            if (behaviorsError) return null;
+
+                            const {
+                                data: interventions,
+                                error: interventionsError,
+                            } = await catchError(
+                                db.transaction(async (tx) => {
+                                    const interventionsNullable =
+                                        await Promise.all(
+                                            interventionIds.map(
+                                                async (interventionId) =>
+                                                    await tx.query.interventionTable.findFirst(
+                                                        {
+                                                            where: (record) =>
+                                                                eq(
+                                                                    record.id,
+                                                                    interventionId,
+                                                                ),
+                                                        },
+                                                    ),
+                                            ),
+                                        );
+
+                                    const interventions =
+                                        interventionsNullable.filter(
+                                            (intervention) =>
+                                                intervention !== undefined,
+                                        );
+
+                                    if (
+                                        interventions.length !==
+                                        interventionIds.length
+                                    )
+                                        throw 'INTERVENTIONS_NOT_FOUND';
+
+                                    return interventions;
+                                }),
+                            );
+
+                            if (interventionsError) return null;
+
+                            const antecedentName = antecedent.name;
+
+                            const behaviorNames = behaviors.map(
+                                (behavior) => behavior.name,
+                            );
+                            const interventionNames = interventions.map(
+                                (intervention) => intervention.name,
+                            );
+
+                            return {
+                                antecedentName,
+                                behaviorNames,
+                                interventionNames,
+                            };
+                        },
+                    ),
+                );
+
+                const abcEntries = abcEntriesNullable.filter(
+                    (abcEntry) => abcEntry !== null,
+                );
+
+                if (abcEntries.length !== abcIdEntries.length)
+                    return Error('ABC_ENTRIES_NOT_FOUND');
 
                 // generate a unique id for the client session
                 const id = uuidv4();
 
-                const notes = initNotes
-                    ? (
-                          await generateNotesProvider({
-                              ...sessionForm,
-                              sessionDate: new Date(sessionForm.sessionDate),
-                          })
-                      ).data
-                    : null;
+                let notes: string | null = null;
+
+                if (initNotes) {
+                    const generateNotesResult = await generateNotesProvider({
+                        ...sessionForm,
+                        abcEntries,
+                        sessionDate: new Date(sessionForm.sessionDate),
+                    });
+
+                    if (generateNotesResult.error)
+                        return Error('TEXT_GENERATION_ERROR');
+
+                    notes = generateNotesResult.data;
+                }
 
                 // create the client session object
                 const clientSession = {
@@ -107,59 +252,124 @@ export const createClientSession = protectedEndpoint
                     notes,
                 };
 
-                // insert the client session into db
                 const { error } = await catchError(
-                    db.insert(clientSessionTable).values(clientSession),
+                    db.transaction(async (tx) => {
+                        // insert the client session
+                        await tx
+                            .insert(clientSessionTable)
+                            .values(clientSession);
+
+                        // insert the participants
+                        for (const participant of presentParticipants) {
+                            await tx
+                                .insert(clientSessionParticipantTable)
+                                .values({
+                                    id: uuidv4(),
+                                    clientSessionId: id,
+                                    name: participant,
+                                });
+                        }
+
+                        // insert the environmental changes
+                        for (const change of environmentalChanges) {
+                            await tx
+                                .insert(clientSessionEnvironmentalChangeTable)
+                                .values({
+                                    id: uuidv4(),
+                                    clientSessionId: id,
+                                    name: change,
+                                });
+                        }
+
+                        // insert the abc entries
+                        for (const {
+                            antecedentId,
+                            behaviorIds,
+                            interventionIds,
+                            function: abcFunction,
+                        } of abcIdEntries) {
+                            const clientSessionAbcEntryId = uuidv4();
+
+                            await tx.insert(clientSessionAbcEntryTable).values({
+                                id: clientSessionAbcEntryId,
+                                clientSessionId: id,
+                                antecedentId,
+                                function: abcFunction,
+                            });
+
+                            for (const behaviorId of behaviorIds) {
+                                await tx
+                                    .insert(clientSessionAbcEntryBehaviorTable)
+                                    .values({
+                                        id: uuidv4(),
+                                        clientSessionAbcEntryId,
+                                        behaviorId,
+                                    });
+                            }
+
+                            for (const interventionId of interventionIds) {
+                                await tx
+                                    .insert(
+                                        clientSessionAbcEntryInterventionTable,
+                                    )
+                                    .values({
+                                        id: uuidv4(),
+                                        clientSessionAbcEntryId,
+                                        interventionId,
+                                    });
+                            }
+                        }
+
+                        // insert the replacement program entries
+                        for (const {
+                            replacementProgramId,
+                            teachingProcedureId,
+                            promptingProcedureId,
+                            clientResponse,
+                            progress,
+                            promptTypesIds,
+                        } of replacementProgramEntries) {
+                            const clientSessionReplacementProgramEntryId =
+                                uuidv4();
+
+                            await tx
+                                .insert(
+                                    clientSessionReplacementProgramEntryTable,
+                                )
+                                .values({
+                                    id: clientSessionReplacementProgramEntryId,
+                                    clientSessionId: id,
+                                    replacementProgramId,
+                                    teachingProcedureId,
+                                    promptingProcedureId,
+                                    clientResponse,
+                                    progress,
+                                })
+                                .catch((error: unknown) => {
+                                    console.error(error);
+                                    throw error;
+                                });
+
+                            for (const promptTypeId of promptTypesIds) {
+                                await tx
+                                    .insert(
+                                        clientSessionReplacementProgramEntryPromptTypeTable,
+                                    )
+                                    .values({
+                                        id: uuidv4(),
+                                        clientSessionReplacementProgramEntryId,
+                                        promptTypeId,
+                                    })
+                                    .catch((error: unknown) => {
+                                        console.error(error);
+                                        throw error;
+                                    });
+                            }
+                        }
+                    }),
                 );
 
-                // if insertion failed, return the error
-                if (error) {
-                    if (error === 'DUPLICATE_ENTRY') return Error('DUPLICATE');
-
-                    return Error();
-                }
-                // otherwise...
-
-                for (const participant of presentParticipants) {
-                    const { error } = await catchError(
-                        db.insert(clientSessionParticipantTable).values({
-                            id: uuidv4(),
-                            clientSessionId: id,
-                            name: participant,
-                        }),
-                    );
-
-                    if (error) return Error();
-                }
-
-                for (const change of environmentalChanges) {
-                    const { error } = await catchError(
-                        db
-                            .insert(clientSessionEnvironmentalChangeTable)
-                            .values({
-                                id: uuidv4(),
-                                clientSessionId: id,
-                                name: change,
-                            }),
-                    );
-
-                    if (error) return Error();
-                }
-
-                for (const abcEntry of abcEntries) {
-                    await db
-                        .insert(clientSessionAbcEntryTable)
-                        .values({
-                            id: uuidv4(),
-                            clientSessionId: id,
-                            antecedentId: abcEntry.antecedent,
-                            behaviorId: abcEntry.behavior,
-                            interventionId: abcEntry.intervention,
-                        })
-                        .catch((error: unknown) => {
-                            console.log('-->   ~ error:', error);
-                        });
-                }
+                if (error) return Error();
 
                 return Success({ id });
             },
