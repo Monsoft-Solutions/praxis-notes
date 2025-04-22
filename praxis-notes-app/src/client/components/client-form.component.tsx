@@ -16,7 +16,7 @@ import { ClientInterventionsForm } from './client-interventions-form.component';
 
 import { ClientReviewSummary } from './client-review-summary.component';
 
-import { api } from '@api/providers/web';
+import { api, apiClientUtils } from '@api/providers/web';
 
 import { Route } from '@routes/_private/_app/clients/new';
 
@@ -158,12 +158,14 @@ export function ClientForm() {
         form.clearErrors();
     };
 
-    const handleComplete = () => {
+    const handleComplete = async () => {
         const formData = form.getValues();
 
-        void createClient(formData);
+        await createClient(formData);
 
-        void navigate({
+        await apiClientUtils.client.getClients.invalidate();
+
+        await navigate({
             to: '/clients',
         });
     };
@@ -178,7 +180,7 @@ export function ClientForm() {
                     steps={steps}
                     currentStep={currentStep}
                     onStepChange={handleStepChange}
-                    onComplete={handleComplete}
+                    onComplete={() => void handleComplete()}
                     isLastStepSubmitEnabled={isLastStepSubmitEnabled}
                 />
             </div>
