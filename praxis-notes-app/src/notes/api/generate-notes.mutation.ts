@@ -117,8 +117,6 @@ export const generateNotes = protectedEndpoint
                     },
                 );
 
-            console.log(replacementProgramEntries);
-
             const userInitials = `${clientSession.user.firstName.charAt(0)}${clientSession.user.lastName?.charAt(0)}`;
             const clientInitials = `${clientSession.client.firstName.charAt(0)}${clientSession.client.lastName.charAt(0)}`;
 
