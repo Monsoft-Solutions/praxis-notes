@@ -32,10 +32,10 @@ type AbcSelectorProps = {
     items: {
         id: string;
         name: string;
-        isCustom: boolean;
+        isCustom?: boolean;
         isClient?: boolean;
     }[];
-    create: (args: { name: string }) => Promise<{ id: string } | null>;
+    create?: (args: { name: string }) => Promise<{ id: string } | null>;
 } & (
     | {
           multiple: true;
@@ -84,6 +84,7 @@ export function AbcSelector({
     const groupBy = 'type';
 
     const handleCreate = async ({ name }: { name: string }) => {
+        if (!create) return;
         const createdItem = await create({ name });
 
         if (!createdItem) {
@@ -114,7 +115,7 @@ export function AbcSelector({
                     groupBy={groupBy}
                     placeholder={placeholder}
                     value={selectedOptions}
-                    creatable
+                    creatable={!!create}
                     emptyIndicator={
                         <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
                             no results found.
@@ -211,7 +212,7 @@ export function AbcSelector({
                                     </CommandGroup>
                                 ))}
 
-                                {search && (
+                                {search && create && (
                                     <CommandItem
                                         onSelect={() => {
                                             setCreateDialogOpen(true);

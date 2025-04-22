@@ -14,6 +14,7 @@ import { SessionHeader } from './session-header.component';
 
 import { SessionBasicInfo } from './session-basic-info.component';
 import { ABCCardContainer } from './abc-card-container.component';
+import { ReplacementProgramCardContainer } from './replacement-program-card-container.component';
 import { ValuationSelector } from './valuation-selector.component';
 import { SessionObservations } from './session-observations.component';
 
@@ -49,6 +50,16 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                     behaviorIds: [],
                     interventionIds: [],
                     function: 'atention',
+                },
+            ],
+            replacementProgramEntries: [
+                {
+                    replacementProgramId: '',
+                    teachingProcedureId: '',
+                    promptingProcedureId: '',
+                    clientResponse: 'expected',
+                    progress: 0,
+                    promptTypesIds: [],
                 },
             ],
             valuation: 'good',
@@ -101,6 +112,8 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                 <SessionBasicInfo />
 
                 <ABCCardContainer />
+
+                <ReplacementProgramCardContainer />
 
                 <ValuationSelector />
 

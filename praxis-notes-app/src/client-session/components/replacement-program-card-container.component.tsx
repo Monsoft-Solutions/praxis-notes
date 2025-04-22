@@ -4,10 +4,6 @@ import { Button } from '@ui/button.ui';
 
 import { PlusCircle } from 'lucide-react';
 
-import { v4 as uuidv4 } from 'uuid';
-
-import { ABCCard } from './abc-card.component';
-
 import {
     Card,
     CardContent,
@@ -15,40 +11,39 @@ import {
     CardTitle,
     CardDescription,
 } from '@ui/card.ui';
+import { ReplacementProgramCard } from './replacement-program-card.component';
 
-export function ABCCardContainer() {
+export function ReplacementProgramCardContainer() {
     const { control } = useFormContext();
 
     const { fields, append, remove } = useFieldArray({
         control,
-        name: 'abcIdEntries',
+        name: 'replacementProgramEntries',
     });
 
-    // Add a new empty ABC entry
+    // Add a new empty replacement program entry
     const handleAddEntry = () => {
         append({
-            id: uuidv4(),
-            activityAntecedent: '',
-            behaviors: [],
-            interventions: [],
-            replacementPrograms: [],
+            replacementProgramId: '',
+            teachingProcedureId: '',
+            promptingProcedureId: '',
+            clientResponse: 'expected',
         });
     };
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>ABC Data</CardTitle>
+                <CardTitle>Replacement Program Data</CardTitle>
 
                 <CardDescription>
-                    Record Antecedent, Behavior, and Consequence data for the
-                    session.
+                    Record Replacement Program data for the session.
                 </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
                 {fields.map((field, index) => (
-                    <ABCCard
+                    <ReplacementProgramCard
                         key={field.id}
                         index={index}
                         onRemove={
@@ -68,7 +63,7 @@ export function ABCCardContainer() {
                     className="mt-4 w-full"
                 >
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    Add ABC Entry
+                    Add Replacement Program Entry
                 </Button>
             </CardContent>
         </Card>

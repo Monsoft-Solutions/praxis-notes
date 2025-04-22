@@ -142,7 +142,7 @@ export function ReplacementProgramsTable() {
                                                         <span className="sr-only">
                                                             Scope:
                                                         </span>
-                                                        {replacementProgram.organizationId ? (
+                                                        {replacementProgram.isCustom ? (
                                                             <Badge className="text-xs">
                                                                 Org
                                                             </Badge>
@@ -168,7 +168,7 @@ export function ReplacementProgramsTable() {
                                                 </Badge> */}
                                             </TableCell>
                                             <TableCell className="hidden md:table-cell">
-                                                {replacementProgram.organizationId ? (
+                                                {replacementProgram.isCustom ? (
                                                     <Badge>Organization</Badge>
                                                 ) : (
                                                     <Badge variant="secondary">
@@ -181,7 +181,7 @@ export function ReplacementProgramsTable() {
                                                     'No description'}
                                             </TableCell>
                                             <TableCell>
-                                                {replacementProgram.organizationId && (
+                                                {replacementProgram.isCustom && (
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger
                                                             asChild

@@ -43,6 +43,18 @@ export const getClientSession = protectedEndpoint
                                 },
                             },
                         },
+                        replacementProgramEntries: {
+                            with: {
+                                replacementProgram: true,
+                                teachingProcedure: true,
+                                promptTypes: {
+                                    with: {
+                                        promptType: true,
+                                    },
+                                },
+                                promptingProcedure: true,
+                            },
+                        },
                     },
                 }),
             );
@@ -95,9 +107,54 @@ export const getClientSession = protectedEndpoint
                 (abcEntry) => abcEntry !== null,
             );
 
+            const replacementProgramEntriesNullable =
+                clientSessionRecords.replacementProgramEntries.map(
+                    ({
+                        id,
+                        replacementProgram,
+                        teachingProcedure,
+                        promptTypes: replacementProgramEntryPromptTypes,
+                        promptingProcedure,
+                        clientResponse,
+                        progress,
+                    }) => {
+                        const promptTypesNullable =
+                            replacementProgramEntryPromptTypes.map(
+                                ({ promptType }) => promptType,
+                            );
+
+                        const promptTypes = promptTypesNullable.filter(
+                            (promptTypeName) => promptTypeName !== null,
+                        );
+
+                        if (
+                            promptTypes.length !==
+                            replacementProgramEntryPromptTypes.length
+                        )
+                            return null;
+
+                        return {
+                            id,
+                            replacementProgram,
+                            teachingProcedure,
+                            promptTypes,
+                            promptingProcedure,
+                            clientResponse,
+                            progress,
+                        };
+                    },
+                );
+
+            const replacementProgramEntries =
+                replacementProgramEntriesNullable.filter(
+                    (replacementProgramEntry) =>
+                        replacementProgramEntry !== null,
+                );
+
             const clientSession = {
                 ...clientSessionRecords,
                 abcEntries,
+                replacementProgramEntries,
             };
 
             return Success(clientSession);

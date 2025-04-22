@@ -41,12 +41,6 @@ export const createReplacementProgram = protectedEndpoint
 
                         name,
                         description,
-
-                        createdBy: user.id,
-                        updatedBy: user.id,
-
-                        createdAt: Date.now(),
-                        updatedAt: Date.now(),
                     }),
                 );
 
@@ -57,7 +51,7 @@ export const createReplacementProgram = protectedEndpoint
                     return Error();
                 }
 
-                return Success();
+                return Success({ id: replacementProgramId });
             },
         ),
     );
