@@ -71,6 +71,9 @@ export default defineConfig({
         alias,
     },
 
+    // specify the public directory to serve static assets
+    publicDir: 'public',
+
     build: {
         chunkSizeWarningLimit: 5000,
     },
