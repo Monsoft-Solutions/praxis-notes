@@ -1,11 +1,34 @@
-import { Seed } from '@seed/types';
+import { db } from '@db/providers/server/db-client.provider';
 
 import { replacementProgramTable } from '../db';
 
-const _partialSchema = { replacementProgramTable };
+import { replacementProgramData } from './constant';
+import { eq } from 'drizzle-orm';
 
-export const replacementProgramSeed: Seed<typeof _partialSchema> = () => ({
-    replacementProgramTable: {
-        count: 1,
-    },
-});
+export const replacementProgramSeed = async () => {
+    console.log('seeding replacement programs...');
+
+    // check if replacement programs already exist
+    await Promise.all(
+        replacementProgramData.map(async ({ id, name, description }) => {
+            const existingReplacementProgram =
+                await db.query.replacementProgramTable.findFirst({
+                    where: eq(replacementProgramTable.id, id),
+                });
+
+            if (existingReplacementProgram) {
+                console.log(`replacement program ${name} already exist`);
+                return;
+            }
+
+            await db.insert(replacementProgramTable).values({
+                id,
+                organizationId: null,
+                name,
+                description,
+            });
+        }),
+    );
+
+    console.log('replacement programs seeded');
+};

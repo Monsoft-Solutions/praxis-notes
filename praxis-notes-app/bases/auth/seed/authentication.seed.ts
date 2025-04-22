@@ -1,22 +1,24 @@
-import bcrypt from 'bcryptjs';
-
-import { Seed } from '@seed/types';
+import { eq } from 'drizzle-orm';
+import { db } from '@db/providers/server/db-client.provider';
 
 import { authenticationTable } from '../db';
 
-const _partialSchema = { authenticationTable };
+import { testAuthentication, testUser } from './constants';
 
-const seedPassword = '@demo1';
+// authentication seeds
+export const authenticationSeed = async () => {
+    console.log('seeding test authentication...');
 
-const passwordHash = await bcrypt.hash(seedPassword, 10);
+    const authentication = await db.query.authenticationTable.findFirst({
+        where: eq(authenticationTable.userId, testUser.id),
+    });
 
-// Authentication seeds
-export const authenticationSeed: Seed<typeof _partialSchema> = (f) => ({
-    authenticationTable: {
-        columns: {
-            id: f.uuid(),
-            email: f.email(),
-            password: f.valuesFromArray({ values: [passwordHash] }),
-        },
-    },
-});
+    if (authentication) {
+        console.log('test authentication already exists');
+        return;
+    }
+
+    await db.insert(authenticationTable).values(testAuthentication);
+
+    console.log('test authentication seeded');
+};

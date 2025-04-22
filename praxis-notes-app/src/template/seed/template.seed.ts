@@ -1,20 +1,12 @@
-import { Seed } from '@seed/types';
+// import { InferInsertModel } from 'drizzle-orm';
 
-import { templateTable } from '../db';
+// import { db } from '@db/providers/server/db-client.provider';
 
-// partial schema containing only the template table
-const _partialSchema = { templateTable };
+// import { templateTable } from '../db';
+
+// const templateData: InferInsertModel<typeof templateTable>[] = [];
 
 // template table seed
-export const templateSeed: Seed<typeof _partialSchema> = (f) => ({
-    templateTable: {
-        // number of templates to create
-        count: 5,
-
-        // refined columns
-        columns: {
-            id: f.uuid(),
-            name: f.lastName(),
-        },
-    },
-});
+export const templateSeed = async () => {
+    // await db.insert(templateTable).values(templateData);
+};
