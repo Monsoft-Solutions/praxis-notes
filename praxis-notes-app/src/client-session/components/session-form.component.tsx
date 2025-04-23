@@ -111,15 +111,13 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
 
         if (initNotes) {
             toast.success('Notes generated');
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            trackEvent('session', 'session_create');
         } else {
             toast.success('Session saved as draft');
-
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            trackEvent('session', 'session_create');
         }
+
+        // Track session creation regardless of notes generation
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        trackEvent('session', 'session_create');
 
         const { id } = response.data;
 

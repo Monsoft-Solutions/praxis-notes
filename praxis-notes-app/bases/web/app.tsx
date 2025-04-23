@@ -19,14 +19,27 @@ export function App(): ReactElement {
         const handleClick = (event: MouseEvent) => {
             // You can add more details here, e.g., event.clientX, event.clientY
 
-            const targetElement = event.target;
-            let targetText = 'unknown';
-            if (targetElement instanceof HTMLElement) {
-                targetText = targetElement.textContent?.trim() ?? 'unknown';
+            // Skip tracking for non-interactive or utility elements
+            const targetElement = event.target as HTMLElement;
+            if (
+                targetElement.tagName === 'SVG' ||
+                targetElement.tagName === 'PATH' ||
+                targetElement.closest('.no-analytics')
+            ) {
+                return;
             }
 
+            let targetText = 'unknown';
+            // Get more meaningful information about the clicked element
+            targetText = targetElement.textContent?.trim() ?? 'unknown';
+            // Use data attributes for more specific tracking when available
+            if (targetElement.dataset.trackingLabel) {
+                targetText = targetElement.dataset.trackingLabel;
+            }
+
+            // Use more descriptive category and action
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            trackEvent('click', 'click', targetText);
+            trackEvent('user_interaction', 'element_click', targetText);
         };
 
         // Add event listener when the component mounts

@@ -1,10 +1,22 @@
 import ReactGA from 'react-ga4';
 import { z } from 'zod';
 
-const GA_MEASUREMENT_ID = z
+const parseResult = z
     .string()
-    .min(1)
-    .parse(import.meta.env.MSS_CLIENT_GOOGLE_ANALYTICS_ID);
+    .min(
+        1,
+        'Missing Google Analytics Measurement ID (MSS_CLIENT_GOOGLE_ANALYTICS_ID)',
+    )
+    .safeParse(import.meta.env.MSS_CLIENT_GOOGLE_ANALYTICS_ID);
+
+if (!parseResult.success) {
+    console.error(
+        'Invalid Google Analytics Measurement ID:',
+        parseResult.error,
+    );
+}
+
+const GA_MEASUREMENT_ID = parseResult.data;
 
 let initialized = false;
 

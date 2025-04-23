@@ -74,6 +74,7 @@ export const identifyUser = (
 
 /**
  * Tracks a user login event using the unified trackEvent and identifies the user.
+ * @param userId - The ID of the user who logged in
  */
 export const trackLogin = (userId: string): void => {
     identifyUser(userId); // Identify the user on login
@@ -82,6 +83,8 @@ export const trackLogin = (userId: string): void => {
 
 /**
  * Tracks a user sign-up event using the unified trackEvent and identifies the user.
+ * @param userId - The ID of the user who signed up
+ * @param friendlyName - Optional name of the user
  */
 export const trackSignUp = (userId: string, friendlyName?: string) => {
     identifyUser(userId, friendlyName); // Identify the user on sign up

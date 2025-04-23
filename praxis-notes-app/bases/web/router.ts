@@ -4,7 +4,7 @@ import { createRouter } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
 
 import { NotFoundView } from '@shared/views/not-found.view';
-import { trackPageView } from '../analytics/providers/ga.provider';
+import { trackPageView } from '@analytics/providers';
 
 // create router instance
 export const router = createRouter({
@@ -20,6 +20,7 @@ export const router = createRouter({
 // Subscribe to router events for page view tracking
 router.subscribe('onResolved', (event: { toLocation: { href: string } }) => {
     // onResolved implies successful resolution, track page view using href
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     trackPageView(event.toLocation.href);
 });
 

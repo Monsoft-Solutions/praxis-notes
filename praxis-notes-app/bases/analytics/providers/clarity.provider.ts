@@ -1,11 +1,16 @@
 import Clarity from '@microsoft/clarity';
 import { z } from 'zod';
 
-// Ensure you have this environment variable set, e.g., in your .env file
-const CLARITY_PROJECT_ID = z
+const parseResult = z
     .string()
     .min(1, 'Missing Microsoft Clarity Project ID (MSS_CLIENT_CLARITY_ID)')
-    .parse(import.meta.env.MSS_CLIENT_CLARITY_PROJECT_ID);
+    .safeParse(import.meta.env.MSS_CLIENT_CLARITY_PROJECT_ID);
+
+if (!parseResult.success) {
+    console.error('Invalid Microsoft Clarity Project ID:', parseResult.error);
+}
+
+const CLARITY_PROJECT_ID = parseResult.data;
 
 let initialized = false;
 
