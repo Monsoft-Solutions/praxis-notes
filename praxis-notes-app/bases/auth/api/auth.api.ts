@@ -9,7 +9,7 @@ import { signUp } from './sign-up.mutation';
 import { verifyEmail } from './verify-email.mutation';
 import { logIn } from './log-in.mutation';
 import { logOut } from './log-out.mutation';
-import { deleteOrganization } from './delete-organization.mutation';
+// import { deleteOrganization } from './delete-organization.mutation';
 
 // auth endpoints
 export const authApi = endpoints({
@@ -22,5 +22,5 @@ export const authApi = endpoints({
     verifyEmail,
     logIn,
     logOut,
-    deleteOrganization,
+    // deleteOrganization,
 });
