@@ -22,13 +22,10 @@ import {
 import {
     Card,
     CardContent,
-    CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
 } from '@ui/card.ui';
-
-import { ShortInfoMessage } from '@shared/components/short-info-message.component';
 
 // ----------------------------------------------------------------------
 
@@ -45,10 +42,11 @@ export function LogInForm({
     onSubmit: (data: LogInCredentials) => void;
 }): ReactElement {
     return (
-        <Card className="w-[350px]">
-            <CardHeader>
-                <CardTitle>Log In</CardTitle>
-                <CardDescription>Welcom back !</CardDescription>
+        <Card className="w-full max-w-md border-none shadow-lg">
+            <CardHeader className="space-y-1">
+                <CardTitle className="text-start text-2xl">
+                    Sign in to your account
+                </CardTitle>
             </CardHeader>
 
             <CardContent>
@@ -57,18 +55,22 @@ export function LogInForm({
                         onSubmit={(e) => {
                             void form.handleSubmit(onSubmit)(e);
                         }}
-                        className="grid gap-y-8"
+                        className="grid gap-y-6"
                     >
                         <FormField
                             control={form.control}
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Email</FormLabel>
+                                    <FormLabel className="font-medium">
+                                        Email
+                                    </FormLabel>
                                     <div className="relative flex items-center">
                                         <FormControl>
                                             <Input
                                                 placeholder="email@example.com"
+                                                className="h-11 rounded-md"
+                                                type="email"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -83,10 +85,14 @@ export function LogInForm({
                             name="password"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Password</FormLabel>
+                                    <FormLabel className="font-medium">
+                                        Password
+                                    </FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="********"
+                                            className="h-11 rounded-md"
+                                            type="password"
                                             {...field}
                                         />
                                     </FormControl>
@@ -95,22 +101,28 @@ export function LogInForm({
                             )}
                         />
 
-                        <Button type="submit" className="">
-                            Submit
+                        <Button
+                            type="submit"
+                            className="bg-primary mt-6 h-11 w-full font-medium hover:shadow-lg"
+                        >
+                            Log In
                         </Button>
                     </form>
                 </Form>
             </CardContent>
 
-            <CardFooter className="flex items-center gap-2">
-                <ShortInfoMessage>
-                    Don&apos;t have an account ?{' '}
-                    <Link to="/auth/sign-up">
-                        <Button variant="link" className="h-0 px-0 italic">
-                            Sign Up
-                        </Button>
-                    </Link>
-                </ShortInfoMessage>
+            <CardFooter className="flex justify-center border-t p-4">
+                <span className="text-sm text-gray-500">
+                    New to Praxis Notes?{' '}
+                </span>
+                <Link to="/auth/sign-up">
+                    <Button
+                        variant="link"
+                        className="text-primary hover:text-primary/80 px-1"
+                    >
+                        Create Account
+                    </Button>
+                </Link>
             </CardFooter>
         </Card>
     );

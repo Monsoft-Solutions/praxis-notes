@@ -47,7 +47,6 @@ export function SignUpView(): ReactElement {
         <div className="flex h-screen bg-gray-50">
             {/* Left side - Form */}
             <div className="relative flex h-full w-full flex-col items-center justify-center bg-white p-8 md:w-1/2">
-                {/* Logo for mobile view only */}
                 <div className="absolute left-0 top-0 -mt-10 w-36">
                     <img
                         src="/images/praxis-notes-logo-main.png"
