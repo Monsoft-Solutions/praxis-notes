@@ -1,6 +1,8 @@
 import { useFormContext, useFieldArray } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
 
+import { api, apiClientUtils } from '@api/providers/web';
+
 import {
     FormField,
     FormItem,
@@ -23,16 +25,11 @@ import {
 import { ClientForm } from '../schemas';
 
 import { ReplacementProgram } from '@src/replacement-program/schemas';
-import {
-    Select,
-    SelectValue,
-    SelectTrigger,
-    SelectContent,
-    SelectItem,
-} from '@ui/select.ui';
 
 import { toast } from 'sonner';
+
 import { BehaviorCheckItem } from './behavior-check-item.component';
+import { AbcSelector } from '@src/client-session/components/abc-selector.component';
 
 import { Behavior } from '@src/behavior/schemas';
 
@@ -45,6 +42,9 @@ export function ClientReplacementProgramsForm({
     existingPrograms,
     existingBehaviors,
 }: ClientReplacementProgramsFormProps) {
+    const { mutateAsync: createReplacementProgram } =
+        api.replacementProgram.createReplacementProgram.useMutation();
+
     const { control, watch } = useFormContext<ClientForm>();
     const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
     const previousFieldIds = useRef<string[]>([]);
@@ -195,41 +195,30 @@ export function ClientReplacementProgramsForm({
                                                         </span>
                                                     </FormLabel>
 
-                                                    <Select
-                                                        onValueChange={(
-                                                            value,
-                                                        ) => {
-                                                            field.onChange(
-                                                                value,
-                                                            );
+                                                    <AbcSelector
+                                                        placeholder="Select replacement program"
+                                                        items={existingPrograms}
+                                                        onSelect={
+                                                            field.onChange
+                                                        }
+                                                        create={async ({
+                                                            name,
+                                                        }) => {
+                                                            const result =
+                                                                await createReplacementProgram(
+                                                                    {
+                                                                        name,
+                                                                        description:
+                                                                            '',
+                                                                    },
+                                                                );
+                                                            if (result.error)
+                                                                return null;
+                                                            await apiClientUtils.replacementProgram.getReplacementPrograms.invalidate();
+                                                            return result.data;
                                                         }}
-                                                        value={field.value}
-                                                    >
-                                                        <FormControl>
-                                                            <SelectTrigger>
-                                                                <SelectValue placeholder="Select program" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
+                                                    />
 
-                                                        <SelectContent>
-                                                            {existingPrograms.map(
-                                                                (program) => (
-                                                                    <SelectItem
-                                                                        key={
-                                                                            program.id
-                                                                        }
-                                                                        value={
-                                                                            program.id
-                                                                        }
-                                                                    >
-                                                                        {
-                                                                            program.name
-                                                                        }
-                                                                    </SelectItem>
-                                                                ),
-                                                            )}
-                                                        </SelectContent>
-                                                    </Select>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
