@@ -67,8 +67,6 @@ export function ReplacementProgramForm({
     });
 
     const onSubmit = async (data: FormValues) => {
-        console.log('-->   ~ onSubmit ~ data:', data);
-
         const { error } = await createReplacementProgram(data);
 
         if (error) {

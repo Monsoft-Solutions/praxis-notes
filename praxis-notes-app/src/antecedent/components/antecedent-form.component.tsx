@@ -72,8 +72,6 @@ export function AntecedentForm({
     });
 
     const onSubmit = async (data: FormValues) => {
-        console.log('-->   ~ onSubmit ~ data:', data);
-
         if (values) {
             await updateAntecedent({
                 id: values.id,

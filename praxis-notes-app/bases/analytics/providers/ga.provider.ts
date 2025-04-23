@@ -25,8 +25,6 @@ export const initializeGA = () => {
     });
 
     initialized = true;
-    console.log('GA Initialized with Measurement ID:', GA_MEASUREMENT_ID);
-
     // Track initial page view
     trackPageView(window.location.pathname + window.location.search);
 };

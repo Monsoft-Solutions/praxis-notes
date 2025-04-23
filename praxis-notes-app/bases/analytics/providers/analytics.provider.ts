@@ -7,8 +7,6 @@ import * as clarityService from './clarity.provider';
  * Call this once when the application starts.
  */
 export const initializeAnalytics = () => {
-    console.log('Initializing Analytics');
-
     gaService.initializeGA();
     clarityService.initializeClarity();
 };
@@ -78,7 +76,6 @@ export const identifyUser = (
  * Tracks a user login event using the unified trackEvent and identifies the user.
  */
 export const trackLogin = (userId: string): void => {
-    console.log('Tracking login for user:', userId);
     identifyUser(userId); // Identify the user on login
     trackEvent('auth', 'login');
 };
