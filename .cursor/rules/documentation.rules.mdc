@@ -1,0 +1,112 @@
+---
+description: Use it when creating documentation
+globs: 
+alwaysApply: false
+---
+# Documentation Rules
+
+## Overview
+This rule provides guidelines for creating documentation files using VitePress. All documentation should be:
+- User-focused and comprehensive
+- Easy to understand with clear explanations
+- Created in both English (root) and Spanish (/docs/es) versions
+- Consistent with the existing documentation structure
+
+## Base URL
+The documentation is published at: https://docs.praxisnotes.com
+
+## Directory Structure
+- English documentation: `/docs/[section]/[file].md`
+- Spanish documentation: `/docs/es/[section]/[file].md`
+
+## Document Template
+When creating a new documentation file, use the following structure:
+
+```markdown
+# [Title]
+
+## Overview
+Brief description of what this document covers and why it's important for the user.
+
+## Prerequisites
+- List any prerequisites or requirements
+- Include links to related documentation if needed
+
+## Step-by-Step Guide
+### Step 1: [First Step]
+Detailed explanation with examples...
+
+### Step 2: [Second Step]
+Detailed explanation with examples...
+
+## FAQ
+**Q: Common question?**
+A: Clear answer.
+
+**Q: Another common question?**
+A: Clear answer.
+
+## Troubleshooting
+### Problem: [Common Issue]
+Solution: Step-by-step resolution.
+
+## Related Resources
+- [Link to related doc]()
+- [Link to external resource]()
+```
+
+## Direct Links to App Functionality
+All documentation explaining specific views or functionality must include:
+
+1. Direct links to the corresponding feature in the application
+2. Format direct links as: `[Feature Name](https://app.praxisnotes.com/path/to/feature)`
+3. Add these links in one or more of these locations:
+   - At the first mention of the feature
+   - In a "Quick Access" section at the top of the document
+   - In a callout box for important features
+
+Example:
+```markdown
+## Patient Records
+Access and manage patient records in the [Patient Dashboard](https://app.praxisnotes.com/patients).
+```
+
+## Translation Guidelines
+1. Create the English version first
+2. Create the Spanish version in the corresponding path under `/docs/es/`
+3. Ensure translations preserve technical terms where appropriate
+4. Adapt examples to be culturally relevant if necessary
+
+## Formatting Guidelines
+1. Use h1 (#) for the document title only
+2. Use h2 (##) for main sections
+3. Use h3 (###) for subsections
+4. Use bullet points for lists where order doesn't matter
+5. Use numbered lists for sequential steps
+6. Include code blocks with proper language syntax highlighting
+7. Include screenshots or diagrams when they help clarify concepts
+
+## Front Matter
+Include VitePress front matter at the top of each document:
+
+```markdown
+---
+title: [Document Title]
+description: [Brief description for SEO]
+---
+```
+
+## Special Considerations
+1. Ensure all links work correctly in both language versions
+2. Update the sidebar navigation in `.vitepress/config.js` when adding new documents
+3. Include version information when documenting version-specific features
+4. Verify all direct links to app functionality are correct and up-to-date
+
+## Creating New Documentation
+When creating new documentation, always:
+1. Check for existing similar documentation to maintain consistency
+2. Ensure the document addresses the user's specific needs and questions
+3. Test all provided examples and instructions
+4. Validate all links and references
+5. Create both language versions
+6. Include direct links to relevant app functionality 
