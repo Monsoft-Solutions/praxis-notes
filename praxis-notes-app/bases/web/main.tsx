@@ -43,15 +43,13 @@ Sentry.init({
             },
         }),
     ],
+
     // Tracing
-    tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0, // Lower sample rate in production
-    tracePropagationTargets: [
-        /^https:\/\/main\.monsoftlabs\.com\/trpc/,
-        /^https:\/\/sps-deployment-prod\.linkkonnect\.com\/trpc/,
-        /^https:\/\/p[0-9]+\.monsoftlabs\.com\/trpc/,
-    ],
+    tracesSampleRate: hostname === 'localhost' ? 0.2 : 0.3, // Lower sample rate in production
+    tracePropagationTargets: [],
+
     // Session Replay
-    replaysSessionSampleRate: import.meta.env.PROD ? 0.2 : 0.6, // Lower sample rate in production
+    replaysSessionSampleRate: hostname === 'localhost' ? 0.2 : 0.6, // Lower sample rate in production
     replaysOnErrorSampleRate: 1.0,
 });
 
