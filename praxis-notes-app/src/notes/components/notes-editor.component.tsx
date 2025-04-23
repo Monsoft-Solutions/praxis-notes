@@ -10,8 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
 
 import { Textarea } from '@ui/textarea.ui';
 
+import { Spinner } from '@shared/ui/spinner.ui';
+
 import { api } from '@api/providers/web';
 import { toast } from 'sonner';
+import { cn } from '@css/utils';
 
 type NotesEditorProps = {
     sessionId: string;
@@ -28,9 +31,17 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
 
     const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 
+    const [isGeneratingNotes, setIsGeneratingNotes] = useState(false);
+
+    const [isSavingNotes, setIsSavingNotes] = useState(false);
+
     // Handle generate notes
     const handleGenerate = async () => {
+        setIsGeneratingNotes(true);
+
         const generateNotesResult = await generateNotes({ sessionId });
+
+        setIsGeneratingNotes(false);
 
         if (generateNotesResult.error) {
             toast.error('Failed to generate notes');
@@ -42,10 +53,19 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
 
     // Handle save notes
     const handleSave = async () => {
-        try {
-            await updateNotes({ sessionId, notes: editorValue });
-        } catch (error) {
-            console.error('Failed to save notes:', error);
+        setIsSavingNotes(true);
+
+        const { error } = await updateNotes({
+            sessionId,
+            notes: editorValue,
+        });
+
+        setIsSavingNotes(false);
+
+        if (error) {
+            toast.error('Failed to save notes');
+        } else {
+            toast.success('Notes saved');
         }
     };
 
@@ -78,12 +98,18 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                     <div className="flex gap-2">
                         {!hasNotes && (
                             <Button
+                                className="w-36"
                                 onClick={() => {
                                     void handleGenerate();
                                 }}
                                 variant="secondary"
+                                disabled={isGeneratingNotes}
                             >
-                                Generate Notes
+                                {isGeneratingNotes ? (
+                                    <Spinner className="h-4 w-4" />
+                                ) : (
+                                    'Generate Notes'
+                                )}
                             </Button>
                         )}
 
@@ -96,7 +122,12 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                                 size="icon"
                                 title="Regenerate Notes"
                             >
-                                <RefreshCw className="h-4 w-4" />
+                                <RefreshCw
+                                    className={cn(
+                                        'h-4 w-4',
+                                        isGeneratingNotes && 'animate-spin',
+                                    )}
+                                />
                             </Button>
                         )}
 
@@ -117,8 +148,13 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                             disabled={!editorValue}
                             variant="default"
                         >
-                            <Save className="mr-2 h-4 w-4" />
-                            Save Notes
+                            {isSavingNotes ? (
+                                <Spinner className="h-4 w-4" />
+                            ) : (
+                                <>
+                                    <Save className="h-4 w-4" />
+                                </>
+                            )}
                         </Button>
                     </div>
                 </CardTitle>

@@ -30,6 +30,8 @@ import { replacementProgramResponseEnum } from '@src/replacement-program/enums';
 import { generateNotes as generateNotesProvider } from '@src/notes/providers/server';
 
 import { eq } from 'drizzle-orm';
+import { userTable } from '@db/db.tables';
+import { ClientSessionReplacementProgramEntry } from '../schemas/client-session-replacement-program-entry.schema';
 
 // mutation to create a client session
 export const createClientSession = protectedEndpoint
@@ -216,6 +218,177 @@ export const createClientSession = protectedEndpoint
                 if (abcEntries.length !== abcIdEntries.length)
                     return Error('ABC_ENTRIES_NOT_FOUND');
 
+                // 1. Collect all unique IDs
+                const allReplacementProgramIds = [
+                    ...new Set(
+                        replacementProgramEntries.map(
+                            (entry) => entry.replacementProgramId,
+                        ),
+                    ),
+                ];
+                const allTeachingProcedureIds = [
+                    ...new Set(
+                        replacementProgramEntries.map(
+                            (entry) => entry.teachingProcedureId,
+                        ),
+                    ),
+                ];
+                const allPromptingProcedureIds = [
+                    ...new Set(
+                        replacementProgramEntries.map(
+                            (entry) => entry.promptingProcedureId,
+                        ),
+                    ),
+                ];
+                const allPromptTypeIds = [
+                    ...new Set(
+                        replacementProgramEntries.flatMap(
+                            (entry) => entry.promptTypesIds,
+                        ),
+                    ),
+                ];
+
+                // 2. Bulk fetch records
+                const [
+                    replacementProgramsResult,
+                    teachingProceduresResult,
+                    promptingProceduresResult,
+                    promptTypesResult,
+                ] = await Promise.all([
+                    catchError(
+                        db.query.replacementProgramTable.findMany({
+                            where: (record, { inArray }) =>
+                                inArray(record.id, allReplacementProgramIds),
+                        }),
+                    ),
+                    catchError(
+                        db.query.teachingProcedureTable.findMany({
+                            where: (record, { inArray }) =>
+                                inArray(record.id, allTeachingProcedureIds),
+                        }),
+                    ),
+                    catchError(
+                        db.query.promptingProcedureTable.findMany({
+                            where: (record, { inArray }) =>
+                                inArray(record.id, allPromptingProcedureIds),
+                        }),
+                    ),
+                    catchError(
+                        db.query.promptTypeTable.findMany({
+                            where: (record, { inArray }) =>
+                                inArray(record.id, allPromptTypeIds),
+                        }),
+                    ),
+                ]);
+
+                // Handle potential errors during fetch
+                if (
+                    replacementProgramsResult.error ||
+                    teachingProceduresResult.error ||
+                    promptingProceduresResult.error ||
+                    promptTypesResult.error
+                ) {
+                    console.error('Error fetching replacement program data');
+                    return Error('DATABASE_FETCH_ERROR');
+                }
+
+                // 3. Create lookup maps
+                const replacementProgramsMap = new Map(
+                    replacementProgramsResult.data.map((p) => [p.id, p]),
+                );
+                const teachingProceduresMap = new Map(
+                    teachingProceduresResult.data.map((p) => [p.id, p]),
+                );
+                const promptingProceduresMap = new Map(
+                    promptingProceduresResult.data.map((p) => [p.id, p]),
+                );
+                const promptTypesMap = new Map(
+                    promptTypesResult.data.map((p) => [p.id, p]),
+                );
+
+                // 4. Validate entries in memory and build note entries
+                const validatedReplacementProgramNoteEntries: ClientSessionReplacementProgramEntry[] =
+                    [];
+                let allEntriesValid = true;
+
+                for (const entry of replacementProgramEntries) {
+                    const replacementProgram = replacementProgramsMap.get(
+                        entry.replacementProgramId,
+                    );
+                    const teachingProcedure = teachingProceduresMap.get(
+                        entry.teachingProcedureId,
+                    );
+                    const promptingProcedure = promptingProceduresMap.get(
+                        entry.promptingProcedureId,
+                    );
+                    const promptTypes = entry.promptTypesIds
+                        .map((id) => promptTypesMap.get(id))
+                        .filter((pt): pt is NonNullable<typeof pt> => !!pt);
+
+                    if (
+                        !replacementProgram ||
+                        !teachingProcedure ||
+                        !promptingProcedure ||
+                        promptTypes.length !== entry.promptTypesIds.length
+                    ) {
+                        allEntriesValid = false;
+                        break; // Stop validation on first invalid entry
+                    }
+
+                    validatedReplacementProgramNoteEntries.push({
+                        replacementProgram: replacementProgram.name,
+                        teachingProcedure: teachingProcedure.name,
+                        promptingProcedure: promptingProcedure.name,
+                        promptTypes: promptTypes.map((pt) => pt.name),
+                    });
+                }
+
+                if (!allEntriesValid) {
+                    return Error('REPLACEMENT_PROGRAM_DATA_NOT_FOUND');
+                }
+
+                const replacementProgramNoteEntries =
+                    validatedReplacementProgramNoteEntries;
+
+                const { data: client, error: clientError } = await catchError(
+                    db.query.clientTable.findFirst({
+                        where: (record) => eq(record.id, clientId),
+                    }),
+                );
+
+                if (clientError || !client) return Error('CLIENT_NOT_FOUND');
+
+                const { data: userQueryResult, error: userError } =
+                    await catchError(
+                        db
+                            .select({
+                                firstName: userTable.firstName,
+                                lastName: userTable.lastName,
+                            })
+                            .from(userTable)
+                            .where(eq(userTable.id, user.id))
+                            .limit(1),
+                    );
+
+                if (userError || !userQueryResult.length)
+                    return Error('USER_NOT_FOUND');
+
+                const userData = userQueryResult[0];
+
+                const getInitials = (
+                    first?: string | null,
+                    last?: string | null,
+                ) => `${first?.charAt(0) ?? ''}${last?.charAt(0) ?? ''}`;
+
+                const userInitials = getInitials(
+                    userData.firstName,
+                    userData.lastName,
+                );
+                const clientInitials = getInitials(
+                    client.firstName,
+                    client.lastName,
+                );
+
                 // generate a unique id for the client session
                 const id = uuidv4();
 
@@ -223,9 +396,19 @@ export const createClientSession = protectedEndpoint
 
                 if (initNotes) {
                     const generateNotesResult = await generateNotesProvider({
-                        ...sessionForm,
+                        location,
+                        valuation,
+                        observations,
+                        presentParticipants,
+                        environmentalChanges,
                         abcEntries,
+                        replacementProgramEntries:
+                            replacementProgramNoteEntries,
                         sessionDate: new Date(sessionForm.sessionDate),
+                        startTime,
+                        endTime,
+                        userInitials,
+                        clientInitials,
                     });
 
                     if (generateNotesResult.error)

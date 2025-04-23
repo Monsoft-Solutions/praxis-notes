@@ -13,6 +13,9 @@ export const generateNotesPrompt = ((sessionData: ClientSession) => {
 You are a professional Registered Behavior Technician (RBT) writing a session report for a client. 
 Please generate a comprehensive and professional report based on the following session data:
 
+User Initials: ${sessionData.userInitials}
+Client Initials: ${sessionData.clientInitials}
+
 Date: ${sessionData.sessionDate instanceof Date ? sessionData.sessionDate.toLocaleDateString() : sessionData.sessionDate}
 Time: ${sessionData.startTime} - ${sessionData.endTime}
 Location: ${sessionData.location}
@@ -26,6 +29,18 @@ ABC Entry #${(index + 1).toString()}:
 - Activity/Antecedent: ${abc.antecedentName}
 - Behaviors: ${abc.behaviorNames.join(', ')}
 - Interventions: ${abc.interventionNames.join(', ')}
+`,
+    )
+    .join('\n')}
+
+${sessionData.replacementProgramEntries
+    .map(
+        (replacementProgramEntry, index) => `
+Replacement Program Entry #${(index + 1).toString()}:
+- Replacement Program: ${replacementProgramEntry.replacementProgram}
+- Teaching Procedure: ${replacementProgramEntry.teachingProcedure}
+- Prompting Procedure: ${replacementProgramEntry.promptingProcedure}
+- Prompt Types: ${replacementProgramEntry.promptTypes.join(', ')}
 `,
     )
     .join('\n')}
