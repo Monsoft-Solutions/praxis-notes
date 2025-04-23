@@ -39,6 +39,20 @@ export const generateNotes = protectedEndpoint
                                 },
                             },
                         },
+                        replacementProgramEntries: {
+                            with: {
+                                replacementProgram: true,
+                                teachingProcedure: true,
+                                promptingProcedure: true,
+                                promptTypes: {
+                                    with: {
+                                        promptType: true,
+                                    },
+                                },
+                            },
+                        },
+                        client: true,
+                        user: true,
                     },
                 }),
             );
@@ -84,6 +98,43 @@ export const generateNotes = protectedEndpoint
 
             const abcEntries = abcEntriesNullable.filter((abc) => abc !== null);
 
+            const replacementProgramEntries =
+                clientSession.replacementProgramEntries
+                    .map(
+                        ({
+                            replacementProgram,
+                            teachingProcedure,
+                            promptingProcedure,
+                            promptTypes,
+                        }) => {
+                            return {
+                                replacementProgram: replacementProgram.name,
+                                teachingProcedure: teachingProcedure?.name,
+                                promptingProcedure: promptingProcedure?.name,
+                                promptTypes: promptTypes
+                                    .map(({ promptType }) => promptType?.name)
+                                    .filter((name): name is string => !!name),
+                            };
+                        },
+                    )
+                    .map((entry) => ({
+                        ...entry,
+                        teachingProcedure: entry.teachingProcedure ?? '',
+                        promptingProcedure: entry.promptingProcedure ?? '',
+                    }));
+
+            const getInitials = (first?: string | null, last?: string | null) =>
+                `${first?.charAt(0) ?? ''}${last?.charAt(0) ?? ''}`;
+
+            const userInitials = getInitials(
+                clientSession.user.firstName,
+                clientSession.user.lastName,
+            );
+            const clientInitials = getInitials(
+                clientSession.client.firstName,
+                clientSession.client.lastName,
+            );
+
             const sessionData = {
                 ...clientSession,
                 sessionDate: new Date(clientSession.sessionDate),
@@ -94,6 +145,9 @@ export const generateNotes = protectedEndpoint
                     (change) => change.name,
                 ),
                 abcEntries,
+                replacementProgramEntries,
+                userInitials,
+                clientInitials,
             };
 
             const { data: generatedNotes, error: generatedNotesError } =
