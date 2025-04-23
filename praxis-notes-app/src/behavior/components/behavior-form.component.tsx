@@ -33,6 +33,7 @@ import { api } from '@api/providers/web';
 import { toast } from 'sonner';
 
 import { apiClientUtils } from '@api/providers/web';
+import { trackEvent } from '@analytics/providers';
 
 // Validation schema based on the database schema
 const formSchema = z.object({
@@ -79,6 +80,9 @@ export function BehaviorForm({
             });
         } else {
             await createBehavior(data);
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            trackEvent('behavior', 'behavior_create');
         }
 
         // Close modal and refresh data

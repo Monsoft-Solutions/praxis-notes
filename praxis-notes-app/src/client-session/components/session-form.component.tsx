@@ -114,8 +114,6 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             trackEvent('session', 'session_create');
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            trackEvent('notes', 'notes_generate');
         } else {
             toast.success('Session saved as draft');
 
