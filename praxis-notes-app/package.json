@@ -181,6 +181,9 @@
         "bcryptjs": "2.4.3 || password hashing (bcryptjs)",
         "@types/bcryptjs": "2.4.6",
 
-        "@faker-js/faker": "^9.7.0"
+        "@faker-js/faker": "^9.7.0",
+
+        "react-ga": "^3.3.1",
+        "@microsoft/clarity": "^1.0.0"
     }
 }
