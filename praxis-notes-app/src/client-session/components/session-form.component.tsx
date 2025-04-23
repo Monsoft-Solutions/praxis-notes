@@ -22,6 +22,7 @@ import { SessionObservations } from './session-observations.component';
 
 import { api } from '@api/providers/web';
 import { Spinner } from '@shared/ui/spinner.ui';
+import { trackEvent } from '@analytics/providers/analytics.provider';
 
 type SessionFormProps = {
     clientId: string;
@@ -110,8 +111,16 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
 
         if (initNotes) {
             toast.success('Notes generated');
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            trackEvent('session', 'session_create');
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            trackEvent('notes', 'notes_generate');
         } else {
             toast.success('Session saved as draft');
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            trackEvent('session', 'session_create');
         }
 
         const { id } = response.data;
