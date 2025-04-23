@@ -27,7 +27,11 @@ export const initializeClarity = () => {
     try {
         Clarity.init(CLARITY_PROJECT_ID);
         initialized = true;
-        // Clarity automatically tracks page views after initialization.
+
+        console.debug(
+            'Clarity Initialized with Project ID:',
+            CLARITY_PROJECT_ID,
+        );
     } catch (error) {
         console.error('Failed to initialize Clarity:', error);
     }
