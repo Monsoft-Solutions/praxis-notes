@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 
 import { Button } from '@shared/ui/button.ui';
 import { Spinner } from '@shared/ui/spinner.ui';
@@ -18,8 +17,6 @@ export function CheckoutButton({
     buttonText = 'Subscribe',
     className,
 }: CheckoutButtonProps) {
-    const navigate = useNavigate();
-
     const [isLoading, setIsLoading] = useState(false);
 
     // Check if user already has a subscription
@@ -46,7 +43,7 @@ export function CheckoutButton({
         } else {
             const { url } = checkoutSessionResult.data;
 
-            if (url) await navigate({ to: url });
+            if (url) window.open(url, '_blank');
         }
 
         setIsLoading(false);

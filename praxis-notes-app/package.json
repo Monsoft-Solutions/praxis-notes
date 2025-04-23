@@ -50,6 +50,7 @@
         "migrate"      : "env-cmd -e local npm run db:migrate ",
         "migrate:prod" : "env-cmd -e prod  npm run db:migrate ",
         "seed"         : "env-cmd -e local npm run db:seed",
+        "seed:prod"    : "env-cmd -e prod  npm run db:seed",
         "data"         : "npm-run-all drop create generate migrate seed",
 
         
@@ -178,6 +179,8 @@
         "@sentry/vite-plugin": "3.1.2",
 
         "bcryptjs": "2.4.3 || password hashing (bcryptjs)",
-        "@types/bcryptjs": "2.4.6"
+        "@types/bcryptjs": "2.4.6",
+
+        "@faker-js/faker": "^9.7.0"
     }
 }

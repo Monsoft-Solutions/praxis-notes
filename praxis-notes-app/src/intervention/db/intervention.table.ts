@@ -1,9 +1,8 @@
 import { relations } from 'drizzle-orm';
 
-import { table, char, varchar, text, bigint } from '@db/sql';
+import { table, char, varchar, text } from '@db/sql';
 
 import { organizationTable } from '@db/db.tables';
-import { userTable } from '@db/db.tables';
 
 /**
  * interventions that can be assigned to clients
@@ -24,22 +23,6 @@ export const interventionTable = table('interventions', {
             onDelete: 'cascade',
         },
     ),
-
-    createdAt: bigint('created_at', {
-        mode: 'number',
-    }).notNull(),
-
-    updatedAt: bigint('updated_at', {
-        mode: 'number',
-    }).notNull(),
-
-    createdBy: char('created_by', { length: 36 })
-        .references(() => userTable.id)
-        .notNull(),
-
-    updatedBy: char('updated_by', { length: 36 })
-        .references(() => userTable.id)
-        .notNull(),
 });
 
 export const interventionTableRelations = relations(
@@ -49,16 +32,6 @@ export const interventionTableRelations = relations(
         organization: one(organizationTable, {
             fields: [interventionTable.organizationId],
             references: [organizationTable.id],
-        }),
-
-        creator: one(userTable, {
-            fields: [interventionTable.createdBy],
-            references: [userTable.id],
-        }),
-
-        updater: one(userTable, {
-            fields: [interventionTable.updatedBy],
-            references: [userTable.id],
         }),
     }),
 );

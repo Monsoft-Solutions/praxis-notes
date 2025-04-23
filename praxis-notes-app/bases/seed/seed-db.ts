@@ -1,26 +1,22 @@
-import { seed } from 'drizzle-seed';
-
 import { seeder } from './seeder';
 
-import * as schema from '../db/db.tables';
+import * as schema from '@db/db.tables';
 
-import * as nestedSeeds from './seeds';
+import { reset } from 'drizzle-seed';
 
-import { SeedsGenerator } from './types';
-
-// full refinement function combining all seeds
-const refinement = (f: SeedsGenerator) =>
-    Object.fromEntries(
-        Object.entries(nestedSeeds)
-            .map(([, value]) => Object.entries(value(f)))
-            .flat(),
-    );
+import * as seeds from './seeds';
 
 // function used to seed the db
 export async function seedDb() {
-    console.log('Seeding DB');
+    console.log('seeding DB...');
 
-    await seed(seeder, schema).refine(refinement);
+    console.log('resetting DB...');
+    await reset(seeder, schema);
+    console.log('DB reset');
+
+    for (const seed of Object.values(seeds)) {
+        await seed();
+    }
 
     console.log('DB seeded !');
 }
