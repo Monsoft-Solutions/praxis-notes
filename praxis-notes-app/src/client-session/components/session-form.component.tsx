@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { useNavigate } from '@tanstack/react-router';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +21,7 @@ import { ValuationSelector } from './valuation-selector.component';
 import { SessionObservations } from './session-observations.component';
 
 import { api } from '@api/providers/web';
+import { Spinner } from '@shared/ui/spinner.ui';
 
 type SessionFormProps = {
     clientId: string;
@@ -67,6 +70,10 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
         },
     });
 
+    const [isGeneratingNotes, setIsGeneratingNotes] = useState(false);
+
+    const [isSavingDraft, setIsSavingDraft] = useState(false);
+
     // Handle saving as draft
     const handleCreateSession = async ({
         data,
@@ -75,6 +82,12 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
         data: ClientSessionForm;
         initNotes: boolean;
     }) => {
+        if (initNotes) {
+            setIsGeneratingNotes(true);
+        } else {
+            setIsSavingDraft(true);
+        }
+
         const response = await createClientSession({
             clientId,
             initNotes,
@@ -84,12 +97,22 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             },
         });
 
+        if (initNotes) {
+            setIsGeneratingNotes(false);
+        } else {
+            setIsSavingDraft(false);
+        }
+
         if (response.error) {
             toast.error('Error saving session');
             return;
         }
 
-        toast.success('Session saved as draft');
+        if (initNotes) {
+            toast.success('Notes generated');
+        } else {
+            toast.success('Session saved as draft');
+        }
 
         const { id } = response.data;
 
@@ -100,8 +123,13 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
     };
 
     // Handle cancellation
-    const handleCancel = () => {
-        console.log('cancelling');
+    const handleCancel = async () => {
+        toast.success('Session discarded');
+
+        await navigate({
+            to: '/clients/$clientId/sessions',
+            params: { clientId },
+        });
     };
 
     return (
@@ -120,12 +148,19 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                 <SessionObservations />
 
                 <div className="flex justify-end space-x-4 pt-6">
-                    <Button variant="outline" onClick={handleCancel}>
+                    <Button
+                        variant="outline"
+                        onClick={() => {
+                            void handleCancel();
+                        }}
+                    >
                         Cancel
                     </Button>
 
                     <Button
                         variant="secondary"
+                        className="w-36"
+                        disabled={isGeneratingNotes || isSavingDraft}
                         onClick={(e) => {
                             void form.handleSubmit((data) =>
                                 handleCreateSession({
@@ -135,10 +170,16 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                             )(e);
                         }}
                     >
-                        Save as Draft
+                        {isSavingDraft ? (
+                            <Spinner className="h-4 w-4" />
+                        ) : (
+                            'Save as Draft'
+                        )}
                     </Button>
 
                     <Button
+                        className="w-36"
+                        disabled={isGeneratingNotes || isSavingDraft}
                         onClick={(e) => {
                             void form.handleSubmit((data) =>
                                 handleCreateSession({
@@ -148,7 +189,11 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                             )(e);
                         }}
                     >
-                        Generate Notes
+                        {isGeneratingNotes ? (
+                            <Spinner className="h-4 w-4" />
+                        ) : (
+                            'Generate Notes'
+                        )}
                     </Button>
                 </div>
             </form>
