@@ -22,7 +22,6 @@ import {
 import {
     Card,
     CardContent,
-    CardDescription,
     CardFooter,
     CardHeader,
     CardTitle,
@@ -42,12 +41,11 @@ export function SignUpForm({
     onSubmit: (data: SignUpForm) => void;
 }): ReactElement {
     return (
-        <Card className="w-[350px]">
-            <CardHeader>
-                <CardTitle>Sign Up</CardTitle>
-                <CardDescription>
-                    Create an account to get started !
-                </CardDescription>
+        <Card className="w-full max-w-md border-none shadow-lg">
+            <CardHeader className="space-y-1">
+                <CardTitle className="text-2xl">
+                    Create your Praxis Notes Account
+                </CardTitle>
             </CardHeader>
 
             <CardContent>
@@ -56,19 +54,22 @@ export function SignUpForm({
                         onSubmit={(e) => {
                             void form.handleSubmit(onSubmit)(e);
                         }}
-                        className="grid gap-y-8"
+                        className="grid gap-y-4"
                     >
                         <FormField
                             control={form.control}
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Name</FormLabel>
+                                    <FormLabel className="font-medium">
+                                        Name
+                                    </FormLabel>
 
                                     <div className="relative flex items-center">
                                         <FormControl>
                                             <Input
                                                 placeholder="John Doe"
+                                                className="h-11 rounded-md"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -84,12 +85,16 @@ export function SignUpForm({
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Email</FormLabel>
+                                    <FormLabel className="font-medium">
+                                        Email
+                                    </FormLabel>
 
                                     <div className="relative flex items-center">
                                         <FormControl>
                                             <Input
                                                 placeholder="email@example.com"
+                                                className="h-11 rounded-md"
+                                                type="email"
                                                 {...field}
                                             />
                                         </FormControl>
@@ -105,10 +110,14 @@ export function SignUpForm({
                             name="password"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Password</FormLabel>
+                                    <FormLabel className="font-medium">
+                                        Password
+                                    </FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="********"
+                                            className="h-11 rounded-md"
+                                            type="password"
                                             {...field}
                                         />
                                     </FormControl>
@@ -117,18 +126,24 @@ export function SignUpForm({
                             )}
                         />
 
-                        <Button type="submit" className="">
-                            Submit
+                        <Button
+                            type="submit"
+                            className="bg-primary hover:bg-primary/90 mt-4 h-11 w-full font-medium"
+                        >
+                            Create Account
                         </Button>
                     </form>
                 </Form>
             </CardContent>
 
-            <CardFooter className="flex items-center gap-2">
+            <CardFooter className="flex justify-center border-t p-4">
                 <ShortInfoMessage>
-                    Already have an account ?{' '}
+                    Already have an account?{' '}
                     <Link to="/auth/log-in">
-                        <Button variant="link" className="h-0 px-0 italic">
+                        <Button
+                            variant="link"
+                            className="px-1 text-blue-600 hover:text-blue-700"
+                        >
                             Log In
                         </Button>
                     </Link>
