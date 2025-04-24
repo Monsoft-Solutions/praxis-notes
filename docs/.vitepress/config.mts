@@ -4,6 +4,10 @@ import { defineConfig } from 'vitepress';
 export default defineConfig({
     title: 'Praxis Notes Docs',
     description: 'Documentation about the Praxis Notes app',
+    sitemap: {
+        hostname: 'https://docs.praxisnotes.com',
+    },
+    head: [['link', { rel: 'icon', href: '/favicon.svg' }]],
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
         nav: [
@@ -13,7 +17,10 @@ export default defineConfig({
                 link: '/introduction/what-is-praxis-notes',
             },
             { text: 'Clients', link: '/clients/managing-clients' },
-            { text: 'Examples', link: '/markdown-examples' },
+            {
+                text: 'Session Notes',
+                link: '/clients/session-list',
+            },
         ],
 
         sidebar: [
