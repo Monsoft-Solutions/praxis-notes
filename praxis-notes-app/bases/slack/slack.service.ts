@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { deploymentEnv } from '@env/constants/deployment-env.constant';
-import type { LogContext } from '../logger/logger.types';
+import type { LogContext } from '../logger/types';
 import { getCoreConf } from '@conf/core/providers/server';
 
 // Define Slack message types for better type safety

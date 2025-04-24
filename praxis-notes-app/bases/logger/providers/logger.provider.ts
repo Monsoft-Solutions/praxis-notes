@@ -1,8 +1,8 @@
 import winston from 'winston';
 import { deploymentEnv } from '@env/constants/deployment-env.constant';
-import { LogContext } from './logger.types';
-import { LoggerInterface } from './logger.types';
-import { slackService } from '../slack/slack.service';
+import { LogContext } from '../types/logger.types';
+import { LoggerInterface } from '../types/logger.types';
+import { slackService } from '../../slack/slack.service';
 
 // Define log levels
 const levels = {
@@ -66,6 +66,8 @@ class LoggerService implements LoggerInterface {
                 }),
             );
         }
+
+        console.log('LoggerService constructor');
     }
 
     info(message: string, context?: LogContext): void {
