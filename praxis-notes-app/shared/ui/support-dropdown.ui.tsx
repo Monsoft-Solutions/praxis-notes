@@ -59,7 +59,7 @@ export function SupportDropdown({
 
                 <DropdownMenuContent
                     align={align}
-                    className="max-h-[90vh] w-screen overflow-y-auto p-4 md:max-h-[calc(100vh-4rem)] md:w-auto md:max-w-2xl"
+                    className="max-h-[90vh] w-screen overflow-y-auto p-4 md:max-h-[calc(100vh-4rem)] md:w-auto md:max-w-3xl"
                 >
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                         {/* Feedback & Suggestion Section */}
@@ -111,21 +111,49 @@ export function SupportDropdown({
                                 your earliest convenience.
                             </p>
                             <DropdownMenuGroup className="mt-2">
-                                <DropdownMenuItem className="cursor-pointer text-xs">
-                                    <Phone className="mr-2 size-3.5" /> Call us
-                                    now
+                                <DropdownMenuItem
+                                    asChild
+                                    className="cursor-pointer text-xs"
+                                >
+                                    <a href="tel:+13057974357">
+                                        <Phone className="mr-2 size-3.5" /> Call
+                                        us now
+                                    </a>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer text-xs">
-                                    <Mail className="mr-2 size-3.5" /> Send us
-                                    email
+                                <DropdownMenuItem
+                                    asChild
+                                    className="cursor-pointer text-xs"
+                                >
+                                    <a href="mailto:support@praxisnotes.com">
+                                        <Mail className="mr-2 size-3.5" /> Send
+                                        us email
+                                    </a>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer text-xs">
-                                    <HelpCircle className="mr-2 size-3.5" />
-                                    FAQs
+                                <DropdownMenuItem
+                                    asChild
+                                    className="cursor-pointer text-xs"
+                                >
+                                    <a
+                                        href="https://docs.praxisnotes.com"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <HelpCircle className="mr-2 size-3.5" />
+                                        Guides
+                                    </a>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="cursor-pointer text-xs">
-                                    <Home className="mr-2 size-3.5" /> Welcome
-                                    page
+                                <DropdownMenuItem
+                                    asChild
+                                    className="cursor-pointer text-xs"
+                                >
+                                    <a
+                                        href="https://www.praxisnotes.com"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <Home className="mr-2 size-3.5" />{' '}
+                                        Website
+                                    </a>
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
                         </div>
