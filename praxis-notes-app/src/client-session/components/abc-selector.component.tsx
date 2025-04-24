@@ -95,9 +95,11 @@ export function AbcSelector({
         const { id } = createdItem;
 
         if (multiple) {
-            const newIds = [...selectedIds, id];
-            setSelectedIds(newIds);
-            onSelect(newIds);
+            setSelectedIds((prev) => {
+                const newIds = [...prev, id];
+                onSelect(newIds);
+                return newIds;
+            });
         } else {
             setSelectedId(id);
             onSelect(id);
@@ -126,19 +128,16 @@ export function AbcSelector({
                             ({ value }) => value,
                         );
 
-                        const lastValue = newSelectedIds.at(-1);
-                        if (lastValue === undefined) {
-                            setSelectedIds([]);
-                            onSelect([]);
-                            return;
-                        }
+                        const customOption = newSelectedIds.find((id) =>
+                            options.every((option) => option.value !== id),
+                        );
 
-                        if (options.some(({ value }) => value === lastValue)) {
-                            setSelectedIds((prev) => [...prev, lastValue]);
-                            onSelect(newSelectedIds);
-                        } else {
-                            setSearch(lastValue);
+                        if (customOption) {
+                            setSearch(customOption);
                             setCreateDialogOpen(true);
+                        } else {
+                            setSelectedIds(newSelectedIds);
+                            onSelect(newSelectedIds);
                         }
                     }}
                 />
