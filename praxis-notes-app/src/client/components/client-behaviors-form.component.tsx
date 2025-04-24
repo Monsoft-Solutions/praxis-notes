@@ -55,6 +55,11 @@ export function ClientBehaviorsForm({
         name: 'behaviors',
     });
 
+    const selectedBehaviorsIds = fields.map((_, index) => {
+        const currentBehaviorId = watch(`behaviors.${index}.id`);
+        return currentBehaviorId;
+    });
+
     useEffect(() => {
         // Find any new fields by comparing with previous field IDs
         const currentFieldIds = fields.map((field) => field.id);
@@ -172,6 +177,9 @@ export function ClientBehaviorsForm({
                                                             placeholder="Select behavior"
                                                             items={
                                                                 existingBehaviors
+                                                            }
+                                                            hideFromList={
+                                                                selectedBehaviorsIds
                                                             }
                                                             onSelect={
                                                                 field.onChange
