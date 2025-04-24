@@ -21,3 +21,4 @@ packages/**/site/**
 *.pdf
 packages/**/dist/**/**/*.js
 docs/.vitepress/cache/**
+docs/.vitepress/dist/**
