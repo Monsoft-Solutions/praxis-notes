@@ -185,7 +185,7 @@ export function FeedbackDialog({
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="p-4 sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         {feedbackType === 'suggestion' ? (
@@ -217,9 +217,12 @@ export function FeedbackDialog({
                     </TabsList>
 
                     {/* Suggestion Tab Content */}
-                    <TabsContent value="suggestion">
+                    <TabsContent
+                        value="suggestion"
+                        className="max-h-[60vh] overflow-y-auto"
+                    >
                         <form onSubmit={handleSubmitSuggestion}>
-                            <div className="grid gap-4 py-4">
+                            <div className="grid gap-4 py-4 pr-3">
                                 <div className="grid gap-2">
                                     <Label htmlFor="suggestion-type">
                                         Suggestion Type
@@ -285,9 +288,12 @@ export function FeedbackDialog({
                     </TabsContent>
 
                     {/* Bug Report Tab Content */}
-                    <TabsContent value="bug">
+                    <TabsContent
+                        value="bug"
+                        className="max-h-[60vh] overflow-y-auto"
+                    >
                         <form onSubmit={handleSubmitBugReport}>
-                            <div className="grid gap-4 py-4">
+                            <div className="grid gap-4 py-4 pr-3">
                                 <div className="grid gap-2">
                                     <Label htmlFor="bug-title">Title *</Label>
                                     <Input
