@@ -48,7 +48,7 @@ export const createClientSession = protectedEndpoint
                 endTime: z.string(),
 
                 valuation: clientSessionValuationEnum,
-                observations: z.string(),
+                observations: z.string().nullable(),
 
                 presentParticipants: z.array(z.string()),
                 environmentalChanges: z.array(z.string()),
@@ -65,11 +65,12 @@ export const createClientSession = protectedEndpoint
                 replacementProgramEntries: z.array(
                     z.object({
                         replacementProgramId: z.string(),
-                        teachingProcedureId: z.string(),
+                        teachingProcedureId: z.string().nullable(),
                         promptTypesIds: z.array(z.string()),
-                        promptingProcedureId: z.string(),
-                        clientResponse: replacementProgramResponseEnum,
-                        progress: z.number(),
+                        promptingProcedureId: z.string().nullable(),
+                        clientResponse:
+                            replacementProgramResponseEnum.nullable(),
+                        progress: z.number().nullable(),
                     }),
                 ),
             }),
@@ -232,14 +233,14 @@ export const createClientSession = protectedEndpoint
                             (entry) => entry.teachingProcedureId,
                         ),
                     ),
-                ];
+                ].filter((id) => id !== null);
                 const allPromptingProcedureIds = [
                     ...new Set(
                         replacementProgramEntries.map(
                             (entry) => entry.promptingProcedureId,
                         ),
                     ),
-                ];
+                ].filter((id) => id !== null);
                 const allPromptTypeIds = [
                     ...new Set(
                         replacementProgramEntries.flatMap(
@@ -315,20 +316,18 @@ export const createClientSession = protectedEndpoint
                     const replacementProgram = replacementProgramsMap.get(
                         entry.replacementProgramId,
                     );
-                    const teachingProcedure = teachingProceduresMap.get(
-                        entry.teachingProcedureId,
-                    );
-                    const promptingProcedure = promptingProceduresMap.get(
-                        entry.promptingProcedureId,
-                    );
+                    const teachingProcedure = entry.teachingProcedureId
+                        ? teachingProceduresMap.get(entry.teachingProcedureId)
+                        : undefined;
+                    const promptingProcedure = entry.promptingProcedureId
+                        ? promptingProceduresMap.get(entry.promptingProcedureId)
+                        : undefined;
                     const promptTypes = entry.promptTypesIds
                         .map((id) => promptTypesMap.get(id))
                         .filter((pt): pt is NonNullable<typeof pt> => !!pt);
 
                     if (
                         !replacementProgram ||
-                        !teachingProcedure ||
-                        !promptingProcedure ||
                         promptTypes.length !== entry.promptTypesIds.length
                     ) {
                         allEntriesValid = false;
@@ -337,8 +336,8 @@ export const createClientSession = protectedEndpoint
 
                     validatedReplacementProgramNoteEntries.push({
                         replacementProgram: replacementProgram.name,
-                        teachingProcedure: teachingProcedure.name,
-                        promptingProcedure: promptingProcedure.name,
+                        teachingProcedure: teachingProcedure?.name ?? null,
+                        promptingProcedure: promptingProcedure?.name ?? null,
                         promptTypes: promptTypes.map((pt) => pt.name),
                     });
                 }

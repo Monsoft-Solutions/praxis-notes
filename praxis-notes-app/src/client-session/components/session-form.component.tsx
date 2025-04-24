@@ -4,7 +4,7 @@ import { useNavigate } from '@tanstack/react-router';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import { toast } from 'sonner';
 
@@ -22,6 +22,8 @@ import { SessionObservations } from './session-observations.component';
 
 import { api } from '@api/providers/web';
 import { Spinner } from '@shared/ui/spinner.ui';
+
+import { Form } from '@shared/ui/form.ui';
 
 type SessionFormProps = {
     clientId: string;
@@ -42,14 +44,14 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
 
         defaultValues: {
             sessionDate: new Date(),
-            startTime: '',
-            endTime: '',
-            location: '',
+            startTime: undefined,
+            endTime: undefined,
+            location: undefined,
             presentParticipants: [],
             environmentalChanges: [],
             abcIdEntries: [
                 {
-                    antecedentId: '',
+                    antecedentId: undefined,
                     behaviorIds: [],
                     interventionIds: [],
                     function: 'atention',
@@ -57,16 +59,16 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             ],
             replacementProgramEntries: [
                 {
-                    replacementProgramId: '',
-                    teachingProcedureId: '',
-                    promptingProcedureId: '',
-                    clientResponse: 'expected',
-                    progress: 0,
+                    replacementProgramId: undefined,
+                    teachingProcedureId: null,
+                    promptingProcedureId: null,
+                    clientResponse: null,
+                    progress: null,
                     promptTypesIds: [],
                 },
             ],
             valuation: 'good',
-            observations: '',
+            observations: null,
         },
     });
 
@@ -133,7 +135,7 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
     };
 
     return (
-        <FormProvider {...form}>
+        <Form {...form}>
             <form className="space-y-8">
                 <SessionHeader clientName={clientName} />
 
@@ -197,6 +199,6 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                     </Button>
                 </div>
             </form>
-        </FormProvider>
+        </Form>
     );
 }
