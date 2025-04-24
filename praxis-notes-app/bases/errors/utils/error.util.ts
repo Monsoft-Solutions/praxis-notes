@@ -1,7 +1,5 @@
 import { SyncReturn } from '@errors/types';
 
-import { throwAsync } from './throw-async.util';
-
 import { defaultErrorCode } from '@errors/constants';
 
 export function Error(name?: undefined): {
@@ -16,8 +14,6 @@ export function Error<Name>(
     name?: Name extends string | undefined ? Name : never,
 ): SyncReturn<string | undefined> {
     const error = name ?? defaultErrorCode;
-
-    throwAsync(error);
 
     return { data: undefined, error };
 }

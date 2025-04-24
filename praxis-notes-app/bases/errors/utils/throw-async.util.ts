@@ -1,12 +1,7 @@
-// util to throw an error asynchronously
-export const throwAsync = (name: string) => {
-    // implementation using Promise
-    void new Promise(() => {
-        throw new Error(name);
-    });
+import { logger } from '../../logger/logger.service';
+import { LogContext } from '../../logger/logger.types';
 
-    // implementation using setTimeout
-    // setTimeout(() => {
-    //     throw new Error(name);
-    // });
+// util to throw an error asynchronously
+export const throwAsync = (name: string, error?: LogContext) => {
+    logger.error(name, error);
 };

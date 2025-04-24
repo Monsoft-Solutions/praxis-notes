@@ -85,11 +85,3 @@ console.log(`App available at ${appUrl}`);
 
 // start server
 server.listen(appInnerPort);
-
-// handle uncaught exceptions
-// to prevent server from crashing
-// on asyncchronous errors thrown by `throwAsync()`
-// usually from inside `Error()`
-process.on('uncaughtException', (err) => {
-    console.error(err);
-});
