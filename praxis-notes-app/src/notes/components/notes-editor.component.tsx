@@ -91,7 +91,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
     const hasNotes = initialData !== undefined || editorValue.length > 0;
 
     return (
-        <Card className="h-full w-full">
+        <Card className="w-full">
             <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                     <span>Session Notes</span>
