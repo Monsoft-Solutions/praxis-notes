@@ -2,6 +2,7 @@ import winston from 'winston';
 import { deploymentEnv } from '@env/constants/deployment-env.constant';
 import { LogContext } from './logger.types';
 import { LoggerInterface } from './logger.types';
+import { slackService } from '../slack/slack.service';
 
 // Define log levels
 const levels = {
@@ -69,6 +70,10 @@ class LoggerService implements LoggerInterface {
 
     info(message: string, context?: LogContext): void {
         this._logger.info(message, context);
+
+        // Send info to Slack if needed
+        // We use void to ignore the promise
+        void slackService.sendInfoToSlack(message, context);
     }
 
     debug(message: string, context?: LogContext): void {
@@ -76,7 +81,11 @@ class LoggerService implements LoggerInterface {
     }
 
     error(message: string, context?: LogContext): void {
+        // Log to winston
         this._logger.error(message, context);
+
+        // Send to Slack using the slack service
+        void slackService.sendErrorToSlack(message, context);
     }
 
     warn(message: string, context?: LogContext): void {

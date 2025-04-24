@@ -12,4 +12,10 @@ export const coreConfigData: InferInsertModel<typeof coreConfTable> = {
     anthropicApiKey: z.string().parse(process.env.MSS_ANTHROPIC_API_KEY),
     stripeSecretKey: z.string().parse(process.env.MSS_STRIPE_SECRET_KEY),
     resendApiKey: z.string().parse(process.env.MSS_RESEND_API_KEY),
+    slackWebhookUrlError: z
+        .string()
+        .parse(process.env.MSS_SLACK_WEBHOOK_URL_ERROR),
+    slackWebhookUrlInfo: z
+        .string()
+        .parse(process.env.MSS_SLACK_WEBHOOK_URL_INFO),
 };

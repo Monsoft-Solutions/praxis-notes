@@ -43,6 +43,7 @@
             "@routes/*": ["./routes/*"],
             "@seed/*": ["./bases/seed/*"],
             "@shared/*": ["./shared/*"],
+            "@slack/*": ["./bases/slack/*"],
             "@ui/*": ["./shared/ui/*"],
             "@src/*": ["./src/*"],
             "@web/*": ["./bases/web/*"],
