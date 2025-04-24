@@ -1,8 +1,13 @@
+import { useState } from 'react';
+
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
 import { Button } from '@ui/button.ui';
 
 import { PlusCircle } from 'lucide-react';
+
+import { Switch } from '@shared/ui/switch.ui';
+import { Label } from '@shared/ui/label.ui';
 
 import {
     Card,
@@ -14,6 +19,7 @@ import {
 import { ReplacementProgramCard } from './replacement-program-card.component';
 
 export function ReplacementProgramCardContainer() {
+    const [isDetailedView, setIsDetailedView] = useState(false);
     const { control } = useFormContext();
 
     const { fields, append, remove } = useFieldArray({
@@ -23,22 +29,29 @@ export function ReplacementProgramCardContainer() {
 
     // Add a new empty replacement program entry
     const handleAddEntry = () => {
-        append({
-            replacementProgramId: '',
-            teachingProcedureId: '',
-            promptingProcedureId: '',
-            clientResponse: 'expected',
-        });
+        append({});
     };
 
     return (
         <Card>
-            <CardHeader>
+            <CardHeader className="relative">
                 <CardTitle>Replacement Program Data</CardTitle>
 
                 <CardDescription>
                     Record Replacement Program data for the session.
                 </CardDescription>
+
+                <div className="absolute right-4 top-4 flex items-center gap-2">
+                    <Switch
+                        id="detailed-view"
+                        checked={isDetailedView}
+                        onCheckedChange={setIsDetailedView}
+                    />
+
+                    <Label htmlFor="detailed-view" className="text-sm">
+                        Show Detailes
+                    </Label>
+                </div>
             </CardHeader>
 
             <CardContent className="space-y-6">
@@ -46,6 +59,7 @@ export function ReplacementProgramCardContainer() {
                     <ReplacementProgramCard
                         key={field.id}
                         index={index}
+                        isDetailedView={isDetailedView}
                         onRemove={
                             fields.length > 1
                                 ? () => {
