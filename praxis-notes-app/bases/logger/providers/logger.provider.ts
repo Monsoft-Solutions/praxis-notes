@@ -14,6 +14,7 @@ const levels = {
 
 // Determine if in development environment
 const isDevelopment = deploymentEnv.MSS_DEPLOYMENT_TYPE === 'local';
+const isProduction = deploymentEnv.MSS_DEPLOYMENT_TYPE === 'production';
 
 // Configure log format
 const formatConsole = winston.format.combine(
@@ -59,13 +60,11 @@ class LoggerService implements LoggerInterface {
             ],
         });
 
-        if (isDevelopment) {
-            this._logger.add(
-                new winston.transports.Console({
-                    format: formatConsole,
-                }),
-            );
-        }
+        this._logger.add(
+            new winston.transports.Console({
+                format: formatConsole,
+            }),
+        );
 
         console.log('LoggerService constructor');
     }
@@ -75,7 +74,9 @@ class LoggerService implements LoggerInterface {
 
         // Send info to Slack if needed
         // We use void to ignore the promise
-        void slackService.sendInfoToSlack(message, context);
+        if (isProduction) {
+            void slackService.sendInfoToSlack(message, context);
+        }
     }
 
     debug(message: string, context?: LogContext): void {
@@ -87,7 +88,9 @@ class LoggerService implements LoggerInterface {
         this._logger.error(message, context);
 
         // Send to Slack using the slack service
-        void slackService.sendErrorToSlack(message, context);
+        if (isProduction) {
+            void slackService.sendErrorToSlack(message, context);
+        }
     }
 
     warn(message: string, context?: LogContext): void {
