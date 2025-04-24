@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { eq } from 'drizzle-orm';
 import { createSession } from '@auth/providers/server';
+import { logger } from '@logger/providers/logger.provider';
 
 // verify email
 // Input: id
@@ -59,6 +60,12 @@ export const verifyEmail = publicEndpoint
                         });
 
                     if (sessionError) throw 'INIT_SESSION';
+
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+                    logger.info('Email verified', {
+                        email,
+                        id,
+                    });
 
                     return {
                         email,
