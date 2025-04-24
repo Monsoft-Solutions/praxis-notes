@@ -271,7 +271,7 @@ export function ClientBehaviorsForm({
                                         <FormField
                                             control={control}
                                             name={`behaviors.${index}.baseline`}
-                                            render={({ field: formField }) => (
+                                            render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>
                                                         Baseline{' '}
@@ -279,26 +279,15 @@ export function ClientBehaviorsForm({
                                                             *
                                                         </span>
                                                     </FormLabel>
+
                                                     <FormControl>
                                                         <Input
-                                                            type="number"
+                                                            type="int"
                                                             placeholder="Enter baseline value"
-                                                            {...formField}
-                                                            onChange={(e) => {
-                                                                formField.onChange(
-                                                                    e.target
-                                                                        .value ===
-                                                                        ''
-                                                                        ? 0
-                                                                        : parseFloat(
-                                                                              e
-                                                                                  .target
-                                                                                  .value,
-                                                                          ),
-                                                                );
-                                                            }}
+                                                            {...field}
                                                         />
                                                     </FormControl>
+
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
