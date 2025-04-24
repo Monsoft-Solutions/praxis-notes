@@ -4,6 +4,9 @@ import { defineConfig } from 'vitepress';
 export default defineConfig({
     title: 'Praxis Notes Docs',
     description: 'Documentation about the Praxis Notes app',
+    sitemap: {
+        hostname: 'https://docs.praxisnotes.com',
+    },
     themeConfig: {
         // https://vitepress.dev/reference/default-theme-config
         nav: [
