@@ -4,10 +4,10 @@ import { replacementProgramResponseEnum } from '@src/replacement-program/enums';
 
 export const clientSessionFormReplacementProgramEntrySchema = z.object({
     replacementProgramId: z.string(),
-    teachingProcedureId: z.string(),
-    promptingProcedureId: z.string(),
-    clientResponse: replacementProgramResponseEnum,
-    progress: z.number(),
+    teachingProcedureId: z.string().nullable(),
+    promptingProcedureId: z.string().nullable(),
+    clientResponse: replacementProgramResponseEnum.nullable(),
+    progress: z.number().nullable(),
     promptTypesIds: z.array(z.string()),
 });
 

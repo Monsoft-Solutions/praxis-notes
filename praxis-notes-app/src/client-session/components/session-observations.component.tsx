@@ -38,6 +38,7 @@ export function SessionObservations() {
                                     {...field}
                                     placeholder="Observations"
                                     className="resize-none"
+                                    value={field.value ?? ''}
                                 />
                             </FormControl>
 

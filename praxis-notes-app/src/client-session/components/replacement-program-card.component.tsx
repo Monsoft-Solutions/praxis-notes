@@ -37,11 +37,13 @@ import { Input } from '@ui/input.ui';
 type ReplacementProgramCardProps = {
     index: number;
     onRemove?: () => void;
+    isDetailedView: boolean;
 };
 
 export function ReplacementProgramCard({
     index,
     onRemove,
+    isDetailedView,
 }: ReplacementProgramCardProps) {
     const { clientId } = Route.useParams();
 
@@ -153,126 +155,130 @@ export function ReplacementProgramCard({
                     )}
                 />
 
-                {/* Teaching Procedure */}
-                <FormField
-                    control={control}
-                    name={`replacementProgramEntries.${index}.teachingProcedureId`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Teaching Procedure</FormLabel>
+                {isDetailedView && (
+                    <>
+                        {/* Teaching Procedure */}
+                        <FormField
+                            control={control}
+                            name={`replacementProgramEntries.${index}.teachingProcedureId`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Teaching Procedure</FormLabel>
 
-                            <AbcSelector
-                                placeholder="Select teaching procedure"
-                                items={teachingProcedures}
-                                onSelect={field.onChange}
-                            />
+                                    <AbcSelector
+                                        placeholder="Select teaching procedure"
+                                        items={teachingProcedures}
+                                        onSelect={field.onChange}
+                                    />
 
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                {/* Prompts used */}
-                <FormField
-                    control={control}
-                    name={`replacementProgramEntries.${index}.promptTypesIds`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Prompts used</FormLabel>
+                        {/* Prompts used */}
+                        <FormField
+                            control={control}
+                            name={`replacementProgramEntries.${index}.promptTypesIds`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Prompts used</FormLabel>
 
-                            <AbcSelector
-                                placeholder="Select prompts used"
-                                items={promptTypes}
-                                onSelect={field.onChange}
-                                multiple
-                            />
+                                    <AbcSelector
+                                        placeholder="Select prompts used"
+                                        items={promptTypes}
+                                        onSelect={field.onChange}
+                                        multiple
+                                    />
 
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                {/* Prompting Procedure */}
-                <FormField
-                    control={control}
-                    name={`replacementProgramEntries.${index}.promptingProcedureId`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Prompting Procedure</FormLabel>
+                        {/* Prompting Procedure */}
+                        <FormField
+                            control={control}
+                            name={`replacementProgramEntries.${index}.promptingProcedureId`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Prompting Procedure</FormLabel>
 
-                            <AbcSelector
-                                placeholder="Select prompting procedure"
-                                items={promptingProcedures}
-                                onSelect={field.onChange}
-                            />
+                                    <AbcSelector
+                                        placeholder="Select prompting procedure"
+                                        items={promptingProcedures}
+                                        onSelect={field.onChange}
+                                    />
 
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                {/* Client Response */}
-                <FormField
-                    control={control}
-                    name={`replacementProgramEntries.${index}.clientResponse`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Client Response</FormLabel>
+                        {/* Client Response */}
+                        <FormField
+                            control={control}
+                            name={`replacementProgramEntries.${index}.clientResponse`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Client Response</FormLabel>
 
-                            <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                            >
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select client response" />
-                                    </SelectTrigger>
-                                </FormControl>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value ?? ''}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select client response" />
+                                            </SelectTrigger>
+                                        </FormControl>
 
-                                <SelectContent>
-                                    {replacementProgramResponseEnum.options.map(
-                                        (option) => (
-                                            <SelectItem
-                                                key={option}
-                                                value={option}
-                                            >
-                                                {option}
-                                            </SelectItem>
-                                        ),
-                                    )}
-                                </SelectContent>
-                            </Select>
+                                        <SelectContent>
+                                            {replacementProgramResponseEnum.options.map(
+                                                (option) => (
+                                                    <SelectItem
+                                                        key={option}
+                                                        value={option}
+                                                    >
+                                                        {option}
+                                                    </SelectItem>
+                                                ),
+                                            )}
+                                        </SelectContent>
+                                    </Select>
 
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                {/* Progress */}
-                <FormField
-                    control={control}
-                    name={`replacementProgramEntries.${index}.progress`}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Progress</FormLabel>
+                        {/* Progress */}
+                        <FormField
+                            control={control}
+                            name={`replacementProgramEntries.${index}.progress`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Progress</FormLabel>
 
-                            <Input
-                                type="number"
-                                {...field}
-                                onChange={(e) => {
-                                    const value = e.target.value;
-                                    if (value === '') {
-                                        field.onChange(0);
-                                    } else {
-                                        field.onChange(Number(value));
-                                    }
-                                }}
-                            />
+                                    <Input
+                                        type="number"
+                                        value={field.value ?? ''}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (value === '') {
+                                                field.onChange(0);
+                                            } else {
+                                                field.onChange(Number(value));
+                                            }
+                                        }}
+                                    />
 
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </>
+                )}
             </CardContent>
         </Card>
     );

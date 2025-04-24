@@ -42,14 +42,14 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
 
         defaultValues: {
             sessionDate: new Date(),
-            startTime: '',
-            endTime: '',
-            location: '',
+            startTime: undefined,
+            endTime: undefined,
+            location: undefined,
             presentParticipants: [],
             environmentalChanges: [],
             abcIdEntries: [
                 {
-                    antecedentId: '',
+                    antecedentId: undefined,
                     behaviorIds: [],
                     interventionIds: [],
                     function: 'atention',
@@ -57,16 +57,16 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             ],
             replacementProgramEntries: [
                 {
-                    replacementProgramId: '',
-                    teachingProcedureId: '',
-                    promptingProcedureId: '',
-                    clientResponse: 'expected',
-                    progress: 0,
+                    replacementProgramId: undefined,
+                    teachingProcedureId: null,
+                    promptingProcedureId: null,
+                    clientResponse: null,
+                    progress: null,
                     promptTypesIds: [],
                 },
             ],
             valuation: 'good',
-            observations: '',
+            observations: null,
         },
     });
 

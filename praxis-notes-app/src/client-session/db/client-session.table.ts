@@ -45,7 +45,7 @@ export const clientSessionTable = table('client_session', {
 
     valuation: clientSessionValuation('valuation').notNull(),
 
-    observations: text('observations').notNull(),
+    observations: text('observations'),
 
     notes: text('notes'),
 });
