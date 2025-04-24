@@ -212,9 +212,14 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                             onClick={() => {
                                 void handleGenerate();
                             }}
-                            className="mt-2"
+                            className="mt-2 w-36"
+                            disabled={isGeneratingNotes}
                         >
-                            Generate Notes
+                            {isGeneratingNotes ? (
+                                <Spinner className="h-4 w-4" />
+                            ) : (
+                                'Generate Notes'
+                            )}
                         </Button>
                     </div>
                 )}
