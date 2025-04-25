@@ -2,13 +2,7 @@ import React from 'react';
 import { User } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@ui/card.ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
 import {
     Table,
     TableBody,
@@ -38,13 +32,10 @@ export const ClientsOverview: React.FC = () => {
 
     return (
         <Card>
-            <CardHeader>
+            <CardHeader className="pb-16">
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>Clients Overview</CardTitle>
-                        <CardDescription>
-                            List of all clients in your organization
-                        </CardDescription>
                     </div>
                     <Button asChild size="sm">
                         <Link to="/clients/new">Add Client</Link>
