@@ -175,6 +175,9 @@ export function ClientBehaviorsForm({
 
                                                         <AbcSelector
                                                             placeholder="Select behavior"
+                                                            initValue={
+                                                                field.value
+                                                            }
                                                             items={
                                                                 existingBehaviors
                                                             }

@@ -3,13 +3,18 @@ import { SessionForm } from '@src/client-session/components';
 import { Route } from '@routes/_private/_app/clients/$clientId/sessions/new';
 
 export function NewClientSessionView() {
-    const { clientId } = Route.useParams();
+    const { loggedInUser } = Route.useRouteContext();
 
+    const { clientId } = Route.useParams();
     const clientName = 'Client';
 
     return (
         <div className="container mx-auto py-6">
-            <SessionForm clientId={clientId} clientName={clientName} />
+            <SessionForm
+                clientId={clientId}
+                clientName={clientName}
+                isTour={!loggedInUser.hasDoneTour}
+            />
         </div>
     );
 }

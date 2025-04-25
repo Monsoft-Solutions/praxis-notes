@@ -135,6 +135,7 @@ export function ReplacementProgramCard({
                             <FormLabel>Replacement Program</FormLabel>
 
                             <AbcSelector
+                                initValue={field.value}
                                 placeholder="Select replacement program"
                                 items={replacementPrograms}
                                 onSelect={field.onChange}

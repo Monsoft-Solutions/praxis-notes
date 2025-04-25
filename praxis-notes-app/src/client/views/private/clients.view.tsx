@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 
 import { Button } from '@ui/button.ui';
 
@@ -6,14 +6,43 @@ import { User } from 'lucide-react';
 
 import { api } from '@api/providers/web';
 
-type Client = {
-    id: string;
-    firstName: string;
-    lastName: string;
-};
+import { TourStepId } from '@shared/types/tour-step-id.type';
+import { useEffect } from 'react';
+
+const addClientButtonId: TourStepId = 'add-client-button';
+const viewSessionsButtonId: TourStepId = 'view-sessions-button';
 
 export const ClientsView = () => {
+    const navigate = useNavigate();
+
     const { data: clientsQuery } = api.client.getClients.useQuery();
+
+    useEffect(() => {
+        const handler = () => {
+            if (!clientsQuery) return null;
+            const { error } = clientsQuery;
+            if (error) return null;
+            const { data: clients } = clientsQuery;
+
+            const firstClient = clients.at(0);
+
+            if (!firstClient) return null;
+
+            void navigate({
+                to: '/clients/$clientId/sessions',
+                params: { clientId: firstClient.id },
+            });
+        };
+
+        window.addEventListener('navigateToFirstClientSessions', handler);
+
+        return () => {
+            window.removeEventListener(
+                'navigateToFirstClientSessions',
+                handler,
+            );
+        };
+    }, [navigate, clientsQuery]);
 
     if (!clientsQuery) return null;
     const { error } = clientsQuery;
@@ -26,7 +55,9 @@ export const ClientsView = () => {
                 <h1 className="text-2xl font-bold">Clients</h1>
 
                 <Button asChild>
-                    <Link to="/clients/new">Add Client</Link>
+                    <Link to="/clients/new" id={addClientButtonId}>
+                        Add Client
+                    </Link>
                 </Button>
             </div>
 
@@ -44,7 +75,7 @@ export const ClientsView = () => {
                 </div>
             ) : (
                 <div className="grid gap-4">
-                    {clients.map((client: Client) => (
+                    {clients.map((client, index) => (
                         <Link
                             key={client.id}
                             to="/clients/$clientId/sessions"
@@ -63,7 +94,16 @@ export const ClientsView = () => {
                                 </div>
                             </div>
 
-                            <Button variant="ghost">View Sessions</Button>
+                            <Button
+                                id={
+                                    index === 0
+                                        ? viewSessionsButtonId
+                                        : undefined
+                                }
+                                variant="ghost"
+                            >
+                                View Sessions
+                            </Button>
                         </Link>
                     ))}
                 </div>

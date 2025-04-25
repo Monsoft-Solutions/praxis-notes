@@ -41,10 +41,12 @@ type AbcSelectorProps = {
     | {
           multiple: true;
           onSelect: (ids: string[]) => void;
+          initValue?: string[];
       }
     | {
           multiple?: false;
           onSelect: (id: string) => void;
+          initValue?: string;
       }
 );
 
@@ -58,6 +60,7 @@ export function AbcSelector({
     multiple,
     create,
     hideFromList,
+    initValue,
 }: AbcSelectorProps) {
     const allOptions = items
         .map((item) => ({
@@ -74,7 +77,9 @@ export function AbcSelector({
     const [open, setOpen] = useState(false);
     const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(
+        !multiple && initValue ? initValue : null,
+    );
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
     const selectedOptions = selectedIds

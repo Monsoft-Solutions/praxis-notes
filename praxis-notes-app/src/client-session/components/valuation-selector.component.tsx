@@ -16,6 +16,10 @@ import { Label } from '@ui/label.ui';
 
 import { ClientSessionForm } from '../schemas';
 
+import { TourStepId } from '@shared/types/tour-step-id.type';
+
+const valuationSelectorId: TourStepId = 'session-form-valuation';
+
 export function ValuationSelector() {
     const { control } = useFormContext<ClientSessionForm>();
 
@@ -35,9 +39,10 @@ export function ValuationSelector() {
                         <FormItem>
                             <FormControl>
                                 <RadioGroup
+                                    id={valuationSelectorId}
                                     onValueChange={field.onChange}
                                     defaultValue={field.value}
-                                    className="flex space-x-4"
+                                    className="flex w-min space-x-4"
                                 >
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem

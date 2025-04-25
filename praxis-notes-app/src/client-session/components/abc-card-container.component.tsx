@@ -16,6 +16,10 @@ import {
     CardDescription,
 } from '@ui/card.ui';
 
+import { TourStepId } from '@shared/types/tour-step-id.type';
+
+const abcCardContainerId: TourStepId = 'session-form-abc-entry';
+
 export function ABCCardContainer() {
     const { control } = useFormContext();
 
@@ -36,7 +40,7 @@ export function ABCCardContainer() {
     };
 
     return (
-        <Card>
+        <Card id={abcCardContainerId}>
             <CardHeader>
                 <CardTitle>ABC Data</CardTitle>
 

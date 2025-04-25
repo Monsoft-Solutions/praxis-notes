@@ -30,6 +30,10 @@ import { Tag } from '@shared/components/tag.component';
 
 import { ClientSessionForm } from '../schemas';
 
+import { TourStepId } from '@shared/types/tour-step-id.type';
+
+const sessionBasicInfoId: TourStepId = 'session-form-basic-info';
+
 export function SessionBasicInfo() {
     const { control } = useFormContext<ClientSessionForm>();
 
@@ -61,7 +65,7 @@ export function SessionBasicInfo() {
     };
 
     return (
-        <Card>
+        <Card id={sessionBasicInfoId}>
             <CardHeader>
                 <CardTitle>Session Details</CardTitle>
             </CardHeader>

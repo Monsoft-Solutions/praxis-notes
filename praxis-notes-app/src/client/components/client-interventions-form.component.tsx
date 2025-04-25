@@ -180,6 +180,7 @@ export function ClientInterventionsForm({
 
                                                     <AbcSelector
                                                         placeholder="Select intervention"
+                                                        initValue={field.value}
                                                         items={
                                                             existingInterventions
                                                         }

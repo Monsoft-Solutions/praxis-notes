@@ -2,7 +2,11 @@ import { Separator } from '@ui/separator.ui';
 
 import { ClientForm } from '../../components';
 
+import { Route } from '@routes/_private/_app/clients/new';
+
 export function NewClientView() {
+    const { loggedInUser } = Route.useRouteContext();
+
     return (
         <div className="space-y-6">
             <div>
@@ -16,7 +20,7 @@ export function NewClientView() {
 
             <Separator />
 
-            <ClientForm />
+            <ClientForm isTour={!loggedInUser.hasDoneTour} />
         </div>
     );
 }
