@@ -13,7 +13,6 @@ export const bugReportSubmittedEvent = {
         stepsToReproduce: z.string().optional(),
         area: appAreaEnum.optional(),
         severity: bugSeverityEnum.optional(),
-        screenshotPath: z.string().optional(),
         createdAt: z.number(),
     }),
 } as const;

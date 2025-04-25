@@ -68,7 +68,6 @@ export function FeedbackDialog({
             stepsToReproduce: '',
             area: '',
             severity: '',
-            screenshot: null,
         },
     });
 
@@ -81,12 +80,6 @@ export function FeedbackDialog({
 
     const { mutateAsync: submitBugReport } =
         api.contactCenter.submitBugReport.useMutation();
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            bugForm.setValue('screenshot', e.target.files[0]);
-        }
-    };
 
     const handleAddSuggestionType = () => {
         const currentType = suggestionForm.getValues('type');
@@ -129,10 +122,6 @@ export function FeedbackDialog({
                 stepsToReproduce: data.stepsToReproduce,
                 area: data.area,
                 severity: data.severity,
-                // Handle screenshot upload separately if needed
-                screenshotPath: data.screenshot
-                    ? data.screenshot.name
-                    : undefined,
             });
 
             toast.success('Thank you for reporting this bug!');
@@ -452,49 +441,6 @@ export function FeedbackDialog({
                                                         className="h-24 resize-none"
                                                         {...field}
                                                     />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    {/* Screenshot field needs careful handling with react-hook-form */}
-                                    <FormField
-                                        control={bugForm.control}
-                                        name="screenshot"
-                                        render={({
-                                            field: { onChange, value, ...rest },
-                                        }) => (
-                                            <FormItem>
-                                                <FormLabel>
-                                                    Screenshot (optional)
-                                                </FormLabel>
-                                                <FormControl>
-                                                    <div className="flex items-center gap-2">
-                                                        <Input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            className="cursor-pointer"
-                                                            onChange={(e) => {
-                                                                handleFileChange(
-                                                                    e,
-                                                                ); // Use existing handler to update form value
-                                                                onChange(
-                                                                    e.target
-                                                                        .files?.[0],
-                                                                ); // RHF specific
-                                                            }}
-                                                            {...rest}
-                                                        />
-                                                        {value && (
-                                                            <div className="text-muted-foreground text-xs">
-                                                                {typeof value ===
-                                                                'string'
-                                                                    ? value
-                                                                    : value.name}
-                                                            </div>
-                                                        )}
-                                                    </div>
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>

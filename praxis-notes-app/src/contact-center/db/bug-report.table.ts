@@ -45,9 +45,6 @@ export const bugReportTable = table('bug_report', {
     // severity of the bug
     severity: sqlEnum('severity', bugSeverityEnumSql),
 
-    // path to screenshot if provided
-    screenshotPath: varchar('screenshot_path', { length: 255 }),
-
     // timestamp when the bug report was submitted
     createdAt: bigint('created_at', {
         mode: 'number',

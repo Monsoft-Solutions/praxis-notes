@@ -13,7 +13,6 @@ export const bugSchema = z.object({
     stepsToReproduce: z.string().optional(),
     area: z.string().optional(),
     severity: z.string().optional(),
-    screenshot: z.instanceof(File).optional().nullable(),
 });
 
 export type SuggestionFormValues = z.infer<typeof suggestionSchema>;

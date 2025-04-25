@@ -23,7 +23,6 @@ export const submitBugReport = protectedEndpoint
             stepsToReproduce: z.string().optional(),
             area: z.string().optional(),
             severity: z.string().optional(),
-            screenshotPath: z.string().optional(),
         }),
     )
     .mutation(
@@ -34,14 +33,8 @@ export const submitBugReport = protectedEndpoint
                 },
                 input,
             }) => {
-                const {
-                    title,
-                    description,
-                    stepsToReproduce,
-                    area,
-                    severity,
-                    screenshotPath,
-                } = input;
+                const { title, description, stepsToReproduce, area, severity } =
+                    input;
 
                 // generate a unique id for the bug report
                 const id = uuidv4();
@@ -58,7 +51,6 @@ export const submitBugReport = protectedEndpoint
                     stepsToReproduce,
                     area: area as AppArea,
                     severity: severity as BugSeverity,
-                    screenshotPath,
                     createdAt,
                 };
 
