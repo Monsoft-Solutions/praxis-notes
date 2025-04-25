@@ -1,14 +1,12 @@
 import React, { useRef } from 'react';
+import { LifeBuoy, Mail, HelpCircle, Lightbulb, Bug } from 'lucide-react';
 import {
-    LifeBuoy,
-    Phone,
-    Mail,
-    HelpCircle,
-    MessageSquare,
-    Lightbulb,
-    Bug,
-} from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@ui/card.ui';
+    Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+    CardFooter,
+} from '@ui/card.ui';
 import { Button } from '@ui/button.ui';
 import { FeedbackDialog } from '@src/contact-center/components/feedback-dialog.component';
 
@@ -53,7 +51,7 @@ const SupportOption: React.FC<SupportOptionProps> = ({
     return (
         <Button
             variant="ghost"
-            className="hover:bg-muted/50 flex h-auto flex-col items-center rounded-md transition-colors"
+            className="hover:bg-muted/50 flex h-auto flex-col items-center rounded-md p-0 transition-colors"
             onClick={onClick}
         >
             {content}
@@ -76,17 +74,7 @@ export const SupportCard: React.FC = () => {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-                    <SupportOption
-                        icon={<Phone className="text-primary size-6" />}
-                        label="Call us"
-                        href="tel:+13057974357"
-                    />
-                    <SupportOption
-                        icon={<MessageSquare className="text-primary size-6" />}
-                        label="WhatsApp"
-                        href="https://wa.me/13057974357"
-                    />
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                     <SupportOption
                         icon={<Mail className="text-primary size-6" />}
                         label="E-mail"
@@ -135,6 +123,17 @@ export const SupportCard: React.FC = () => {
                     />
                 }
             />
+
+            <CardFooter>
+                <div className="flex items-center rounded-lg border p-4">
+                    <HelpCircle className="text-primary mr-3 h-5 w-5" />
+                    <p className="text-muted-foreground text-sm">
+                        Need assistance? We&apos;re here to help! We also
+                        welcome your feedback on new features and bug reports to
+                        improve your experience.
+                    </p>
+                </div>
+            </CardFooter>
         </Card>
     );
 };
