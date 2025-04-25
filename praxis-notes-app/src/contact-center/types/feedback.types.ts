@@ -1,6 +1,8 @@
-export type FeedbackType = 'suggestion' | 'bug';
+import type { ReactNode } from 'react';
+
+export type FeedbackDialogType = 'suggestion' | 'bug';
 
 export type FeedbackDialogProps = {
-    trigger?: React.ReactNode;
-    initialType?: FeedbackType;
+    trigger?: ReactNode;
+    initialType?: FeedbackDialogType;
 };

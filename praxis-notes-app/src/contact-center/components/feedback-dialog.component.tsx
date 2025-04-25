@@ -41,14 +41,15 @@ import {
     type SuggestionFormValues,
     type BugFormValues,
 } from '../schemas';
-import type { FeedbackType, FeedbackDialogProps } from '../types';
+import type { FeedbackDialogType, FeedbackDialogProps } from '../types';
 
 export function FeedbackDialog({
     trigger,
     initialType = 'suggestion',
 }: FeedbackDialogProps) {
     const [open, setOpen] = useState(false);
-    const [feedbackType, setFeedbackType] = useState<FeedbackType>(initialType);
+    const [feedbackType, setFeedbackType] =
+        useState<FeedbackDialogType>(initialType);
 
     // Initialize suggestion form
     const suggestionForm = useForm<SuggestionFormValues>({
@@ -66,8 +67,8 @@ export function FeedbackDialog({
             title: '',
             description: '',
             stepsToReproduce: '',
-            area: '',
-            severity: '',
+            area: undefined,
+            severity: undefined,
         },
     });
 
@@ -174,7 +175,7 @@ export function FeedbackDialog({
                 <Tabs
                     defaultValue={feedbackType}
                     onValueChange={(value) => {
-                        setFeedbackType(value as FeedbackType);
+                        setFeedbackType(value as FeedbackDialogType);
                     }}
                     className="w-full"
                 >

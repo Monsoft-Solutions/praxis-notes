@@ -11,7 +11,7 @@ import { catchError } from '@errors/utils/catch-error.util';
 import { v4 as uuidv4 } from 'uuid';
 
 import { bugReportTable } from '../db';
-import { AppArea, BugSeverity } from '../enums';
+import { appAreaEnum, bugSeverityEnum } from '../enums';
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
 
 // mutation to submit a bug report
@@ -21,8 +21,8 @@ export const submitBugReport = protectedEndpoint
             title: z.string(),
             description: z.string(),
             stepsToReproduce: z.string().optional(),
-            area: z.string().optional(),
-            severity: z.string().optional(),
+            area: appAreaEnum.optional(),
+            severity: bugSeverityEnum.optional(),
         }),
     )
     .mutation(
@@ -49,8 +49,8 @@ export const submitBugReport = protectedEndpoint
                     title,
                     description,
                     stepsToReproduce,
-                    area: area as AppArea,
-                    severity: severity as BugSeverity,
+                    area: area,
+                    severity: severity,
                     createdAt,
                 };
 
