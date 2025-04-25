@@ -21,7 +21,6 @@ export const generateNotes = (async (sessionData: ClientSession) => {
     if (textGenerationError) return Error('TEXT_GENERATION_ERROR');
 
     const end = performance.now();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     logger.debug('Time taken to generate notes', {
         time: `${Math.round((end - start) / 1000)} seconds`,
         service: 'generateNotes',

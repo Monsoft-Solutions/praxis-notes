@@ -1,4 +1,4 @@
-import { LogContext } from '../../logger/types/logger.types';
+import { LogContext } from '@logger/types';
 
 // util to throw an error asynchronously
 export const throwAsync = (name: string, error?: LogContext) => {

@@ -1,8 +1,7 @@
 import winston from 'winston';
 import { deploymentEnv } from '@env/constants/deployment-env.constant';
-import { LogContext } from '../types/logger.types';
-import { LoggerInterface } from '../types/logger.types';
-import { slackService } from '../../slack/slack.service';
+import { LogContext, LoggerInterface } from '@logger/types';
+import { slackService } from '@slack/slack.service';
 
 // Define log levels
 const levels = {
@@ -56,15 +55,12 @@ class LoggerService implements LoggerInterface {
                     maxFiles: 5,
                     dirname: 'logs',
                 }),
+                new winston.transports.Console({
+                    format: formatConsole,
+                }),
                 // Additional transports can be added here as needed
             ],
         });
-
-        this._logger.add(
-            new winston.transports.Console({
-                format: formatConsole,
-            }),
-        );
 
         console.log('LoggerService constructor');
     }
