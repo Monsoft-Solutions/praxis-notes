@@ -17,8 +17,6 @@ import { queryMutationCallback } from '@api/providers/server/query-mutation-call
 export const submitSupportMessage = protectedEndpoint
     .input(
         z.object({
-            name: z.string().optional(),
-            phone: z.string(),
             message: z.string(),
         }),
     )
@@ -28,7 +26,7 @@ export const submitSupportMessage = protectedEndpoint
                 ctx: {
                     session: { user },
                 },
-                input: { name, phone, message },
+                input: { message },
             }) => {
                 // generate a unique id for the support message
                 const id = uuidv4();
@@ -40,8 +38,6 @@ export const submitSupportMessage = protectedEndpoint
                 const supportMessage = {
                     id,
                     userId: user.id,
-                    name,
-                    phone,
                     message,
                     createdAt,
                 };

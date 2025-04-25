@@ -1,7 +1,7 @@
 import { relations } from 'drizzle-orm';
 
 // import from the db base, not from drizzle
-import { char, table, varchar, text, bigint, enumType, sqlEnum } from '@db/sql';
+import { char, table, text, bigint, enumType, sqlEnum } from '@db/sql';
 
 import { userTable } from '../../../bases/db/db.tables';
 
@@ -19,12 +19,6 @@ export const supportMessageTable = table('support_message', {
 
     // user who sent the message (can be null for anonymous messages)
     userId: char('user_id', { length: 36 }).references(() => userTable.id),
-
-    // name provided by the user
-    name: varchar('name', { length: 255 }),
-
-    // phone number for contact
-    phone: varchar('phone', { length: 50 }).notNull(),
 
     // message content
     message: text('message').notNull(),

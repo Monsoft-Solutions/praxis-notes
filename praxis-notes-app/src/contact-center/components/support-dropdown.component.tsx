@@ -20,11 +20,9 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@ui/dropdown-menu.ui';
-import { Input } from '@ui/input.ui';
-import { Textarea } from '@ui/textarea.ui';
-import { Label } from '@ui/label.ui';
 import { Separator } from '@ui/separator.ui';
 import { FeedbackDialog } from '@src/contact-center/components/feedback-dialog.component';
+import { ContactForm } from './contact-form.component';
 
 type SupportDropdownProps = HTMLAttributes<HTMLDivElement> & {
     align?: 'start' | 'center' | 'end';
@@ -39,14 +37,6 @@ export function SupportDropdown({
     variant = 'outline',
     ...props
 }: SupportDropdownProps) {
-    // Prevent dropdown from closing when interacting with form elements
-    const stopPropagation = (e: React.SyntheticEvent) => {
-        e.stopPropagation();
-    };
-    const preventDefault = (e: React.SyntheticEvent) => {
-        e.preventDefault();
-    };
-
     return (
         <div className={className} {...props}>
             <DropdownMenu modal={false}>
@@ -165,63 +155,7 @@ export function SupportDropdown({
                             <DropdownMenuLabel className="flex items-center gap-2 px-0 text-sm font-semibold">
                                 <Send className="size-4" /> SEND US A MESSAGE
                             </DropdownMenuLabel>
-                            <form className="mt-2 space-y-2">
-                                <div onClick={stopPropagation}>
-                                    <Label
-                                        htmlFor="support-name"
-                                        className="sr-only"
-                                    >
-                                        Your Name
-                                    </Label>
-                                    <Input
-                                        id="support-name"
-                                        placeholder="Your Name"
-                                        className="h-8 text-xs"
-                                        onKeyDown={stopPropagation}
-                                        onSelect={preventDefault}
-                                    />
-                                </div>
-                                <div onClick={stopPropagation}>
-                                    <Label
-                                        htmlFor="support-phone"
-                                        className="sr-only"
-                                    >
-                                        Your Phone *
-                                    </Label>
-                                    <Input
-                                        id="support-phone"
-                                        placeholder="Your Phone *"
-                                        className="h-8 text-xs"
-                                        required
-                                        onKeyDown={stopPropagation}
-                                        onSelect={preventDefault}
-                                    />
-                                </div>
-                                <div onClick={stopPropagation}>
-                                    <Label
-                                        htmlFor="support-message"
-                                        className="sr-only"
-                                    >
-                                        Message *
-                                    </Label>
-                                    <Textarea
-                                        id="support-message"
-                                        placeholder="Message *"
-                                        className="h-20 resize-none text-xs"
-                                        required
-                                        onKeyDown={stopPropagation}
-                                        onSelect={preventDefault}
-                                    />
-                                </div>
-                                <Button
-                                    type="submit"
-                                    size="sm"
-                                    className="w-full"
-                                    onClick={stopPropagation}
-                                >
-                                    <Send className="mr-2 size-3.5" /> Send
-                                </Button>
-                            </form>
+                            <ContactForm className="mt-2" />
                         </div>
                     </div>
                 </DropdownMenuContent>
