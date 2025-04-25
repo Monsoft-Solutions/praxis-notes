@@ -14,7 +14,7 @@ import {
 import { ThemeSelector } from '@shared/ui/theme-selector.ui';
 
 import { AppSidebar } from '@shared/components/app-sidebar.component';
-import { SupportDropdown } from '../ui/support-dropdown.ui';
+import { SupportDropdown } from '@src/contact-center/components';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
     return (

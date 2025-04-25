@@ -22,6 +22,8 @@ import {
 } from '@ui/select.ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@ui/tabs.ui';
 import { Input } from '@ui/input.ui';
+import { api } from '@api/providers/web';
+import { toast } from 'sonner';
 
 // Predefined suggestion types that users can select from
 const SUGGESTION_TYPES = [
@@ -63,6 +65,7 @@ export function FeedbackDialog({
 }: FeedbackDialogProps) {
     const [open, setOpen] = useState(false);
     const [feedbackType, setFeedbackType] = useState<FeedbackType>(initialType);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Suggestion form data
     const [suggestionData, setSuggestionData] = useState({
@@ -79,6 +82,12 @@ export function FeedbackDialog({
         severity: '',
         screenshot: null as File | null,
     });
+
+    const { mutateAsync: submitFeedback } =
+        api.contactCenter.submitFeedback.useMutation();
+
+    const { mutateAsync: submitBugReport } =
+        api.contactCenter.submitBugReport.useMutation();
 
     const handleSuggestionChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -149,31 +158,59 @@ export function FeedbackDialog({
         }
     };
 
-    const handleSubmitSuggestion = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Here you would handle the submission of the suggestion
-        console.log('Suggestion submitted:', suggestionData);
+    const handleSubmitSuggestionForm = async () => {
+        try {
+            setIsSubmitting(true);
+            await submitFeedback({
+                type: suggestionData.type,
+                text: suggestionData.text,
+            });
+            toast.success('Thank you for your suggestion!');
 
-        // Reset form and close dialog
-        setSuggestionData({ text: '', type: '' });
-        setOpen(false);
+            // Reset form and close dialog
+            setSuggestionData({ text: '', type: '' });
+            setOpen(false);
+        } catch (error) {
+            console.error('Error submitting suggestion:', error);
+            toast.error('Failed to submit suggestion. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
-    const handleSubmitBugReport = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Here you would handle the submission of the bug report
-        console.log('Bug report submitted:', bugData);
+    const handleSubmitBugReportForm = async () => {
+        try {
+            setIsSubmitting(true);
+            await submitBugReport({
+                title: bugData.title,
+                description: bugData.description,
+                stepsToReproduce: bugData.stepsToReproduce,
+                area: bugData.area,
+                severity: bugData.severity,
+                // Handle screenshot upload separately if needed
+                screenshotPath: bugData.screenshot
+                    ? bugData.screenshot.name
+                    : undefined,
+            });
 
-        // Reset form and close dialog
-        setBugData({
-            title: '',
-            description: '',
-            stepsToReproduce: '',
-            area: '',
-            severity: '',
-            screenshot: null,
-        });
-        setOpen(false);
+            toast.success('Thank you for reporting this bug!');
+
+            // Reset form and close dialog
+            setBugData({
+                title: '',
+                description: '',
+                stepsToReproduce: '',
+                area: '',
+                severity: '',
+                screenshot: null,
+            });
+            setOpen(false);
+        } catch (error) {
+            console.error('Error submitting bug report:', error);
+            toast.error('Failed to submit bug report. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -221,7 +258,12 @@ export function FeedbackDialog({
                         value="suggestion"
                         className="max-h-[60vh] overflow-y-auto"
                     >
-                        <form onSubmit={handleSubmitSuggestion}>
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                void handleSubmitSuggestionForm();
+                            }}
+                        >
                             <div className="grid gap-4 py-4 pr-3">
                                 <div className="grid gap-2">
                                     <Label htmlFor="suggestion-type">
@@ -279,9 +321,11 @@ export function FeedbackDialog({
                                 </div>
                             </div>
                             <DialogFooter>
-                                <Button type="submit">
-                                    <Send className="mr-2 size-3.5" /> Submit
-                                    Suggestion
+                                <Button type="submit" disabled={isSubmitting}>
+                                    <Send className="mr-2 size-3.5" />
+                                    {isSubmitting
+                                        ? 'Submitting...'
+                                        : 'Submit Suggestion'}
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -292,7 +336,12 @@ export function FeedbackDialog({
                         value="bug"
                         className="max-h-[60vh] overflow-y-auto"
                     >
-                        <form onSubmit={handleSubmitBugReport}>
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                void handleSubmitBugReportForm();
+                            }}
+                        >
                             <div className="grid gap-4 py-4 pr-3">
                                 <div className="grid gap-2">
                                     <Label htmlFor="bug-title">Title *</Label>
@@ -407,9 +456,11 @@ export function FeedbackDialog({
                                 </div>
                             </div>
                             <DialogFooter>
-                                <Button type="submit">
-                                    <Bug className="mr-2 size-3.5" /> Submit Bug
-                                    Report
+                                <Button type="submit" disabled={isSubmitting}>
+                                    <Bug className="mr-2 size-3.5" />
+                                    {isSubmitting
+                                        ? 'Submitting...'
+                                        : 'Submit Bug Report'}
                                 </Button>
                             </DialogFooter>
                         </form>

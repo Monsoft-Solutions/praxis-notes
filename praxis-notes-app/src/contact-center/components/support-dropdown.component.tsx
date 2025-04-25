@@ -24,7 +24,7 @@ import { Input } from '@ui/input.ui';
 import { Textarea } from '@ui/textarea.ui';
 import { Label } from '@ui/label.ui';
 import { Separator } from '@ui/separator.ui';
-import { FeedbackDialog } from '@ui/feedback-dialog.ui';
+import { FeedbackDialog } from '@src/contact-center/components/feedback-dialog.component';
 
 type SupportDropdownProps = HTMLAttributes<HTMLDivElement> & {
     align?: 'start' | 'center' | 'end';
