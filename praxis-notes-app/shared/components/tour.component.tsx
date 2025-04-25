@@ -11,7 +11,7 @@ import { Route } from '@routes/_private/_app/route';
 export function Tour() {
     const { loggedInUser } = Route.useRouteContext();
 
-    const [stepIndex, setStepIndex] = useState(15);
+    const [stepIndex, setStepIndex] = useState(0);
 
     if (loggedInUser.hasDoneTour) return null;
 
