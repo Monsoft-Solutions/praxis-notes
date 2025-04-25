@@ -2,6 +2,8 @@ import winston from 'winston';
 import { deploymentEnv } from '@env/constants/deployment-env.constant';
 import { LogContext, LoggerInterface } from '@logger/types';
 import { slackService } from '@slack/slack.service';
+import Sentry, { SentryTransportOptions } from 'winston-transport-sentry-node';
+import { getCoreConf } from '@conf/core/providers/server';
 
 // Define log levels
 const levels = {
@@ -18,7 +20,9 @@ const isProduction = deploymentEnv.MSS_DEPLOYMENT_TYPE === 'production';
 // Configure log format
 const formatConsole = winston.format.combine(
     winston.format.timestamp(),
-    winston.format.colorize(),
+    winston.format.colorize({
+        all: true,
+    }),
     winston.format.prettyPrint({
         colorize: true,
     }),
@@ -33,7 +37,11 @@ const formatFile = winston.format.combine(
 class LoggerService implements LoggerInterface {
     _logger: winston.Logger;
 
+    _sentryOptions?: SentryTransportOptions;
+
     constructor() {
+        void this.setSentryOptions();
+
         this._logger = winston.createLogger({
             level: isDevelopment ? 'debug' : 'info',
             defaultMeta: { service: 'praxis-notes' },
@@ -55,10 +63,12 @@ class LoggerService implements LoggerInterface {
                     maxFiles: 5,
                     dirname: 'logs',
                 }),
+
                 new winston.transports.Console({
                     format: formatConsole,
                 }),
-                // Additional transports can be added here as needed
+
+                new Sentry(this._sentryOptions),
             ],
         });
 
@@ -91,6 +101,31 @@ class LoggerService implements LoggerInterface {
 
     warn(message: string, context?: LogContext): void {
         this._logger.warn(message, context);
+    }
+
+    /**
+     * Set the Sentry options
+     *
+     * Takes the sentry DSN from the core configuration
+     * @returns {Promise<void>}
+     */
+    private async setSentryOptions() {
+        const coreConfWithError = await getCoreConf();
+
+        const { error: coreConfError } = coreConfWithError;
+
+        if (coreConfError !== null) return Error('MISSING_CORE_CONF');
+
+        const { data: coreConf } = coreConfWithError;
+
+        const { sentryDsn } = coreConf;
+
+        this._sentryOptions = {
+            sentry: {
+                dsn: sentryDsn,
+            },
+            level: 'error',
+        };
     }
 }
 
