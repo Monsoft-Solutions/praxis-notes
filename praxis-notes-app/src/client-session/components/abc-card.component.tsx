@@ -126,6 +126,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                             <FormLabel>Activity/Antecedent</FormLabel>
 
                             <AbcSelector
+                                initValue={field.value}
                                 placeholder="Select activity/antecedent"
                                 items={antecedents}
                                 onSelect={field.onChange}
