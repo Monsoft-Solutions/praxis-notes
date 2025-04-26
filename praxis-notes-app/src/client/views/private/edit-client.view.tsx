@@ -1,72 +1,31 @@
 import { useNavigate } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useState } from 'react';
 
 import { Button } from '@ui/button.ui';
-import {
-    CardContent,
-    CardFooter,
-    Card,
-    CardHeader,
-    CardTitle,
-} from '@ui/card.ui';
-import { Label } from '@ui/label.ui';
-import { Input } from '@ui/input.ui';
-import { Switch } from '@ui/switch.ui';
-
-import { api } from '@api/providers/web';
+import { Card, CardHeader, CardTitle, CardContent } from '@ui/card.ui';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 import { Route } from '@routes/_private/_app/clients/$clientId/edit';
+import { EditClientBasicInfo } from '../../components/edit-client-basic-info.component';
+import { EditClientBehaviors } from '../../components/edit-client-behaviors.component';
+import { EditClientReplacementPrograms } from '../../components/edit-client-replacement-programs.component';
+import { EditClientInterventions } from '../../components/edit-client-interventions.component';
 
 export const EditClientView = () => {
     const { clientId } = Route.useParams();
     const navigate = useNavigate();
-
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        isActive: true,
+    const [openCards, setOpenCards] = useState({
+        basicInfo: true,
+        behaviors: true,
+        replacementPrograms: true,
+        interventions: true,
     });
 
-    const { data: clientQuery } = api.client.getClient.useQuery({
-        clientId,
-    });
-
-    const updateClientMutation = api.client.updateClient.useMutation({
-        onSuccess: () => {
-            toast.success('Client updated successfully');
-            void navigate({
-                to: '/clients',
-            });
-        },
-        onError: () => {
-            toast.error('Failed to update client');
-        },
-    });
-
-    useEffect(() => {
-        if (!clientQuery?.error && clientQuery?.data) {
-            const client = clientQuery.data;
-            setFormData({
-                firstName: client.firstName,
-                lastName: client.lastName,
-                isActive: client.isActive,
-            });
-        }
-    }, [clientQuery, clientId]);
-
-    if (!clientQuery || clientQuery.error) {
-        return (
-            <div className="container mx-auto py-6">Error loading clients</div>
-        );
-    }
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        updateClientMutation.mutate({
-            clientId,
-            ...formData,
-        });
+    const toggleCard = (card: keyof typeof openCards) => {
+        setOpenCards((prev) => ({
+            ...prev,
+            [card]: !prev[card],
+        }));
     };
 
     const handleCancel = () => {
@@ -78,77 +37,108 @@ export const EditClientView = () => {
 
     return (
         <div className="container mx-auto py-6">
-            <h1 className="mb-6 text-2xl font-bold">Edit Client</h1>
+            <div className="mb-6 flex items-center justify-between">
+                <h1 className="text-2xl font-bold">Edit Client</h1>
+                <Button type="button" variant="outline" onClick={handleCancel}>
+                    Cancel
+                </Button>
+            </div>
 
-            <Card>
-                <form onSubmit={handleSubmit}>
-                    <CardHeader>
-                        <CardTitle>Client Information</CardTitle>
+            <div className="space-y-4">
+                <Card>
+                    <CardHeader
+                        className="flex cursor-pointer flex-row items-center justify-between"
+                        onClick={() => {
+                            toggleCard('basicInfo');
+                        }}
+                    >
+                        <CardTitle>Basic Information</CardTitle>
+                        <Button variant="ghost" size="sm" className="p-0">
+                            {openCards.basicInfo ? (
+                                <ChevronUp />
+                            ) : (
+                                <ChevronDown />
+                            )}
+                        </Button>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="firstName">First Name</Label>
-                            <Input
-                                id="firstName"
-                                value={formData.firstName}
-                                onChange={(e) => {
-                                    setFormData({
-                                        ...formData,
-                                        firstName: e.target.value,
-                                    });
-                                }}
-                                required
-                            />
-                        </div>
+                    {openCards.basicInfo && (
+                        <CardContent>
+                            <EditClientBasicInfo clientId={clientId} />
+                        </CardContent>
+                    )}
+                </Card>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="lastName">Last Name</Label>
-                            <Input
-                                id="lastName"
-                                value={formData.lastName}
-                                onChange={(e) => {
-                                    setFormData({
-                                        ...formData,
-                                        lastName: e.target.value,
-                                    });
-                                }}
-                                required
-                            />
-                        </div>
+                <Card>
+                    <CardHeader
+                        className="flex cursor-pointer flex-row items-center justify-between"
+                        onClick={() => {
+                            toggleCard('behaviors');
+                        }}
+                    >
+                        <CardTitle>Behaviors</CardTitle>
+                        <Button variant="ghost" size="sm" className="p-0">
+                            {openCards.behaviors ? (
+                                <ChevronUp />
+                            ) : (
+                                <ChevronDown />
+                            )}
+                        </Button>
+                    </CardHeader>
+                    {openCards.behaviors && (
+                        <CardContent>
+                            <EditClientBehaviors clientId={clientId} />
+                        </CardContent>
+                    )}
+                </Card>
 
-                        <div className="flex items-center space-x-2">
-                            <Switch
-                                id="isActive"
-                                checked={formData.isActive}
-                                onCheckedChange={(checked) => {
-                                    setFormData({
-                                        ...formData,
-                                        isActive: checked,
-                                    });
-                                }}
+                <Card>
+                    <CardHeader
+                        className="flex cursor-pointer flex-row items-center justify-between"
+                        onClick={() => {
+                            toggleCard('replacementPrograms');
+                        }}
+                    >
+                        <CardTitle>Replacement Programs</CardTitle>
+                        <Button variant="ghost" size="sm" className="p-0">
+                            {openCards.replacementPrograms ? (
+                                <ChevronUp />
+                            ) : (
+                                <ChevronDown />
+                            )}
+                        </Button>
+                    </CardHeader>
+                    {openCards.replacementPrograms && (
+                        <CardContent>
+                            <EditClientReplacementPrograms
+                                clientId={clientId}
                             />
-                            <Label htmlFor="isActive">Active Client</Label>
-                        </div>
-                    </CardContent>
-                    <CardFooter className="flex justify-between">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleCancel}
-                        >
-                            Cancel
+                        </CardContent>
+                    )}
+                </Card>
+
+                <Card>
+                    <CardHeader
+                        className="flex cursor-pointer flex-row items-center justify-between"
+                        onClick={() => {
+                            toggleCard('interventions');
+                        }}
+                    >
+                        <CardTitle>Interventions</CardTitle>
+                        <Button variant="ghost" size="sm" className="p-0">
+                            {openCards.interventions ? (
+                                <ChevronUp />
+                            ) : (
+                                <ChevronDown />
+                            )}
                         </Button>
-                        <Button
-                            type="submit"
-                            disabled={updateClientMutation.isPending}
-                        >
-                            {updateClientMutation.isPending
-                                ? 'Saving...'
-                                : 'Save Changes'}
-                        </Button>
-                    </CardFooter>
-                </form>
-            </Card>
+                    </CardHeader>
+                    {openCards.interventions && (
+                        <CardContent>
+                            <EditClientInterventions clientId={clientId} />
+                        </CardContent>
+                    )}
+                </Card>
+            </div>
         </div>
     );
 };
