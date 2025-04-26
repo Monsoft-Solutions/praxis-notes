@@ -207,12 +207,6 @@ export function ClientReviewSummary({
                                                         'No description'}
                                                 </p>
                                                 <div className="mt-3 text-sm">
-                                                    <p>
-                                                        <span className="text-muted-foreground">
-                                                            Baseline:{' '}
-                                                        </span>
-                                                        {program.baseline}
-                                                    </p>
                                                     <div className="mt-2">
                                                         <p className="text-muted-foreground text-sm">
                                                             Associated

@@ -6,8 +6,6 @@ import { z } from 'zod';
 export const clientFormReplacementProgramSchema = z.object({
     id: z.string(),
 
-    baseline: z.coerce.number(),
-
     behaviorIds: z.array(z.string()),
 });
 

@@ -80,7 +80,6 @@ export function ClientReplacementProgramsForm({
 
         prepend({
             id,
-            baseline: 0,
             behaviorIds: [],
         });
     };
@@ -219,42 +218,6 @@ export function ClientReplacementProgramsForm({
                                                         }}
                                                     />
 
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={control}
-                                            name={`replacementPrograms.${index}.baseline`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>
-                                                        Baseline{' '}
-                                                        <span className="text-destructive">
-                                                            *
-                                                        </span>
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            type="number"
-                                                            placeholder="Enter baseline value"
-                                                            {...field}
-                                                            onChange={(e) => {
-                                                                field.onChange(
-                                                                    e.target
-                                                                        .value ===
-                                                                        ''
-                                                                        ? 0
-                                                                        : parseFloat(
-                                                                              e
-                                                                                  .target
-                                                                                  .value,
-                                                                          ),
-                                                                );
-                                                            }}
-                                                        />
-                                                    </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
