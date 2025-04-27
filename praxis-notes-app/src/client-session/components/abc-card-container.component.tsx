@@ -33,6 +33,7 @@ export function ABCCardContainer() {
         append({
             id: uuidv4(),
             activityAntecedent: '',
+            function: 'atention',
             behaviors: [],
             interventions: [],
             replacementPrograms: [],
