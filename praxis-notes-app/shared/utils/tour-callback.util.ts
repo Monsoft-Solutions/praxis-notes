@@ -6,7 +6,7 @@ import { TourStepId } from '@shared/types/tour-step-id.type';
 
 import { wait } from './wait.util';
 
-import { vanillaApi } from '@api/providers/web';
+import { vanillaApi, apiClientUtils } from '@api/providers/web';
 
 const sendCustomEvent = (name: string, detail?: Record<string, unknown>) => {
     window.dispatchEvent(new CustomEvent(name, { detail }));
@@ -46,6 +46,7 @@ const downloadNotes = () => {
 
 const setHasDoneTour = () => {
     void vanillaApi.auth.setHasDoneTour.mutate();
+    void apiClientUtils.auth.getLoggedInUser.refetch();
 };
 
 export const tourCallback = ({
@@ -62,6 +63,11 @@ export const tourCallback = ({
             type,
             step: { target },
         } = data;
+
+        if (action === 'skip') {
+            setHasDoneTour();
+            return;
+        }
 
         if (typeof target !== 'string') return;
 
