@@ -80,7 +80,9 @@ export function AbcSelector({
     const [selectedId, setSelectedId] = useState<string | null>(
         !multiple && initValue ? initValue : null,
     );
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [selectedIds, setSelectedIds] = useState<string[]>(
+        multiple && initValue ? initValue : [],
+    );
 
     const selectedOptions = selectedIds
         .map((id) => allOptions.find((option) => option.value === id))
