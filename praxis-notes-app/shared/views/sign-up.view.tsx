@@ -10,8 +10,16 @@ import {
 } from '@auth/schemas';
 
 import { SignUpForm } from '@shared/components/sign-up-form.component';
+
 import { api } from '@api/providers/web';
 import { toast } from 'sonner';
+import { z } from 'zod';
+
+const signUpFormSchemaValidated: typeof signUpFormSchema = z.object({
+    name: z.string().min(1),
+    email: z.string().email(),
+    password: z.string().min(6),
+});
 
 // Sign up view
 // Render sign up form
@@ -21,7 +29,7 @@ export function SignUpView(): ReactElement {
     const { mutateAsync: signUp } = api.auth.signUp.useMutation();
 
     const form = useForm<SignUpFormType>({
-        resolver: zodResolver(signUpFormSchema),
+        resolver: zodResolver(signUpFormSchemaValidated),
         defaultValues: {
             name: '',
             email: '',
