@@ -8,7 +8,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Route } from '@routes/_private/_app/clients/$clientId/edit';
 import { EditClientBasicInfo } from '../../components/edit-client-basic-info.component';
 import { EditClientBehaviors } from '../../components/edit-client-behaviors.component';
-import { EditClientReplacementPrograms } from '../../components/edit-client-replacement-programs.component';
+import { EditClientReplacementPrograms } from '../../components/edit/edit-client-replacement-programs.component';
 import { EditClientInterventions } from '../../components/edit-client-interventions.component';
 
 export const EditClientView = () => {

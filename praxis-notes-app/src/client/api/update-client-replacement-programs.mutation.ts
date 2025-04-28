@@ -16,7 +16,7 @@ import {
     clientReplacementProgramBehaviorTable,
     clientBehaviorTable,
 } from '@db/db.tables';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 
 import { clientFormReplacementProgramSchema } from '../schemas/client-form-replacement-program.schema';
 
@@ -45,13 +45,57 @@ export const updateClientReplacementPrograms = protectedEndpoint
                     .from(clientBehaviorTable)
                     .where(eq(clientBehaviorTable.clientId, clientId));
 
-                // For each replacement program
+                // Track program IDs to identify programs to be deleted
+                const updatedProgramIds = replacementPrograms.map((p) => p.id);
+
+                // Delete programs that are no longer in the list
+                const programsToDelete = existingPrograms.filter(
+                    (p) => !updatedProgramIds.includes(p.replacementProgramId),
+                );
+
+                if (programsToDelete.length > 0) {
+                    const programIdsToDelete = programsToDelete.map(
+                        (p) => p.id,
+                    );
+
+                    // First delete all behavior associations for these programs
+                    const { error: deleteAssociationsError } = await catchError(
+                        db
+                            .delete(clientReplacementProgramBehaviorTable)
+                            .where(
+                                inArray(
+                                    clientReplacementProgramBehaviorTable.clientReplacementProgramId,
+                                    programIdsToDelete,
+                                ),
+                            ),
+                    );
+
+                    if (deleteAssociationsError) return Error();
+
+                    // Then delete the programs
+                    const { error: deleteProgramsError } = await catchError(
+                        db
+                            .delete(clientReplacementProgramTable)
+                            .where(
+                                inArray(
+                                    clientReplacementProgramTable.id,
+                                    programIdsToDelete,
+                                ),
+                            ),
+                    );
+
+                    if (deleteProgramsError) return Error();
+                }
+
+                // Process each program in the input
                 for (const program of replacementPrograms) {
                     const existingProgram = existingPrograms.find(
                         (p) => p.replacementProgramId === program.id,
                     );
 
                     if (existingProgram) {
+                        // Update existing program - edit behaviors
+
                         // Get existing behavior associations
                         const existingBehaviorAssociations = await db
                             .select()
@@ -84,7 +128,47 @@ export const updateClientReplacementPrograms = protectedEndpoint
                         // Create new behavior associations
                         for (const behaviorId of program.behaviorIds) {
                             const clientBehavior = clientBehaviors.find(
-                                (b) => b.behaviorId === behaviorId,
+                                (b) => b.id === behaviorId,
+                            );
+
+                            if (!clientBehavior) {
+                                continue;
+                            }
+
+                            const { error: insertError } = await catchError(
+                                db
+                                    .insert(
+                                        clientReplacementProgramBehaviorTable,
+                                    )
+                                    .values({
+                                        id: uuidv4(),
+                                        clientReplacementProgramId:
+                                            existingProgram.id,
+                                        clientBehaviorId: clientBehavior.id,
+                                    }),
+                            );
+
+                            if (insertError) return Error();
+                        }
+                    } else {
+                        // Add new replacement program
+                        const newProgramId = uuidv4();
+
+                        // Create the new program record
+                        const { error: insertProgramError } = await catchError(
+                            db.insert(clientReplacementProgramTable).values({
+                                id: newProgramId,
+                                clientId,
+                                replacementProgramId: program.id,
+                            }),
+                        );
+
+                        if (insertProgramError) return Error();
+
+                        // Add behavior associations for the new program
+                        for (const behaviorId of program.behaviorIds) {
+                            const clientBehavior = clientBehaviors.find(
+                                (b) => b.id === behaviorId,
                             );
 
                             if (!clientBehavior) continue;
@@ -97,7 +181,7 @@ export const updateClientReplacementPrograms = protectedEndpoint
                                     .values({
                                         id: uuidv4(),
                                         clientReplacementProgramId:
-                                            existingProgram.id,
+                                            newProgramId,
                                         clientBehaviorId: clientBehavior.id,
                                     }),
                             );

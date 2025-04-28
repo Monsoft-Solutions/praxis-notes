@@ -8,7 +8,7 @@ import { db } from '@db/providers/server';
 
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
 
-import { clientBehaviorTable } from '@db/db.tables';
+import { behaviorTable, clientBehaviorTable } from '@db/db.tables';
 import { eq } from 'drizzle-orm';
 
 // query to get client behaviors
@@ -23,8 +23,13 @@ export const getClientBehaviors = protectedEndpoint
                     type: clientBehaviorTable.type,
                     baseline: clientBehaviorTable.baseline,
                     behaviorId: clientBehaviorTable.behaviorId,
+                    name: behaviorTable.name,
                 })
                 .from(clientBehaviorTable)
+                .innerJoin(
+                    behaviorTable,
+                    eq(clientBehaviorTable.behaviorId, behaviorTable.id),
+                )
                 .where(eq(clientBehaviorTable.clientId, clientId));
 
             return Success(behaviors);
