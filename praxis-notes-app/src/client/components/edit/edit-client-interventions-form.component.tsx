@@ -1,12 +1,8 @@
 import { useFormContext, useFieldArray } from 'react-hook-form';
 import { useState, useEffect, useRef } from 'react';
 
-import { api, apiClientUtils } from '@api/providers/web';
-
 import { FormField, FormItem, FormLabel, FormMessage } from '@ui/form.ui';
-
 import { Button } from '@ui/button.ui';
-
 import { Plus, Trash2 } from 'lucide-react';
 import {
     Accordion,
@@ -15,42 +11,39 @@ import {
     AccordionTrigger,
 } from '@ui/accordion.ui';
 
-import { ReplacementProgramsFormData } from './edit-client-replacement-programs.component';
-
-import { ReplacementProgram } from '@src/replacement-program/schemas';
-
-import { toast } from 'sonner';
-
-import { AbcSelector } from '@src/client-session/components/abc-selector.component';
-
+import { InterventionsFormData } from '../edit-client-interventions.component';
 import { Behavior } from '@src/behavior/schemas';
 import { BehaviorCheckItem } from '../behavior-check-item.component';
 import { ClientFormBehavior } from '../../schemas/client-form-behavior.schema';
+import { Intervention } from '@src/intervention/schemas';
+import { api, apiClientUtils } from '@api/providers/web';
+import { AbcSelector } from '@src/client-session/components/abc-selector.component';
+import { toast } from 'sonner';
 
-type ClientReplacementProgramsFormProps = {
-    existingPrograms: ReplacementProgram[];
+type EditClientInterventionsFormProps = {
     existingBehaviors: Behavior[];
+    existingInterventions: Intervention[];
 };
 
-export function EditClientReplacementProgramsForm({
-    existingPrograms,
+export function EditClientInterventionsForm({
     existingBehaviors,
-}: ClientReplacementProgramsFormProps) {
-    const { mutateAsync: createReplacementProgram } =
-        api.replacementProgram.createReplacementProgram.useMutation();
+    existingInterventions,
+}: EditClientInterventionsFormProps) {
+    const { mutateAsync: createIntervention } =
+        api.intervention.createIntervention.useMutation();
 
-    const { control, watch } = useFormContext<ReplacementProgramsFormData>();
+    const { control, watch } = useFormContext<InterventionsFormData>();
     const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
     const previousFieldIds = useRef<string[]>([]);
 
     const { fields, prepend, remove } = useFieldArray({
         control,
-        name: 'replacementPrograms',
+        name: 'interventions',
     });
 
-    const watchedBehaviors = watch('replacementPrograms');
-    const selectedProgramIds = Array.isArray(watchedBehaviors)
-        ? watchedBehaviors.map((p) => p.id)
+    const watchedInterventions = watch('interventions');
+    const selectedInterventionIds = Array.isArray(watchedInterventions)
+        ? watchedInterventions.map((i) => i.id)
         : [];
 
     useEffect(() => {
@@ -69,7 +62,7 @@ export function EditClientReplacementProgramsForm({
         previousFieldIds.current = currentFieldIds;
     }, [fields]);
 
-    const addReplacementProgram = () => {
+    const addIntervention = () => {
         if (existingBehaviors.length === 0) {
             toast.error('You need to add behaviors first');
             return;
@@ -82,22 +75,25 @@ export function EditClientReplacementProgramsForm({
         });
     };
 
-    const handleRemoveProgram = (index: number, fieldId: string) => {
+    const handleRemoveIntervention = (index: number, fieldId: string) => {
         remove(index);
         setOpenAccordionItems((prev) => prev.filter((id) => id !== fieldId));
     };
+
+    // Get the current values of all interventions
+    const interventionsValues = watch('interventions');
 
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-end">
                 <Button
                     type="button"
-                    onClick={addReplacementProgram}
+                    onClick={addIntervention}
                     size="sm"
                     className="flex items-center gap-1"
                 >
                     <Plus className="h-4 w-4" />
-                    Add Program
+                    Add Intervention
                 </Button>
             </div>
 
@@ -105,14 +101,14 @@ export function EditClientReplacementProgramsForm({
                 <div className="bg-muted/20 rounded-md border py-8 text-center">
                     <p className="text-muted-foreground">
                         You need to add behaviors first before adding
-                        replacement programs.
+                        interventions.
                     </p>
                 </div>
             ) : fields.length === 0 ? (
                 <div className="bg-muted/20 rounded-md border py-8 text-center">
                     <p className="text-muted-foreground">
-                        No replacement programs added yet. Click the button
-                        above to add one.
+                        No interventions added yet. Click the button above to
+                        add one.
                     </p>
                 </div>
             ) : (
@@ -123,17 +119,18 @@ export function EditClientReplacementProgramsForm({
                     className="space-y-4"
                 >
                     {fields.map((field, index) => {
-                        const currentProgramId = watch(
-                            `replacementPrograms.${index}.id`,
+                        const currentInterventionId = watch(
+                            `interventions.${index}.id`,
                         );
-                        const programDetails = existingPrograms.find(
-                            (program) => program.id === currentProgramId,
+                        const interventionDetails = existingInterventions.find(
+                            (intervention) =>
+                                intervention.id === currentInterventionId,
                         );
-                        const programName =
-                            programDetails?.name ?? 'Select Program';
+                        const interventionName =
+                            interventionDetails?.name ?? 'Select Intervention';
 
                         const showSelector = watch(
-                            `replacementPrograms.${index}.showSelector`,
+                            `interventions.${index}.showSelector`,
                         );
 
                         return (
@@ -145,7 +142,7 @@ export function EditClientReplacementProgramsForm({
                                 <AccordionTrigger className="px-4">
                                     <div className="flex w-full items-center justify-between">
                                         <span className="font-medium">
-                                            {programName}
+                                            {interventionName}
                                         </span>
                                         <Button
                                             type="button"
@@ -153,7 +150,7 @@ export function EditClientReplacementProgramsForm({
                                             size="icon"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleRemoveProgram(
+                                                handleRemoveIntervention(
                                                     index,
                                                     field.id,
                                                 );
@@ -170,21 +167,21 @@ export function EditClientReplacementProgramsForm({
                                         {showSelector && (
                                             <FormField
                                                 control={control}
-                                                name={`replacementPrograms.${index}.id`}
+                                                name={`interventions.${index}.id`}
                                                 render={({ field }) => (
                                                     <FormItem className="flex flex-col">
                                                         <FormLabel>
-                                                            Program{' '}
+                                                            Intervention{' '}
                                                             <span className="text-destructive">
                                                                 *
                                                             </span>
                                                         </FormLabel>
                                                         <AbcSelector
-                                                            placeholder="Select replacement program"
+                                                            placeholder="Select intervention"
                                                             items={
-                                                                existingPrograms
+                                                                existingInterventions
                                                             }
-                                                            hideFromList={selectedProgramIds.filter(
+                                                            hideFromList={selectedInterventionIds.filter(
                                                                 (id) =>
                                                                     id !==
                                                                     field.value,
@@ -196,7 +193,7 @@ export function EditClientReplacementProgramsForm({
                                                                 name,
                                                             }) => {
                                                                 const result =
-                                                                    await createReplacementProgram(
+                                                                    await createIntervention(
                                                                         {
                                                                             name,
                                                                             description:
@@ -207,7 +204,7 @@ export function EditClientReplacementProgramsForm({
                                                                     result.error
                                                                 )
                                                                     return null;
-                                                                await apiClientUtils.replacementProgram.getReplacementPrograms.invalidate();
+                                                                await apiClientUtils.intervention.getInterventions.invalidate();
                                                                 return result.data;
                                                             }}
                                                         />
@@ -227,7 +224,7 @@ export function EditClientReplacementProgramsForm({
 
                                             <FormField
                                                 control={control}
-                                                name={`replacementPrograms.${index}.behaviorIds`}
+                                                name={`interventions.${index}.behaviorIds`}
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <div className="space-y-2">

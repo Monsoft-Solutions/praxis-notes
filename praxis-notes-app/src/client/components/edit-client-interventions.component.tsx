@@ -1,170 +1,203 @@
-import { useState, useEffect } from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import * as z from 'zod';
+import { useEffect } from 'react';
 
 import { Button } from '@ui/button.ui';
-import { Label } from '@ui/label.ui';
-import { Checkbox } from '@ui/checkbox.ui';
 
-import { api } from '@api/providers/web';
+import { api, apiClientUtils } from '@api/providers/web';
+
+import { EditClientInterventionsForm } from './edit/edit-client-interventions-form.component';
+import { clientFormInterventionSchema } from '../schemas/client-form-intervention.schema';
+
+// Define the schema for a single intervention
+const editClientInterventionSchema = clientFormInterventionSchema.extend({
+    showSelector: z.boolean().default(false),
+});
+
+// Define the schema for the form
+const interventionsFormSchema = z.object({
+    interventions: z.array(editClientInterventionSchema),
+});
+
+// Export the type
+export type InterventionsFormData = z.infer<typeof interventionsFormSchema>;
 
 type EditClientInterventionsProps = {
     clientId: string;
     onSaved?: () => void;
 };
 
-type InterventionFormData = {
-    id: string;
-    behaviorIds: string[];
-};
-
 export const EditClientInterventions = ({
     clientId,
     onSaved,
 }: EditClientInterventionsProps) => {
-    const [interventions, setInterventions] = useState<InterventionFormData[]>(
-        [],
+    const {
+        data: interventionsQueryData,
+        isLoading: isLoadingInterventions,
+        isSuccess: isSuccessInterventions,
+        isError: isErrorInterventions,
+        error: errorInterventions,
+    } = api.intervention.getClientInterventions.useQuery(
+        { clientId },
+        {
+            staleTime: Infinity,
+        },
     );
-    const [availableBehaviors, setAvailableBehaviors] = useState<
-        { id: string; name?: string }[]
-    >([]);
 
-    const { data: interventionsQuery } =
-        api.client.getClientInterventions.useQuery({
-            clientId,
-        });
+    const {
+        data: behaviorsQueryData,
+        isLoading: isLoadingBehaviors,
+        isSuccess: isSuccessBehaviors,
+        isError: isErrorBehaviors,
+        error: errorBehaviors,
+    } = api.behavior.getClientBehaviors.useQuery(
+        { clientId },
+        {
+            staleTime: Infinity,
+        },
+    );
 
-    const { data: behaviorsQuery } = api.client.getClientBehaviors.useQuery({
-        clientId,
+    const {
+        data: allInterventionsQueryData,
+        isLoading: isLoadingAllInterventions,
+        isSuccess: isSuccessAllInterventions,
+        isError: isErrorAllInterventions,
+        error: errorAllInterventions,
+    } = api.intervention.getInterventions.useQuery(undefined, {
+        staleTime: Infinity,
     });
 
     const updateInterventionsMutation =
         api.client.updateClientInterventions.useMutation({
-            onSuccess: () => {
+            onSuccess: async () => {
                 toast.success('Interventions updated');
+                // Invalidate query to refetch updated data
+                await apiClientUtils.intervention.getClientInterventions.invalidate(
+                    {
+                        clientId,
+                    },
+                );
+                // Reset form dirty state after successful save and refetch
+                form.reset(form.getValues());
                 if (onSaved) onSaved();
             },
-            onError: () => {
+            onError: (error) => {
+                console.error('Failed to update interventions:', error);
                 toast.error('Failed to update interventions');
             },
         });
 
+    const form = useForm<InterventionsFormData>({
+        resolver: zodResolver(interventionsFormSchema),
+        defaultValues: {
+            interventions: [],
+        },
+    });
+
+    // Update form when data is fetched
     useEffect(() => {
-        if (behaviorsQuery?.data) {
-            setAvailableBehaviors(
-                behaviorsQuery.data.map((behavior) => ({
-                    id: behavior.behaviorId,
-                    name: `Behavior ${behavior.behaviorId.substring(0, 6)}...`, // Using part of ID as name since we don't have behavior names
-                })),
+        if (interventionsQueryData && 'data' in interventionsQueryData) {
+            const initialInterventions = interventionsQueryData.data.map(
+                (intervention) => ({
+                    id: intervention.id,
+                    behaviorIds: intervention.behaviors,
+                }),
+            );
+
+            console.log('initialInterventions', initialInterventions);
+
+            // Reset the form with fetched data, preserving dirty state if any changes were made before fetch completed
+            form.reset(
+                { interventions: initialInterventions },
+                { keepDirty: true },
             );
         }
-    }, [behaviorsQuery?.data]);
+    }, [interventionsQueryData, form]);
 
-    useEffect(() => {
-        if (interventionsQuery?.data) {
-            setInterventions(
-                interventionsQuery.data.map((intervention) => ({
-                    id: intervention.interventionId,
-                    behaviorIds: intervention.behaviorIds,
-                })),
-            );
-        }
-    }, [interventionsQuery?.data]);
-
-    const handleBehaviorToggle = (
-        interventionIndex: number,
-        behaviorId: string,
-    ) => {
-        const updatedInterventions = [...interventions];
-        const intervention = updatedInterventions[interventionIndex];
-
-        if (intervention.behaviorIds.includes(behaviorId)) {
-            // Remove the behavior
-            intervention.behaviorIds = intervention.behaviorIds.filter(
-                (id) => id !== behaviorId,
-            );
-        } else {
-            // Add the behavior
-            intervention.behaviorIds = [
-                ...intervention.behaviorIds,
-                behaviorId,
-            ];
-        }
-
-        setInterventions(updatedInterventions);
-    };
-
-    const handleSave = () => {
+    // Non-async onSubmit as mutate handles async logic
+    const onSubmit = (data: InterventionsFormData) => {
         updateInterventionsMutation.mutate({
             clientId,
-            interventions,
+            interventions: data.interventions,
         });
     };
 
-    if (!interventionsQuery?.data || !behaviorsQuery?.data) {
+    if (
+        isLoadingInterventions ||
+        isLoadingBehaviors ||
+        isLoadingAllInterventions
+    ) {
         return <div>Loading interventions...</div>;
     }
 
+    if (isErrorInterventions) {
+        console.error(
+            'Error fetching client interventions:',
+            errorInterventions,
+        );
+        return <div>Error loading client interventions. Please try again.</div>;
+    }
+
+    if (isErrorBehaviors) {
+        console.error('Error loading client behaviors:', errorBehaviors);
+        return <div>Error loading client behaviors.</div>;
+    }
+
+    if (isErrorAllInterventions) {
+        console.error(
+            'Error loading all interventions:',
+            errorAllInterventions,
+        );
+        return <div>Error loading all interventions.</div>;
+    }
+
+    // Ensure all queries were successful before proceeding
+    if (
+        !isSuccessInterventions ||
+        !isSuccessBehaviors ||
+        !isSuccessAllInterventions
+    ) {
+        return <div>Waiting for data...</div>;
+    }
+
+    // All queries are successful at this point, we can safely access data
+    const existingBehaviors =
+        'data' in behaviorsQueryData ? behaviorsQueryData.data : [];
+
+    const existingInterventions =
+        'data' in allInterventionsQueryData
+            ? allInterventionsQueryData.data
+            : [];
+
     return (
-        <div className="space-y-4">
-            {interventions.length === 0 ? (
-                <p>No interventions found for this client.</p>
-            ) : (
-                interventions.map((intervention, interventionIndex) => (
-                    <div
-                        key={intervention.id}
-                        className="space-y-4 rounded-md border p-4"
+        <FormProvider {...form}>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    void form.handleSubmit(onSubmit)(e);
+                }}
+                className="space-y-6"
+            >
+                <EditClientInterventionsForm
+                    existingBehaviors={existingBehaviors}
+                    existingInterventions={existingInterventions}
+                />
+                <div className="flex justify-end">
+                    <Button
+                        type="submit"
+                        disabled={
+                            updateInterventionsMutation.isPending ||
+                            !form.formState.isDirty // Disable if not dirty
+                        }
                     >
-                        <h4 className="font-medium">
-                            Intervention {interventionIndex + 1}
-                        </h4>
-
-                        <div className="space-y-2">
-                            <Label>Associated Behaviors</Label>
-                            <div className="space-y-2">
-                                {availableBehaviors.map((behavior) => (
-                                    <div
-                                        key={behavior.id}
-                                        className="flex items-center space-x-2"
-                                    >
-                                        <Checkbox
-                                            id={`intervention-${interventionIndex}-behavior-${behavior.id}`}
-                                            checked={intervention.behaviorIds.includes(
-                                                behavior.id,
-                                            )}
-                                            onCheckedChange={() => {
-                                                handleBehaviorToggle(
-                                                    interventionIndex,
-                                                    behavior.id,
-                                                );
-                                            }}
-                                        />
-                                        <Label
-                                            htmlFor={`intervention-${interventionIndex}-behavior-${behavior.id}`}
-                                            className="cursor-pointer"
-                                        >
-                                            {behavior.name ?? behavior.id}
-                                        </Label>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                ))
-            )}
-
-            <div className="flex justify-end pt-4">
-                <Button
-                    onClick={handleSave}
-                    disabled={
-                        interventions.length === 0 ||
-                        updateInterventionsMutation.isPending
-                    }
-                >
-                    {updateInterventionsMutation.isPending
-                        ? 'Saving...'
-                        : 'Save Interventions'}
-                </Button>
-            </div>
-        </div>
+                        {updateInterventionsMutation.isPending
+                            ? 'Saving...'
+                            : 'Save Interventions'}
+                    </Button>
+                </div>
+            </form>
+        </FormProvider>
     );
 };

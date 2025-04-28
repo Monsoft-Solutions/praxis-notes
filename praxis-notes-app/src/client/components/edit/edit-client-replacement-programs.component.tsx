@@ -56,7 +56,7 @@ export const EditClientReplacementPrograms = ({
         isSuccess: isSuccessBehaviors,
         isError: isErrorBehaviors,
         error: errorBehaviors,
-    } = api.client.getClientBehaviors.useQuery(
+    } = api.behavior.getClientBehaviors.useQuery(
         { clientId },
         {
             staleTime: Infinity,
@@ -114,11 +114,7 @@ export const EditClientReplacementPrograms = ({
                 { keepDirty: true },
             );
         }
-    }, [
-        isSuccessReplacementPrograms,
-        clientReplacementProgramsQueryData,
-        form,
-    ]);
+    }, [clientReplacementProgramsQueryData, form]);
 
     // Non-async onSubmit as mutate handles async logic
     const onSubmit = (data: ReplacementProgramsFormData) => {
@@ -171,7 +167,8 @@ export const EditClientReplacementPrograms = ({
     }
 
     // All queries are successful at this point, we can safely access data
-    const existingBehaviors = behaviorsQueryData.data;
+    const existingBehaviors =
+        'data' in behaviorsQueryData ? behaviorsQueryData.data : [];
     const existingPrograms =
         'data' in allReplacementProgramsQueryData
             ? allReplacementProgramsQueryData.data

@@ -23,7 +23,6 @@ export const client = endpoints({
     getClientBehaviors,
     getClientReplacementPrograms,
     getClientInterventions,
-
     // mutations
     createClient,
     updateClient,

@@ -12,6 +12,8 @@ export async function catchError<T>(promise: Promise<T>) {
             .catch((rawError: unknown) => {
                 const parsedError = parseError(rawError);
 
+                console.error(rawError);
+
                 throwAsync(parsedError.code);
 
                 return { data: null, error: parsedError.code } as const;
