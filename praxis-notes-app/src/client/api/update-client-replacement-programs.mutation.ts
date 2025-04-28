@@ -128,7 +128,7 @@ export const updateClientReplacementPrograms = protectedEndpoint
                         // Create new behavior associations
                         for (const behaviorId of program.behaviorIds) {
                             const clientBehavior = clientBehaviors.find(
-                                (b) => b.id === behaviorId,
+                                (b) => b.behaviorId === behaviorId,
                             );
 
                             if (!clientBehavior) {
@@ -168,7 +168,7 @@ export const updateClientReplacementPrograms = protectedEndpoint
                         // Add behavior associations for the new program
                         for (const behaviorId of program.behaviorIds) {
                             const clientBehavior = clientBehaviors.find(
-                                (b) => b.id === behaviorId,
+                                (b) => b.behaviorId === behaviorId,
                             );
 
                             if (!clientBehavior) continue;

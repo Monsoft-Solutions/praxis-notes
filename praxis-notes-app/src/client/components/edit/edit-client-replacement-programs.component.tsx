@@ -44,7 +44,7 @@ export const EditClientReplacementPrograms = ({
         isSuccess: isSuccessReplacementPrograms,
         isError: isErrorReplacementPrograms,
         error: errorReplacementPrograms,
-    } = api.client.getClientReplacementPrograms.useQuery(
+    } = api.replacementProgram.getClientReplacementPrograms.useQuery(
         { clientId },
         {
             staleTime: Infinity,
@@ -79,7 +79,7 @@ export const EditClientReplacementPrograms = ({
             onSuccess: async () => {
                 toast.success('Replacement programs updated');
                 // Invalidate query to refetch updated data
-                await apiClientUtils.client.getClientReplacementPrograms.invalidate(
+                await apiClientUtils.replacementProgram.getClientReplacementPrograms.invalidate(
                     {
                         clientId,
                     },
@@ -103,11 +103,15 @@ export const EditClientReplacementPrograms = ({
 
     // Update form when data is fetched
     useEffect(() => {
-        if (clientReplacementProgramsQueryData?.data) {
+        if (
+            clientReplacementProgramsQueryData &&
+            'data' in clientReplacementProgramsQueryData
+        ) {
             const initialReplacementPrograms =
                 clientReplacementProgramsQueryData.data.map((program) => ({
                     id: program.id,
                     behaviorIds: program.behaviorIds,
+                    showSelector: false,
                 }));
             // Reset the form with fetched data, preserving dirty state if any changes were made before fetch completed
             form.reset(
@@ -119,6 +123,9 @@ export const EditClientReplacementPrograms = ({
 
     // Non-async onSubmit as mutate handles async logic
     const onSubmit = (data: ReplacementProgramsFormData) => {
+        console.log('Form submission handler called with data:', data);
+
+        // Proceed with the mutation
         updateReplacementProgramsMutation.mutate({
             clientId,
             replacementPrograms: data.replacementPrograms,
@@ -175,11 +182,16 @@ export const EditClientReplacementPrograms = ({
             ? allReplacementProgramsQueryData.data
             : [];
 
+    // Debug form state
+    console.log('Form dirty state:', form.formState.isDirty);
+    console.log('Current form values:', form.getValues());
+
     return (
         <Form {...form}>
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
+
                     void form.handleSubmit(onSubmit)(e);
                 }}
                 className="space-y-6"
