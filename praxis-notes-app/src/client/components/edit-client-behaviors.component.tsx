@@ -26,13 +26,6 @@ const behaviorsFormSchema = z.object({
 // Export the type
 export type BehaviorsFormData = z.infer<typeof behaviorsFormSchema>;
 
-// Define the expected type for the fetched client behaviors data
-type FetchedClientBehavior = {
-    behaviorId: string;
-    type: 'frequency' | 'percentage'; // Adjust enum based on actual API response
-    baseline: number;
-};
-
 type EditClientBehaviorsProps = {
     clientId: string;
     onSaved?: () => void;
@@ -48,7 +41,7 @@ export const EditClientBehaviors = ({
         isSuccess: isSuccessClientBehaviors,
         isError: isErrorClientBehaviors,
         error: errorClientBehaviors,
-    } = api.client.getClientBehaviors.useQuery(
+    } = api.behavior.getClientBehaviors.useQuery(
         { clientId },
         {
             staleTime: Infinity,
@@ -70,7 +63,7 @@ export const EditClientBehaviors = ({
             onSuccess: async () => {
                 toast.success('Client behaviors updated');
                 // Invalidate query to refetch updated data
-                await apiClientUtils.client.getClientBehaviors.invalidate({
+                await apiClientUtils.behavior.getClientBehaviors.invalidate({
                     clientId,
                 });
                 // Reset form dirty state after successful save and refetch
@@ -92,12 +85,12 @@ export const EditClientBehaviors = ({
 
     useEffect(() => {
         // Only reset form if the query was successful
-        if (isSuccessClientBehaviors) {
+        if (isSuccessClientBehaviors && 'data' in clientBehaviorsQueryData) {
             const fetchedData =
-                clientBehaviorsQueryData.data as FetchedClientBehavior[];
+                clientBehaviorsQueryData.data as ClientFormBehavior[];
             const initialBehaviors: ClientFormBehavior[] = fetchedData.map(
                 (b) => ({
-                    id: b.behaviorId,
+                    id: b.id,
                     type: b.type,
                     baseline: b.baseline,
                     isExisting: true, // Set the flag for existing behaviors
