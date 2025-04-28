@@ -8,7 +8,7 @@ export function NewClientSessionView() {
     const clientName = 'Client';
 
     return (
-        <div className="container mx-auto py-6">
+        <div className="container mx-auto px-0 py-6">
             <SessionForm clientId={clientId} clientName={clientName} />
         </div>
     );

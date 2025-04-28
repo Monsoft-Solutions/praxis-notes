@@ -14,7 +14,7 @@ import { SubscriptionManagement } from '../components/subscription-management.co
 export function AccountView(): ReactElement {
     return (
         <AppLayout>
-            <div className="container mx-auto py-12">
+            <div className="container mx-auto px-0 py-12">
                 <div className="mx-auto max-w-4xl">
                     <div className="mb-8">
                         <h1 className="mb-2 text-3xl font-bold">Account</h1>

@@ -36,7 +36,7 @@ export const EditClientView = () => {
     };
 
     return (
-        <div className="container mx-auto py-6">
+        <div className="container mx-auto px-0 py-6">
             <div className="mb-6 flex items-center justify-between">
                 <h1 className="text-2xl font-bold">Edit Client</h1>
                 <Button type="button" variant="outline" onClick={handleCancel}>
