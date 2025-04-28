@@ -1,12 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { useForm } from 'react-hook-form';
 
-import { Label } from '@ui/label.ui';
 import { Input } from '@ui/input.ui';
 import { Switch } from '@ui/switch.ui';
 import { Button } from '@ui/button.ui';
+import {
+    Form,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormControl,
+    FormMessage,
+} from '@shared/ui/form.ui';
 
 import { api } from '@api/providers/web';
+
+type ClientFormValues = {
+    firstName: string;
+    lastName: string;
+    isActive: boolean;
+};
 
 type EditClientBasicInfoProps = {
     clientId: string;
@@ -17,10 +31,12 @@ export const EditClientBasicInfo = ({
     clientId,
     onSaved,
 }: EditClientBasicInfoProps) => {
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        isActive: true,
+    const form = useForm<ClientFormValues>({
+        defaultValues: {
+            firstName: '',
+            lastName: '',
+            isActive: true,
+        },
     });
 
     const { data: clientQuery } = api.client.getClient.useQuery({
@@ -40,77 +56,88 @@ export const EditClientBasicInfo = ({
     useEffect(() => {
         if (!clientQuery?.error && clientQuery?.data) {
             const client = clientQuery.data;
-            setFormData({
+            form.reset({
                 firstName: client.firstName,
                 lastName: client.lastName,
                 isActive: client.isActive,
             });
         }
-    }, [clientQuery]);
+    }, [clientQuery, form]);
 
-    const handleSave = () => {
+    const onSubmit = (data: ClientFormValues) => {
         updateClientMutation.mutate({
             clientId,
-            ...formData,
+            ...data,
         });
     };
 
     return (
-        <div className="space-y-4">
-            <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input
-                    id="firstName"
-                    value={formData.firstName}
-                    onChange={(e) => {
-                        setFormData({
-                            ...formData,
-                            firstName: e.target.value,
-                        });
-                    }}
-                    required
+        <Form {...form}>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    void form.handleSubmit(onSubmit)(e);
+                }}
+                className="space-y-4"
+            >
+                <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                        <FormItem className="md:flex-1">
+                            <FormLabel>First Name</FormLabel>
+                            <FormControl>
+                                <Input {...field} required />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
                 />
-            </div>
 
-            <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                    id="lastName"
-                    value={formData.lastName}
-                    onChange={(e) => {
-                        setFormData({
-                            ...formData,
-                            lastName: e.target.value,
-                        });
-                    }}
-                    required
+                <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                        <FormItem className="md:flex-1">
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                                <Input {...field} required />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
                 />
-            </div>
 
-            <div className="flex items-center space-x-2">
-                <Switch
-                    id="isActive"
-                    checked={formData.isActive}
-                    onCheckedChange={(checked) => {
-                        setFormData({
-                            ...formData,
-                            isActive: checked,
-                        });
-                    }}
+                <FormField
+                    control={form.control}
+                    name="isActive"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                            <FormControl>
+                                <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    id="isActive"
+                                />
+                            </FormControl>
+                            <FormLabel className="mt-0">
+                                Active Client
+                            </FormLabel>
+                        </FormItem>
+                    )}
                 />
-                <Label htmlFor="isActive">Active Client</Label>
-            </div>
 
-            <div className="flex justify-end pt-4">
-                <Button
-                    onClick={handleSave}
-                    disabled={updateClientMutation.isPending}
-                >
-                    {updateClientMutation.isPending
-                        ? 'Saving...'
-                        : 'Save Changes'}
-                </Button>
-            </div>
-        </div>
+                <div className="flex justify-end pt-4">
+                    <Button
+                        type="submit"
+                        disabled={updateClientMutation.isPending}
+                    >
+                        {updateClientMutation.isPending
+                            ? 'Saving...'
+                            : 'Save Changes'}
+                    </Button>
+                </div>
+            </form>
+        </Form>
     );
 };
