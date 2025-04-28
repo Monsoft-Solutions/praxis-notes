@@ -142,28 +142,29 @@ export function EditClientReplacementProgramsForm({
                                 value={field.id}
                                 className="rounded-md border p-1"
                             >
-                                <AccordionTrigger className="px-4">
-                                    <div className="flex w-full items-center justify-between">
-                                        <h4 className="text-lg">
-                                            {programName}
-                                        </h4>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleRemoveProgram(
-                                                    index,
-                                                    field.id,
-                                                );
-                                            }}
-                                            className="ml-2 h-8 w-8"
-                                        >
-                                            <Trash2 className="text-destructive h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </AccordionTrigger>
+                                <div className="flex items-center justify-between px-4">
+                                    <AccordionTrigger className="flex-1">
+                                        <div className="flex w-full items-center justify-between">
+                                            <h4 className="text-lg">
+                                                {programName}
+                                            </h4>
+                                        </div>
+                                    </AccordionTrigger>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => {
+                                            handleRemoveProgram(
+                                                index,
+                                                field.id,
+                                            );
+                                        }}
+                                        className="ml-2 h-8 w-8"
+                                    >
+                                        <Trash2 className="text-destructive h-4 w-4" />
+                                    </Button>
+                                </div>
 
                                 <AccordionContent className="px-4">
                                     <div className="space-y-4 pt-2">
