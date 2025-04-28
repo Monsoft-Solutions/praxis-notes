@@ -31,7 +31,7 @@ import {
 import { Plus, Trash2 } from 'lucide-react';
 
 import { BehaviorsFormData } from './edit-client-behaviors.component';
-import { ClientFormBehavior } from '../schemas/client-form-behavior.schema';
+import { ClientFormBehavior } from '../../schemas/client-form-behavior.schema';
 
 import { Behavior } from '@src/behavior/schemas';
 import { clientBehaviorTypeEnum } from '@src/behavior/enums';

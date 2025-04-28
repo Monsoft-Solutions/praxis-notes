@@ -11,7 +11,7 @@ import {
     AccordionTrigger,
 } from '@ui/accordion.ui';
 
-import { InterventionsFormData } from '../edit-client-interventions.component';
+import { InterventionsFormData } from './edit-client-interventions.component';
 import { Behavior } from '@src/behavior/schemas';
 import { BehaviorCheckItem } from '../behavior-check-item.component';
 import { ClientFormBehavior } from '../../schemas/client-form-behavior.schema';

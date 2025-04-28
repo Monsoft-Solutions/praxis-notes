@@ -14,7 +14,7 @@ import { api, apiClientUtils } from '@api/providers/web';
 import {
     clientFormBehaviorSchema,
     ClientFormBehavior,
-} from '../schemas/client-form-behavior.schema'; // Corrected import name
+} from '../../schemas/client-form-behavior.schema'; // Corrected import name
 import { EditClientBehaviorsForm } from './edit-client-behaviors-form.component';
 import { Form } from '@shared/ui/form.ui';
 

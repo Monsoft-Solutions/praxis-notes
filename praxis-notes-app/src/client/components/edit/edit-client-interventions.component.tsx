@@ -8,8 +8,8 @@ import { Button } from '@ui/button.ui';
 
 import { api, apiClientUtils } from '@api/providers/web';
 
-import { EditClientInterventionsForm } from './edit/edit-client-interventions-form.component';
-import { clientFormInterventionSchema } from '../schemas/client-form-intervention.schema';
+import { EditClientInterventionsForm } from './edit-client-interventions-form.component';
+import { clientFormInterventionSchema } from '../../schemas/client-form-intervention.schema';
 import { Form } from '@shared/ui/form.ui';
 
 // Define the schema for a single intervention
