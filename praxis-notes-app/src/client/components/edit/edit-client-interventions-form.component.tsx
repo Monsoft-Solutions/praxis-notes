@@ -80,9 +80,6 @@ export function EditClientInterventionsForm({
         setOpenAccordionItems((prev) => prev.filter((id) => id !== fieldId));
     };
 
-    // Get the current values of all interventions
-    const interventionsValues = watch('interventions');
-
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-end">
@@ -141,9 +138,9 @@ export function EditClientInterventionsForm({
                             >
                                 <AccordionTrigger className="px-4">
                                     <div className="flex w-full items-center justify-between">
-                                        <span className="font-medium">
+                                        <h4 className="text-lg font-medium">
                                             {interventionName}
-                                        </span>
+                                        </h4>
                                         <Button
                                             type="button"
                                             variant="ghost"

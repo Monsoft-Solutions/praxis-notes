@@ -144,9 +144,9 @@ export function EditClientReplacementProgramsForm({
                             >
                                 <AccordionTrigger className="px-4">
                                     <div className="flex w-full items-center justify-between">
-                                        <span className="font-medium">
+                                        <h4 className="text-lg">
                                             {programName}
-                                        </span>
+                                        </h4>
                                         <Button
                                             type="button"
                                             variant="ghost"

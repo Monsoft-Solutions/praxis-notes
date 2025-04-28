@@ -137,9 +137,9 @@ export function EditClientBehaviorsForm({
                             >
                                 <AccordionTrigger className="px-4">
                                     <div className="flex w-full items-center justify-between">
-                                        <span className="font-medium">
+                                        <h4 className="text-lg font-medium">
                                             {behaviorName}
-                                        </span>
+                                        </h4>
                                         <Button
                                             type="button"
                                             variant="ghost"

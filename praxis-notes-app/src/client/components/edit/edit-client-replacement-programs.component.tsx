@@ -12,6 +12,7 @@ import { clientFormReplacementProgramSchema } from '../../schemas/client-form-re
 import { EditClientReplacementProgramsForm } from './edit-client-replacement-programs-form.component';
 import { ReplacementProgram } from '@src/replacement-program/schemas';
 import { Behavior } from '@src/behavior/schemas';
+import { Form } from '@shared/ui/form.ui';
 
 const editClientReplacementProgramSchema =
     clientFormReplacementProgramSchema.extend({
@@ -175,7 +176,7 @@ export const EditClientReplacementPrograms = ({
             : [];
 
     return (
-        <FormProvider {...form}>
+        <Form {...form}>
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
@@ -205,6 +206,6 @@ export const EditClientReplacementPrograms = ({
                     </Button>
                 </div>
             </form>
-        </FormProvider>
+        </Form>
     );
 };

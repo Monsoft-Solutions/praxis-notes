@@ -16,6 +16,7 @@ import {
     ClientFormBehavior,
 } from '../schemas/client-form-behavior.schema'; // Corrected import name
 import { EditClientBehaviorsForm } from './edit-client-behaviors-form.component';
+import { Form } from '@shared/ui/form.ui';
 
 // Define the Zod schema for the array of behaviors directly
 const behaviorsFormSchema = z.object({
@@ -143,7 +144,7 @@ export const EditClientBehaviors = ({
         : []; // Access data safely
 
     return (
-        <FormProvider {...form}>
+        <Form {...form}>
             {/* The form submits via the button, no need for promise handling here */}
             <form
                 onSubmit={(e) => {
@@ -167,6 +168,6 @@ export const EditClientBehaviors = ({
                     </Button>
                 </div>
             </form>
-        </FormProvider>
+        </Form>
     );
 };
