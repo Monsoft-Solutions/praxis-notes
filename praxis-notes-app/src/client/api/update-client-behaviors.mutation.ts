@@ -11,7 +11,7 @@ import { catchError } from '@errors/utils/catch-error.util';
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
 
 import { clientBehaviorTable } from '@db/db.tables';
-import { eq, and, notInArray } from 'drizzle-orm';
+import { eq, and, inArray } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 
 import { clientFormBehaviorSchema } from '../schemas/client-form-behavior.schema';
@@ -67,7 +67,7 @@ export const updateClientBehaviors = protectedEndpoint
                                             clientBehaviorTable.clientId,
                                             clientId,
                                         ),
-                                        notInArray(
+                                        inArray(
                                             clientBehaviorTable.behaviorId,
                                             behaviorIdsToDelete,
                                         ),

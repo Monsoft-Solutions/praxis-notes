@@ -36,8 +36,6 @@ export const getClientReplacementPrograms = protectedEndpoint
                 }),
             );
 
-            console.log(JSON.stringify(replacementProgramRecords, null, 2));
-
             if (error) return Error();
 
             const replacementPrograms = replacementProgramRecords.map(
