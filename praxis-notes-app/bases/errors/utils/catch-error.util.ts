@@ -12,8 +12,6 @@ export async function catchError<T>(promise: Promise<T>, serviceName?: string) {
             .catch((rawError: unknown) => {
                 const parsedError = parseError(rawError);
 
-                console.error(rawError);
-
                 // Log the error with all available details
                 throwAsync(parsedError.code, {
                     errorCode: parsedError.code,
