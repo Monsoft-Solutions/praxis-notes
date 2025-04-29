@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { feedbackTable } from '../db';
 import { FeedbackType } from '../enums';
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
+import { logger } from '@logger/providers/logger.provider';
 
 // mutation to submit user feedback
 export const submitFeedback = protectedEndpoint
@@ -44,6 +45,15 @@ export const submitFeedback = protectedEndpoint
                     text,
                     createdAt,
                 };
+
+                logger.info('submitFeedback', {
+                    id,
+                    userId: user.id,
+                    type,
+                    text,
+                    createdAt,
+                    infoType: 'Feedback',
+                });
 
                 // insert the feedback into db
                 const { error } = await catchError(

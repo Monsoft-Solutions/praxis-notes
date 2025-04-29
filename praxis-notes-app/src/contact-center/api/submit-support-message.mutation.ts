@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { supportMessageTable } from '../db';
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
+import { logger } from '@logger/providers/logger.provider';
 
 // mutation to submit a support message
 export const submitSupportMessage = protectedEndpoint
@@ -41,6 +42,14 @@ export const submitSupportMessage = protectedEndpoint
                     message,
                     createdAt,
                 };
+
+                logger.info('submitSupportMessage', {
+                    id,
+                    userId: user.id,
+                    message,
+                    createdAt,
+                    infoType: 'Support Message',
+                });
 
                 // insert the support message into db
                 const { error } = await catchError(
