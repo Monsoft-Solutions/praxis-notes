@@ -3,7 +3,7 @@
 import { parseError } from './parse-error.util';
 import { throwAsync } from './throw-async.util';
 
-export async function catchError<T>(promise: Promise<T>) {
+export async function catchError<T>(promise: Promise<T>, serviceName?: string) {
     return (
         promise
             // if the promise succeeds, return the data, and null error
@@ -12,7 +12,14 @@ export async function catchError<T>(promise: Promise<T>) {
             .catch((rawError: unknown) => {
                 const parsedError = parseError(rawError);
 
-                throwAsync(parsedError.code);
+                // Log the error with all available details
+                throwAsync(parsedError.code, {
+                    errorCode: parsedError.code,
+                    errorMessage: parsedError.message,
+                    errorSource: parsedError.source,
+                    rawError: JSON.stringify(rawError),
+                    service: serviceName,
+                });
 
                 return { data: null, error: parsedError.code } as const;
             })
