@@ -43,10 +43,12 @@
             "@routes/*": ["./routes/*"],
             "@seed/*": ["./bases/seed/*"],
             "@shared/*": ["./shared/*"],
+            "@slack/*": ["./bases/slack/*"],
             "@ui/*": ["./shared/ui/*"],
             "@src/*": ["./src/*"],
             "@web/*": ["./bases/web/*"],
-            "@analytics/*": ["./bases/analytics/*"]
+            "@analytics/*": ["./bases/analytics/*"],
+            "@logger/*": ["./bases/logger/*"]
         }
     }
 }

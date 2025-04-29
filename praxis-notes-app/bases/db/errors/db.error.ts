@@ -10,6 +10,7 @@ export const dbErrorParse = ((error: unknown) => {
     if (dbConnectionError)
         return {
             code: 'DB_CONNECTION',
+            source: 'database:connections',
         } as const;
 
     const sqlParsingError = sqlParsingErrorParse(error);
@@ -21,6 +22,7 @@ export const dbErrorParse = ((error: unknown) => {
                 sqlState: sqlParsingError.sqlState,
                 sqlMessage: sqlParsingError.sqlMessage,
             }),
+            source: 'database:sql-parsing',
         } as const;
 
     const sqlUnknownDbError = sqlUnknownDbErrorParse(error);
@@ -31,6 +33,7 @@ export const dbErrorParse = ((error: unknown) => {
                 sqlState: sqlUnknownDbError.sqlState,
                 sqlMessage: sqlUnknownDbError.sqlMessage,
             }),
+            source: 'database:unknown-db',
         } as const;
 
     const duplicateEntryError = duplicateEntryErrorParse(error);
@@ -42,5 +45,6 @@ export const dbErrorParse = ((error: unknown) => {
                 sqlState: duplicateEntryError.sqlState,
                 sqlMessage: duplicateEntryError.sqlMessage,
             }),
+            source: 'database:duplicate-entry',
         } as const;
 }) satisfies (error: unknown) => ErrorType | undefined;
