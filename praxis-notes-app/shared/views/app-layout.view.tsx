@@ -2,14 +2,14 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@ui/sidebar.ui';
 
 import { Separator } from '@shared/ui/separator.ui';
 
-import {
-    Breadcrumb,
-    BreadcrumbLink,
-    BreadcrumbItem,
-    BreadcrumbList,
-    BreadcrumbSeparator,
-    BreadcrumbPage,
-} from '@shared/ui/breadcrumb.ui';
+// import {
+//     Breadcrumb,
+//     BreadcrumbLink,
+//     BreadcrumbItem,
+//     BreadcrumbList,
+//     BreadcrumbSeparator,
+//     BreadcrumbPage,
+// } from '@shared/ui/breadcrumb.ui';
 
 import { ThemeSelector } from '@shared/ui/theme-selector.ui';
 
@@ -30,7 +30,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                         className="mr-2 data-[orientation=vertical]:h-4"
                     />
 
-                    <Breadcrumb>
+                    {/* <Breadcrumb>
                         <BreadcrumbList>
                             <BreadcrumbItem className="hidden md:block">
                                 <BreadcrumbLink href="#">
@@ -44,7 +44,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                                 <BreadcrumbPage>Dashboard</BreadcrumbPage>
                             </BreadcrumbItem>
                         </BreadcrumbList>
-                    </Breadcrumb>
+                    </Breadcrumb> */}
 
                     <div className="ml-auto flex items-center gap-2">
                         <ThemeSelector type="dropdown" />
