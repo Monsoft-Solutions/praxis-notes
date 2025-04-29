@@ -145,19 +145,22 @@ class SlackService {
     async sendInfoToSlack(
         message: string,
         context?: LogContext,
+        infoType?: string,
     ): Promise<void> {
         try {
             if (!this._infoWebhook) return;
 
+            console.log('Sending info to Slack:', infoType, message);
+
             // Build Slack message payload according to Block Kit
             const payload: SlackMessage = {
-                text: `Info: ${message}`,
+                text: `Info - ${infoType}: ${message}`,
                 blocks: [
                     {
                         type: 'header',
                         text: {
                             type: 'plain_text',
-                            text: '📋 Information Update',
+                            text: `${this.getInfoTypeEmoji(infoType)} ${infoType}`,
                             emoji: true,
                         },
                     },
@@ -207,6 +210,26 @@ class SlackService {
             }
         } catch (err) {
             console.error('Failed to send info to Slack:', err);
+        }
+    }
+
+    private getInfoTypeEmoji(infoType: string | undefined) {
+        infoType = infoType ?? 'Unknown';
+        switch (infoType) {
+            case 'Bug Report':
+                return '🐛';
+            case 'Feedback':
+                return '📝';
+            case 'Support Message':
+                return '💬';
+            case 'SignUp':
+                return '👤';
+            case 'Login':
+                return '🔑';
+            case 'Logout':
+                return '🔓';
+            default:
+                return '🔔';
         }
     }
 }

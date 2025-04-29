@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { bugReportTable } from '../db';
 import { appAreaEnum, bugSeverityEnum } from '../enums';
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
+import { logger } from '@logger/providers/logger.provider';
 
 // mutation to submit a bug report
 export const submitBugReport = protectedEndpoint
@@ -35,6 +36,15 @@ export const submitBugReport = protectedEndpoint
             }) => {
                 const { title, description, stepsToReproduce, area, severity } =
                     input;
+
+                logger.info('submitBugReport', {
+                    title,
+                    description,
+                    stepsToReproduce,
+                    area,
+                    severity,
+                    infoType: 'Bug Report',
+                });
 
                 // generate a unique id for the bug report
                 const id = uuidv4();

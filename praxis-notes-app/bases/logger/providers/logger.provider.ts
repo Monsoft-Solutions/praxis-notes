@@ -81,7 +81,8 @@ class LoggerService implements LoggerInterface {
         // Send info to Slack if needed
         // We use void to ignore the promise
         if (isProduction) {
-            void slackService.sendInfoToSlack(message, context);
+            const infoType = context?.infoType as string;
+            void slackService.sendInfoToSlack(message, context, infoType);
         }
     }
 
