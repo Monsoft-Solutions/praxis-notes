@@ -181,7 +181,7 @@
         "bcryptjs": "2.4.3 || password hashing (bcryptjs)",
         "@types/bcryptjs": "2.4.6",
 
-        "react-ga": "^3.3.1",
+        "react-ga4": "2.1.0",
         "@microsoft/clarity": "^1.0.0"
     },
     
