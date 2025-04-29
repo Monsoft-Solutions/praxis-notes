@@ -188,6 +188,7 @@ export function ClientReplacementProgramsForm({
                                                     </FormLabel>
 
                                                     <AbcSelector
+                                                        initValue={field.value}
                                                         placeholder="Select replacement program"
                                                         items={existingPrograms}
                                                         onSelect={

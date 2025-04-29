@@ -174,6 +174,9 @@ export function ClientBehaviorsForm({
                                                         </FormLabel>
 
                                                         <AbcSelector
+                                                            initValue={
+                                                                field.value
+                                                            }
                                                             placeholder="Select behavior"
                                                             items={
                                                                 existingBehaviors
@@ -285,6 +288,16 @@ export function ClientBehaviorsForm({
                                                             type="int"
                                                             placeholder="Enter baseline value"
                                                             {...field}
+                                                            onChange={(e) => {
+                                                                const parsedValue =
+                                                                    parseInt(
+                                                                        e.target
+                                                                            .value,
+                                                                    );
+                                                                field.onChange(
+                                                                    parsedValue,
+                                                                );
+                                                            }}
                                                         />
                                                     </FormControl>
 
