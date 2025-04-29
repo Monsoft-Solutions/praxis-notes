@@ -22,6 +22,7 @@ import { SessionObservations } from './session-observations.component';
 
 import { api } from '@api/providers/web';
 import { Spinner } from '@shared/ui/spinner.ui';
+import { trackEvent } from '@analytics/providers/analytics.provider';
 
 import { Form } from '@shared/ui/form.ui';
 
@@ -115,6 +116,10 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
         } else {
             toast.success('Session saved as draft');
         }
+
+        // Track session creation regardless of notes generation
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        trackEvent('session', 'session_create');
 
         const { id } = response.data;
 
