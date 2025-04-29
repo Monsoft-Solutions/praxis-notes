@@ -23,6 +23,15 @@ export const getClientReplacementPrograms = protectedEndpoint
                     where: (record) => or(eq(record.clientId, clientId)),
                     with: {
                         replacementProgram: true,
+                        behaviors: {
+                            with: {
+                                clientBehavior: {
+                                    with: {
+                                        behavior: true,
+                                    },
+                                },
+                            },
+                        },
                     },
                 }),
             );
@@ -30,7 +39,7 @@ export const getClientReplacementPrograms = protectedEndpoint
             if (error) return Error();
 
             const replacementPrograms = replacementProgramRecords.map(
-                ({ replacementProgram }) => {
+                ({ replacementProgram, behaviors }) => {
                     const { id, name, description, organizationId } =
                         replacementProgram;
 
@@ -39,6 +48,9 @@ export const getClientReplacementPrograms = protectedEndpoint
                         name,
                         description,
                         isCustom: organizationId !== null,
+                        behaviorIds: behaviors.map(
+                            (behavior) => behavior.clientBehavior.behavior.id,
+                        ),
                     };
                 },
             );

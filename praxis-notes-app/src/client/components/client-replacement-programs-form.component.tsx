@@ -3,15 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 
 import { api, apiClientUtils } from '@api/providers/web';
 
-import {
-    FormField,
-    FormItem,
-    FormLabel,
-    FormControl,
-    FormMessage,
-} from '@ui/form.ui';
+import { FormField, FormItem, FormLabel, FormMessage } from '@ui/form.ui';
 
-import { Input } from '@ui/input.ui';
 import { Button } from '@ui/button.ui';
 
 import { Plus, Trash2 } from 'lucide-react';
@@ -80,7 +73,6 @@ export function ClientReplacementProgramsForm({
 
         prepend({
             id,
-            baseline: 0,
             behaviorIds: [],
         });
     };
@@ -196,6 +188,7 @@ export function ClientReplacementProgramsForm({
                                                     </FormLabel>
 
                                                     <AbcSelector
+                                                        initValue={field.value}
                                                         placeholder="Select replacement program"
                                                         items={existingPrograms}
                                                         onSelect={
@@ -219,42 +212,6 @@ export function ClientReplacementProgramsForm({
                                                         }}
                                                     />
 
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={control}
-                                            name={`replacementPrograms.${index}.baseline`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>
-                                                        Baseline{' '}
-                                                        <span className="text-destructive">
-                                                            *
-                                                        </span>
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Input
-                                                            type="number"
-                                                            placeholder="Enter baseline value"
-                                                            {...field}
-                                                            onChange={(e) => {
-                                                                field.onChange(
-                                                                    e.target
-                                                                        .value ===
-                                                                        ''
-                                                                        ? 0
-                                                                        : parseFloat(
-                                                                              e
-                                                                                  .target
-                                                                                  .value,
-                                                                          ),
-                                                                );
-                                                            }}
-                                                        />
-                                                    </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
                                             )}
