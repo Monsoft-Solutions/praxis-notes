@@ -181,6 +181,11 @@
         "bcryptjs": "2.4.3 || password hashing (bcryptjs)",
         "@types/bcryptjs": "2.4.6",
 
+        "react-ga4": "2.1.0",
+        "@microsoft/clarity": "^1.0.0"
+    },
+    
+    "devDependencies": {
         "@faker-js/faker": "^9.7.0",
 
         "winston": "3.17.0 || logging (winston)",

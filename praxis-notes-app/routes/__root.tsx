@@ -25,6 +25,8 @@ import { router } from '@web/router';
 
 import { User } from '@guard/types';
 
+import { trackLogin } from '@analytics/providers';
+
 // show devtools only in development
 const showDevTools = process.env.NODE_ENV === 'development';
 
@@ -66,6 +68,14 @@ const logIn = async (credentials: LogInCredentials) => {
     // rerunning loader/beforLoad for all routes
     // to update route permission guards
     await router.invalidate();
+
+    const { data: user } =
+        await apiClientUtils.auth.getLoggedInUser.ensureData();
+
+    if (user) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        trackLogin(user.id);
+    }
 
     return true;
 };

@@ -47,6 +47,7 @@
             "@ui/*": ["./shared/ui/*"],
             "@src/*": ["./src/*"],
             "@web/*": ["./bases/web/*"],
+            "@analytics/*": ["./bases/analytics/*"],
             "@logger/*": ["./bases/logger/*"]
         }
     }

@@ -5,6 +5,7 @@ import { Spinner } from '@shared/ui/spinner.ui';
 
 import { api } from '@api/providers/web';
 import { toast } from 'sonner';
+import { trackEvent } from '@analytics/providers';
 
 type CheckoutButtonProps = {
     priceId: string;
@@ -44,6 +45,9 @@ export function CheckoutButton({
             const { url } = checkoutSessionResult.data;
 
             if (url) window.open(url, '_blank');
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            trackEvent('subscription', 'checkout_start');
         }
 
         setIsLoading(false);
