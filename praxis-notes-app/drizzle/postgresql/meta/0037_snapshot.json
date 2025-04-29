@@ -1,6 +1,6 @@
 {
-  "id": "9be2eb6f-0938-4775-991c-4c71a385cb4a",
-  "prevId": "efac0dac-112c-4cd9-bab0-61d656d0d0cc",
+  "id": "29728800-9ce4-41ab-959d-8af263c7e37f",
+  "prevId": "9be2eb6f-0938-4775-991c-4c71a385cb4a",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -401,6 +401,25 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "slack_webhook_url_error": {
+          "name": "slack_webhook_url_error",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slack_webhook_url_info": {
+          "name": "slack_webhook_url_info",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sentry_dsn": {
+          "name": "sentry_dsn",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
         }
       },
       "indexes": {},
@@ -1981,12 +2000,6 @@
           "name": "severity",
           "type": "bug_severity",
           "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "screenshot_path": {
-          "name": "screenshot_path",
-          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
