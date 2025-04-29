@@ -35,6 +35,7 @@ type AbcSelectorProps = {
         isCustom?: boolean;
         isClient?: boolean;
     }[];
+    hideFromList?: string[];
     create?: (args: { name: string }) => Promise<{ id: string } | null>;
 } & (
     | {
@@ -56,8 +57,9 @@ export function AbcSelector({
     onSelect,
     multiple,
     create,
+    hideFromList,
 }: AbcSelectorProps) {
-    const options = items
+    const allOptions = items
         .map((item) => ({
             value: item.id,
             label: item.name,
@@ -76,8 +78,19 @@ export function AbcSelector({
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
     const selectedOptions = selectedIds
-        .map((id) => options.find((option) => option.value === id))
+        .map((id) => allOptions.find((option) => option.value === id))
         .filter((option) => option !== undefined);
+
+    const availableOptions = allOptions.filter(
+        ({ value }) =>
+            !hideFromList ||
+            !hideFromList.includes(value) ||
+            (!multiple && value === selectedId) ||
+            (multiple &&
+                !selectedOptions.some(
+                    (selectedOption) => value === selectedOption.value,
+                )),
+    );
 
     const [search, setSearch] = useState('');
 
@@ -95,9 +108,11 @@ export function AbcSelector({
         const { id } = createdItem;
 
         if (multiple) {
-            const newIds = [...selectedIds, id];
-            setSelectedIds(newIds);
-            onSelect(newIds);
+            setSelectedIds((prev) => {
+                const newIds = [...prev, id];
+                onSelect(newIds);
+                return newIds;
+            });
         } else {
             setSelectedId(id);
             onSelect(id);
@@ -111,7 +126,7 @@ export function AbcSelector({
         <>
             {multiple ? (
                 <MultipleSelector
-                    options={options}
+                    options={availableOptions}
                     groupBy={groupBy}
                     placeholder={placeholder}
                     value={selectedOptions}
@@ -126,19 +141,16 @@ export function AbcSelector({
                             ({ value }) => value,
                         );
 
-                        const lastValue = newSelectedIds.at(-1);
-                        if (lastValue === undefined) {
-                            setSelectedIds([]);
-                            onSelect([]);
-                            return;
-                        }
+                        const customOption = newSelectedIds.find((id) =>
+                            allOptions.every((option) => option.value !== id),
+                        );
 
-                        if (options.some(({ value }) => value === lastValue)) {
-                            setSelectedIds((prev) => [...prev, lastValue]);
-                            onSelect(newSelectedIds);
-                        } else {
-                            setSearch(lastValue);
+                        if (customOption) {
+                            setSearch(customOption);
                             setCreateDialogOpen(true);
+                        } else {
+                            setSelectedIds(newSelectedIds);
+                            onSelect(newSelectedIds);
                         }
                     }}
                 />
@@ -174,8 +186,8 @@ export function AbcSelector({
                             <CommandList>
                                 <CommandEmpty>No framework found.</CommandEmpty>
                                 {Object.entries(
-                                    options.reduce<
-                                        Record<string, typeof options>
+                                    availableOptions.reduce<
+                                        Record<string, typeof availableOptions>
                                     >((acc, option) => {
                                         const key = option[groupBy];
                                         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

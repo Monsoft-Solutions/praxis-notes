@@ -1,27 +1,48 @@
-# Monorepo Template
+# Praxis Notes
 
-_Well thought-out starting point for a complex full-stack app._
+_AI-powered ABA session notes that save RBTs and BCBAs hours each week. Detailed, insurance-ready documentation in seconds._
+
+## About
+
+Praxis Notes is designed to streamline documentation for ABA professionals. Our platform helps users generate detailed, insurance-ready ABA session notes instantly, saving up to 75% of documentation time.
+
+Developed by [Monsoft Solutions](https://www.monsoftsolutions.com).
+
+-   Website: [https://praxisnotes.com](https://praxisnotes.com)
+-   App: [https://app.praxisnotes.com](https://app.praxisnotes.com)
+-   Documentation: [https://docs.praxisnotes.com](https://docs.praxisnotes.com)
+
+## Key Features
+
+-   **AI-Powered Note Generation**: Generate detailed session notes in seconds with advanced AI, supporting CPT Codes 97153–97158
+-   **Note Review & Enhancement**: Upload existing notes for AI analysis and improvements
+-   **BCBA & RBT Configurable Templates**: Customize templates to match clinic requirements
+-   **Progress Tracking & Reporting**: Monitor client goals and generate comprehensive reports
+-   **Mobile-Friendly & Web Access**: Access notes from anywhere on any device
+-   **Billing-Compliant Formatting**: Insurance-ready notes to meet billing requirements
 
 ## Getting Started
 
--   setting things up
+### Development Setup
 
-    1. install dependencies: `npm i`
-    2. initialize local environment: `npm run env`
-    3. prepare database: `npm run data`
+1. Install dependencies: `npm i`
+2. Initialize local environment: `npm run env`
+3. Prepare database: `npm run data`
 
-    > or simply run `npm run init`, which does all of the above
+> or simply run `npm run init`, which does all of the above
 
--   running the app
+### Running the App
 
-    4. start development server: `npm run dev`
-    5. start production server: `npm run start`
+4. Start development server: `npm run dev`
+5. Start production server: `npm run start`
 
-## Contributing
+## Documentation
 
-Please, read **very carefully** our guidelines before submitting PRs.
+Full documentation is available at [https://docs.praxisnotes.com](https://docs.praxisnotes.com)
 
-## Key Features
+Documentation is built with VitePress and source files are located in the `/docs` directory.
+
+## Technical Architecture
 
 -   **End-to-End Type-Safety Tech-Stack**
 
@@ -41,69 +62,68 @@ Please, read **very carefully** our guidelines before submitting PRs.
 
 -   **Authentication & Authorization**
 
-    -   session-based authentication
+    -   Session-based authentication
     -   ABAC authorization
 
 -   **Database (MySQL + Drizzle)**
 
-    -   runtime (drizzle-orm)
-    -   migrations (drizzle-kit)
-    -   seeding (drizzle-seed)
+    -   Runtime (drizzle-orm)
+    -   Migrations (drizzle-kit)
+    -   Seeding (drizzle-seed)
 
 -   **API (tRPC)**
 
-    -   query
-    -   mutation
-    -   subscription
+    -   Query
+    -   Mutation
+    -   Subscription
 
 -   **Monorepo Architecture**
+    -   Module-based
+    -   Shared functionality
+    -   Consistent conventions
+        -   Variable names
+        -   Filesystem hierarchy
+        -   Filenames + extensions
+        -   Dependency flow
 
-    -   module-based
-    -   shared functionality
-    -   consistent conventions
-        -   variable names
-        -   filesystem hierarchy
-        -   filenames + extensions
-        -   dependency flow
-
-    ```
-    .
-    ├── api/                     # endpoints
-    ├── auth/                    # authentication
-    ├── config/                  # configuration
-    ├── css/                     # styling
-    ├── db/                      # database
-    ├── dist/                    # deployment
-    ├── drizzle/                 # database migrations
-    ├── env/                     # environment variables
-    ├── errors/                  # error-handling
-    ├── events/                  # event-handling
-    ├── guard/                   # authorization
-    ├── log/                     # logging
-    ├── package/                 # client package
-    ├── routes/                  # client-side routes
-    ├── seed/                    # database seeding
-    ├── shared/                  # shared functionality
-    ├── app/                     # main application code
-    │   ├── server/              # express backend
-    │   └── web/                 # react+vite frontend
-    └── src/                     # core business logic
-        ├── template/            # template feature
-        │   ├── types/           # typescript types
-        │   ├── schemas/         # zod schemas
-        │   ├── enums/           # zod enums
-        │   ├── hub/             # event listeners
-        │   ├── constants/       # constants
-        │   ├── utils/           # pure functions
-        │   ├── providers/       # impure functions
-        │   ├── res/             # resources
-        │   ├── components/      # react components
-        │   ├── hooks/           # react hooks
-        │   ├── views/           # route views
-        │   └── ...              # other kinds of functionality
-        └── ...                  # other feature modules
-
-    ```
+```
+.
+├── api/                     # endpoints
+├── auth/                    # authentication
+├── config/                  # configuration
+├── css/                     # styling
+├── db/                      # database
+├── dist/                    # deployment
+├── drizzle/                 # database migrations
+├── docs/                    # documentation (VitePress)
+├── env/                     # environment variables
+├── errors/                  # error-handling
+├── events/                  # event-handling
+├── guard/                   # authorization
+├── log/                     # logging
+├── package/                 # client package
+├── routes/                  # client-side routes
+├── seed/                    # database seeding
+├── shared/                  # shared functionality
+├── app/                     # main application code
+│   ├── server/              # express backend
+│   └── web/                 # react+vite frontend
+└── src/                     # core business logic
+    ├── template/            # template feature
+    │   ├── types/           # typescript types
+    │   ├── schemas/         # zod schemas
+    │   ├── enums/           # zod enums
+    │   ├── hub/             # event listeners
+    │   ├── constants/       # constants
+    │   ├── utils/           # pure functions
+    │   ├── providers/       # impure functions
+    │   ├── res/             # resources
+    │   ├── components/      # react components
+    │   ├── hooks/           # react hooks
+    │   ├── views/           # route views
+    │   └── ...              # other kinds of functionality
+    └── ...                  # other feature modules
+```
 
 ## Scripts
 
@@ -132,3 +152,7 @@ The project includes handy scripts for database-handling, development, and deplo
     npm run app:deploy   # build for production
     npm run app:start    # start production server
     ```
+
+## Contributing
+
+Please read our contribution guidelines before submitting PRs.

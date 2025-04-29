@@ -46,7 +46,7 @@ Replacement Program Entry #${(index + 1).toString()}:
     .join('\n')}
 
 Overall Valuation: ${sessionData.valuation}
-General Observations: ${sessionData.observations}
+General Observations: ${sessionData.observations ?? 'No observations'}
 
 Please generate a professional narrative report that flows like a cohesive story. 
 DO NOT format the response as structured markdown with sections and headings.

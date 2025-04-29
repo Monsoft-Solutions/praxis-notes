@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 export const clientSessionReplacementProgramEntrySchema = z.object({
     replacementProgram: z.string(),
-    teachingProcedure: z.string(),
-    promptingProcedure: z.string(),
+    teachingProcedure: z.string().nullable(),
+    promptingProcedure: z.string().nullable(),
     promptTypes: z.array(z.string()),
 });
 

@@ -55,6 +55,11 @@ export function ClientBehaviorsForm({
         name: 'behaviors',
     });
 
+    const selectedBehaviorsIds = fields.map((_, index) => {
+        const currentBehaviorId = watch(`behaviors.${index}.id`);
+        return currentBehaviorId;
+    });
+
     useEffect(() => {
         // Find any new fields by comparing with previous field IDs
         const currentFieldIds = fields.map((field) => field.id);
@@ -173,6 +178,9 @@ export function ClientBehaviorsForm({
                                                             items={
                                                                 existingBehaviors
                                                             }
+                                                            hideFromList={
+                                                                selectedBehaviorsIds
+                                                            }
                                                             onSelect={
                                                                 field.onChange
                                                             }
@@ -263,7 +271,7 @@ export function ClientBehaviorsForm({
                                         <FormField
                                             control={control}
                                             name={`behaviors.${index}.baseline`}
-                                            render={({ field: formField }) => (
+                                            render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>
                                                         Baseline{' '}
@@ -271,26 +279,15 @@ export function ClientBehaviorsForm({
                                                             *
                                                         </span>
                                                     </FormLabel>
+
                                                     <FormControl>
                                                         <Input
-                                                            type="number"
+                                                            type="int"
                                                             placeholder="Enter baseline value"
-                                                            {...formField}
-                                                            onChange={(e) => {
-                                                                formField.onChange(
-                                                                    e.target
-                                                                        .value ===
-                                                                        ''
-                                                                        ? 0
-                                                                        : parseFloat(
-                                                                              e
-                                                                                  .target
-                                                                                  .value,
-                                                                          ),
-                                                                );
-                                                            }}
+                                                            {...field}
                                                         />
                                                     </FormControl>
+
                                                     <FormMessage />
                                                 </FormItem>
                                             )}

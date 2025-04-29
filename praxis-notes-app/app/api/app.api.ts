@@ -7,3 +7,4 @@ export * from '@src/intervention/api';
 export * from '@src/client-session/api';
 export * from '@src/antecedent/api';
 export * from '@src/stripe/api';
+export * from '@src/contact-center/api';

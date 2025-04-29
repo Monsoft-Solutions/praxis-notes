@@ -7,3 +7,4 @@ export * from '../../src/behavior/db';
 export * from '../../src/intervention/db';
 export * from '../../src/replacement-program/db';
 export * from '../../src/client-session/db';
+export * from '../../src/contact-center/db';
