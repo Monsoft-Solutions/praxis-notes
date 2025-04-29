@@ -20,6 +20,8 @@ import { api, apiClientUtils } from '@api/providers/web';
 
 import { Route } from '@routes/_private/_app/clients/new';
 
+import { trackEvent } from '@analytics/providers';
+
 export function ClientForm() {
     const navigate = Route.useNavigate();
 
@@ -162,6 +164,9 @@ export function ClientForm() {
         const formData = form.getValues();
 
         await createClient(formData);
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        trackEvent('client', 'client_save');
 
         await apiClientUtils.client.getClients.invalidate();
 

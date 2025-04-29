@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import * as Sentry from '@sentry/react';
 
 import { App } from './app';
+import { initializeAnalytics } from '@analytics/providers';
 
 import { z } from 'zod';
 
@@ -52,6 +53,8 @@ Sentry.init({
     replaysSessionSampleRate: hostname === 'localhost' ? 0.2 : 0.6, // Lower sample rate in production
     replaysOnErrorSampleRate: 1.0,
 });
+
+initializeAnalytics();
 
 // get element to mount app root component into
 const rootElement = document.getElementById('app');

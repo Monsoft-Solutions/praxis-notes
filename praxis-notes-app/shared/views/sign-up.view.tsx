@@ -30,8 +30,6 @@ export function SignUpView(): ReactElement {
     });
 
     const handleSubmit = async (data: SignUpFormType) => {
-        console.log(data);
-
         const { error } = await signUp(data);
 
         if (error) {

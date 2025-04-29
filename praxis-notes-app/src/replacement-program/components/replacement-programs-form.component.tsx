@@ -33,6 +33,7 @@ import { api } from '@api/providers/web';
 import { toast } from 'sonner';
 
 import { apiClientUtils } from '@api/providers/web';
+import { trackEvent } from '@analytics/providers';
 
 // Validation schema based on the database schema
 const formSchema = z.object({
@@ -66,8 +67,6 @@ export function ReplacementProgramForm({
     });
 
     const onSubmit = async (data: FormValues) => {
-        console.log('-->   ~ onSubmit ~ data:', data);
-
         const { error } = await createReplacementProgram(data);
 
         if (error) {
@@ -86,6 +85,9 @@ export function ReplacementProgramForm({
         toast.success('ReplacementProgram created successfully');
 
         void apiClientUtils.replacementProgram.getReplacementPrograms.reset();
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        trackEvent('replacement_program', 'replacement_program_create');
     };
 
     return (

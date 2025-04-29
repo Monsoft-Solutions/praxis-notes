@@ -22,3 +22,4 @@ packages/**/site/**
 packages/**/dist/**/**/*.js
 docs/.vitepress/cache/**
 docs/.vitepress/dist/**
+praxis-notes-app/bases/dev/scripts/logs/*

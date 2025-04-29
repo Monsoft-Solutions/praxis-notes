@@ -33,6 +33,7 @@ import { api } from '@api/providers/web';
 import { toast } from 'sonner';
 
 import { apiClientUtils } from '@api/providers/web';
+import { trackEvent } from '@analytics/providers';
 
 // Validation schema based on the database schema
 const formSchema = z.object({
@@ -71,8 +72,6 @@ export function AntecedentForm({
     });
 
     const onSubmit = async (data: FormValues) => {
-        console.log('-->   ~ onSubmit ~ data:', data);
-
         if (values) {
             await updateAntecedent({
                 id: values.id,
@@ -97,6 +96,12 @@ export function AntecedentForm({
         );
 
         void apiClientUtils.antecedent.getAntecedents.reset();
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        trackEvent(
+            'antecedent',
+            values ? 'antecedent_update' : 'antecedent_create',
+        );
     };
 
     return (
