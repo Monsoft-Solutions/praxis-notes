@@ -78,13 +78,13 @@ export const EditClientBasicInfo = ({
                     e.preventDefault();
                     void form.handleSubmit(onSubmit)(e);
                 }}
-                className="space-y-4"
+                className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2"
             >
                 <FormField
                     control={form.control}
                     name="firstName"
                     render={({ field }) => (
-                        <FormItem className="md:flex-1">
+                        <FormItem>
                             <FormLabel>First Name</FormLabel>
                             <FormControl>
                                 <Input {...field} required />
@@ -98,7 +98,7 @@ export const EditClientBasicInfo = ({
                     control={form.control}
                     name="lastName"
                     render={({ field }) => (
-                        <FormItem className="md:flex-1">
+                        <FormItem>
                             <FormLabel>Last Name</FormLabel>
                             <FormControl>
                                 <Input {...field} required />

@@ -1,5 +1,5 @@
 import { useFieldArray, useFormContext } from 'react-hook-form';
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import {
     FormField,
@@ -48,7 +48,6 @@ export function EditClientBehaviorsForm({
         api.behavior.createBehavior.useMutation();
 
     const { control, watch } = useFormContext<BehaviorsFormData>();
-    const [openAccordionItems, setOpenAccordionItems] = useState<string[]>([]);
     const previousFieldIds = useRef<string[]>([]);
 
     const { fields, prepend, remove } = useFieldArray({
@@ -63,12 +62,7 @@ export function EditClientBehaviorsForm({
 
     useEffect(() => {
         const currentFieldIds = fields.map((field) => field.id);
-        const newFieldIds = currentFieldIds.filter(
-            (id) => !previousFieldIds.current.includes(id),
-        );
-        if (newFieldIds.length > 0) {
-            setOpenAccordionItems(newFieldIds);
-        }
+
         previousFieldIds.current = currentFieldIds;
     }, [fields]);
 
@@ -81,9 +75,8 @@ export function EditClientBehaviorsForm({
         });
     };
 
-    const handleRemoveBehavior = (index: number, fieldId: string) => {
+    const handleRemoveBehavior = (index: number) => {
         remove(index);
-        setOpenAccordionItems((prev) => prev.filter((id) => id !== fieldId));
     };
 
     return (
@@ -112,9 +105,7 @@ export function EditClientBehaviorsForm({
             ) : (
                 <Accordion
                     type="multiple"
-                    value={openAccordionItems}
-                    onValueChange={setOpenAccordionItems}
-                    className="space-y-4"
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2"
                 >
                     {fields.map((field, index) => {
                         const currentBehaviorId = watch(
@@ -133,7 +124,7 @@ export function EditClientBehaviorsForm({
                             <AccordionItem
                                 key={field.id}
                                 value={field.id}
-                                className="rounded-md border p-1"
+                                className="grid rounded-md border p-1 last:border"
                             >
                                 <div className="flex items-center justify-between px-4">
                                     <AccordionTrigger className="flex-1">
@@ -148,124 +139,108 @@ export function EditClientBehaviorsForm({
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => {
-                                            handleRemoveBehavior(
-                                                index,
-                                                field.id,
-                                            );
+                                            handleRemoveBehavior(index);
                                         }}
                                         className="ml-2 h-8 w-8"
                                     >
                                         <Trash2 className="text-destructive h-4 w-4" />
                                     </Button>
                                 </div>
-
                                 <AccordionContent className="px-4">
                                     <div className="space-y-4 pt-2">
-                                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                            {!isExisting && (
-                                                <FormField
-                                                    control={control}
-                                                    name={`behaviors.${index}.id`}
-                                                    render={({
-                                                        field: idField,
-                                                    }) => (
-                                                        <FormItem className="flex flex-col">
-                                                            <FormLabel>
-                                                                Behavior{' '}
-                                                                <span className="text-destructive">
-                                                                    *
-                                                                </span>
-                                                            </FormLabel>
-                                                            <AbcSelector
-                                                                placeholder="Select behavior"
-                                                                items={
-                                                                    allBehaviors
-                                                                }
-                                                                hideFromList={selectedBehaviorsIds.filter(
-                                                                    (
-                                                                        id: string,
-                                                                    ) =>
-                                                                        id !==
-                                                                        idField.value,
-                                                                )}
-                                                                onSelect={
-                                                                    idField.onChange
-                                                                }
-                                                                create={async ({
-                                                                    name,
-                                                                }) => {
-                                                                    const result =
-                                                                        await createBehavior(
-                                                                            {
-                                                                                name,
-                                                                                description:
-                                                                                    '',
-                                                                            },
-                                                                        );
-                                                                    if (
-                                                                        result.error
-                                                                    )
-                                                                        return null;
-                                                                    await apiClientUtils.behavior.getBehaviors.invalidate();
-                                                                    return result.data;
-                                                                }}
-                                                            />
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                            )}
-
+                                        {!isExisting && (
                                             <FormField
                                                 control={control}
-                                                name={`behaviors.${index}.type`}
+                                                name={`behaviors.${index}.id`}
                                                 render={({
-                                                    field: typeField,
+                                                    field: idField,
                                                 }) => (
                                                     <FormItem className="flex flex-col">
                                                         <FormLabel>
-                                                            Type{' '}
+                                                            Behavior{' '}
                                                             <span className="text-destructive">
                                                                 *
                                                             </span>
                                                         </FormLabel>
-                                                        <Select
-                                                            onValueChange={
-                                                                typeField.onChange
+                                                        <AbcSelector
+                                                            placeholder="Select behavior"
+                                                            items={allBehaviors}
+                                                            hideFromList={selectedBehaviorsIds.filter(
+                                                                (id: string) =>
+                                                                    id !==
+                                                                    idField.value,
+                                                            )}
+                                                            onSelect={
+                                                                idField.onChange
                                                             }
-                                                            value={
-                                                                typeField.value
-                                                            }
-                                                        >
-                                                            <FormControl>
-                                                                <SelectTrigger>
-                                                                    <SelectValue placeholder="Select type" />
-                                                                </SelectTrigger>
-                                                            </FormControl>
-                                                            <SelectContent>
-                                                                {clientBehaviorTypeEnum.options.map(
-                                                                    (type) => (
-                                                                        <SelectItem
-                                                                            key={
-                                                                                type
-                                                                            }
-                                                                            value={
-                                                                                type
-                                                                            }
-                                                                        >
-                                                                            {
-                                                                                type
-                                                                            }
-                                                                        </SelectItem>
-                                                                    ),
-                                                                )}
-                                                            </SelectContent>
-                                                        </Select>
+                                                            create={async ({
+                                                                name,
+                                                            }) => {
+                                                                const result =
+                                                                    await createBehavior(
+                                                                        {
+                                                                            name,
+                                                                            description:
+                                                                                '',
+                                                                        },
+                                                                    );
+                                                                if (
+                                                                    result.error
+                                                                )
+                                                                    return null;
+                                                                await apiClientUtils.behavior.getBehaviors.invalidate();
+                                                                return result.data;
+                                                            }}
+                                                        />
                                                         <FormMessage />
                                                     </FormItem>
                                                 )}
                                             />
-                                        </div>
+                                        )}
+
+                                        <FormField
+                                            control={control}
+                                            name={`behaviors.${index}.type`}
+                                            render={({ field: typeField }) => (
+                                                <FormItem className="flex w-full flex-col">
+                                                    <FormLabel>
+                                                        Type{' '}
+                                                        <span className="text-destructive">
+                                                            *
+                                                        </span>
+                                                    </FormLabel>
+                                                    <Select
+                                                        onValueChange={
+                                                            typeField.onChange
+                                                        }
+                                                        value={typeField.value}
+                                                    >
+                                                        <FormControl>
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder="Select type" />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            {clientBehaviorTypeEnum.options.map(
+                                                                (type) => (
+                                                                    <SelectItem
+                                                                        key={
+                                                                            type
+                                                                        }
+                                                                        value={
+                                                                            type
+                                                                        }
+                                                                    >
+                                                                        {type}
+                                                                    </SelectItem>
+                                                                ),
+                                                            )}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
 
                                         <FormField
                                             control={control}

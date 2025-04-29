@@ -113,7 +113,7 @@ export function EditClientInterventionsForm({
                     type="multiple"
                     value={openAccordionItems}
                     onValueChange={setOpenAccordionItems}
-                    className="space-y-4"
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-2"
                 >
                     {fields.map((field, index) => {
                         const currentInterventionId = watch(
@@ -134,7 +134,7 @@ export function EditClientInterventionsForm({
                             <AccordionItem
                                 key={field.id}
                                 value={field.id}
-                                className="rounded-md border p-1"
+                                className="rounded-md border p-1 last:border"
                             >
                                 <div className="flex items-center justify-between px-4">
                                     <AccordionTrigger className="flex-1">
