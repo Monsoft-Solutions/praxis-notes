@@ -18,5 +18,5 @@ export const coreConfigData: InferInsertModel<typeof coreConfTable> = {
     slackWebhookUrlInfo: z
         .string()
         .parse(process.env.MSS_SLACK_WEBHOOK_URL_INFO),
-    sentryDsn: z.string().parse(process.env.MSS_SENTRY_DSN),
+    sentryDsn: z.string().parse(process.env.MSS_CLIENT_SENTRY_DSN),
 };
