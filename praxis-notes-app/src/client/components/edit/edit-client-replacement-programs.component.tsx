@@ -116,15 +116,13 @@ export const EditClientReplacementPrograms = ({
             // Reset the form with fetched data, preserving dirty state if any changes were made before fetch completed
             form.reset(
                 { replacementPrograms: initialReplacementPrograms },
-                { keepDirty: true },
+                { keepDirtyValues: true, keepTouched: true },
             );
         }
     }, [clientReplacementProgramsQueryData, form]);
 
     // Non-async onSubmit as mutate handles async logic
     const onSubmit = (data: ReplacementProgramsFormData) => {
-        console.log('Form submission handler called with data:', data);
-
         // Proceed with the mutation
         updateReplacementProgramsMutation.mutate({
             clientId,
@@ -181,10 +179,6 @@ export const EditClientReplacementPrograms = ({
         'data' in allReplacementProgramsQueryData
             ? allReplacementProgramsQueryData.data
             : [];
-
-    // Debug form state
-    console.log('Form dirty state:', form.formState.isDirty);
-    console.log('Current form values:', form.getValues());
 
     return (
         <Form {...form}>

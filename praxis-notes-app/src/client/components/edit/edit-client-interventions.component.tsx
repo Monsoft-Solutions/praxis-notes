@@ -104,15 +104,14 @@ export const EditClientInterventions = ({
                 (intervention) => ({
                     id: intervention.id,
                     behaviorIds: intervention.behaviors,
+                    showSelector: false,
                 }),
             );
-
-            console.log('initialInterventions', initialInterventions);
 
             // Reset the form with fetched data, preserving dirty state if any changes were made before fetch completed
             form.reset(
                 { interventions: initialInterventions },
-                { keepDirty: true },
+                { keepDirtyValues: true, keepTouched: true },
             );
         }
     }, [interventionsQueryData, form]);

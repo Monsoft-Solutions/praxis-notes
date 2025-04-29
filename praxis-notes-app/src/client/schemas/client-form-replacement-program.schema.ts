@@ -4,7 +4,7 @@ import { z } from 'zod';
  * Client replacement program schema
  */
 export const clientFormReplacementProgramSchema = z.object({
-    id: z.string(),
+    id: z.string().nonempty('Replacement program selection is required'),
 
     behaviorIds: z.array(z.string()),
 });

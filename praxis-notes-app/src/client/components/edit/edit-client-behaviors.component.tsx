@@ -97,7 +97,10 @@ export const EditClientBehaviors = ({
                 }),
             );
             // Reset the form with fetched data, preserving dirty state if any changes were made before fetch completed
-            form.reset({ behaviors: initialBehaviors }, { keepDirty: true });
+            form.reset(
+                { behaviors: initialBehaviors },
+                { keepDirtyValues: true, keepTouched: true },
+            );
         }
         // Error handling is done below in the component render logic
     }, [isSuccessClientBehaviors, clientBehaviorsQueryData, form]); // Use the query data object as dependency
