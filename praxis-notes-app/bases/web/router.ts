@@ -20,7 +20,6 @@ export const router = createRouter({
 // Subscribe to router events for page view tracking
 router.subscribe('onResolved', (event: { toLocation: { href: string } }) => {
     // onResolved implies successful resolution, track page view using href
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     trackPageView(event.toLocation.href);
 });
 
