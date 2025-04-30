@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { useNavigate } from '@tanstack/react-router';
+import { useBlocker, useNavigate } from '@tanstack/react-router';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -132,6 +132,22 @@ export function SessionForm({
             params: { clientId, sessionId: id },
         });
     };
+
+    useBlocker({
+        blockerFn: () => {
+            void form.handleSubmit(
+                (data) =>
+                    handleCreateSession({
+                        data,
+                        initNotes: false,
+                    }),
+                () => {
+                    toast.error('Session was discarded');
+                },
+            )();
+            return true;
+        },
+    });
 
     // Handle cancellation
     const handleCancel = async () => {
