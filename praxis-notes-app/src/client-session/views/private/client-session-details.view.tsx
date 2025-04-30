@@ -2,14 +2,7 @@ import { Link } from '@tanstack/react-router';
 
 import { format } from 'date-fns';
 
-import {
-    Clock,
-    MapPin,
-    Calendar,
-    Users,
-    ArrowLeft,
-    Pencil,
-} from 'lucide-react';
+import { Clock, MapPin, Calendar, Users, ArrowLeft } from 'lucide-react';
 
 import { Button } from '@ui/button.ui';
 
@@ -51,7 +44,7 @@ export function ClientSessionDetailsView() {
                     <h1 className="text-2xl font-bold">Session Details</h1>
                 </div>
 
-                <div className="flex space-x-2">
+                {/* <div className="flex space-x-2">
                     <Link
                     // to="/clients/$clientId/sessions/$sessionId/edit"
                     // params={{ clientId, sessionId }}
@@ -61,7 +54,7 @@ export function ClientSessionDetailsView() {
                             Edit Session
                         </Button>
                     </Link>
-                </div>
+                </div> */}
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
