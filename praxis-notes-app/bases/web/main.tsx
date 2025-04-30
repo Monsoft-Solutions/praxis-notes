@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import * as Sentry from '@sentry/react';
 
 import { App } from './app';
+import { initializeAnalytics } from '@analytics/providers';
 
 import { z } from 'zod';
 
@@ -24,24 +25,24 @@ Sentry.init({
         Sentry.browserTracingIntegration(),
         Sentry.replayIntegration(),
 
-        Sentry.feedbackIntegration({
-            triggerLabel: '',
-            formTitle: 'Report anything !',
-            submitButtonLabel: 'Submit',
-            messageLabel: 'Brief explanation',
-            messagePlaceholder:
-                'Please describe what you want to report: \n- feature request, found bug, or improvement suggestion?\n- all specific details you can provide \n- priority low, medium, high?',
+        // Sentry.feedbackIntegration({
+        //     triggerLabel: '',
+        //     formTitle: 'Report anything !',
+        //     submitButtonLabel: 'Submit',
+        //     messageLabel: 'Brief explanation',
+        //     messagePlaceholder:
+        //         'Please describe what you want to report: \n- feature request, found bug, or improvement suggestion?\n- all specific details you can provide \n- priority low, medium, high?',
 
-            // Additional SDK configuration goes in here, for example:
-            colorScheme: 'system',
-            showName: false,
-            showEmail: false,
-            useSentryUser: {
-                id: 'id',
-                name: 'name',
-                email: 'email',
-            },
-        }),
+        //     // Additional SDK configuration goes in here, for example:
+        //     colorScheme: 'system',
+        //     showName: false,
+        //     showEmail: false,
+        //     useSentryUser: {
+        //         id: 'id',
+        //         name: 'name',
+        //         email: 'email',
+        //     },
+        // }),
     ],
 
     // Tracing
@@ -52,6 +53,8 @@ Sentry.init({
     replaysSessionSampleRate: hostname === 'localhost' ? 0.2 : 0.6, // Lower sample rate in production
     replaysOnErrorSampleRate: 1.0,
 });
+
+initializeAnalytics();
 
 // get element to mount app root component into
 const rootElement = document.getElementById('app');

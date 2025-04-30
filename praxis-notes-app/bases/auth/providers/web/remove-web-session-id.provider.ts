@@ -5,7 +5,7 @@ import { sessionIdStorageKey } from '@auth/constants/web';
 
 // Remove user session ID from browser session storage
 export const removeWebSessionId = (() => {
-    sessionStorage.removeItem(sessionIdStorageKey);
+    localStorage.removeItem(sessionIdStorageKey);
 
     return Success();
 }) satisfies Function;

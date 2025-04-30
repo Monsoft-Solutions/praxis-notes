@@ -23,8 +23,6 @@ import {
 
 import { Popover, PopoverContent, PopoverTrigger } from '@ui/popover.ui';
 
-import { Label } from '@shared/ui/label.ui';
-
 import { ConfirmationDialog } from '@shared/ui/confirmation-dialog.ui';
 
 type AbcSelectorProps = {
@@ -203,9 +201,10 @@ export function AbcSelector({
                                         return acc;
                                     }, {}),
                                 ).map(([key, options]) => (
-                                    <CommandGroup key={key}>
-                                        <Label className="ml-2">{key}</Label>
-
+                                    <CommandGroup
+                                        key={key}
+                                        heading={key.toUpperCase()}
+                                    >
                                         {options.map((option) => (
                                             <CommandItem
                                                 value={option.label}

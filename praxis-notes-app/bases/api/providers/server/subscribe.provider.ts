@@ -1,7 +1,8 @@
 import type { z } from 'zod';
 
 import { emitter } from '@events/providers/emitter.provider';
-import { on } from 'events';
+// Use Node.js events directly without destructuring
+import events from 'events';
 
 import * as appEvents from '@app/events';
 
@@ -33,7 +34,7 @@ export function subscribe<Context, Input, E extends keyof Events, Output>(
         ctx: Context;
         input: Input;
     }): AsyncGenerator<Output> {
-        for await (const [rawData] of on(emitter, event, { signal })) {
+        for await (const [rawData] of events.on(emitter, event, { signal })) {
             const { data } = appEvents[event].safeParse(rawData);
 
             if (!data) {

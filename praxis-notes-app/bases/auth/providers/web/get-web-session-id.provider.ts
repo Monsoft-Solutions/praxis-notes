@@ -5,7 +5,7 @@ import { sessionIdStorageKey } from '@auth/constants/web';
 
 // Get user session ID from browser session storage
 export const getWebSessionId = (() => {
-    const sessionId = sessionStorage.getItem(sessionIdStorageKey);
+    const sessionId = localStorage.getItem(sessionIdStorageKey);
 
     if (!sessionId) return Error('WEB_SESSION_ID_NOT_FOUND');
 

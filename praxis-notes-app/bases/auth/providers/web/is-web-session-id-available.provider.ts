@@ -5,7 +5,7 @@ import { sessionIdStorageKey } from '@auth/constants/web';
 
 // check if there is a session ID available in the browser session storage
 export const isWebSessionIdAvailable = (() => {
-    const sessionIdStorageValue = sessionStorage.getItem(sessionIdStorageKey);
+    const sessionIdStorageValue = localStorage.getItem(sessionIdStorageKey);
 
     const isAvaliable = sessionIdStorageValue !== null;
 

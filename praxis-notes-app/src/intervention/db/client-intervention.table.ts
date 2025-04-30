@@ -4,6 +4,7 @@ import { table, char, bigint } from '@db/sql';
 
 import { clientTable } from '@src/client/db';
 import { interventionTable } from './intervention.table';
+import { clientBehaviorInterventionTable } from '@db/db.tables';
 
 /**
  * interventions assigned to clients
@@ -33,7 +34,7 @@ export const clientInterventionTable = table('client_intervention', {
 export const clientInterventionTableRelations = relations(
     clientInterventionTable,
 
-    ({ one }) => ({
+    ({ one, many }) => ({
         client: one(clientTable, {
             fields: [clientInterventionTable.clientId],
             references: [clientTable.id],
@@ -43,5 +44,7 @@ export const clientInterventionTableRelations = relations(
             fields: [clientInterventionTable.interventionId],
             references: [interventionTable.id],
         }),
+
+        clientBehaviorInterventions: many(clientBehaviorInterventionTable),
     }),
 );

@@ -1,1 +1,0 @@
-ALTER TABLE "users" ADD COLUMN "has_done_tour" boolean DEFAULT false NOT NULL;

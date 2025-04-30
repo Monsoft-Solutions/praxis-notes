@@ -22,6 +22,8 @@ import { Route } from '@routes/_private/_app/clients/new';
 import { useEffect, useCallback } from 'react';
 import { z } from 'zod';
 
+import { trackEvent } from '@analytics/providers';
+
 export function ClientForm({ isTour }: { isTour?: boolean }) {
     const navigate = Route.useNavigate();
 
@@ -53,7 +55,6 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
                   replacementPrograms: [
                       {
                           id: 'replacement-program-3               ',
-                          baseline: 1,
                           behaviorIds: ['behavior-1                          '],
                       },
                   ],
@@ -131,6 +132,8 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
         const formData = form.getValues();
 
         await createClient(formData);
+
+        trackEvent('client', 'client_save');
 
         await apiClientUtils.client.getClients.invalidate();
 

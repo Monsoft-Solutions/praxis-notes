@@ -5,7 +5,7 @@ import { sessionIdStorageKey } from '@auth/constants/web';
 
 // Set user session ID in browser session storage
 export const setWebSessionId = (({ sessionId }) => {
-    sessionStorage.setItem(sessionIdStorageKey, sessionId);
+    localStorage.setItem(sessionIdStorageKey, sessionId);
 
     return Success();
 }) satisfies Function<{ sessionId: string }>;

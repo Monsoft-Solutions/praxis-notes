@@ -15,6 +15,7 @@ import { Spinner } from '@shared/ui/spinner.ui';
 import { api } from '@api/providers/web';
 import { toast } from 'sonner';
 import { cn } from '@css/utils';
+import { trackEvent } from '@analytics/providers';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
 
@@ -71,6 +72,9 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
             toast.error('Failed to save notes');
         } else {
             toast.success('Notes saved');
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            trackEvent('notes', 'notes_save');
         }
     }, [updateNotes, sessionId, editorValue]);
 

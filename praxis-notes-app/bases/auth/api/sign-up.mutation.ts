@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import bcrypt from 'bcryptjs';
 import { sendVerificationEmail } from '@auth/providers/server';
+import { logger } from '@logger/providers/logger.provider';
 
 // sign up a user
 // Input: name, email, password
@@ -56,6 +57,10 @@ export const signUp = publicEndpoint.input(signUpFormSchema).mutation(
         await sendVerificationEmail({
             email,
             id: unverifiedEmailId,
+        });
+
+        logger.info('Sign up successful', {
+            unverifiedEmailId,
         });
 
         return Success();

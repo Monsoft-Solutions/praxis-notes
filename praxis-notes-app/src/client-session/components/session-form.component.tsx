@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 
-import { useNavigate } from '@tanstack/react-router';
+import { useBlocker, useNavigate } from '@tanstack/react-router';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -22,6 +22,7 @@ import { SessionObservations } from './session-observations.component';
 
 import { api } from '@api/providers/web';
 import { Spinner } from '@shared/ui/spinner.ui';
+import { trackEvent } from '@analytics/providers/analytics.provider';
 
 import { Form } from '@shared/ui/form.ui';
 
@@ -38,11 +39,13 @@ type SessionFormProps = {
     sessionId?: string;
     sessionStatus?: string;
     isTour: boolean;
+    placeholderSessionData?: ClientSessionForm;
 };
 
 export function SessionForm({
     clientId,
     clientName,
+    placeholderSessionData,
     isTour,
 }: SessionFormProps) {
     const { mutateAsync: createClientSession } =
@@ -54,7 +57,7 @@ export function SessionForm({
     const form = useForm<ClientSessionForm>({
         resolver: zodResolver(clientSessionFormSchema),
 
-        defaultValues: {
+        defaultValues: placeholderSessionData ?? {
             sessionDate: new Date(),
             startTime: isTour ? '12:00' : undefined,
             endTime: isTour ? '13:00' : undefined,
@@ -133,6 +136,9 @@ export function SessionForm({
                 toast.success('Session saved as draft');
             }
 
+            // Track session creation regardless of notes generation
+            trackEvent('session', 'session_create');
+
             const { id } = response.data;
 
             await navigate({
@@ -140,8 +146,24 @@ export function SessionForm({
                 params: { clientId, sessionId: id },
             });
         },
-        [clientId, createClientSession, navigate],
+        [clientId, navigate, createClientSession],
     );
+
+    useBlocker({
+        blockerFn: () => {
+            void form.handleSubmit(
+                (data) =>
+                    handleCreateSession({
+                        data,
+                        initNotes: false,
+                    }),
+                () => {
+                    toast.error('Session was discarded');
+                },
+            )();
+            return true;
+        },
+    });
 
     // Handle cancellation
     const handleCancel = async () => {
