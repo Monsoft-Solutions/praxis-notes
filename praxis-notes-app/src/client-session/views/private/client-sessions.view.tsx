@@ -35,6 +35,10 @@ export const ClientSessionsView = () => {
         };
 
         window.addEventListener('navigateToAddSession', handler);
+
+        return () => {
+            window.removeEventListener('navigateToAddSession', handler);
+        };
     }, [clientId, navigate]);
 
     if (!clientSessionsQuery) return null;
