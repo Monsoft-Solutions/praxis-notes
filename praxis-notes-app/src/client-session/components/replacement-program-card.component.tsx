@@ -135,6 +135,7 @@ export function ReplacementProgramCard({
                             <FormLabel>Replacement Program</FormLabel>
 
                             <AbcSelector
+                                initValue={field.value}
                                 placeholder="Select replacement program"
                                 items={replacementPrograms}
                                 onSelect={field.onChange}
@@ -166,6 +167,7 @@ export function ReplacementProgramCard({
                                     <FormLabel>Teaching Procedure</FormLabel>
 
                                     <AbcSelector
+                                        initValue={field.value ?? ''}
                                         placeholder="Select teaching procedure"
                                         items={teachingProcedures}
                                         onSelect={field.onChange}
@@ -185,6 +187,7 @@ export function ReplacementProgramCard({
                                     <FormLabel>Prompts used</FormLabel>
 
                                     <AbcSelector
+                                        initValue={field.value}
                                         placeholder="Select prompts used"
                                         items={promptTypes}
                                         onSelect={field.onChange}
@@ -205,6 +208,7 @@ export function ReplacementProgramCard({
                                     <FormLabel>Prompting Procedure</FormLabel>
 
                                     <AbcSelector
+                                        initValue={field.value ?? ''}
                                         placeholder="Select prompting procedure"
                                         items={promptingProcedures}
                                         onSelect={field.onChange}
