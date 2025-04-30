@@ -24,7 +24,7 @@ export function ValuationSelector() {
     const { control } = useFormContext<ClientSessionForm>();
 
     return (
-        <Card>
+        <Card id={valuationSelectorId}>
             <CardHeader>
                 <CardTitle>Session Valuation</CardTitle>
                 <CardDescription>
@@ -39,7 +39,6 @@ export function ValuationSelector() {
                         <FormItem>
                             <FormControl>
                                 <RadioGroup
-                                    id={valuationSelectorId}
                                     onValueChange={field.onChange}
                                     defaultValue={field.value}
                                     className="flex w-min space-x-4"
