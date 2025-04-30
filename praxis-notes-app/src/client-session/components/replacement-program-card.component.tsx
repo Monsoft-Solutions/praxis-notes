@@ -167,7 +167,7 @@ export function ReplacementProgramCard({
                                     <FormLabel>Teaching Procedure</FormLabel>
 
                                     <AbcSelector
-                                        initValue={field.value ?? undefined}
+                                        initValue={field.value ?? ''}
                                         placeholder="Select teaching procedure"
                                         items={teachingProcedures}
                                         onSelect={field.onChange}

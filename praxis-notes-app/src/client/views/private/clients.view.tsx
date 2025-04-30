@@ -120,6 +120,8 @@ export const ClientsView = () => {
                                             : undefined
                                     }
                                     variant="ghost"
+                                    size="sm"
+                                    asChild
                                 >
                                     <Link
                                         to="/clients/$clientId/sessions"
