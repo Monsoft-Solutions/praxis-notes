@@ -36,8 +36,8 @@ export function SessionHeader({
 
             <h1 className="text-2xl font-bold">
                 {isEditing
-                    ? `Edit Session for ${clientName}`
-                    : `New Session for ${clientName}`}
+                    ? `Edit Session with ${clientName}`
+                    : `New Session with ${clientName}`}
             </h1>
 
             <p className="text-muted-foreground">
