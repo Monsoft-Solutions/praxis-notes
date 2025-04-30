@@ -27,6 +27,7 @@ type NotesEditorProps = {
 const generateNotesButtonId: TourStepId = 'notes-editor-generate-button';
 const saveNotesButtonId: TourStepId = 'save-notes-button';
 const downloadNotesButtonId: TourStepId = 'download-notes-button';
+
 export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
     const { mutateAsync: generateNotes } =
         api.notes.generateNotes.useMutation();
@@ -91,41 +92,38 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
     }, [editorValue, sessionId]);
 
     useEffect(() => {
-        window.addEventListener('generateNotes', () => {
-            console.log('received generate notes event');
+        const handler = () => {
             void handleGenerate();
-        });
+        };
+
+        window.addEventListener('generateNotes', handler);
 
         return () => {
-            window.removeEventListener('generateNotes', () => {
-                void handleGenerate();
-            });
+            window.removeEventListener('generateNotes', handler);
         };
     }, [handleGenerate]);
 
     useEffect(() => {
-        window.addEventListener('saveNotes', () => {
-            console.log('received save notes event');
+        const handler = () => {
             void handleSave();
-        });
+        };
+
+        window.addEventListener('saveNotes', handler);
 
         return () => {
-            window.removeEventListener('saveNotes', () => {
-                void handleSave();
-            });
+            window.removeEventListener('saveNotes', handler);
         };
     }, [handleSave]);
 
     useEffect(() => {
-        window.addEventListener('downloadNotes', () => {
-            console.log('received download notes event');
+        const handler = () => {
             handleDownload();
-        });
+        };
+
+        window.addEventListener('downloadNotes', handler);
 
         return () => {
-            window.removeEventListener('downloadNotes', () => {
-                handleDownload();
-            });
+            window.removeEventListener('downloadNotes', handler);
         };
     }, [handleDownload]);
 
