@@ -151,6 +151,8 @@ export function SessionForm({
 
     useBlocker({
         blockerFn: () => {
+            if (isGeneratingNotes || isSavingDraft) return true;
+
             void form.handleSubmit(
                 (data) =>
                     handleCreateSession({
@@ -177,8 +179,6 @@ export function SessionForm({
 
     useEffect(() => {
         const saveSessionAsDraft = () => {
-            console.log('saveSessionAsDraft');
-
             void form.handleSubmit((data) =>
                 handleCreateSession({
                     data,
