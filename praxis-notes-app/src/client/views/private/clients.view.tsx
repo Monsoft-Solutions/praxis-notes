@@ -121,11 +121,15 @@ export const ClientsView = () => {
                                     }
                                     variant="ghost"
                                 >
-                                    View Sessions
+                                    <Link
+                                        to="/clients/$clientId/sessions"
+                                        params={{ clientId: client.id }}
+                                        className="hover:text-primary flex items-center space-x-4 transition-colors"
+                                    >
+                                        View Sessions
+                                    </Link>
                                 </Button>
                             </div>
-
-                            <Button variant="ghost">View Sessions</Button>
                         </div>
                     ))}
                 </div>
