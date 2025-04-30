@@ -18,35 +18,36 @@ export const tourSteps = [
     {
         id: 'client-form-basic-info-step',
         title: 'Basic Information',
-        content: "Let's add some basic information about the client.",
+        content: 'Start by adding some basic information about the client.',
         placement: 'right',
     },
 
     {
         id: 'client-form-behavior-step',
         title: 'Behavior',
-        content: "Let's add some behavior information about the client.",
+        content: "Then add the client's behavior information.",
         placement: 'right',
     },
 
     {
         id: 'client-form-programs-step',
         title: 'Programs',
-        content: "Let's add some programs information about the client.",
+        content: 'As well as the replacement programs used with this client.',
         placement: 'right',
     },
 
     {
         id: 'client-form-interventions-step',
         title: 'Interventions',
-        content: "Let's add some interventions information about the client.",
+        content: 'Add finally, the relevant interventions.',
         placement: 'left',
     },
 
     {
         id: 'client-form-review-step',
         title: 'Review',
-        content: "Let's review the client information.",
+        content:
+            'You can then review all the information and, if everything is correct, save the client.',
         placement: 'left',
     },
 
@@ -61,40 +62,44 @@ export const tourSteps = [
     {
         id: 'add-session-button',
         title: 'Add Session',
-        content: "Let's add a session for the client.",
+        content:
+            "Of course, it's a new client, so there are no sessions yet. Let's go ahead and add one.",
         placement: 'left',
     },
 
     {
         id: 'session-form-basic-info',
         title: 'Basic Information',
-        content: "Let's add some basic information about the session.",
+        content:
+            "As when adding a client, we'll start with the basic information of the session: place and time.",
     },
 
     {
         id: 'session-form-abc-entry',
         title: 'ABC Entry',
-        content: "Let's add an ABC entry for the session.",
+        content:
+            'Moving on to the main part, we can add as many ABC entries as needed',
     },
 
     {
         id: 'session-form-replacement-program',
-        title: 'ABC Entry',
-        content: "Let's add an ABC entry for the session.",
+        title: 'Replacement Program',
+        content:
+            'Similarly, all replacement programs used during the session can be entered here.',
     },
 
     {
         id: 'session-form-valuation',
         title: 'Valuation',
         content:
-            "Let's specify a valuation for the session. This one was fairly good.",
+            'Then, we set the overall valuation. Let say this one was fairly good.',
         placement: 'right',
     },
 
     {
         id: 'session-form-observations',
         title: 'Observations',
-        content: "And finally, let's add some observations for the session.",
+        content: 'And finally, some general observations can also be included.',
         placement: 'right',
     },
 
@@ -102,34 +107,34 @@ export const tourSteps = [
         id: 'session-generate-notes-button',
         title: 'Generate Notes',
         content:
-            "We could now generate the notes for the session. But let's not do that yet, instead...",
+            "We now have all the information needed to generate the notes for the session. But let's not do that yet, instead...",
     },
 
     {
         id: 'session-form-draft-button',
         title: 'Draft',
         content:
-            "Let's just save the session as a draft for now. We can thengenerate the notes later.",
+            "Let's just save the session as a draft for now, so we can then generate the notes later.",
     },
 
     {
         id: 'notes-editor-generate-button',
         title: 'Generate Notes',
         content:
-            'With all data filled in, we can now generate the notes for the session.',
+            "Here's our session already saved. Let's now get some AI-generated notes.",
     },
 
     {
         id: 'save-notes-button',
         title: 'Save Notes',
         content:
-            "Once you have generated your notes, you can of course edit them, and then don't forget to save them",
+            'Once the notes are generated, they can be edited, and then saved.',
     },
 
     {
         id: 'download-notes-button',
         title: 'Download Notes',
         content:
-            "You can also download them to keep a local copy. Let's do that.",
+            "They can also be downloaded to keep a local copy. Let's do that.",
     },
 ] as const satisfies TourStep[];
