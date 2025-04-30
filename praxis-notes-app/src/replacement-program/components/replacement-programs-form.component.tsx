@@ -86,7 +86,6 @@ export function ReplacementProgramForm({
 
         void apiClientUtils.replacementProgram.getReplacementPrograms.reset();
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         trackEvent('replacement_program', 'replacement_program_create');
     };
 

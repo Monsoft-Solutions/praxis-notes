@@ -38,7 +38,6 @@ export function App(): ReactElement {
             }
 
             // Use more descriptive category and action
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             trackEvent('user_interaction', 'element_click', targetText);
         };
 

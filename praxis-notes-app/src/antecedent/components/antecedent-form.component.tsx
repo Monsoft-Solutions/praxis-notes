@@ -97,7 +97,6 @@ export function AntecedentForm({
 
         void apiClientUtils.antecedent.getAntecedents.reset();
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         trackEvent(
             'antecedent',
             values ? 'antecedent_update' : 'antecedent_create',

@@ -73,7 +73,6 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
         } else {
             toast.success('Notes saved');
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             trackEvent('notes', 'notes_save');
         }
     }, [updateNotes, sessionId, editorValue]);

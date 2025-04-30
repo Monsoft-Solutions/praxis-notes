@@ -81,7 +81,6 @@ export function BehaviorForm({
         } else {
             await createBehavior(data);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             trackEvent('behavior', 'behavior_create');
         }
 

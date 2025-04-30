@@ -46,7 +46,6 @@ export function CheckoutButton({
 
             if (url) window.open(url, '_blank');
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             trackEvent('subscription', 'checkout_start');
         }
 
