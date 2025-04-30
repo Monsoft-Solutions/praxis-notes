@@ -33,6 +33,7 @@ export function Tour() {
             showSkipButton
             showProgress
             disableOverlayClose
+            hideBackButton
         />
     );
 }
