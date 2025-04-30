@@ -73,7 +73,6 @@ const logIn = async (credentials: LogInCredentials) => {
         await apiClientUtils.auth.getLoggedInUser.ensureData();
 
     if (user) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         trackLogin(user.id);
     }
 

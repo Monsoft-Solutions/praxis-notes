@@ -165,7 +165,6 @@ export function ClientForm() {
 
         await createClient(formData);
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         trackEvent('client', 'client_save');
 
         await apiClientUtils.client.getClients.invalidate();

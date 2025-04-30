@@ -118,7 +118,6 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
         }
 
         // Track session creation regardless of notes generation
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         trackEvent('session', 'session_create');
 
         const { id } = response.data;

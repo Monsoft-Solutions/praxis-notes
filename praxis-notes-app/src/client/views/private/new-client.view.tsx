@@ -6,7 +6,6 @@ import { trackEvent } from '@analytics/providers';
 
 export function NewClientView() {
     useEffect(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         trackEvent('client', 'client_create_view');
     }, []);
 

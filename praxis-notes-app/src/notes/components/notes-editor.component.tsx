@@ -51,7 +51,6 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
 
         setEditorValue(generateNotesResult.data);
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         trackEvent('notes', 'notes_generate');
     };
 
@@ -71,7 +70,6 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
         } else {
             toast.success('Notes saved');
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             trackEvent('notes', 'notes_save');
         }
     };
