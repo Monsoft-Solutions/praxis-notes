@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { useNavigate } from '@tanstack/react-router';
+import { useBlocker, useNavigate } from '@tanstack/react-router';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -31,9 +31,14 @@ type SessionFormProps = {
     clientName: string;
     sessionId?: string;
     sessionStatus?: string;
+    placeholderSessionData?: ClientSessionForm;
 };
 
-export function SessionForm({ clientId, clientName }: SessionFormProps) {
+export function SessionForm({
+    clientId,
+    clientName,
+    placeholderSessionData,
+}: SessionFormProps) {
     const { mutateAsync: createClientSession } =
         api.clientSession.createClientSession.useMutation();
 
@@ -43,7 +48,7 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
     const form = useForm<ClientSessionForm>({
         resolver: zodResolver(clientSessionFormSchema),
 
-        defaultValues: {
+        defaultValues: placeholderSessionData ?? {
             sessionDate: new Date(),
             startTime: undefined,
             endTime: undefined,
@@ -118,7 +123,6 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
         }
 
         // Track session creation regardless of notes generation
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         trackEvent('session', 'session_create');
 
         const { id } = response.data;
@@ -128,6 +132,22 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             params: { clientId, sessionId: id },
         });
     };
+
+    useBlocker({
+        blockerFn: () => {
+            void form.handleSubmit(
+                (data) =>
+                    handleCreateSession({
+                        data,
+                        initNotes: false,
+                    }),
+                () => {
+                    toast.error('Session was discarded');
+                },
+            )();
+            return true;
+        },
+    });
 
     // Handle cancellation
     const handleCancel = async () => {
