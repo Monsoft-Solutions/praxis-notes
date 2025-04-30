@@ -139,7 +139,7 @@ export const tourCallback = ({
                     break;
             }
 
-            await wait(200);
+            await wait(1000);
 
             setStepIndex(index + 1);
         }
