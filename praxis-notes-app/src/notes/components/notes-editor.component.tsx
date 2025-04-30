@@ -56,10 +56,9 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
         }
 
         setEditorValue(generateNotesResult.data);
-      
+
         trackEvent('notes', 'notes_generate');
     }, [generateNotes, sessionId]);
-
 
     // Handle save notes
     const handleSave = useCallback(async () => {
