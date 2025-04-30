@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import ReactMarkdown from 'react-markdown';
 
@@ -17,10 +17,16 @@ import { toast } from 'sonner';
 import { cn } from '@css/utils';
 import { trackEvent } from '@analytics/providers';
 
+import { TourStepId } from '@shared/types/tour-step-id.type';
+
 type NotesEditorProps = {
     sessionId: string;
     initialData?: string;
 };
+
+const generateNotesButtonId: TourStepId = 'notes-editor-generate-button';
+const saveNotesButtonId: TourStepId = 'save-notes-button';
+const downloadNotesButtonId: TourStepId = 'download-notes-button';
 
 export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
     const { mutateAsync: generateNotes } =
@@ -37,7 +43,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
     const [isSavingNotes, setIsSavingNotes] = useState(false);
 
     // Handle generate notes
-    const handleGenerate = async () => {
+    const handleGenerate = useCallback(async () => {
         setIsGeneratingNotes(true);
 
         const generateNotesResult = await generateNotes({ sessionId });
@@ -51,12 +57,11 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
 
         setEditorValue(generateNotesResult.data);
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         trackEvent('notes', 'notes_generate');
-    };
+    }, [generateNotes, sessionId]);
 
     // Handle save notes
-    const handleSave = async () => {
+    const handleSave = useCallback(async () => {
         setIsSavingNotes(true);
 
         const { error } = await updateNotes({
@@ -71,13 +76,12 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
         } else {
             toast.success('Notes saved');
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             trackEvent('notes', 'notes_save');
         }
-    };
+    }, [updateNotes, sessionId, editorValue]);
 
     // Handle download notes as markdown
-    const handleDownload = () => {
+    const handleDownload = useCallback(() => {
         const blob = new Blob([editorValue], { type: 'text/markdown' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -87,7 +91,43 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-    };
+    }, [editorValue, sessionId]);
+
+    useEffect(() => {
+        const handler = () => {
+            void handleGenerate();
+        };
+
+        window.addEventListener('generateNotes', handler);
+
+        return () => {
+            window.removeEventListener('generateNotes', handler);
+        };
+    }, [handleGenerate]);
+
+    useEffect(() => {
+        const handler = () => {
+            void handleSave();
+        };
+
+        window.addEventListener('saveNotes', handler);
+
+        return () => {
+            window.removeEventListener('saveNotes', handler);
+        };
+    }, [handleSave]);
+
+    useEffect(() => {
+        const handler = () => {
+            handleDownload();
+        };
+
+        window.addEventListener('downloadNotes', handler);
+
+        return () => {
+            window.removeEventListener('downloadNotes', handler);
+        };
+    }, [handleDownload]);
 
     useEffect(() => {
         if (initialData) {
@@ -139,6 +179,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                         )}
 
                         <Button
+                            id={downloadNotesButtonId}
                             onClick={handleDownload}
                             disabled={!editorValue}
                             variant="outline"
@@ -149,6 +190,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                         </Button>
 
                         <Button
+                            id={saveNotesButtonId}
                             onClick={() => {
                                 void handleSave();
                             }}
@@ -216,6 +258,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                         </p>
 
                         <Button
+                            id={generateNotesButtonId}
                             onClick={() => {
                                 void handleGenerate();
                             }}

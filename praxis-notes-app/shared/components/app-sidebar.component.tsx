@@ -18,6 +18,8 @@ import {
 
 import { Route } from '@routes/__root';
 
+import { TourStepId } from '@shared/types/tour-step-id.type';
+
 type NavItem = {
     title: string;
     url: string;
@@ -30,7 +32,7 @@ type NavSection = {
 };
 
 // This is sample data.
-const navbarSections: NavSection[] = [
+const navbarSections = [
     {
         title: 'Main',
 
@@ -88,7 +90,9 @@ const navbarSections: NavSection[] = [
             },
         ],
     },
-];
+] as const satisfies NavSection[];
+
+const clientItemId: TourStepId = 'client-sidebar-item';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const {
@@ -120,11 +124,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
                         <SidebarGroupContent>
                             <SidebarMenu>
-                                {item.items.map((item) => (
-                                    <SidebarMenuItem key={item.title}>
+                                {item.items.map(({ title, url }) => (
+                                    <SidebarMenuItem key={title}>
                                         <SidebarMenuButton asChild>
-                                            <Link to={item.url}>
-                                                {item.title}
+                                            <Link to={url}>
+                                                <span
+                                                    id={
+                                                        title === 'Clients'
+                                                            ? clientItemId
+                                                            : undefined
+                                                    }
+                                                >
+                                                    {title}
+                                                </span>
                                             </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>

@@ -13,6 +13,8 @@ import {
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+import { TourStepId } from '@shared/types/tour-step-id.type';
+
 export type MultiStepFormStep = {
     title: string;
     description: string;
@@ -101,6 +103,23 @@ export function MultiStepForm({
     const isLastStep = currentStep === steps.length;
     const currentStepData = steps[currentStep - 1];
 
+    const indexToId = (index: number): TourStepId | undefined => {
+        switch (index) {
+            case 0:
+                return 'client-form-basic-info-step';
+            case 1:
+                return 'client-form-behavior-step';
+            case 2:
+                return 'client-form-programs-step';
+            case 3:
+                return 'client-form-interventions-step';
+            case 4:
+                return 'client-form-review-step';
+            default:
+                return undefined;
+        }
+    };
+
     return (
         <div className="space-y-8">
             {/* Progress Indicator */}
@@ -125,6 +144,7 @@ export function MultiStepForm({
                             } ${isCompleted || isActive ? 'text-primary' : 'text-muted-foreground'}`}
                         >
                             <button
+                                id={indexToId(index)}
                                 type="button"
                                 aria-label={`Go to step ${stepNumber}: ${step.title}`}
                                 aria-current={isActive ? 'step' : undefined}

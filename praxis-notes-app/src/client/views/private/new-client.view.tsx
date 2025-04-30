@@ -4,9 +4,12 @@ import { useEffect } from 'react';
 import { ClientForm } from '../../components';
 import { trackEvent } from '@analytics/providers';
 
+import { Route } from '@routes/_private/_app/clients/new';
+
 export function NewClientView() {
+    const { loggedInUser } = Route.useRouteContext();
+
     useEffect(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         trackEvent('client', 'client_create_view');
     }, []);
 
@@ -23,7 +26,7 @@ export function NewClientView() {
 
             <Separator />
 
-            <ClientForm />
+            <ClientForm isTour={!loggedInUser.hasDoneTour} />
         </div>
     );
 }

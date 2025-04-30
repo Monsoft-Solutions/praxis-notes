@@ -208,7 +208,7 @@ export function ReplacementProgramCard({
                                     <FormLabel>Prompting Procedure</FormLabel>
 
                                     <AbcSelector
-                                        initValue={field.value ?? ''}
+                                        initValue={field.value ?? undefined}
                                         placeholder="Select prompting procedure"
                                         items={promptingProcedures}
                                         onSelect={field.onChange}

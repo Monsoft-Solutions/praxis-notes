@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 
 import { Button } from '@ui/button.ui';
 
@@ -7,8 +7,43 @@ import { Pencil } from 'lucide-react';
 
 import { api } from '@api/providers/web';
 
+import { TourStepId } from '@shared/types/tour-step-id.type';
+import { useEffect } from 'react';
+
+const addClientButtonId: TourStepId = 'add-client-button';
+const viewSessionsButtonId: TourStepId = 'view-sessions-button';
+
 export const ClientsView = () => {
+    const navigate = useNavigate();
+
     const { data: clientsQuery } = api.client.getClients.useQuery();
+
+    useEffect(() => {
+        const handler = () => {
+            if (!clientsQuery) return null;
+            const { error } = clientsQuery;
+            if (error) return null;
+            const { data: clients } = clientsQuery;
+
+            const firstClient = clients.at(0);
+
+            if (!firstClient) return null;
+
+            void navigate({
+                to: '/clients/$clientId/sessions',
+                params: { clientId: firstClient.id },
+            });
+        };
+
+        window.addEventListener('navigateToFirstClientSessions', handler);
+
+        return () => {
+            window.removeEventListener(
+                'navigateToFirstClientSessions',
+                handler,
+            );
+        };
+    }, [navigate, clientsQuery]);
 
     if (!clientsQuery) return null;
     const { error } = clientsQuery;
@@ -21,7 +56,9 @@ export const ClientsView = () => {
                 <h1 className="text-2xl font-bold">Clients</h1>
 
                 <Button asChild>
-                    <Link to="/clients/new">Add Client</Link>
+                    <Link to="/clients/new" id={addClientButtonId}>
+                        Add Client
+                    </Link>
                 </Button>
             </div>
 
@@ -39,7 +76,7 @@ export const ClientsView = () => {
                 </div>
             ) : (
                 <div className="grid gap-4">
-                    {clients.map((client) => (
+                    {clients.map((client, index) => (
                         <div
                             key={client.id}
                             className="bg-card flex items-center justify-between rounded-lg border p-4"
@@ -77,7 +114,11 @@ export const ClientsView = () => {
                                 </Button>
 
                                 <Button
-                                    id={client.id}
+                                    id={
+                                        index === 0
+                                            ? viewSessionsButtonId
+                                            : undefined
+                                    }
                                     variant="ghost"
                                     size="sm"
                                     asChild
@@ -85,6 +126,7 @@ export const ClientsView = () => {
                                     <Link
                                         to="/clients/$clientId/sessions"
                                         params={{ clientId: client.id }}
+                                        className="hover:text-primary flex items-center space-x-4 transition-colors"
                                     >
                                         View Sessions
                                     </Link>

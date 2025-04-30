@@ -5,6 +5,8 @@ import { Route } from '@routes/_private/_app/clients/$clientId/sessions/new';
 import { api } from '@api/providers/web';
 
 export function NewClientSessionView() {
+    const { loggedInUser } = Route.useRouteContext();
+
     const { clientId } = Route.useParams();
 
     const { data: clientQuery } = api.client.getClient.useQuery({
@@ -29,6 +31,7 @@ export function NewClientSessionView() {
     return (
         <div className="container mx-auto px-0 py-6">
             <SessionForm
+                isTour={!loggedInUser.hasDoneTour}
                 clientId={clientId}
                 clientName={clientName}
                 placeholderSessionData={{

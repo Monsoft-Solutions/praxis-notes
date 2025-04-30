@@ -153,7 +153,10 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                         <FormItem className="flex flex-col">
                             <FormLabel>Function</FormLabel>
 
-                            <Select {...field}>
+                            <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                            >
                                 <FormControl>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select function" />

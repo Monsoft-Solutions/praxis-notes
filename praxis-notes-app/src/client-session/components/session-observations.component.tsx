@@ -14,11 +14,15 @@ import { ClientSessionForm } from '../schemas';
 
 import { Textarea } from '@ui/textarea.ui';
 
+import { TourStepId } from '@shared/types/tour-step-id.type';
+
+const sessionObservationsId: TourStepId = 'session-form-observations';
+
 export function SessionObservations() {
     const { control } = useFormContext<ClientSessionForm>();
 
     return (
-        <Card>
+        <Card id={sessionObservationsId}>
             <CardHeader>
                 <CardTitle>Observations</CardTitle>
 

@@ -1,4 +1,6 @@
-import { Link } from '@tanstack/react-router';
+import { useEffect } from 'react';
+
+import { Link, useNavigate } from '@tanstack/react-router';
 
 import { format } from 'date-fns';
 
@@ -10,13 +12,34 @@ import { Route } from '@routes/_private/_app/clients/$clientId/sessions';
 
 import { api } from '@api/providers/web';
 
+import { TourStepId } from '@shared/types/tour-step-id.type';
+
+const addSessionButtonId: TourStepId = 'add-session-button';
+
 export const ClientSessionsView = () => {
+    const navigate = useNavigate();
+
     const { clientId } = Route.useParams();
 
     const { data: clientSessionsQuery } =
         api.clientSession.getClientSessions.useQuery({
             clientId,
         });
+
+    useEffect(() => {
+        const handler = () => {
+            void navigate({
+                to: '/clients/$clientId/sessions/new',
+                params: { clientId },
+            });
+        };
+
+        window.addEventListener('navigateToAddSession', handler);
+
+        return () => {
+            window.removeEventListener('navigateToAddSession', handler);
+        };
+    }, [clientId, navigate]);
 
     if (!clientSessionsQuery) return null;
     const { error } = clientSessionsQuery;
@@ -34,6 +57,7 @@ export const ClientSessionsView = () => {
                 </h1>
 
                 <Link
+                    id={addSessionButtonId}
                     to="/clients/$clientId/sessions/new"
                     params={{ clientId }}
                 >

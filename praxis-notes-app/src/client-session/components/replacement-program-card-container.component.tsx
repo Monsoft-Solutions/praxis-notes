@@ -16,7 +16,13 @@ import {
     CardTitle,
     CardDescription,
 } from '@ui/card.ui';
+
 import { ReplacementProgramCard } from './replacement-program-card.component';
+
+import { TourStepId } from '@shared/types/tour-step-id.type';
+
+const replacementProgramCardContainerId: TourStepId =
+    'session-form-replacement-program';
 
 export function ReplacementProgramCardContainer() {
     const [isDetailedView, setIsDetailedView] = useState(false);
@@ -33,7 +39,7 @@ export function ReplacementProgramCardContainer() {
     };
 
     return (
-        <Card>
+        <Card id={replacementProgramCardContainerId}>
             <CardHeader className="relative">
                 <CardTitle>Replacement Program Data</CardTitle>
 
