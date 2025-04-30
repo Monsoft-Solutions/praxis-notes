@@ -1,7 +1,3 @@
-import { Link } from '@tanstack/react-router';
-
-import { ChevronRight } from 'lucide-react';
-
 type SessionHeaderProps = {
     clientName: string;
     isEditing?: boolean;
@@ -13,7 +9,7 @@ export function SessionHeader({
 }: SessionHeaderProps) {
     return (
         <div className="space-y-2">
-            <nav className="flex items-center text-sm">
+            {/* <nav className="flex items-center text-sm">
                 <Link
                     href="/clients"
                     className="text-muted-foreground hover:text-foreground transition-colors"
@@ -36,7 +32,7 @@ export function SessionHeader({
                 <span className="text-foreground font-medium">
                     {isEditing ? 'Edit Session' : 'New Session'}
                 </span>
-            </nav>
+            </nav> */}
 
             <h1 className="text-2xl font-bold">
                 {isEditing
