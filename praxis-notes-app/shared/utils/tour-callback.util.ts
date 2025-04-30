@@ -8,6 +8,8 @@ import { wait } from './wait.util';
 
 import { vanillaApi, apiClientUtils } from '@api/providers/web';
 
+import { toast } from 'sonner';
+
 const sendCustomEvent = (name: string, detail?: Record<string, unknown>) => {
     window.dispatchEvent(new CustomEvent(name, { detail }));
 };
@@ -127,6 +129,9 @@ export const tourCallback = ({
 
                 case 'download-notes-button':
                     downloadNotes();
+                    toast.success(
+                        'Congrats! You have completed the intro tour.',
+                    );
                     setHasDoneTour();
                     break;
 
