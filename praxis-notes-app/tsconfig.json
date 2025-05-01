@@ -48,7 +48,8 @@
             "@src/*": ["./src/*"],
             "@web/*": ["./bases/web/*"],
             "@analytics/*": ["./bases/analytics/*"],
-            "@logger/*": ["./bases/logger/*"]
+            "@logger/*": ["./bases/logger/*"],
+            "@email/*": ["./bases/email/*"]
         }
     }
 }

@@ -16,6 +16,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { eq } from 'drizzle-orm';
 import { createSession } from '@auth/providers/server';
 import { logger } from '@logger/providers/logger.provider';
+import { addSubscriberToWelcomeCampaign } from '@email/utils/mailer-lite.util';
+import { addToAudienceResend } from '@email/utils/resend-add-to-audience.util';
 
 // verify email
 // Input: id
@@ -69,13 +71,80 @@ export const verifyEmail = publicEndpoint
                     return {
                         email,
                         sessionId: session.id,
+                        userId,
                     };
                 }),
             );
 
             if (error) return Error();
 
-            const { email, sessionId } = data;
+            const { email, sessionId, userId } = data;
+
+            // Get user information for MailerLite
+            const userResult = await catchError(
+                db.query.userTable.findFirst({
+                    where: (record) => eq(record.id, userId),
+                }),
+            );
+
+            if (userResult.error) {
+                logger.error(
+                    'Failed to retrieve user for MailerLite integration',
+                    {
+                        userId,
+                        error: userResult.error,
+                    },
+                );
+            } else if (userResult.data) {
+                // Run marketing integrations in parallel without blocking the verification flow
+                const firstName = userResult.data.firstName;
+                const lastName = userResult.data.lastName ?? '';
+
+                // Use Promise.allSettled to handle both integrations in parallel
+                const [mailerLiteResult, resendResult] =
+                    await Promise.allSettled([
+                        addSubscriberToWelcomeCampaign({
+                            email,
+                            name: `${firstName} ${lastName}`,
+                        }),
+                        addToAudienceResend({
+                            email,
+                            firstName,
+                            lastName,
+                        }),
+                    ]);
+
+                // Log errors but don't block the verification flow
+                if (mailerLiteResult.status === 'rejected') {
+                    logger.error(
+                        'Failed to add user to MailerLite welcome campaign',
+                        {
+                            error: mailerLiteResult.reason,
+                            email,
+                        },
+                    );
+                } else if (mailerLiteResult.value.error) {
+                    logger.error(
+                        'Failed to add user to MailerLite welcome campaign',
+                        {
+                            error: mailerLiteResult.value.error,
+                            email,
+                        },
+                    );
+                }
+
+                if (resendResult.status === 'rejected') {
+                    logger.error('Failed to add user to Resend audience', {
+                        error: resendResult.reason,
+                        email,
+                    });
+                } else if (resendResult.value.error) {
+                    logger.error('Failed to add user to Resend audience', {
+                        error: resendResult.value.error,
+                        email,
+                    });
+                }
+            }
 
             return Success({
                 email,
