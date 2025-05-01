@@ -14,11 +14,13 @@ import { SignUpForm } from '@shared/components/sign-up-form.component';
 import { api } from '@api/providers/web';
 import { toast } from 'sonner';
 import { z } from 'zod';
-
+import { userLangEnumSchema } from '@auth/enum/user-lang.enum';
 const signUpFormSchemaValidated: typeof signUpFormSchema = z.object({
-    name: z.string().min(1),
+    firstName: z.string().min(1),
+    lastName: z.string().optional(),
     email: z.string().email(),
     password: z.string().min(6),
+    language: userLangEnumSchema,
 });
 
 // Sign up view
@@ -31,9 +33,11 @@ export function SignUpView(): ReactElement {
     const form = useForm<SignUpFormType>({
         resolver: zodResolver(signUpFormSchemaValidated),
         defaultValues: {
-            name: '',
+            firstName: '',
+            lastName: '',
             email: '',
             password: '',
+            language: 'en',
         },
     });
 
