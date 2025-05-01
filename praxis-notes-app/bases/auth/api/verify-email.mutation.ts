@@ -95,43 +95,54 @@ export const verifyEmail = publicEndpoint
                         error: userResult.error,
                     },
                 );
-
-                return Error('FAILED_TO_RETRIEVE_USER');
             } else if (userResult.data) {
-                // Add user to MailerLite welcome campaign
-                const { error: mailerLiteError } =
-                    await addSubscriberToWelcomeCampaign({
-                        email,
-                        name: `${userResult.data.firstName} ${userResult.data.lastName}`,
-                    });
+                // Run marketing integrations in parallel without blocking the verification flow
+                const firstName = userResult.data.firstName;
+                const lastName = userResult.data.lastName ?? '';
 
-                if (mailerLiteError !== null) {
-                    // Log error but don't fail the request
+                // Use Promise.allSettled to handle both integrations in parallel
+                const [mailerLiteResult, resendResult] =
+                    await Promise.allSettled([
+                        addSubscriberToWelcomeCampaign({
+                            email,
+                            name: `${firstName} ${lastName}`,
+                        }),
+                        addToAudienceResend({
+                            email,
+                            firstName,
+                            lastName,
+                        }),
+                    ]);
+
+                // Log errors but don't block the verification flow
+                if (mailerLiteResult.status === 'rejected') {
                     logger.error(
                         'Failed to add user to MailerLite welcome campaign',
                         {
-                            errorCode: mailerLiteError,
+                            error: mailerLiteResult.reason,
                             email,
                         },
                     );
-
-                    return Error('FAILED_TO_ADD_TO_MAILERLITE');
+                } else if (mailerLiteResult.value.error) {
+                    logger.error(
+                        'Failed to add user to MailerLite welcome campaign',
+                        {
+                            error: mailerLiteResult.value.error,
+                            email,
+                        },
+                    );
                 }
 
-                const { error: resendError } = await addToAudienceResend({
-                    email,
-                    firstName: userResult.data.firstName,
-                    lastName: userResult.data.lastName ?? '',
-                });
-
-                if (resendError !== null) {
-                    // Log error but don't fail the request
+                if (resendResult.status === 'rejected') {
                     logger.error('Failed to add user to Resend audience', {
-                        errorCode: resendError,
+                        error: resendResult.reason,
                         email,
                     });
-
-                    return Error('FAILED_TO_ADD_TO_RESEND');
+                } else if (resendResult.value.error) {
+                    logger.error('Failed to add user to Resend audience', {
+                        error: resendResult.value.error,
+                        email,
+                    });
                 }
             }
 
