@@ -32,6 +32,7 @@ import { generateNotes as generateNotesProvider } from '@src/notes/providers/ser
 import { eq } from 'drizzle-orm';
 import { userTable } from '@db/db.tables';
 import { ClientSessionReplacementProgramEntry } from '../schemas/client-session-replacement-program-entry.schema';
+import { getClientAbaData } from '@src/client/providers/get-client-aba-data.provider';
 
 // mutation to create a client session
 export const createClientSession = protectedEndpoint
@@ -393,21 +394,29 @@ export const createClientSession = protectedEndpoint
 
                 let notes: string | null = null;
 
+                const { data: clientData, error: clientDataError } =
+                    await getClientAbaData(clientId);
+
+                if (clientDataError) return Error('CLIENT_DATA_ERROR');
+
                 if (initNotes) {
                     const generateNotesResult = await generateNotesProvider({
-                        location,
-                        valuation,
-                        observations,
-                        presentParticipants,
-                        environmentalChanges,
-                        abcEntries,
-                        replacementProgramEntries:
-                            replacementProgramNoteEntries,
-                        sessionDate: new Date(sessionForm.sessionDate),
-                        startTime,
-                        endTime,
-                        userInitials,
-                        clientInitials,
+                        clientData,
+                        sessionData: {
+                            location,
+                            valuation,
+                            observations,
+                            presentParticipants,
+                            environmentalChanges,
+                            abcEntries,
+                            replacementProgramEntries:
+                                replacementProgramNoteEntries,
+                            sessionDate: new Date(sessionForm.sessionDate),
+                            startTime,
+                            endTime,
+                            userInitials,
+                            clientInitials,
+                        },
                     });
 
                     if (generateNotesResult.error)
