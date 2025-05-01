@@ -67,7 +67,7 @@ GLOBAL NOTE RULES
 
 Return **only** the narrative report, nothing else.
 
-Analyze critically the output and make sure it is correct. If necessary, use the think tool to think about the output.
+After generating the note, analyze critically the output and make sure it is correct.
 `;
 
     return Success(prompt);
