@@ -1,0 +1,1 @@
+ALTER TABLE "users" ALTER COLUMN "has_done_tour" SET DEFAULT true;
