@@ -35,7 +35,14 @@ export function ReplacementProgramCardContainer() {
 
     // Add a new empty replacement program entry
     const handleAddEntry = () => {
-        append({});
+        append({
+            replacementProgramId: undefined,
+            teachingProcedureId: null,
+            promptingProcedureId: null,
+            clientResponse: null,
+            progress: null,
+            promptTypesIds: [],
+        });
     };
 
     return (
