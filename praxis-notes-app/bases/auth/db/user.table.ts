@@ -17,7 +17,7 @@ export const userTable = table('users', {
 
     bookmarked: boolean('bookmarked').default(false),
 
-    hasDoneTour: boolean('has_done_tour').notNull().default(false),
+    hasDoneTour: boolean('has_done_tour').notNull().default(true),
 });
 
 export const userTableRelations = relations(userTable, ({ many }) => ({
