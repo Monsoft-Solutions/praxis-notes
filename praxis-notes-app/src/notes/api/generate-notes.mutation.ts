@@ -12,6 +12,8 @@ import { db } from '@db/providers/server';
 
 import { eq } from 'drizzle-orm';
 
+import { getClientAbaData } from '@src/client/providers';
+
 // mutation to generate notes
 export const generateNotes = protectedEndpoint
     .input(z.object({ sessionId: z.string() }))
@@ -98,6 +100,11 @@ export const generateNotes = protectedEndpoint
 
             const abcEntries = abcEntriesNullable.filter((abc) => abc !== null);
 
+            const { data: clientData, error: clientDataError } =
+                await getClientAbaData(clientSession.client.id);
+
+            if (clientDataError) return Error();
+
             const replacementProgramEntries =
                 clientSession.replacementProgramEntries
                     .map(
@@ -151,7 +158,10 @@ export const generateNotes = protectedEndpoint
             };
 
             const { data: generatedNotes, error: generatedNotesError } =
-                await generateNotesProvider(sessionData);
+                await generateNotesProvider({
+                    sessionData,
+                    clientData,
+                });
 
             if (generatedNotesError) return Error();
 

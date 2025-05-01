@@ -1,18 +1,17 @@
 import { Function } from '@errors/types';
 import { Error, Success } from '@errors/utils';
 
-import { ClientSession } from '@src/client-session/schemas';
-
 import { generateNotesPrompt } from './generate-notes-prompt.provider';
 
 import { generateText } from '@src/ai/providers';
 import { logger } from '@logger/providers';
+import { GenerateNoteSchema } from '@src/notes/schema/generate-note.schema';
 
 // Helper function to generate notes using Anthropic
-export const generateNotes = (async (sessionData: ClientSession) => {
+export const generateNotes = (async (input: GenerateNoteSchema) => {
     // Use the prompt from our dedicated module
     const start = performance.now();
-    const { data: prompt } = generateNotesPrompt(sessionData);
+    const { data: prompt } = generateNotesPrompt(input);
 
     const { data: text, error: textGenerationError } = await generateText({
         prompt,
@@ -29,4 +28,4 @@ export const generateNotes = (async (sessionData: ClientSession) => {
     });
 
     return Success(text);
-}) satisfies Function<ClientSession, string>;
+}) satisfies Function<GenerateNoteSchema, string>;

@@ -9,6 +9,7 @@ import { generateText as aiSdkGenerateText } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 
 import { deploymentEnv } from '@env/constants/deployment-env.constant';
+import { thinkTool } from '../tools/think.tool';
 
 export const generateText = (async ({ prompt }: { prompt: string }) => {
     // get the core configuration
@@ -30,14 +31,19 @@ export const generateText = (async ({ prompt }: { prompt: string }) => {
 
     const model: AnthropicModel =
         deploymentEnv.MSS_DEPLOYMENT_TYPE === 'production'
-            ? 'claude-3-5-haiku-20241022'
-            : 'claude-3-haiku-20240307';
+            ? 'claude-3-7-sonnet-latest'
+            : 'claude-3-7-sonnet-latest';
 
     const { data: textGenerationData, error: textGenerationError } =
         await catchError(
             aiSdkGenerateText({
                 model: anthropic(model),
                 prompt,
+                tools: {
+                    think: thinkTool,
+                },
+                maxSteps: 5,
+                maxRetries: 3,
             }),
         );
 
