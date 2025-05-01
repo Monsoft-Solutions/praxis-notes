@@ -5,13 +5,24 @@ import { Error, Success } from '@errors/utils';
 
 import { getCoreConf } from '@conf/providers/server';
 
-import { generateText as aiSdkGenerateText } from 'ai';
+import { generateText as aiSdkGenerateText, Message } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 
 import { deploymentEnv } from '@env/constants/deployment-env.constant';
 import { thinkTool } from '../tools/think.tool';
 
-export const generateText = (async ({ prompt }: { prompt: string }) => {
+export const generateText = (async ({
+    prompt,
+    messages,
+}:
+    | {
+          prompt: string;
+          messages?: undefined;
+      }
+    | {
+          prompt?: undefined;
+          messages: Message[];
+      }) => {
     // get the core configuration
     const coreConfWithError = await getCoreConf();
 
@@ -39,6 +50,7 @@ export const generateText = (async ({ prompt }: { prompt: string }) => {
             aiSdkGenerateText({
                 model: anthropic(model),
                 prompt,
+                messages,
                 tools: {
                     think: thinkTool,
                 },

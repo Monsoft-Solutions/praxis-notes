@@ -262,7 +262,7 @@ export function ReplacementProgramCard({
                             name={`replacementProgramEntries.${index}.progress`}
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Progress</FormLabel>
+                                    <FormLabel>Response Progress (%)</FormLabel>
 
                                     <Input
                                         type="number"
