@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
-import { useNavigate } from '@tanstack/react-router';
+import { useBlocker, useNavigate } from '@tanstack/react-router';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -26,14 +26,28 @@ import { trackEvent } from '@analytics/providers/analytics.provider';
 
 import { Form } from '@shared/ui/form.ui';
 
+import { TourStepId } from '@shared/types/tour-step-id.type';
+
+const sessionDraftButtonId: TourStepId = 'session-form-draft-button';
+
+const sessionGenerateNotesButtonId: TourStepId =
+    'session-generate-notes-button';
+
 type SessionFormProps = {
     clientId: string;
     clientName: string;
     sessionId?: string;
     sessionStatus?: string;
+    isTour: boolean;
+    placeholderSessionData?: ClientSessionForm;
 };
 
-export function SessionForm({ clientId, clientName }: SessionFormProps) {
+export function SessionForm({
+    clientId,
+    clientName,
+    placeholderSessionData,
+    isTour,
+}: SessionFormProps) {
     const { mutateAsync: createClientSession } =
         api.clientSession.createClientSession.useMutation();
 
@@ -43,16 +57,18 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
     const form = useForm<ClientSessionForm>({
         resolver: zodResolver(clientSessionFormSchema),
 
-        defaultValues: {
+        defaultValues: placeholderSessionData ?? {
             sessionDate: new Date(),
-            startTime: undefined,
-            endTime: undefined,
-            location: undefined,
+            startTime: isTour ? '12:00' : undefined,
+            endTime: isTour ? '13:00' : undefined,
+            location: isTour ? 'home' : undefined,
             presentParticipants: [],
             environmentalChanges: [],
             abcIdEntries: [
                 {
-                    antecedentId: undefined,
+                    antecedentId: isTour
+                        ? 'antecedent-1                        '
+                        : undefined,
                     behaviorIds: [],
                     interventionIds: [],
                     function: 'atention',
@@ -60,7 +76,9 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             ],
             replacementProgramEntries: [
                 {
-                    replacementProgramId: undefined,
+                    replacementProgramId: isTour
+                        ? 'replacement-program-1               '
+                        : undefined,
                     teachingProcedureId: null,
                     promptingProcedureId: null,
                     clientResponse: null,
@@ -69,7 +87,7 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                 },
             ],
             valuation: 'good',
-            observations: null,
+            observations: isTour ? 'some observations' : null,
         },
     });
 
@@ -78,55 +96,76 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
     const [isSavingDraft, setIsSavingDraft] = useState(false);
 
     // Handle saving as draft
-    const handleCreateSession = async ({
-        data,
-        initNotes,
-    }: {
-        data: ClientSessionForm;
-        initNotes: boolean;
-    }) => {
-        if (initNotes) {
-            setIsGeneratingNotes(true);
-        } else {
-            setIsSavingDraft(true);
-        }
-
-        const response = await createClientSession({
-            clientId,
+    const handleCreateSession = useCallback(
+        async ({
+            data,
             initNotes,
-            sessionForm: {
-                ...data,
-                sessionDate: data.sessionDate.toISOString(),
-            },
-        });
+        }: {
+            data: ClientSessionForm;
+            initNotes: boolean;
+        }) => {
+            if (initNotes) {
+                setIsGeneratingNotes(true);
+            } else {
+                setIsSavingDraft(true);
+            }
 
-        if (initNotes) {
-            setIsGeneratingNotes(false);
-        } else {
-            setIsSavingDraft(false);
-        }
+            const response = await createClientSession({
+                clientId,
+                initNotes,
+                sessionForm: {
+                    ...data,
+                    sessionDate: data.sessionDate.toISOString(),
+                },
+            });
 
-        if (response.error) {
-            toast.error('Error saving session');
-            return;
-        }
+            if (initNotes) {
+                setIsGeneratingNotes(false);
+            } else {
+                setIsSavingDraft(false);
+            }
 
-        if (initNotes) {
-            toast.success('Notes generated');
-        } else {
-            toast.success('Session saved as draft');
-        }
+            if (response.error) {
+                toast.error('Error saving session');
+                return;
+            }
 
-        // Track session creation regardless of notes generation
-        trackEvent('session', 'session_create');
+            if (initNotes) {
+                toast.success('Notes generated');
+            } else {
+                toast.success('Session saved as draft');
+            }
 
-        const { id } = response.data;
+            // Track session creation regardless of notes generation
+            trackEvent('session', 'session_create');
 
-        await navigate({
-            to: '/clients/$clientId/sessions/$sessionId',
-            params: { clientId, sessionId: id },
-        });
-    };
+            const { id } = response.data;
+
+            await navigate({
+                to: '/clients/$clientId/sessions/$sessionId',
+                params: { clientId, sessionId: id },
+            });
+        },
+        [clientId, navigate, createClientSession],
+    );
+
+    useBlocker({
+        blockerFn: () => {
+            if (isGeneratingNotes || isSavingDraft) return true;
+
+            void form.handleSubmit(
+                (data) =>
+                    handleCreateSession({
+                        data,
+                        initNotes: false,
+                    }),
+                () => {
+                    toast.error('Session was discarded');
+                },
+            )();
+            return true;
+        },
+    });
 
     // Handle cancellation
     const handleCancel = async () => {
@@ -137,6 +176,26 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
             params: { clientId },
         });
     };
+
+    useEffect(() => {
+        const saveSessionAsDraft = () => {
+            void form.handleSubmit((data) =>
+                handleCreateSession({
+                    data,
+                    initNotes: false,
+                }),
+            )();
+        };
+
+        window.addEventListener('saveSessionAsDraft', saveSessionAsDraft);
+
+        return () => {
+            window.removeEventListener(
+                'saveSessionAsDraft',
+                saveSessionAsDraft,
+            );
+        };
+    }, [form, handleCreateSession]);
 
     return (
         <Form {...form}>
@@ -164,6 +223,7 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                     </Button>
 
                     <Button
+                        id={sessionDraftButtonId}
                         variant="secondary"
                         className="w-36"
                         disabled={isGeneratingNotes || isSavingDraft}
@@ -184,6 +244,7 @@ export function SessionForm({ clientId, clientName }: SessionFormProps) {
                     </Button>
 
                     <Button
+                        id={sessionGenerateNotesButtonId}
                         className="w-36"
                         disabled={isGeneratingNotes || isSavingDraft}
                         onClick={(e) => {

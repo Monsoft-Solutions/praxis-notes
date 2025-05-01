@@ -16,6 +16,8 @@ export const userTable = table('users', {
     lastName: varchar('lastName', { length: 255 }),
 
     bookmarked: boolean('bookmarked').default(false),
+
+    hasDoneTour: boolean('has_done_tour').notNull().default(false),
 });
 
 export const userTableRelations = relations(userTable, ({ many }) => ({

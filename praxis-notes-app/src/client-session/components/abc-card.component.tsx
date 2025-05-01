@@ -126,6 +126,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                             <FormLabel>Activity/Antecedent</FormLabel>
 
                             <AbcSelector
+                                initValue={field.value}
                                 placeholder="Select activity/antecedent"
                                 items={antecedents}
                                 onSelect={field.onChange}
@@ -152,7 +153,10 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                         <FormItem className="flex flex-col">
                             <FormLabel>Function</FormLabel>
 
-                            <Select {...field}>
+                            <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                            >
                                 <FormControl>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select function" />
@@ -182,6 +186,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                             <FormLabel>Behaviors</FormLabel>
 
                             <AbcSelector
+                                initValue={field.value}
                                 placeholder="Select behavior"
                                 multiple
                                 items={behaviors}
@@ -211,6 +216,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                             <FormLabel>Interventions</FormLabel>
 
                             <AbcSelector
+                                initValue={field.value}
                                 placeholder="Select intervention"
                                 multiple
                                 items={interventions}

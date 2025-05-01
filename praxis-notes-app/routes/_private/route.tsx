@@ -1,4 +1,6 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, redirect, Outlet } from '@tanstack/react-router';
+
+import { Tour } from '@shared/components/tour.component';
 
 // private routes
 export const Route = createFileRoute('/_private')({
@@ -28,5 +30,15 @@ export const Route = createFileRoute('/_private')({
         // if active session found (logged-in), allow access
         // and add logged-in user to router context
         return { loggedInUser };
+    },
+
+    component: function Component() {
+        return (
+            <>
+                <Outlet />
+
+                <Tour />
+            </>
+        );
     },
 });

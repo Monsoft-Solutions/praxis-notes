@@ -12,8 +12,8 @@ import { catchError } from '@errors/utils/catch-error.util';
 export const validateSession = (async ({ sessionId }) => {
     const { data: session, error } = await catchError(
         db.query.sessionTable.findFirst({
-            where: (auth) =>
-                and(eq(auth.id, sessionId), gt(auth.expiresAt, Date.now())),
+            where: ({ id, expiresAt }) =>
+                and(eq(id, sessionId), gt(expiresAt, Date.now())),
 
             with: {
                 user: {
@@ -38,7 +38,7 @@ export const validateSession = (async ({ sessionId }) => {
     // otherwise...
 
     const {
-        user: { id: userId, organizationId, roles: userRoles },
+        user: { id: userId, organizationId, roles: userRoles, hasDoneTour },
     } = session;
 
     const validatedSession = {
@@ -46,6 +46,7 @@ export const validateSession = (async ({ sessionId }) => {
             id: userId,
             organizationId,
             roles: userRoles.map((userRole) => userRole.role.name),
+            hasDoneTour,
         },
     };
 
@@ -57,6 +58,7 @@ export const validateSession = (async ({ sessionId }) => {
             id: string;
             organizationId: string;
             roles: string[];
+            hasDoneTour: boolean;
         };
     } | null
 >;

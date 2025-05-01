@@ -19,10 +19,12 @@ import { ClientReviewSummary } from './client-review-summary.component';
 import { api, apiClientUtils } from '@api/providers/web';
 
 import { Route } from '@routes/_private/_app/clients/new';
+import { useEffect, useCallback } from 'react';
+import { z } from 'zod';
 
 import { trackEvent } from '@analytics/providers';
 
-export function ClientForm() {
+export function ClientForm({ isTour }: { isTour?: boolean }) {
     const navigate = Route.useNavigate();
 
     const { mutateAsync: createClient } = api.client.createClient.useMutation();
@@ -37,20 +39,142 @@ export function ClientForm() {
         resolver: zodResolver(clientFormSchema),
         mode: 'onChange',
 
-        defaultValues: {
-            firstName: '',
-            lastName: '',
-            gender: 'male',
-            notes: '',
-            behaviors: [],
-            replacementPrograms: [],
-            interventions: [],
-            currentStep: 1,
-            isComplete: false,
-        },
+        defaultValues: isTour
+            ? {
+                  firstName: 'John',
+                  lastName: 'Doe',
+                  gender: 'male',
+                  notes: 'This is a test client',
+                  behaviors: [
+                      {
+                          id: 'behavior-1                          ',
+                          type: 'frequency',
+                          baseline: 1,
+                      },
+                  ],
+                  replacementPrograms: [
+                      {
+                          id: 'replacement-program-3               ',
+                          behaviorIds: ['behavior-1                          '],
+                      },
+                  ],
+                  interventions: [
+                      {
+                          id: 'intervention-1                      ',
+                          behaviorIds: ['behavior-1                          '],
+                      },
+                  ],
+                  currentStep: 1,
+                  isComplete: false,
+              }
+            : {
+                  firstName: '',
+                  lastName: '',
+                  gender: 'male',
+                  notes: '',
+                  behaviors: [],
+                  replacementPrograms: [],
+                  interventions: [],
+                  currentStep: 1,
+                  isComplete: false,
+              },
 
         shouldUnregister: false,
     });
+
+    const currentStep = form.watch('currentStep');
+
+    const handleStepChange = useCallback(
+        (step: number) => {
+            // If going backwards, always allow it
+            if (step < currentStep) {
+                form.setValue('currentStep', step);
+                return;
+            }
+
+            // If trying to go to a next step, validate the current step first
+            if (step > currentStep) {
+                // Different validation for each step
+                if (currentStep === 1) {
+                    // Manually validate required fields
+                    const firstName = form.getValues('firstName');
+                    const lastName = form.getValues('lastName');
+
+                    if (!firstName || firstName.trim() === '') {
+                        form.setError('firstName', {
+                            type: 'manual',
+                            message: 'First name is required',
+                        });
+
+                        return;
+                    }
+
+                    if (!lastName || lastName.trim() === '') {
+                        form.setError('lastName', {
+                            type: 'manual',
+                            message: 'Last name is required',
+                        });
+                        return;
+                    }
+                }
+            }
+
+            // If validation passes or going back, update the step
+            form.setValue('currentStep', step);
+
+            // Clear validation errors when moving to new step
+            form.clearErrors();
+        },
+        [form, currentStep],
+    );
+
+    const handleComplete = useCallback(async () => {
+        const formData = form.getValues();
+
+        await createClient(formData);
+
+        trackEvent('client', 'client_save');
+
+        await apiClientUtils.client.getClients.invalidate();
+
+        await navigate({
+            to: '/clients',
+        });
+    }, [form, createClient, navigate]);
+
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const event = e as CustomEvent;
+
+            const eventParsing = z
+                .object({ step: z.number() })
+                .safeParse(event.detail);
+
+            if (eventParsing.success) {
+                const { step } = eventParsing.data;
+
+                handleStepChange(step);
+            }
+        };
+
+        window.addEventListener('clientFormStepChange', handler);
+
+        return () => {
+            window.removeEventListener('clientFormStepChange', handler);
+        };
+    }, [handleStepChange]);
+
+    useEffect(() => {
+        const handler = () => {
+            void handleComplete();
+        };
+
+        window.addEventListener('clientFormSubmit', handler);
+
+        return () => {
+            window.removeEventListener('clientFormSubmit', handler);
+        };
+    }, [handleComplete]);
 
     if (!behaviorsQuery) return null;
     const { error: behaviorsError } = behaviorsQuery;
@@ -66,8 +190,6 @@ export function ClientForm() {
     const { error: interventionsError } = interventionsQuery;
     if (interventionsError) return null;
     const { data: interventions } = interventionsQuery;
-
-    const currentStep = form.watch('currentStep');
 
     const steps: MultiStepFormStep[] = [
         {
@@ -116,63 +238,6 @@ export function ClientForm() {
             ),
         },
     ];
-
-    const handleStepChange = (step: number) => {
-        // If going backwards, always allow it
-        if (step < currentStep) {
-            form.setValue('currentStep', step);
-            return;
-        }
-
-        // If trying to go to a next step, validate the current step first
-        if (step > currentStep) {
-            // Different validation for each step
-            if (currentStep === 1) {
-                // Manually validate required fields
-                const firstName = form.getValues('firstName');
-                const lastName = form.getValues('lastName');
-
-                if (!firstName || firstName.trim() === '') {
-                    form.setError('firstName', {
-                        type: 'manual',
-                        message: 'First name is required',
-                    });
-
-                    console.log('First name validation failed');
-                    return;
-                }
-
-                if (!lastName || lastName.trim() === '') {
-                    form.setError('lastName', {
-                        type: 'manual',
-                        message: 'Last name is required',
-                    });
-                    console.log('Last name validation failed');
-                    return;
-                }
-            }
-        }
-
-        // If validation passes or going back, update the step
-        form.setValue('currentStep', step);
-
-        // Clear validation errors when moving to new step
-        form.clearErrors();
-    };
-
-    const handleComplete = async () => {
-        const formData = form.getValues();
-
-        await createClient(formData);
-
-        trackEvent('client', 'client_save');
-
-        await apiClientUtils.client.getClients.invalidate();
-
-        await navigate({
-            to: '/clients',
-        });
-    };
 
     // Determine if the last step submission should be enabled
     const isLastStepSubmitEnabled = form.formState.isValid;
