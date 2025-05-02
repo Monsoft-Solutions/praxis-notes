@@ -110,6 +110,19 @@ export function SessionForm({
                 setIsSavingDraft(true);
             }
 
+            const abcEntries = data.abcIdEntries.filter(
+                (entry) => entry.antecedentId,
+            );
+
+            data.abcIdEntries = abcEntries;
+
+            const replacementProgramEntries =
+                data.replacementProgramEntries.filter(
+                    (entry) => entry.replacementProgramId,
+                );
+
+            data.replacementProgramEntries = replacementProgramEntries;
+
             const response = await createClientSession({
                 clientId,
                 initNotes,
