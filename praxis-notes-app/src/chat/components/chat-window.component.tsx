@@ -64,6 +64,45 @@ export function ChatWindow({ activeSessionId }: { activeSessionId: string }) {
         },
     );
 
+    api.chat.onChatMessageUpdated.useSubscription(
+        {
+            sessionId: activeSessionId,
+        },
+
+        {
+            onData: (updatedMessage) => {
+                if (!sessionQuery || sessionQuery.error) return;
+
+                setSession(
+                    { sessionId: activeSessionId },
+
+                    (prevSessionQuery) => {
+                        if (!prevSessionQuery || prevSessionQuery.error)
+                            return prevSessionQuery;
+
+                        const { data: prevSession } = prevSessionQuery;
+                        const { messages: prevMessages } = prevSession;
+
+                        return {
+                            error: null,
+                            data: {
+                                ...prevSession,
+                                messages: prevMessages.map((message) =>
+                                    message.id === updatedMessage.id
+                                        ? {
+                                              ...message,
+                                              content: updatedMessage.content,
+                                          }
+                                        : message,
+                                ),
+                            },
+                        };
+                    },
+                );
+            },
+        },
+    );
+
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const session = useMemo(() => {
