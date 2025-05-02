@@ -14,6 +14,10 @@ import { eq } from 'drizzle-orm';
 
 import { getClientAbaData } from '@src/client/providers';
 
+import { clientSessionTable } from '@db/db.tables';
+
+import { emit } from '@events/providers';
+
 // mutation to generate notes
 export const generateNotes = protectedEndpoint
     .input(z.object({ sessionId: z.string() }))
@@ -165,6 +169,36 @@ export const generateNotes = protectedEndpoint
 
             if (generatedNotesError) return Error();
 
-            return Success(generatedNotes);
+            let text = '';
+
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            while (true) {
+                const { done, value: textDelta } = await generatedNotes.read();
+
+                if (done) break;
+
+                text += textDelta;
+
+                const { error: sessionError } = await catchError(
+                    db
+                        .update(clientSessionTable)
+                        .set({
+                            notes: text,
+                        })
+                        .where(eq(clientSessionTable.id, sessionId)),
+                );
+
+                if (sessionError) return Error();
+
+                emit({
+                    event: 'sessionNotesUpdated',
+                    payload: {
+                        sessionId,
+                        notes: text,
+                    },
+                });
+            }
+
+            return Success();
         }),
     );

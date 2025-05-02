@@ -27,20 +27,15 @@ import { abcFunctionEnum, clientSessionValuationEnum } from '../enum';
 
 import { replacementProgramResponseEnum } from '@src/replacement-program/enums';
 
-import { generateNotes as generateNotesProvider } from '@src/notes/providers/server';
-
 import { eq } from 'drizzle-orm';
 import { userTable } from '@db/db.tables';
 import { ClientSessionReplacementProgramEntry } from '../schemas/client-session-replacement-program-entry.schema';
-import { getClientAbaData } from '@src/client/providers/get-client-aba-data.provider';
 
 // mutation to create a client session
 export const createClientSession = protectedEndpoint
     .input(
         z.object({
             clientId: z.string(),
-
-            initNotes: z.boolean(),
 
             sessionForm: z.object({
                 location: z.string(),
@@ -83,7 +78,7 @@ export const createClientSession = protectedEndpoint
                 ctx: {
                     session: { user },
                 },
-                input: { clientId, initNotes, sessionForm },
+                input: { clientId, sessionForm },
             }) => {
                 const {
                     sessionDate,
@@ -347,9 +342,6 @@ export const createClientSession = protectedEndpoint
                     return Error('REPLACEMENT_PROGRAM_DATA_NOT_FOUND');
                 }
 
-                const replacementProgramNoteEntries =
-                    validatedReplacementProgramNoteEntries;
-
                 const { data: client, error: clientError } = await catchError(
                     db.query.clientTable.findFirst({
                         where: (record) => eq(record.id, clientId),
@@ -373,57 +365,8 @@ export const createClientSession = protectedEndpoint
                 if (userError || !userQueryResult.length)
                     return Error('USER_NOT_FOUND');
 
-                const userData = userQueryResult[0];
-
-                const getInitials = (
-                    first?: string | null,
-                    last?: string | null,
-                ) => `${first?.charAt(0) ?? ''}${last?.charAt(0) ?? ''}`;
-
-                const userInitials = getInitials(
-                    userData.firstName,
-                    userData.lastName,
-                );
-                const clientInitials = getInitials(
-                    client.firstName,
-                    client.lastName,
-                );
-
                 // generate a unique id for the client session
                 const id = uuidv4();
-
-                let notes: string | null = null;
-
-                const { data: clientData, error: clientDataError } =
-                    await getClientAbaData(clientId);
-
-                if (clientDataError) return Error('CLIENT_DATA_ERROR');
-
-                if (initNotes) {
-                    const generateNotesResult = await generateNotesProvider({
-                        clientData,
-                        sessionData: {
-                            location,
-                            valuation,
-                            observations,
-                            presentParticipants,
-                            environmentalChanges,
-                            abcEntries,
-                            replacementProgramEntries:
-                                replacementProgramNoteEntries,
-                            sessionDate: new Date(sessionForm.sessionDate),
-                            startTime,
-                            endTime,
-                            userInitials,
-                            clientInitials,
-                        },
-                    });
-
-                    if (generateNotesResult.error)
-                        return Error('TEXT_GENERATION_ERROR');
-
-                    notes = generateNotesResult.data;
-                }
 
                 // create the client session object
                 const clientSession = {
@@ -440,7 +383,7 @@ export const createClientSession = protectedEndpoint
                     valuation,
                     observations,
 
-                    notes,
+                    notes: null,
                 };
 
                 const { error } = await catchError(

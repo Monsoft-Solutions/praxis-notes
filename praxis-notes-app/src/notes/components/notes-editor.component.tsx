@@ -42,6 +42,18 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
 
     const [isSavingNotes, setIsSavingNotes] = useState(false);
 
+    api.notes.onNotesUpdated.useSubscription(
+        {
+            sessionId,
+        },
+
+        {
+            onData: (updatedNotes) => {
+                setEditorValue(updatedNotes);
+            },
+        },
+    );
+
     // Handle generate notes
     const handleGenerate = useCallback(async () => {
         setIsGeneratingNotes(true);
@@ -54,8 +66,6 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
             toast.error('Failed to generate notes');
             return;
         }
-
-        setEditorValue(generateNotesResult.data);
 
         trackEvent('notes', 'notes_generate');
     }, [generateNotes, sessionId]);

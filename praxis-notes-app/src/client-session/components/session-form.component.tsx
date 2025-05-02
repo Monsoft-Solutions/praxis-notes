@@ -51,6 +51,9 @@ export function SessionForm({
     const { mutateAsync: createClientSession } =
         api.clientSession.createClientSession.useMutation();
 
+    const { mutateAsync: generateNotes } =
+        api.notes.generateNotes.useMutation();
+
     const navigate = useNavigate();
 
     // Initialize form with default values or initial data if provided
@@ -112,15 +115,27 @@ export function SessionForm({
 
             const response = await createClientSession({
                 clientId,
-                initNotes,
                 sessionForm: {
                     ...data,
                     sessionDate: data.sessionDate.toISOString(),
                 },
             });
 
+            const success = response.error === null;
+
             if (initNotes) {
                 setIsGeneratingNotes(false);
+
+                if (success) {
+                    await navigate({
+                        to: '/clients/$clientId/sessions/$sessionId',
+                        params: { clientId, sessionId: response.data.id },
+                    });
+
+                    await generateNotes({
+                        sessionId: response.data.id,
+                    });
+                }
             } else {
                 setIsSavingDraft(false);
             }
@@ -146,7 +161,7 @@ export function SessionForm({
                 params: { clientId, sessionId: id },
             });
         },
-        [clientId, navigate, createClientSession],
+        [clientId, navigate, createClientSession, generateNotes],
     );
 
     useBlocker({
