@@ -5,7 +5,7 @@ import { Success, Error } from '@errors/utils';
 import { ChatMessage } from '../schemas';
 import { chatSessionSystemPrompt } from '../constants';
 
-import { generateText } from '@src/ai/providers';
+import { streamText } from '@src/ai/providers';
 import { Message } from 'ai';
 
 /**
@@ -41,11 +41,14 @@ export const generateChatResponse = (async ({
     // 2. Process the response
     // 3. Return the generated text
 
-    const { data: text, error: textGenerationError } = await generateText({
+    const { data: textStream, error: textGenerationError } = await streamText({
         messages: [systemMessage, ...messageHistory],
     });
 
     if (textGenerationError) return Error('TEXT_GENERATION_ERROR');
 
-    return Success(text);
-}) satisfies Function<{ messages: ChatMessage[] }, string>;
+    return Success(textStream);
+}) satisfies Function<
+    { messages: ChatMessage[] },
+    ReadableStreamDefaultReader<string>
+>;

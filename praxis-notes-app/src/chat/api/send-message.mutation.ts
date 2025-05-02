@@ -58,24 +58,20 @@ export const sendMessage = protectedEndpoint
                 payload: userMessage,
             });
 
-            const allMessages = [...previousMessages, userMessage];
-
-            // Generate AI response
-            const { data: aiResponse, error: aiResponseError } =
-                await generateChatResponse({
-                    messages: allMessages,
-                });
-
-            if (aiResponseError) return Error();
-
             // Create the assistant message
             const assistantMessage: ChatMessage = {
                 id: uuidv4(),
                 sessionId,
-                content: aiResponse,
+                content: '',
                 role: 'assistant',
                 createdAt: Date.now(),
             };
+
+            // Emit event for the assistant message
+            emit({
+                event: 'chatMessageCreated',
+                payload: assistantMessage,
+            });
 
             // Insert assistant message
             const { error: assistantMessageError } = await catchError(
@@ -84,11 +80,59 @@ export const sendMessage = protectedEndpoint
 
             if (assistantMessageError) return Error();
 
-            // Emit event for the assistant message
-            emit({
-                event: 'chatMessageCreated',
-                payload: assistantMessage,
-            });
+            const allMessages = [...previousMessages, userMessage];
+
+            // Generate AI response
+            const { data: responseStream, error: aiResponseError } =
+                await generateChatResponse({
+                    messages: allMessages,
+                });
+
+            if (aiResponseError) return Error();
+
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            while (true) {
+                const { done, value: textDelta } = await responseStream.read();
+
+                if (done) break;
+
+                // update assistant message
+                const { error: assistantMessageError } = await catchError(
+                    db.transaction(async (tx) => {
+                        const currentMessage =
+                            await tx.query.chatMessageTable.findFirst({
+                                where: eq(
+                                    chatMessageTable.id,
+                                    assistantMessage.id,
+                                ),
+                            });
+
+                        if (!currentMessage) throw 'MESSAGE_NOT_FOUND';
+
+                        const { content: currentContent } = currentMessage;
+
+                        const newContent = currentContent + textDelta;
+
+                        await tx
+                            .update(chatMessageTable)
+                            .set({ content: newContent })
+                            .where(
+                                eq(chatMessageTable.id, assistantMessage.id),
+                            );
+
+                        emit({
+                            event: 'chatMessageUpdated',
+                            payload: {
+                                sessionId,
+                                id: assistantMessage.id,
+                                content: newContent,
+                            },
+                        });
+                    }),
+                );
+
+                if (assistantMessageError) return Error();
+            }
 
             let title: string | undefined = undefined;
 
@@ -101,8 +145,6 @@ export const sendMessage = protectedEndpoint
                 if (generatedTitleError) return Error();
 
                 title = generatedTitle;
-
-                console.log('-->   ~ emitting title:', title);
 
                 emit({
                     event: 'chatSessionTitleUpdated',
