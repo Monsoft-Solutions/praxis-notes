@@ -4,7 +4,7 @@ import { Error, Success } from '@errors/utils';
 
 import { getCoreConf } from '@conf/providers/server';
 
-import { streamText as aiSdkStreamText, Message } from 'ai';
+import { streamText as aiSdkStreamText, Message, smoothStream } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 
 import { deploymentEnv } from '@env/constants/deployment-env.constant';
@@ -53,6 +53,8 @@ export const streamText = (async ({
         },
         maxSteps: 5,
         maxRetries: 3,
+
+        experimental_transform: smoothStream(),
     });
 
     const reader = textStream.getReader();
