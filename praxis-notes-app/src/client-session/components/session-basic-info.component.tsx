@@ -171,11 +171,11 @@ export function SessionBasicInfo() {
     };
 
     return (
-        <Card id={sessionBasicInfoId}>
-            <CardHeader className="mb-4">
+        <Card id={sessionBasicInfoId} className="pt-4">
+            <CardHeader>
                 <CardTitle>Session Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="mt-4 space-y-6">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {/* Session Date */}
                     <FormField

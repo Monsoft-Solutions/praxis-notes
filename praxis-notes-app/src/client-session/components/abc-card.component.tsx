@@ -28,6 +28,7 @@ import { AbcSelector } from './abc-selector.component';
 import { abcFunctionEnum } from '../enum';
 
 import { Route } from '@routes/_private/_app/clients/$clientId/sessions/new';
+import { Card, CardTitle, CardHeader, CardContent } from '@shared/ui/card.ui';
 
 type ABCCardProps = {
     index: number;
@@ -91,26 +92,28 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
         isClient: clientInterventions.some((i) => i.id === intervention.id),
     }));
 
+    console.log(control._formValues.abcIdEntries);
+
     return (
-        <div className="relative mt-8 border-b pb-8">
-            {onRemove && (
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-2 top-2 h-8 w-8 text-red-500 hover:text-red-600"
-                    onClick={onRemove}
-                    type="button"
-                >
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Remove ABC Entry</span>
-                </Button>
-            )}
+        <Card className="relative border-b pb-8 pt-4">
+            <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>ABC {index + 1}</CardTitle>
 
-            <div>
-                <h3 className="text-lg font-semibold">ABC {index + 1}</h3>
-            </div>
+                {onRemove && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-500 hover:text-red-600"
+                        onClick={onRemove}
+                        type="button"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Remove ABC Entry</span>
+                    </Button>
+                )}
+            </CardHeader>
 
-            <div className="mt-4 space-y-6">
+            <CardContent className="mt-4 space-y-6">
                 {/* Activity/Antecedent */}
                 <FormField
                     control={control}
@@ -230,7 +233,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                         </FormItem>
                     )}
                 />
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 }

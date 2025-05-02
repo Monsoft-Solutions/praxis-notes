@@ -1,14 +1,14 @@
 import { useFormContext } from 'react-hook-form';
 
-import { FormField, FormItem, FormControl, FormMessage } from '@ui/form.ui';
-
 import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@ui/card.ui';
+    FormField,
+    FormItem,
+    FormControl,
+    FormMessage,
+    FormLabel,
+} from '@ui/form.ui';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
 
 import { RadioGroup, RadioGroupItem } from '@ui/radio-group.ui';
 
@@ -27,16 +27,16 @@ export function ValuationSelector() {
         <Card id={valuationSelectorId}>
             <CardHeader>
                 <CardTitle>Session Valuation</CardTitle>
-                <CardDescription>
-                    Rate how the overall session went.
-                </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="mt-4">
                 <FormField
                     control={control}
                     name="valuation"
                     render={({ field }) => (
                         <FormItem>
+                            <FormLabel>
+                                Rate how the overall session went.
+                            </FormLabel>
                             <FormControl>
                                 <RadioGroup
                                     onValueChange={field.onChange}
