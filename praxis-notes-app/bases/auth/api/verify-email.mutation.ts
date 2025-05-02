@@ -99,13 +99,17 @@ export const verifyEmail = publicEndpoint
                 // Run marketing integrations in parallel without blocking the verification flow
                 const firstName = userResult.data.firstName;
                 const lastName = userResult.data.lastName ?? '';
+                const language = userResult.data.language ?? 'en';
 
+                // We're using || instead of ?? here because we want to use 'en' as default
+                // even if language is an empty string, not just if it's null or undefined
                 // Use Promise.allSettled to handle both integrations in parallel
                 const [mailerLiteResult, resendResult] =
                     await Promise.allSettled([
                         addSubscriberToWelcomeCampaign({
                             email,
                             name: `${firstName} ${lastName}`,
+                            language,
                         }),
                         addToAudienceResend({
                             email,
