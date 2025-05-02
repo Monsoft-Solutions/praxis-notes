@@ -22,7 +22,9 @@ import { throwAsync } from '@errors/utils';
 export const apiClient = api.createClient({
     links: [
         // adds pretty logs to your console in development and logs errors in production
-        loggerLink(),
+        loggerLink({
+            enabled: () => window.location.hostname === 'localhost',
+        }),
 
         splitLink({
             // uses the httpSubscriptionLink for subscriptions
