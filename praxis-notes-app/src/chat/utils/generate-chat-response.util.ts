@@ -16,8 +16,10 @@ import { Message } from 'ai';
  */
 export const generateChatResponse = (async ({
     messages,
+    userName,
 }: {
     messages: ChatMessage[];
+    userName: string;
 }) => {
     // Prepare the conversation history
     const messageHistory = messages.map((msg) => ({
@@ -26,12 +28,16 @@ export const generateChatResponse = (async ({
         content: msg.content,
     }));
 
+    console.log('userName', userName);
+
     // Add system message at the start
     const systemMessage: Message = {
         id: 'prompt',
         role: 'system',
-        content: chatSessionSystemPrompt,
+        content: chatSessionSystemPrompt(userName),
     };
+
+    console.log('systemMessage', systemMessage);
 
     // Typically here, you would call an external AI API (OpenAI, Anthropic, etc.)
     // For this implementation, we'll mock a response
@@ -49,6 +55,6 @@ export const generateChatResponse = (async ({
 
     return Success(textStream);
 }) satisfies Function<
-    { messages: ChatMessage[] },
+    { messages: ChatMessage[]; userName: string },
     ReadableStreamDefaultReader<string>
 >;
