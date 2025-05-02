@@ -7,9 +7,27 @@ import { generateText } from '@src/ai/providers';
 import { Message } from 'ai';
 
 const prompt = `
-    You are a helpful assistant that generates a title for a chat session.
-    The title should be a short description of the conversation.
-    The title should be no more than 20 characters.
+You are a helpful assistant that generates a title for a chat session.
+The title should be a short description of the conversation.
+The title should be no more than 20 characters.
+Your output should only contain the title, nothing else.
+
+Here are some examples:
+
+User: I need help debugging my React component that's not re-rendering properly
+Assistant: React Debug Help
+
+User: Can you explain how promises work in JavaScript?
+Assistant: JS Promises Guide
+
+User: What's the best way to structure a large Node.js application?
+Assistant: Node App Structure
+
+User: How do I implement authentication in my Express app?
+Assistant: Auth in Express
+
+User: Can you help me understand Redux state management?
+Assistant: Redux Basics 
 `;
 
 /**
