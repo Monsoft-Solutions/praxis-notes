@@ -258,7 +258,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                                     }
                                 />
 
-                                {isGeneratingNotes && !hasNotes && (
+                                {isGeneratingNotes && !editorValue && (
                                     <div className="absolute left-4 top-4">
                                         <Spinner className="h-4 w-4" />
                                     </div>
