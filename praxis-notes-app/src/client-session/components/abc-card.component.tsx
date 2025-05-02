@@ -92,8 +92,6 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
         isClient: clientInterventions.some((i) => i.id === intervention.id),
     }));
 
-    console.log(control._formValues.abcIdEntries);
-
     return (
         <Card className="relative border-b pb-8 pt-4">
             <CardHeader className="flex flex-row items-center justify-between">
