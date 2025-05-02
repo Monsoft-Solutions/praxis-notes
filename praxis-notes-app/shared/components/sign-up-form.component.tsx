@@ -27,12 +27,20 @@ import {
     CardTitle,
 } from '@shared/ui/card.ui';
 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@shared/ui/select.ui';
+
 import { ShortInfoMessage } from '@shared/components/short-info-message.component';
 
 // ----------------------------------------------------------------------
 
 // Sign up form component
-// Inputs fields: name, email, password
+// Inputs fields: firstName, lastName, email, password, language
 export function SignUpForm({
     form,
     onSubmit,
@@ -58,17 +66,41 @@ export function SignUpForm({
                     >
                         <FormField
                             control={form.control}
-                            name="name"
+                            name="firstName"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="font-medium">
-                                        Name
+                                        First Name
                                     </FormLabel>
 
                                     <div className="relative flex items-center">
                                         <FormControl>
                                             <Input
-                                                placeholder="John Doe"
+                                                placeholder="John"
+                                                className="h-11 rounded-md"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                    </div>
+
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="lastName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="font-medium">
+                                        Last Name
+                                    </FormLabel>
+
+                                    <div className="relative flex items-center">
+                                        <FormControl>
+                                            <Input
+                                                placeholder="Doe"
                                                 className="h-11 rounded-md"
                                                 {...field}
                                             />
@@ -121,6 +153,37 @@ export function SignUpForm({
                                             {...field}
                                         />
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="language"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="font-medium">
+                                        Language
+                                    </FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger className="h-11 rounded-md">
+                                                <SelectValue placeholder="Select Language" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="en">
+                                                English
+                                            </SelectItem>
+                                            <SelectItem value="es">
+                                                Spanish
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                     <FormMessage />
                                 </FormItem>
                             )}
