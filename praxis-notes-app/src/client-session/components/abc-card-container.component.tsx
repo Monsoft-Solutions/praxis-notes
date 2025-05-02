@@ -8,15 +8,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { ABCCard } from './abc-card.component';
 
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-} from '@ui/card.ui';
+import { Card, CardContent, CardFooter } from '@ui/card.ui';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
+import { useCallback } from 'react';
 
 const abcCardContainerId: TourStepId = 'session-form-abc-entry';
 
@@ -29,7 +24,7 @@ export function ABCCardContainer() {
     });
 
     // Add a new empty ABC entry
-    const handleAddEntry = () => {
+    const handleAddEntry = useCallback(() => {
         append({
             id: uuidv4(),
             activityAntecedent: '',
@@ -38,20 +33,14 @@ export function ABCCardContainer() {
             interventions: [],
             replacementPrograms: [],
         });
-    };
+    }, [append]);
 
     return (
-        <Card id={abcCardContainerId}>
-            <CardHeader>
-                <CardTitle>ABC Data</CardTitle>
-
-                <CardDescription>
-                    Record Antecedent, Behavior, and Consequence data for the
-                    session.
-                </CardDescription>
-            </CardHeader>
-
-            <CardContent className="space-y-6">
+        <Card
+            id={abcCardContainerId}
+            className="sm:shadow-floating p-0 px-0 shadow-none sm:px-2 sm:py-4"
+        >
+            <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {fields.map((field, index) => (
                     <ABCCard
                         key={field.id}
@@ -65,17 +54,17 @@ export function ABCCardContainer() {
                         }
                     />
                 ))}
-
+            </CardContent>
+            <CardFooter className="relative flex flex-row items-center justify-center">
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="default"
                     onClick={handleAddEntry}
-                    className="mt-4 w-full"
                 >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Add ABC Entry
                 </Button>
-            </CardContent>
+            </CardFooter>
         </Card>
     );
 }

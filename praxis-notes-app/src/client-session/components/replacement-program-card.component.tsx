@@ -12,10 +12,6 @@ import {
     FormControl,
 } from '@ui/form.ui';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
-
-import { cn } from '@css/utils';
-
 import { ClientSessionForm } from '../schemas';
 
 import { api, apiClientUtils } from '@api/providers/web';
@@ -33,6 +29,7 @@ import {
 import { replacementProgramResponseEnum } from '@src/replacement-program/enums';
 
 import { Input } from '@ui/input.ui';
+import { Card, CardTitle, CardHeader, CardContent } from '@shared/ui/card.ui';
 
 type ReplacementProgramCardProps = {
     index: number;
@@ -105,27 +102,26 @@ export function ReplacementProgramCard({
     const { data: promptTypes } = promptTypesQuery;
 
     return (
-        <Card className={cn('relative', index > 0 && 'mt-8')}>
-            {onRemove && (
-                <Button
-                    variant="destructive"
-                    size="icon"
-                    className="absolute right-2 top-2 h-8 w-8"
-                    onClick={onRemove}
-                    type="button"
-                >
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Remove ABC Entry</span>
-                </Button>
-            )}
-
-            <CardHeader>
-                <CardTitle className="text-lg">
-                    Replacement Program #{index + 1}
-                </CardTitle>
+        <Card className="relative pt-4">
+            <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Replacement {index + 1}</CardTitle>
+                {onRemove && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-500 hover:text-red-600"
+                        onClick={onRemove}
+                        type="button"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">
+                            Remove Replacement Program
+                        </span>
+                    </Button>
+                )}
             </CardHeader>
 
-            <CardContent className="space-y-6">
+            <CardContent className="mt-4 space-y-6">
                 {/* Replacement Program */}
                 <FormField
                     control={control}

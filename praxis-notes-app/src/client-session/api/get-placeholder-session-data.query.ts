@@ -23,12 +23,6 @@ export const getPlaceholderSessionData = protectedEndpoint
 
             if (!replacementProgram) return Error();
 
-            const { data: antecedent } = await catchError(
-                db.query.antecedentTable.findFirst(),
-            );
-
-            if (!antecedent) return Error();
-
             const placeholderSessionData: ClientSessionForm = {
                 sessionDate: new Date(),
                 startTime: '10:00',
@@ -38,7 +32,19 @@ export const getPlaceholderSessionData = protectedEndpoint
                 environmentalChanges: [],
                 abcIdEntries: [
                     {
-                        antecedentId: antecedent.id,
+                        antecedentId: '',
+                        function: 'atention',
+                        behaviorIds: [],
+                        interventionIds: [],
+                    },
+                    {
+                        antecedentId: '',
+                        function: 'atention',
+                        behaviorIds: [],
+                        interventionIds: [],
+                    },
+                    {
+                        antecedentId: '',
                         function: 'atention',
                         behaviorIds: [],
                         interventionIds: [],
@@ -46,7 +52,23 @@ export const getPlaceholderSessionData = protectedEndpoint
                 ],
                 replacementProgramEntries: [
                     {
-                        replacementProgramId: replacementProgram.id,
+                        replacementProgramId: '',
+                        teachingProcedureId: null,
+                        promptingProcedureId: null,
+                        clientResponse: null,
+                        progress: null,
+                        promptTypesIds: [],
+                    },
+                    {
+                        replacementProgramId: '',
+                        teachingProcedureId: null,
+                        promptingProcedureId: null,
+                        clientResponse: null,
+                        progress: null,
+                        promptTypesIds: [],
+                    },
+                    {
+                        replacementProgramId: '',
                         teachingProcedureId: null,
                         promptingProcedureId: null,
                         clientResponse: null,

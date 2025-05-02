@@ -131,7 +131,7 @@ export function ClientBehaviorsForm({
                             <AccordionItem
                                 key={field.id}
                                 value={field.id}
-                                className="rounded-md border p-1"
+                                className="rounded-md border p-1 last:border"
                             >
                                 <AccordionTrigger className="px-4">
                                     <div className="flex w-full items-center justify-between">
