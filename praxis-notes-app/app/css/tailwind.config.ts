@@ -3,11 +3,12 @@ import type { Config } from 'tailwindcss';
 import { fontFamily } from 'tailwindcss/defaultTheme';
 
 import animate from 'tailwindcss-animate';
+import typography from '@tailwindcss/typography';
 
 const config: Config = {
     content: ['../../{bases,shared,src}/**/*.{js,ts,jsx,tsx,mdx}'],
 
-    plugins: [animate],
+    plugins: [animate, typography],
 
     darkMode: ['class'],
     prefix: '',
