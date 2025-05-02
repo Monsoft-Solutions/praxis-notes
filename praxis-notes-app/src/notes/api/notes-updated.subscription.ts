@@ -14,6 +14,11 @@ export const onNotesUpdated = protectedEndpoint
             // only send events for the requested session
             if (data.sessionId !== sessionId) return;
 
-            return data.notes;
+            const { notes, isComplete } = data;
+
+            return {
+                notes,
+                isComplete,
+            };
         }),
     );

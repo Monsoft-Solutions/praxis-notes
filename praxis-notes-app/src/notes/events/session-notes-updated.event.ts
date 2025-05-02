@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const sessionNotesUpdated = z.object({
     sessionId: z.string(),
     notes: z.string(),
+    isComplete: z.boolean(),
 });
 
 // session-notes-updated event type

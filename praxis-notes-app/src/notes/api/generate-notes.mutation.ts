@@ -14,8 +14,6 @@ import { eq } from 'drizzle-orm';
 
 import { getClientAbaData } from '@src/client/providers';
 
-import { clientSessionTable } from '@db/db.tables';
-
 import { emit } from '@events/providers';
 
 // mutation to generate notes
@@ -161,6 +159,17 @@ export const generateNotes = protectedEndpoint
                 clientInitials,
             };
 
+            let text = '';
+
+            emit({
+                event: 'sessionNotesUpdated',
+                payload: {
+                    sessionId,
+                    notes: text,
+                    isComplete: false,
+                },
+            });
+
             const { data: generatedNotes, error: generatedNotesError } =
                 await generateNotesProvider({
                     sessionData,
@@ -168,8 +177,6 @@ export const generateNotes = protectedEndpoint
                 });
 
             if (generatedNotesError) return Error();
-
-            let text = '';
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
             while (true) {
@@ -179,25 +186,24 @@ export const generateNotes = protectedEndpoint
 
                 text += textDelta;
 
-                const { error: sessionError } = await catchError(
-                    db
-                        .update(clientSessionTable)
-                        .set({
-                            notes: text,
-                        })
-                        .where(eq(clientSessionTable.id, sessionId)),
-                );
-
-                if (sessionError) return Error();
-
                 emit({
                     event: 'sessionNotesUpdated',
                     payload: {
                         sessionId,
                         notes: text,
+                        isComplete: false,
                     },
                 });
             }
+
+            emit({
+                event: 'sessionNotesUpdated',
+                payload: {
+                    sessionId,
+                    notes: text,
+                    isComplete: true,
+                },
+            });
 
             return Success();
         }),

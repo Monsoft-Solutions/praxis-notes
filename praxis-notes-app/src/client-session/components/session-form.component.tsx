@@ -28,6 +28,8 @@ import { Form } from '@shared/ui/form.ui';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
 
+import { wait } from '@shared/utils/wait.util';
+
 const sessionDraftButtonId: TourStepId = 'session-form-draft-button';
 
 const sessionGenerateNotesButtonId: TourStepId =
@@ -124,18 +126,20 @@ export function SessionForm({
             const success = response.error === null;
 
             if (initNotes) {
-                setIsGeneratingNotes(false);
-
                 if (success) {
                     await navigate({
                         to: '/clients/$clientId/sessions/$sessionId',
                         params: { clientId, sessionId: response.data.id },
                     });
 
+                    await wait(1000);
+
                     await generateNotes({
                         sessionId: response.data.id,
                     });
                 }
+
+                setIsGeneratingNotes(false);
             } else {
                 setIsSavingDraft(false);
             }
