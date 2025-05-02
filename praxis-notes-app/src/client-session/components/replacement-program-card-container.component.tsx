@@ -47,23 +47,25 @@ export function ReplacementProgramCardContainer() {
 
     return (
         <Card id={replacementProgramCardContainerId}>
-            <CardHeader className="relative">
-                <CardTitle>Replacement Program Data</CardTitle>
+            <CardHeader>
+                <div className="flex flex-col-reverse md:flex-row md:justify-between">
+                    <div>
+                        <CardTitle>Replacement Program Data</CardTitle>
+                        <CardDescription>
+                            Record Replacement Program data for the session.
+                        </CardDescription>
+                    </div>
 
-                <CardDescription>
-                    Record Replacement Program data for the session.
-                </CardDescription>
-
-                <div className="absolute right-4 top-4 flex items-center gap-2">
-                    <Switch
-                        id="detailed-view"
-                        checked={isDetailedView}
-                        onCheckedChange={setIsDetailedView}
-                    />
-
-                    <Label htmlFor="detailed-view" className="text-sm">
-                        Show Detailes
-                    </Label>
+                    <div className="flex items-center justify-end gap-2 pb-8 sm:pb-0">
+                        <Label htmlFor="detailed-view" className="text-sm">
+                            Show Details
+                        </Label>
+                        <Switch
+                            id="detailed-view"
+                            checked={isDetailedView}
+                            onCheckedChange={setIsDetailedView}
+                        />
+                    </div>
                 </div>
             </CardHeader>
 

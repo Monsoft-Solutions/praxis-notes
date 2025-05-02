@@ -12,10 +12,6 @@ import {
     FormControl,
 } from '@ui/form.ui';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
-
-import { cn } from '@css/utils';
-
 import { ClientSessionForm } from '../schemas';
 
 import { api, apiClientUtils } from '@api/providers/web';
@@ -105,27 +101,27 @@ export function ReplacementProgramCard({
     const { data: promptTypes } = promptTypesQuery;
 
     return (
-        <Card className={cn('relative', index > 0 && 'mt-8')}>
+        <div className="relative mt-8 border-b pb-8">
             {onRemove && (
                 <Button
-                    variant="destructive"
+                    variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-2 h-8 w-8"
+                    className="absolute right-2 top-2 h-8 w-8 text-red-500 hover:text-red-600"
                     onClick={onRemove}
                     type="button"
                 >
                     <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Remove ABC Entry</span>
+                    <span className="sr-only">Remove Replacement Program</span>
                 </Button>
             )}
 
-            <CardHeader>
-                <CardTitle className="text-lg">
-                    Replacement Program #{index + 1}
-                </CardTitle>
-            </CardHeader>
+            <div>
+                <h3 className="text-lg font-semibold">
+                    Replacement {index + 1}
+                </h3>
+            </div>
 
-            <CardContent className="space-y-6">
+            <div className="mt-4 space-y-6">
                 {/* Replacement Program */}
                 <FormField
                     control={control}
@@ -283,7 +279,7 @@ export function ReplacementProgramCard({
                         />
                     </>
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }

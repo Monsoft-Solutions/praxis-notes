@@ -12,10 +12,6 @@ import {
     FormMessage,
 } from '@ui/form.ui';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
-
-import { cn } from '@css/utils';
-
 import { ClientSessionForm } from '../schemas';
 
 import {
@@ -96,12 +92,12 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
     }));
 
     return (
-        <Card className={cn('relative', index > 0 && 'mt-8')}>
+        <div className="relative mt-8 border-b pb-8">
             {onRemove && (
                 <Button
-                    variant="destructive"
+                    variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-2 h-8 w-8"
+                    className="absolute right-2 top-2 h-8 w-8 text-red-500 hover:text-red-600"
                     onClick={onRemove}
                     type="button"
                 >
@@ -110,13 +106,11 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                 </Button>
             )}
 
-            <CardHeader>
-                <CardTitle className="text-lg">
-                    ABC Entry #{index + 1}
-                </CardTitle>
-            </CardHeader>
+            <div>
+                <h3 className="text-lg font-semibold">ABC {index + 1}</h3>
+            </div>
 
-            <CardContent className="space-y-6">
+            <div className="mt-4 space-y-6">
                 {/* Activity/Antecedent */}
                 <FormField
                     control={control}
@@ -183,7 +177,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                     name={`abcIdEntries.${index}.behaviorIds`}
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Behaviors</FormLabel>
+                            <FormLabel>Maladaptive Behaviors</FormLabel>
 
                             <AbcSelector
                                 initValue={field.value}
@@ -236,7 +230,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                         </FormItem>
                     )}
                 />
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }
