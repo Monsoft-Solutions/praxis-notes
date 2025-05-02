@@ -42,6 +42,20 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
 
     const [isSavingNotes, setIsSavingNotes] = useState(false);
 
+    api.notes.onNotesUpdated.useSubscription(
+        {
+            sessionId,
+        },
+
+        {
+            onData: ({ notes, isComplete }) => {
+                setEditorValue(notes);
+
+                setIsGeneratingNotes(!isComplete);
+            },
+        },
+    );
+
     // Handle generate notes
     const handleGenerate = useCallback(async () => {
         setIsGeneratingNotes(true);
@@ -54,8 +68,6 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
             toast.error('Failed to generate notes');
             return;
         }
-
-        setEditorValue(generateNotesResult.data);
 
         trackEvent('notes', 'notes_generate');
     }, [generateNotes, sessionId]);
@@ -210,7 +222,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
             </CardHeader>
 
             <CardContent>
-                {hasNotes ? (
+                {hasNotes || isGeneratingNotes ? (
                     <div className="w-full">
                         <div className="mb-4 flex border-b">
                             <button
@@ -232,14 +244,26 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                         </div>
 
                         {activeTab === 'edit' ? (
-                            <Textarea
-                                className="min-h-[500px] font-mono text-sm"
-                                value={editorValue}
-                                onChange={(e) => {
-                                    setEditorValue(e.target.value);
-                                }}
-                                placeholder="Write or generate notes..."
-                            />
+                            <div className="relative">
+                                <Textarea
+                                    className="min-h-[500px] font-mono text-sm"
+                                    value={editorValue}
+                                    onChange={(e) => {
+                                        setEditorValue(e.target.value);
+                                    }}
+                                    placeholder={
+                                        !isGeneratingNotes
+                                            ? 'Write or generate notes...'
+                                            : undefined
+                                    }
+                                />
+
+                                {isGeneratingNotes && !editorValue && (
+                                    <div className="absolute left-4 top-4">
+                                        <Spinner className="h-4 w-4" />
+                                    </div>
+                                )}
+                            </div>
                         ) : (
                             <div className="prose min-h-[500px] max-w-none rounded-md border p-4">
                                 <ReactMarkdown>{editorValue}</ReactMarkdown>
@@ -265,11 +289,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                             className="mt-2 w-36"
                             disabled={isGeneratingNotes}
                         >
-                            {isGeneratingNotes ? (
-                                <Spinner className="h-4 w-4" />
-                            ) : (
-                                'Generate Notes'
-                            )}
+                            Generate Notes
                         </Button>
                     </div>
                 )}

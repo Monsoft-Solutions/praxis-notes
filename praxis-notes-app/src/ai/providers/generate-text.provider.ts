@@ -1,55 +1,43 @@
 import { Function } from '@errors/types';
 
-import { catchError } from '@errors/utils/catch-error.util';
 import { Error, Success } from '@errors/utils';
 
-import { getCoreConf } from '@conf/providers/server';
+import { Message } from 'ai';
 
-import { generateText as aiSdkGenerateText } from 'ai';
-import { createAnthropic } from '@ai-sdk/anthropic';
+import { streamText } from './stream-text.provider';
 
-import { deploymentEnv } from '@env/constants/deployment-env.constant';
-import { thinkTool } from '../tools/think.tool';
+export const generateText = (async ({
+    prompt,
+    messages,
+}:
+    | {
+          prompt: string;
+          messages?: undefined;
+      }
+    | {
+          prompt?: undefined;
+          messages: Message[];
+      }) => {
+    const { data: textStream, error: textGenerationError } = await streamText(
+        messages
+            ? {
+                  messages,
+              }
+            : { prompt },
+    );
 
-export const generateText = (async ({ prompt }: { prompt: string }) => {
-    // get the core configuration
-    const coreConfWithError = await getCoreConf();
+    if (textGenerationError) return Error();
 
-    const { error: coreConfError } = coreConfWithError;
+    let text = '';
 
-    if (coreConfError !== null) return Error('MISSING_CORE_CONF');
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    while (true) {
+        const { done, value: textDelta } = await textStream.read();
 
-    const { data: coreConf } = coreConfWithError;
+        if (done) break;
 
-    const { anthropicApiKey } = coreConf;
-
-    const anthropic = createAnthropic({
-        apiKey: anthropicApiKey,
-    });
-
-    type AnthropicModel = Parameters<typeof anthropic>[0];
-
-    const model: AnthropicModel =
-        deploymentEnv.MSS_DEPLOYMENT_TYPE === 'production'
-            ? 'claude-3-7-sonnet-latest'
-            : 'claude-3-7-sonnet-latest';
-
-    const { data: textGenerationData, error: textGenerationError } =
-        await catchError(
-            aiSdkGenerateText({
-                model: anthropic(model),
-                prompt,
-                tools: {
-                    think: thinkTool,
-                },
-                maxSteps: 5,
-                maxRetries: 3,
-            }),
-        );
-
-    if (textGenerationError) return Error('TEXT_GENERATION_ERROR');
-
-    const { text } = textGenerationData;
+        text += textDelta;
+    }
 
     return Success(text);
 }) satisfies Function<{ prompt: string }, string>;

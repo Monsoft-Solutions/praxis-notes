@@ -14,6 +14,8 @@ import { eq } from 'drizzle-orm';
 
 import { getClientAbaData } from '@src/client/providers';
 
+import { emit } from '@events/providers';
+
 // mutation to generate notes
 export const generateNotes = protectedEndpoint
     .input(z.object({ sessionId: z.string() }))
@@ -157,6 +159,17 @@ export const generateNotes = protectedEndpoint
                 clientInitials,
             };
 
+            let text = '';
+
+            emit({
+                event: 'sessionNotesUpdated',
+                payload: {
+                    sessionId,
+                    notes: text,
+                    isComplete: false,
+                },
+            });
+
             const { data: generatedNotes, error: generatedNotesError } =
                 await generateNotesProvider({
                     sessionData,
@@ -165,6 +178,33 @@ export const generateNotes = protectedEndpoint
 
             if (generatedNotesError) return Error();
 
-            return Success(generatedNotes);
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            while (true) {
+                const { done, value: textDelta } = await generatedNotes.read();
+
+                if (done) break;
+
+                text += textDelta;
+
+                emit({
+                    event: 'sessionNotesUpdated',
+                    payload: {
+                        sessionId,
+                        notes: text,
+                        isComplete: false,
+                    },
+                });
+            }
+
+            emit({
+                event: 'sessionNotesUpdated',
+                payload: {
+                    sessionId,
+                    notes: text,
+                    isComplete: true,
+                },
+            });
+
+            return Success();
         }),
     );
