@@ -1,4 +1,4 @@
-import { ComponentProps } from 'react';
+import { ComponentProps, ComponentRef, forwardRef } from 'react';
 
 import { Command as CommandPrimitive } from 'cmdk';
 
@@ -14,12 +14,13 @@ import {
     DialogTitle,
 } from '@ui/dialog.ui';
 
-function Command({
-    className,
-    ...props
-}: ComponentProps<typeof CommandPrimitive>) {
+const Command = forwardRef<
+    ComponentRef<typeof CommandPrimitive>,
+    ComponentProps<typeof CommandPrimitive>
+>(({ className, ...props }, ref) => {
     return (
         <CommandPrimitive
+            ref={ref}
             data-slot="command"
             className={cn(
                 'bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md',
@@ -28,7 +29,8 @@ function Command({
             {...props}
         />
     );
-}
+});
+Command.displayName = 'Command';
 
 function CommandDialog({
     title = 'Command Palette',

@@ -10,6 +10,7 @@ type MailerLiteField = {
     name?: string;
     last_name?: string;
     tags?: string[];
+    language?: string;
     [key: string]: string | string[] | undefined;
 };
 
@@ -82,9 +83,11 @@ export const addSubscriberToMailerLite = (async (
 export const addSubscriberToWelcomeCampaign = (async ({
     email,
     name,
+    language = 'en',
 }: {
     email: string;
     name: string;
+    language?: string;
 }) => {
     const coreConfWithError = await getCoreConf();
 
@@ -103,12 +106,13 @@ export const addSubscriberToWelcomeCampaign = (async ({
         fields: {
             // Add a tag to identify the welcome campaign
             tags: ['welcome_campaign'],
+            language,
         },
     });
 }) satisfies Function<{
     email: string;
     name: string;
-    lastName?: string;
+    language?: string;
 }>;
 
 /**

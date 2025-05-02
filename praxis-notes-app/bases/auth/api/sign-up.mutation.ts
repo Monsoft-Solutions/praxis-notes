@@ -17,55 +17,63 @@ import { sendVerificationEmail } from '@auth/providers/server';
 import { logger } from '@logger/providers/logger.provider';
 
 // sign up a user
-// Input: name, email, password
+// Input: firstName, lastName, email, password, language
 export const signUp = publicEndpoint.input(signUpFormSchema).mutation(
-    queryMutationCallback(async ({ input: { name, email, password } }) => {
-        const unverifiedEmailId = uuidv4();
+    queryMutationCallback(
+        async ({
+            input: { firstName, lastName, email, password, language },
+        }) => {
+            const unverifiedEmailId = uuidv4();
 
-        const { error } = await catchError(
-            db.transaction(async (tx) => {
-                const organizationId = uuidv4();
+            const { error } = await catchError(
+                db.transaction(async (tx) => {
+                    const organizationId = uuidv4();
 
-                await tx.insert(organizationTable).values({
-                    id: organizationId,
-                    name: `${name}'s Org`,
-                });
+                    await tx.insert(organizationTable).values({
+                        id: organizationId,
+                        name: `${firstName}'s Org`,
+                    });
 
-                const userId = uuidv4();
+                    const userId = uuidv4();
 
-                await tx.insert(userTable).values({
-                    id: userId,
-                    organizationId,
+                    await tx.insert(userTable).values({
+                        id: userId,
+                        organizationId,
+                        firstName,
+                        lastName,
+                        language,
+                    });
 
-                    firstName: name,
-                });
+                    const hashedPassword = await bcrypt.hash(password, 10);
 
-                const hashedPassword = await bcrypt.hash(password, 10);
+                    await tx.insert(unverifiedEmailTable).values({
+                        id: unverifiedEmailId,
+                        userId,
+                        email,
+                        password: hashedPassword,
+                    });
+                }),
+            );
 
-                await tx.insert(unverifiedEmailTable).values({
-                    id: unverifiedEmailId,
-                    userId,
+            if (error) return Error();
 
-                    email,
-                    password: hashedPassword,
-                });
-            }),
-        );
+            await sendVerificationEmail({
+                email,
+                id: unverifiedEmailId,
+                firstName,
+                lastName,
+                language,
+            });
 
-        if (error) return Error();
+            logger.info('Sign up successful', {
+                unverifiedEmailId,
+                email,
+                firstName,
+                lastName,
+                language,
+            });
 
-        await sendVerificationEmail({
-            email,
-            id: unverifiedEmailId,
-            firstName: name,
-        });
-
-        logger.info('Sign up successful', {
-            unverifiedEmailId,
-            email,
-            name,
-        });
-
-        return Success();
-    }),
+            return Success();
+        },
+    ),
 );

@@ -1,10 +1,10 @@
 import { useFormContext } from 'react-hook-form';
 
-import { Calendar } from 'lucide-react';
+import { Calendar, InfoIcon } from 'lucide-react';
 
 import { format } from 'date-fns';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { Input } from '@ui/input.ui';
 
@@ -26,57 +26,167 @@ import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
 
 import { cn } from '@css/utils';
 
-import { Tag } from '@shared/components/tag.component';
+import MultipleSelector, { Option } from '@shared/ui/select-multiple';
 
 import { ClientSessionForm } from '../schemas';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
+import {
+    Select,
+    SelectValue,
+    SelectTrigger,
+    SelectItem,
+    SelectContent,
+} from '@shared/ui/select.ui';
+import { TooltipContent } from '@shared/ui/tooltip.ui';
+import { TooltipTrigger } from '@shared/ui/tooltip.ui';
+import { Tooltip } from '@shared/ui/tooltip.ui';
+import { TooltipProvider } from '@shared/ui/tooltip.ui';
 
 const sessionBasicInfoId: TourStepId = 'session-form-basic-info';
 
+// Location options object
+const LOCATION_OPTIONS = [
+    { value: 'home', label: 'Home' },
+    { value: 'school', label: 'School' },
+    { value: 'community', label: 'Community' },
+    { value: 'daycare', label: 'Daycare' },
+    { value: 'family-home', label: 'Family Home' },
+    { value: 'assisted-living', label: 'Assisted Living Facility (ALF)' },
+    {
+        value: 'community-mental-health',
+        label: 'Community Mental Health Center',
+    },
+    {
+        value: 'outpatient-rehab',
+        label: 'Comprehensive Outpatient Rehab Facility',
+    },
+    { value: 'group-home', label: 'Group Home' },
+    { value: 'independent-clinic', label: 'Independent Clinic' },
+    { value: 'medical-facility', label: 'Medical Facility' },
+    { value: 'member-home', label: 'Member Home' },
+    { value: 'neighbor-residence', label: 'Neighbor Residence' },
+    { value: 'relative-residence', label: 'Relative Residence' },
+    { value: 'seasonal-residence', label: 'Seasonal Residence' },
+    { value: 'retail-health-clinic', label: 'Walk-in Retail Health Clinic' },
+    {
+        value: 'ppec-center',
+        label: 'Prescribed Pediatric Extended Care (PPEC) Center',
+    },
+    { value: 'friend-residence', label: 'Friend Residence' },
+    { value: 'office', label: 'Office' },
+    { value: 'clinic', label: 'Clinic' },
+    { value: 'afterschool', label: 'After School' },
+    { value: 'virtual', label: 'Virtual' },
+    { value: 'other', label: 'Other' },
+];
+
+// Environmental changes options
+const ENVIRONMENTAL_CHANGES_OPTIONS: Option[] = [
+    { value: 'no-changes', label: 'Normal(No changes)' },
+
+    { value: 'change-therapy-area', label: 'Change in Therapy Area' },
+    { value: 'client-new-medication', label: 'Client Taking New Medication' },
+    { value: 'client-sick', label: 'Client was Sick, Crowded/Noisy' },
+    { value: 'distracting-environment', label: 'Distracting Environment' },
+    { value: 'lack-of-sleep', label: 'Lack of Sleep' },
+    { value: 'visits-during-therapy', label: 'Visits During Therapy' },
+    { value: 'change-ambient-odor', label: 'Change in ambient odor' },
+    {
+        value: 'preparing-to-travel',
+        label: 'Client and family are preparing to travel',
+    },
+    { value: 'no-school', label: 'Client did not attend school' },
+    { value: 'doctor-appointment', label: "Client had a doctor's appointment" },
+    { value: 'new-pet', label: 'Client has a new pet' },
+    { value: 'moved-house', label: 'Client moved to a new house' },
+    { value: 'new-medication', label: 'Client is taking new medication' },
+    { value: 'parents-divorced', label: 'Clients parents divorced' },
+];
+
+// Present participants options
+const PRESENT_PARTICIPANT_OPTIONS: Option[] = [
+    { value: 'caregiver', label: 'Caregiver' },
+    { value: 'father', label: 'Father' },
+    { value: 'mother', label: 'Mother' },
+    { value: 'parents', label: 'Parents' },
+    { value: 'teacher', label: 'Teacher' },
+    { value: 'sibling', label: 'Sibling' },
+    { value: 'grandparent', label: 'Grandparent' },
+    { value: 'legal-guardian', label: 'Legal Guardian' },
+    { value: 'nurse', label: 'Nurse' },
+    { value: 'therapist', label: 'Therapist' },
+    { value: 'psychologist', label: 'Psychologist' },
+    { value: 'social-worker', label: 'Social Worker' },
+    { value: 'client', label: 'Client' },
+];
+
 export function SessionBasicInfo() {
-    const { control } = useFormContext<ClientSessionForm>();
+    const { control, watch, setValue } = useFormContext<ClientSessionForm>();
 
-    const [participantInput, setParticipantInput] = useState('');
-    const [environmentalInput, setEnvironmentalInput] = useState('');
+    const locationValue = watch('location');
+    const [customLocation, setCustomLocation] = useState('');
 
-    const handleKeyDown = (
-        e: React.KeyboardEvent<HTMLInputElement>,
-        field: { value: string[]; onChange: (value: string[]) => void },
-        type: 'participants' | 'environmental',
+    // Handle custom location changes
+    const handleCustomLocationChange = (
+        e: React.ChangeEvent<HTMLInputElement>,
     ) => {
-        const input =
-            type === 'participants' ? participantInput : environmentalInput;
-        const setInput =
-            type === 'participants'
-                ? setParticipantInput
-                : setEnvironmentalInput;
+        const value = e.target.value;
+        setCustomLocation(value);
+        setValue('location', value ? `other:${value}` : 'other');
+    };
 
-        if (e.key === 'Enter' && input.trim()) {
-            e.preventDefault();
+    // Check if location is custom
+    const isCustomLocation = useCallback(() => {
+        return locationValue.startsWith('other:');
+    }, [locationValue]);
 
-            if (!field.value.includes(input.trim())) {
-                const updatedValue = [...field.value, input.trim()];
-                field.onChange(updatedValue);
-            }
-
-            setInput('');
+    // Get custom location value
+    const getCustomLocationValue = useCallback(() => {
+        if (isCustomLocation()) {
+            return locationValue.substring(6); // Remove 'other:' prefix
         }
+        return '';
+    }, [locationValue, isCustomLocation]);
+
+    // Initialize custom location when component loads or location changes
+    useEffect(() => {
+        if (isCustomLocation()) {
+            setCustomLocation(getCustomLocationValue());
+        }
+    }, [isCustomLocation, getCustomLocationValue]);
+
+    // Handle selected environmental changes
+    const handleEnvironmentalChangesChange = (
+        options: Option[],
+        field: { value: string[]; onChange: (value: string[]) => void },
+    ) => {
+        const values = options.map((option) => option.label);
+        field.onChange(values);
+    };
+
+    // Handle selected participants
+    const handleParticipantsChange = (
+        options: Option[],
+        field: { value: string[]; onChange: (value: string[]) => void },
+    ) => {
+        const values = options.map((option) => option.label);
+        field.onChange(values);
     };
 
     return (
-        <Card id={sessionBasicInfoId}>
+        <Card id={sessionBasicInfoId} className="pt-4">
             <CardHeader>
                 <CardTitle>Session Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="mt-4 space-y-6">
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {/* Session Date */}
                     <FormField
                         control={control}
                         name="sessionDate"
                         render={({ field }) => (
-                            <FormItem className="flex flex-col">
+                            <FormItem>
                                 <FormLabel>Session Date</FormLabel>
                                 <Popover>
                                     <PopoverTrigger asChild>
@@ -120,12 +230,69 @@ export function SessionBasicInfo() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Location</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        placeholder="Enter session location"
-                                        {...field}
-                                    />
-                                </FormControl>
+                                <div className="space-y-2">
+                                    <FormControl>
+                                        <Select
+                                            onValueChange={(value) => {
+                                                if (value === 'other') {
+                                                    // If user has already entered a custom value, keep it
+                                                    if (customLocation) {
+                                                        setValue(
+                                                            'location',
+                                                            `other:${customLocation}`,
+                                                        );
+                                                    } else {
+                                                        setValue(
+                                                            'location',
+                                                            'other',
+                                                        );
+                                                    }
+                                                } else {
+                                                    // If switching to a standard option, clear custom value
+                                                    setCustomLocation('');
+                                                    setValue('location', value);
+                                                }
+                                            }}
+                                            defaultValue="home"
+                                            value={
+                                                isCustomLocation()
+                                                    ? 'other'
+                                                    : field.value
+                                            }
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select location" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {LOCATION_OPTIONS.map(
+                                                    (location) => (
+                                                        <SelectItem
+                                                            key={location.value}
+                                                            value={
+                                                                location.value
+                                                            }
+                                                        >
+                                                            {location.label}
+                                                        </SelectItem>
+                                                    ),
+                                                )}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+
+                                    {(field.value === 'other' ||
+                                        isCustomLocation()) && (
+                                        <FormControl>
+                                            <Input
+                                                placeholder="Enter custom location"
+                                                value={customLocation}
+                                                onChange={
+                                                    handleCustomLocationChange
+                                                }
+                                            />
+                                        </FormControl>
+                                    )}
+                                </div>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -164,166 +331,115 @@ export function SessionBasicInfo() {
                     />
                 </div>
 
-                {/* Present Participants */}
-                <FormField
-                    control={control}
-                    name="presentParticipants"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Present Participants</FormLabel>
-                            <div className="flex flex-col space-y-3">
-                                <div className="flex gap-2">
-                                    <FormControl>
-                                        <Input
-                                            placeholder="Add participant and press Enter"
-                                            value={participantInput}
-                                            onChange={(e) => {
-                                                setParticipantInput(
-                                                    e.target.value,
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    {/* Present Participants */}
+                    <FormField
+                        control={control}
+                        name="presentParticipants"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex flex-row items-center justify-between">
+                                    Present Participants
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <InfoIcon className="h-3 w-3" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                Indicate the participants of the
+                                                session beside the client and
+                                                you.
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </FormLabel>
+                                <FormControl>
+                                    <MultipleSelector
+                                        placeholder="Select participants"
+                                        defaultOptions={
+                                            PRESENT_PARTICIPANT_OPTIONS
+                                        }
+                                        value={field.value.map((value) => {
+                                            const option =
+                                                PRESENT_PARTICIPANT_OPTIONS.find(
+                                                    (opt) =>
+                                                        opt.label === value,
                                                 );
-                                            }}
-                                            onKeyDown={(e) => {
-                                                handleKeyDown(
-                                                    e,
-                                                    field,
-                                                    'participants',
-                                                );
-                                            }}
-                                        />
-                                    </FormControl>
-
-                                    <Button
-                                        type="button"
-                                        onClick={() => {
-                                            if (participantInput.trim()) {
-                                                if (
-                                                    !field.value.includes(
-                                                        participantInput.trim(),
-                                                    )
-                                                ) {
-                                                    field.onChange([
-                                                        ...field.value,
-                                                        participantInput.trim(),
-                                                    ]);
+                                            return (
+                                                option ?? {
+                                                    value,
+                                                    label: value,
                                                 }
-                                                setParticipantInput('');
-                                            }
+                                            );
+                                        })}
+                                        onChange={(options) => {
+                                            handleParticipantsChange(
+                                                options,
+                                                field,
+                                            );
                                         }}
-                                    >
-                                        Add
-                                    </Button>
-                                </div>
+                                        creatable
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
 
-                                {field.value.length > 0 && (
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                        {field.value.map(
-                                            (
-                                                participant: string,
-                                                index: number,
-                                            ) => (
-                                                <Tag
-                                                    key={`${participant}-${index}`}
-                                                    text={participant}
-                                                    onRemove={() => {
-                                                        const newParticipants =
-                                                            [...field.value];
-                                                        newParticipants.splice(
-                                                            index,
-                                                            1,
-                                                        );
-                                                        field.onChange(
-                                                            newParticipants,
-                                                        );
-                                                    }}
-                                                />
-                                            ),
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                {/* Environmental Changes */}
-                <FormField
-                    control={control}
-                    name="environmentalChanges"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Environmental Changes</FormLabel>
-                            <div className="flex flex-col space-y-3">
-                                <div className="flex gap-2">
-                                    <FormControl>
-                                        <Input
-                                            placeholder="Add environmental change and press Enter"
-                                            value={environmentalInput}
-                                            onChange={(e) => {
-                                                setEnvironmentalInput(
-                                                    e.target.value,
+                    {/* Environmental Changes */}
+                    <FormField
+                        control={control}
+                        name="environmentalChanges"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex flex-row items-center justify-between">
+                                    Environmental Changes
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <InfoIcon className="h-3 w-3" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                Indicate any changes in the
+                                                environment that may have
+                                                affected the session.
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </FormLabel>
+                                <FormControl>
+                                    <MultipleSelector
+                                        placeholder="Select environmental changes"
+                                        defaultOptions={
+                                            ENVIRONMENTAL_CHANGES_OPTIONS
+                                        }
+                                        value={field.value.map((value) => {
+                                            const option =
+                                                ENVIRONMENTAL_CHANGES_OPTIONS.find(
+                                                    (opt) =>
+                                                        opt.label === value,
                                                 );
-                                            }}
-                                            onKeyDown={(e) => {
-                                                handleKeyDown(
-                                                    e,
-                                                    field,
-                                                    'environmental',
-                                                );
-                                            }}
-                                        />
-                                    </FormControl>
-                                    <Button
-                                        type="button"
-                                        onClick={() => {
-                                            if (environmentalInput.trim()) {
-                                                if (
-                                                    !field.value.includes(
-                                                        environmentalInput.trim(),
-                                                    )
-                                                ) {
-                                                    field.onChange([
-                                                        ...field.value,
-                                                        environmentalInput.trim(),
-                                                    ]);
+                                            return (
+                                                option ?? {
+                                                    value,
+                                                    label: value,
                                                 }
-                                                setEnvironmentalInput('');
-                                            }
+                                            );
+                                        })}
+                                        onChange={(options) => {
+                                            handleEnvironmentalChangesChange(
+                                                options,
+                                                field,
+                                            );
                                         }}
-                                    >
-                                        Add
-                                    </Button>
-                                </div>
-
-                                {field.value.length > 0 && (
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                        {field.value.map(
-                                            (change: string, index: number) => (
-                                                <Tag
-                                                    key={`${change}-${index}`}
-                                                    text={change}
-                                                    onRemove={() => {
-                                                        const newChanges = [
-                                                            ...field.value,
-                                                        ];
-                                                        newChanges.splice(
-                                                            index,
-                                                            1,
-                                                        );
-                                                        field.onChange(
-                                                            newChanges,
-                                                        );
-                                                    }}
-                                                />
-                                            ),
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                                        creatable
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
             </CardContent>
         </Card>
     );

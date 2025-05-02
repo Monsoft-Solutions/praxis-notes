@@ -105,15 +105,30 @@ export function SessionForm({
         async ({
             data,
             initNotes,
+            doNavigate = true,
         }: {
             data: ClientSessionForm;
             initNotes: boolean;
+            doNavigate?: boolean;
         }) => {
             if (initNotes) {
                 setIsGeneratingNotes(true);
             } else {
                 setIsSavingDraft(true);
             }
+
+            const abcEntries = data.abcIdEntries.filter(
+                (entry) => entry.antecedentId,
+            );
+
+            data.abcIdEntries = abcEntries;
+
+            const replacementProgramEntries =
+                data.replacementProgramEntries.filter(
+                    (entry) => entry.replacementProgramId,
+                );
+
+            data.replacementProgramEntries = replacementProgramEntries;
 
             const response = await createClientSession({
                 clientId,
@@ -160,10 +175,12 @@ export function SessionForm({
 
             const { id } = response.data;
 
-            await navigate({
-                to: '/clients/$clientId/sessions/$sessionId',
-                params: { clientId, sessionId: id },
-            });
+            if (doNavigate) {
+                await navigate({
+                    to: '/clients/$clientId/sessions/$sessionId',
+                    params: { clientId, sessionId: id },
+                });
+            }
         },
         [clientId, navigate, createClientSession, generateNotes],
     );
@@ -177,6 +194,7 @@ export function SessionForm({
                     handleCreateSession({
                         data,
                         initNotes: false,
+                        doNavigate: false,
                     }),
                 () => {
                     toast.error('Session was discarded');

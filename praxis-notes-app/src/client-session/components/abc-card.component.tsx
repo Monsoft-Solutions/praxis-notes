@@ -12,10 +12,6 @@ import {
     FormMessage,
 } from '@ui/form.ui';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
-
-import { cn } from '@css/utils';
-
 import { ClientSessionForm } from '../schemas';
 
 import {
@@ -32,6 +28,7 @@ import { AbcSelector } from './abc-selector.component';
 import { abcFunctionEnum } from '../enum';
 
 import { Route } from '@routes/_private/_app/clients/$clientId/sessions/new';
+import { Card, CardTitle, CardHeader, CardContent } from '@shared/ui/card.ui';
 
 type ABCCardProps = {
     index: number;
@@ -96,27 +93,25 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
     }));
 
     return (
-        <Card className={cn('relative', index > 0 && 'mt-8')}>
-            {onRemove && (
-                <Button
-                    variant="destructive"
-                    size="icon"
-                    className="absolute right-2 top-2 h-8 w-8"
-                    onClick={onRemove}
-                    type="button"
-                >
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Remove ABC Entry</span>
-                </Button>
-            )}
+        <Card className="relative border-b pb-8 pt-4">
+            <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>ABC {index + 1}</CardTitle>
 
-            <CardHeader>
-                <CardTitle className="text-lg">
-                    ABC Entry #{index + 1}
-                </CardTitle>
+                {onRemove && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-500 hover:text-red-600"
+                        onClick={onRemove}
+                        type="button"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Remove ABC Entry</span>
+                    </Button>
+                )}
             </CardHeader>
 
-            <CardContent className="space-y-6">
+            <CardContent className="mt-4 space-y-6">
                 {/* Activity/Antecedent */}
                 <FormField
                     control={control}
@@ -183,7 +178,7 @@ export function ABCCard({ index, onRemove }: ABCCardProps) {
                     name={`abcIdEntries.${index}.behaviorIds`}
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Behaviors</FormLabel>
+                            <FormLabel>Maladaptive Behaviors</FormLabel>
 
                             <AbcSelector
                                 initValue={field.value}
