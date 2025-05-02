@@ -1,12 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 
-import {
-    FormField,
-    FormItem,
-    FormControl,
-    FormMessage,
-    FormLabel,
-} from '@ui/form.ui';
+import { FormField, FormItem, FormControl, FormMessage } from '@ui/form.ui';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
 
@@ -17,6 +11,9 @@ import { Label } from '@ui/label.ui';
 import { ClientSessionForm } from '../schemas';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
+import { TooltipContent, TooltipTrigger } from '@shared/ui/tooltip.ui';
+import { InfoIcon } from 'lucide-react';
+import { TooltipProvider, Tooltip } from '@shared/ui/tooltip.ui';
 
 const valuationSelectorId: TourStepId = 'session-form-valuation';
 
@@ -25,8 +22,18 @@ export function ValuationSelector() {
 
     return (
         <Card id={valuationSelectorId}>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Session Valuation</CardTitle>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <InfoIcon className="h-4 w-4" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            Rate how the overall session went.
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
             </CardHeader>
             <CardContent className="mt-4">
                 <FormField
@@ -34,9 +41,6 @@ export function ValuationSelector() {
                     name="valuation"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>
-                                Rate how the overall session went.
-                            </FormLabel>
                             <FormControl>
                                 <RadioGroup
                                     onValueChange={field.onChange}

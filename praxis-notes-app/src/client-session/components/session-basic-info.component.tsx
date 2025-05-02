@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 
-import { Calendar } from 'lucide-react';
+import { Calendar, InfoIcon } from 'lucide-react';
 
 import { format } from 'date-fns';
 
@@ -38,6 +38,10 @@ import {
     SelectItem,
     SelectContent,
 } from '@shared/ui/select.ui';
+import { TooltipContent } from '@shared/ui/tooltip.ui';
+import { TooltipTrigger } from '@shared/ui/tooltip.ui';
+import { Tooltip } from '@shared/ui/tooltip.ui';
+import { TooltipProvider } from '@shared/ui/tooltip.ui';
 
 const sessionBasicInfoId: TourStepId = 'session-form-basic-info';
 
@@ -334,7 +338,21 @@ export function SessionBasicInfo() {
                         name="presentParticipants"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Present Participants</FormLabel>
+                                <FormLabel className="flex flex-row items-center justify-between">
+                                    Present Participants
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <InfoIcon className="h-3 w-3" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                Indicate the participants of the
+                                                session beside the client and
+                                                you.
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </FormLabel>
                                 <FormControl>
                                     <MultipleSelector
                                         placeholder="Select participants"
@@ -374,7 +392,21 @@ export function SessionBasicInfo() {
                         name="environmentalChanges"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Environmental Changes</FormLabel>
+                                <FormLabel className="flex flex-row items-center justify-between">
+                                    Environmental Changes
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <InfoIcon className="h-3 w-3" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                Indicate any changes in the
+                                                environment that may have
+                                                affected the session.
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </FormLabel>
                                 <FormControl>
                                     <MultipleSelector
                                         placeholder="Select environmental changes"
