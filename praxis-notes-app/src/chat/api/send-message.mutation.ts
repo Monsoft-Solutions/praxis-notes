@@ -40,6 +40,7 @@ export const sendMessage = protectedEndpoint
                         where: eq(userTable.id, session.user.id),
                         columns: {
                             firstName: true,
+                            language: true,
                         },
                     }),
                 );
@@ -47,7 +48,7 @@ export const sendMessage = protectedEndpoint
                 if (userError) return Error();
 
                 const userName = user?.firstName;
-
+                const userLanguage = user?.language;
                 // current timestamp
                 const now = Date.now();
 
@@ -102,6 +103,8 @@ export const sendMessage = protectedEndpoint
                     await generateChatResponse({
                         messages: allMessages,
                         userName: userName ?? 'Jane Doe',
+                        userId: session.user.id,
+                        userLanguage: userLanguage ?? 'en',
                     });
 
                 if (aiResponseError) return Error();

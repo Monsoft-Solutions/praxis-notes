@@ -5,25 +5,30 @@ import { Error, Success } from '@errors/utils';
 import { Message } from 'ai';
 
 import { streamText } from './stream-text.provider';
+import { AiRequest } from '../type/ai-request.type';
 
 export const generateText = (async ({
     prompt,
     messages,
+    modelParams,
 }:
     | {
           prompt: string;
           messages?: undefined;
+          modelParams: AiRequest;
       }
     | {
           prompt?: undefined;
           messages: Message[];
+          modelParams: AiRequest;
       }) => {
     const { data: textStream, error: textGenerationError } = await streamText(
         messages
             ? {
                   messages,
+                  modelParams,
               }
-            : { prompt },
+            : { prompt, modelParams },
     );
 
     if (textGenerationError) return Error();
@@ -40,4 +45,4 @@ export const generateText = (async ({
     }
 
     return Success(text);
-}) satisfies Function<{ prompt: string }, string>;
+}) satisfies Function<{ prompt: string; modelParams: AiRequest }, string>;

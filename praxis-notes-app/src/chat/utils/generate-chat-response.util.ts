@@ -7,6 +7,7 @@ import { chatSessionSystemPrompt } from '../constants';
 
 import { streamText } from '@src/ai/providers';
 import { Message } from 'ai';
+import { UserLang } from '@auth/enum/user-lang.enum';
 
 /**
  * Generates an AI response for a chat conversation
@@ -17,9 +18,13 @@ import { Message } from 'ai';
 export const generateChatResponse = (async ({
     messages,
     userName,
+    userId,
+    userLanguage,
 }: {
     messages: ChatMessage[];
     userName: string;
+    userId: string;
+    userLanguage: UserLang;
 }) => {
     // Prepare the conversation history
     const messageHistory = messages.map((msg) => ({
@@ -28,16 +33,12 @@ export const generateChatResponse = (async ({
         content: msg.content,
     }));
 
-    console.log('userName', userName);
-
     // Add system message at the start
     const systemMessage: Message = {
         id: 'prompt',
         role: 'system',
-        content: chatSessionSystemPrompt(userName),
+        content: chatSessionSystemPrompt(userName, userId, userLanguage),
     };
-
-    console.log('systemMessage', systemMessage);
 
     // Typically here, you would call an external AI API (OpenAI, Anthropic, etc.)
     // For this implementation, we'll mock a response
@@ -49,12 +50,22 @@ export const generateChatResponse = (async ({
 
     const { data: textStream, error: textGenerationError } = await streamText({
         messages: [systemMessage, ...messageHistory],
+        modelParams: {
+            provider: 'anthropic',
+            model: 'claude-3-7-sonnet-latest',
+            active_tools: ['getClientData', 'listAvailableClients', 'think'],
+        },
     });
 
     if (textGenerationError) return Error('TEXT_GENERATION_ERROR');
 
     return Success(textStream);
 }) satisfies Function<
-    { messages: ChatMessage[]; userName: string },
+    {
+        messages: ChatMessage[];
+        userName: string;
+        userId: string;
+        userLanguage: UserLang;
+    },
     ReadableStreamDefaultReader<string>
 >;
