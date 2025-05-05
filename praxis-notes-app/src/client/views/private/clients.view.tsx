@@ -94,10 +94,13 @@ export const ClientsView = () => {
                                     <div className="font-medium">
                                         {client.firstName} {client.lastName}
                                     </div>
+
                                     <div className="text-muted-foreground text-sm">
-                                        {client.isActive
-                                            ? 'Active'
-                                            : 'Inactive'}
+                                        {client.isDraft
+                                            ? 'Draft'
+                                            : client.isActive
+                                              ? 'Active'
+                                              : 'Inactive'}
                                     </div>
                                 </div>
                             </Link>
