@@ -43,6 +43,7 @@ export const createClient = protectedEndpoint
                 const {
                     firstName,
                     lastName,
+                    gender,
                     behaviors,
                     replacementPrograms,
                     interventions,
@@ -58,7 +59,7 @@ export const createClient = protectedEndpoint
 
                         firstName,
                         lastName,
-
+                        gender,
                         isDraft,
 
                         createdBy: user.id,

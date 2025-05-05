@@ -1,8 +1,20 @@
 import { relations } from 'drizzle-orm';
 
-import { table, char, varchar, boolean, bigint } from '@db/sql';
+import {
+    table,
+    char,
+    varchar,
+    boolean,
+    bigint,
+    enumType,
+    sqlEnum,
+} from '@db/sql';
+
+import { clientGenderEnum } from '../enums';
 
 import { organizationTable, userTable } from '@db/db.tables';
+
+export const genderEnum = enumType('gender', clientGenderEnum.options);
 
 /**
  * clients
@@ -19,6 +31,8 @@ export const clientTable = table('clients', {
     firstName: varchar('first_name', { length: 255 }).notNull(),
 
     lastName: varchar('last_name', { length: 255 }).notNull(),
+
+    gender: sqlEnum('gender', genderEnum).notNull(),
 
     isActive: boolean('is_active').default(true).notNull(),
 
