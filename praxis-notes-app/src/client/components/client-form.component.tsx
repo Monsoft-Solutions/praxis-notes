@@ -1,3 +1,5 @@
+import { useEffect, useCallback, useState } from 'react';
+
 import { z } from 'zod';
 
 import { useBlocker } from '@tanstack/react-router';
@@ -25,14 +27,35 @@ import { ClientReviewSummary } from './client-review-summary.component';
 import { api, apiClientUtils } from '@api/providers/web';
 
 import { Route } from '@routes/_private/_app/clients/new';
-import { useEffect, useCallback } from 'react';
 
 import { trackEvent } from '@analytics/providers';
 
-export function ClientForm({ isTour }: { isTour?: boolean }) {
+const defaultInitialData: Omit<ClientFormType, 'currentStep' | 'isComplete'> = {
+    firstName: '',
+    lastName: '',
+    gender: 'male',
+    notes: '',
+    behaviors: [],
+    replacementPrograms: [],
+    interventions: [],
+};
+
+export function ClientForm({
+    initialData,
+    draftId,
+}:
+    | {
+          draftId: string;
+          initialData: Omit<ClientFormType, 'currentStep' | 'isComplete'>;
+      }
+    | {
+          draftId?: undefined;
+          initialData?: Omit<ClientFormType, 'currentStep' | 'isComplete'>;
+      }) {
     const navigate = Route.useNavigate();
 
     const { mutateAsync: createClient } = api.client.createClient.useMutation();
+    const { mutateAsync: deleteClient } = api.client.deleteClient.useMutation();
 
     const { data: behaviorsQuery } = api.behavior.getBehaviors.useQuery();
     const { data: replacementProgramsQuery } =
@@ -40,49 +63,17 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
     const { data: interventionsQuery } =
         api.intervention.getInterventions.useQuery();
 
+    const [isSaving, setIsSaving] = useState(false);
+
     const form = useForm<ClientFormType>({
         resolver: zodResolver(clientFormSchema),
         mode: 'onChange',
 
-        defaultValues: isTour
-            ? {
-                  firstName: 'John',
-                  lastName: 'Doe',
-                  gender: 'male',
-                  notes: 'This is a test client',
-                  behaviors: [
-                      {
-                          id: 'behavior-1                          ',
-                          type: 'frequency',
-                          baseline: 1,
-                      },
-                  ],
-                  replacementPrograms: [
-                      {
-                          id: 'replacement-program-3               ',
-                          behaviorIds: ['behavior-1                          '],
-                      },
-                  ],
-                  interventions: [
-                      {
-                          id: 'intervention-1                      ',
-                          behaviorIds: ['behavior-1                          '],
-                      },
-                  ],
-                  currentStep: 1,
-                  isComplete: false,
-              }
-            : {
-                  firstName: '',
-                  lastName: '',
-                  gender: 'male',
-                  notes: '',
-                  behaviors: [],
-                  replacementPrograms: [],
-                  interventions: [],
-                  currentStep: 1,
-                  isComplete: false,
-              },
+        defaultValues: {
+            ...(initialData ?? defaultInitialData),
+            currentStep: 1,
+            isComplete: false,
+        },
 
         shouldUnregister: false,
     });
@@ -135,6 +126,8 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
 
     const handleComplete = useCallback(
         async ({ isDraft = false }: { isDraft?: boolean }) => {
+            setIsSaving(true);
+
             const formData = form.getValues();
 
             await createClient({
@@ -152,15 +145,23 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
                 });
             }
 
+            if (draftId) {
+                await deleteClient({ id: draftId });
+            }
+
             await apiClientUtils.client.getClients.invalidate();
 
             trackEvent('client', 'client_save');
+
+            setIsSaving(false);
         },
-        [form, createClient, navigate],
+        [form, createClient, navigate, deleteClient, draftId],
     );
 
     useBlocker({
         blockerFn: () => {
+            if (isSaving) return true;
+
             void form.handleSubmit(
                 () =>
                     handleComplete({
