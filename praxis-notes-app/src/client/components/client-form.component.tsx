@@ -82,6 +82,8 @@ export function ClientForm({
 
     const currentStep = form.watch('currentStep');
 
+    const formData = form.watch();
+
     const handleSave = useCallback(
         async ({
             isDraft = false,
@@ -91,8 +93,6 @@ export function ClientForm({
             hideToast?: boolean;
         }) => {
             setIsSaving(true);
-
-            const formData = form.getValues();
 
             if (clientId) {
                 await updateClient({
@@ -131,7 +131,7 @@ export function ClientForm({
 
             setIsSaving(false);
         },
-        [form, createClient, navigate, clientId, updateClient],
+        [createClient, navigate, clientId, updateClient, formData],
     );
 
     const handleAutoSave = useCallback(async () => {
