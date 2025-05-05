@@ -29,7 +29,7 @@ export function ChatMessageComponent({
             >
                 <Card
                     className={cn(
-                        'max-w-[80%] overflow-hidden rounded-xl p-4',
+                        'max-w-[95%] overflow-hidden rounded-xl p-4',
                         isUserMessage
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted text-muted-foreground',

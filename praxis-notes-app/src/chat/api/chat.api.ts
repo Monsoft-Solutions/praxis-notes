@@ -3,6 +3,7 @@ import { endpoints } from '@api/providers/server';
 // queries
 import { getChatSessions } from './get-chat-sessions.query';
 import { getChatSession } from './get-chat-session.query';
+import { getSuggestedQuestions } from './get-suggested-questions.query';
 
 // mutations
 import { createChatSession } from './create-chat-session.mutation';
@@ -18,6 +19,7 @@ import { onChatMessageUpdated } from './chat-message-updated.subscription';
 export const chat = endpoints({
     getChatSessions,
     getChatSession,
+    getSuggestedQuestions,
 
     createChatSession,
     sendMessage,
