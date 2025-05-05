@@ -63,6 +63,8 @@ export function ClientForm({
     const { data: interventionsQuery } =
         api.intervention.getInterventions.useQuery();
 
+    const [clientId, setClientId] = useState<string | undefined>(draftId);
+
     const [isSaving, setIsSaving] = useState(false);
 
     const form = useForm<ClientFormType>({
@@ -92,17 +94,25 @@ export function ClientForm({
 
             const formData = form.getValues();
 
-            if (draftId) {
+            if (clientId) {
                 await updateClient({
-                    clientId: draftId,
+                    clientId,
                     ...formData,
                     isDraft,
                 });
             } else {
-                await createClient({
+                const response = await createClient({
                     ...formData,
                     isDraft,
                 });
+
+                if (response.error) {
+                    toast.error('Error saving client');
+                } else {
+                    const { id } = response.data;
+
+                    setClientId(id);
+                }
             }
 
             if (isDraft) {
@@ -121,7 +131,7 @@ export function ClientForm({
 
             setIsSaving(false);
         },
-        [form, createClient, navigate, draftId, updateClient],
+        [form, createClient, navigate, clientId, updateClient],
     );
 
     const handleAutoSave = useCallback(async () => {
