@@ -12,7 +12,13 @@ import {
 
 import { clientGenderEnum } from '../enums';
 
-import { organizationTable, userTable } from '@db/db.tables';
+import {
+    organizationTable,
+    userTable,
+    clientBehaviorTable,
+    clientInterventionTable,
+    clientReplacementProgramTable,
+} from '@db/db.tables';
 
 export const genderEnum = enumType('gender', clientGenderEnum.options);
 
@@ -51,9 +57,15 @@ export const clientTable = table('clients', {
         .notNull(),
 });
 
-export const clientTableRelations = relations(clientTable, ({ one }) => ({
+export const clientTableRelations = relations(clientTable, ({ one, many }) => ({
     organization: one(organizationTable, {
         fields: [clientTable.organizationId],
         references: [organizationTable.id],
     }),
+
+    behaviors: many(clientBehaviorTable),
+
+    replacementPrograms: many(clientReplacementProgramTable),
+
+    interventions: many(clientInterventionTable),
 }));
