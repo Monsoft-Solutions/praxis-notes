@@ -124,7 +124,7 @@ export function ClientForm({
         [form, currentStep],
     );
 
-    const handleComplete = useCallback(
+    const handleSave = useCallback(
         async ({ isDraft = false }: { isDraft?: boolean }) => {
             setIsSaving(true);
 
@@ -168,7 +168,7 @@ export function ClientForm({
 
             void form.handleSubmit(
                 () =>
-                    handleComplete({
+                    handleSave({
                         isDraft: true,
                     }),
                 () => {
@@ -203,7 +203,7 @@ export function ClientForm({
 
     useEffect(() => {
         const handler = () => {
-            void handleComplete({});
+            void handleSave({});
         };
 
         window.addEventListener('clientFormSubmit', handler);
@@ -211,7 +211,7 @@ export function ClientForm({
         return () => {
             window.removeEventListener('clientFormSubmit', handler);
         };
-    }, [handleComplete]);
+    }, [handleSave]);
 
     if (!behaviorsQuery) return null;
     const { error: behaviorsError } = behaviorsQuery;
@@ -286,7 +286,7 @@ export function ClientForm({
                     steps={steps}
                     currentStep={currentStep}
                     onStepChange={handleStepChange}
-                    onComplete={() => void handleComplete({})}
+                    onComplete={() => void handleSave({})}
                     isLastStepSubmitEnabled={isLastStepSubmitEnabled}
                 />
             </div>
