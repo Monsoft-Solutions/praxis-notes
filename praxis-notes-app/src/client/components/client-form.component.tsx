@@ -80,8 +80,58 @@ export function ClientForm({
 
     const currentStep = form.watch('currentStep');
 
+    const handleSave = useCallback(
+        async ({
+            isDraft = false,
+            hideToast = false,
+        }: {
+            isDraft?: boolean;
+            hideToast?: boolean;
+        }) => {
+            setIsSaving(true);
+
+            const formData = form.getValues();
+
+            if (draftId) {
+                await updateClient({
+                    clientId: draftId,
+                    ...formData,
+                    isDraft,
+                });
+            } else {
+                await createClient({
+                    ...formData,
+                    isDraft,
+                });
+            }
+
+            if (isDraft) {
+                if (!hideToast) toast.success('Client saved as draft');
+            } else {
+                toast.success('Client saved');
+
+                await navigate({
+                    to: '/clients',
+                });
+            }
+
+            await apiClientUtils.client.getClients.invalidate();
+
+            trackEvent('client', 'client_save');
+
+            setIsSaving(false);
+        },
+        [form, createClient, navigate, draftId, updateClient],
+    );
+
+    const handleAutoSave = useCallback(async () => {
+        await handleSave({ isDraft: true, hideToast: true });
+    }, [handleSave]);
+
     const handleStepChange = useCallback(
-        (step: number) => {
+        async (step: number) => {
+            await handleAutoSave();
+
             // If going backwards, always allow it
             if (step < currentStep) {
                 form.setValue('currentStep', step);
@@ -121,45 +171,7 @@ export function ClientForm({
             // Clear validation errors when moving to new step
             form.clearErrors();
         },
-        [form, currentStep],
-    );
-
-    const handleSave = useCallback(
-        async ({ isDraft = false }: { isDraft?: boolean }) => {
-            setIsSaving(true);
-
-            const formData = form.getValues();
-
-            if (draftId) {
-                await updateClient({
-                    clientId: draftId,
-                    ...formData,
-                    isDraft,
-                });
-            } else {
-                await createClient({
-                    ...formData,
-                    isDraft,
-                });
-            }
-
-            if (isDraft) {
-                toast.success('Client saved as draft');
-            } else {
-                toast.success('Client saved');
-
-                await navigate({
-                    to: '/clients',
-                });
-            }
-
-            await apiClientUtils.client.getClients.invalidate();
-
-            trackEvent('client', 'client_save');
-
-            setIsSaving(false);
-        },
-        [form, createClient, navigate, draftId, updateClient],
+        [form, currentStep, handleAutoSave],
     );
 
     useBlocker({
@@ -190,7 +202,7 @@ export function ClientForm({
             if (eventParsing.success) {
                 const { step } = eventParsing.data;
 
-                handleStepChange(step);
+                void handleStepChange(step);
             }
         };
 
@@ -285,7 +297,7 @@ export function ClientForm({
                 <MultiStepForm
                     steps={steps}
                     currentStep={currentStep}
-                    onStepChange={handleStepChange}
+                    onStepChange={(step) => void handleStepChange(step)}
                     onComplete={() => void handleSave({})}
                     isLastStepSubmitEnabled={isLastStepSubmitEnabled}
                 />
