@@ -10,6 +10,7 @@ import { updateClient } from './update-client.mutation';
 import { updateClientBehaviors } from './update-client-behaviors.mutation';
 import { updateClientReplacementPrograms } from './update-client-replacement-programs.mutation';
 import { updateClientInterventions } from './update-client-interventions.mutation';
+import { deleteClient } from './delete-client.mutation';
 
 // subscriptions
 
@@ -17,12 +18,14 @@ export const client = endpoints({
     // queries
     getClients,
     getClient,
+
     // mutations
     createClient,
     updateClient,
     updateClientBehaviors,
     updateClientReplacementPrograms,
     updateClientInterventions,
+    deleteClient,
 
     // subscriptions
 });
