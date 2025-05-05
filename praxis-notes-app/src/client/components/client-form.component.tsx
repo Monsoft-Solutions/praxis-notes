@@ -1,6 +1,12 @@
+import { z } from 'zod';
+
+import { useBlocker } from '@tanstack/react-router';
+
 import { useForm, FormProvider } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+
+import { toast } from 'sonner';
 
 import {
     MultiStepForm,
@@ -20,7 +26,6 @@ import { api, apiClientUtils } from '@api/providers/web';
 
 import { Route } from '@routes/_private/_app/clients/new';
 import { useEffect, useCallback } from 'react';
-import { z } from 'zod';
 
 import { trackEvent } from '@analytics/providers';
 
@@ -128,19 +133,46 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
         [form, currentStep],
     );
 
-    const handleComplete = useCallback(async () => {
-        const formData = form.getValues();
+    const handleComplete = useCallback(
+        async ({ isDraft = false }: { isDraft?: boolean }) => {
+            const formData = form.getValues();
 
-        await createClient(formData);
+            await createClient({
+                ...formData,
+                isDraft,
+            });
 
-        trackEvent('client', 'client_save');
+            if (isDraft) {
+                toast.success('Client saved as draft');
+            } else {
+                toast.success('Client saved');
 
-        await apiClientUtils.client.getClients.invalidate();
+                await navigate({
+                    to: '/clients',
+                });
+            }
 
-        await navigate({
-            to: '/clients',
-        });
-    }, [form, createClient, navigate]);
+            await apiClientUtils.client.getClients.invalidate();
+
+            trackEvent('client', 'client_save');
+        },
+        [form, createClient, navigate],
+    );
+
+    useBlocker({
+        blockerFn: () => {
+            void form.handleSubmit(
+                () =>
+                    handleComplete({
+                        isDraft: true,
+                    }),
+                () => {
+                    toast.error('Client was discarded');
+                },
+            )();
+            return true;
+        },
+    });
 
     useEffect(() => {
         const handler = (e: Event) => {
@@ -166,7 +198,7 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
 
     useEffect(() => {
         const handler = () => {
-            void handleComplete();
+            void handleComplete({});
         };
 
         window.addEventListener('clientFormSubmit', handler);
@@ -249,7 +281,7 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
                     steps={steps}
                     currentStep={currentStep}
                     onStepChange={handleStepChange}
-                    onComplete={() => void handleComplete()}
+                    onComplete={() => void handleComplete({})}
                     isLastStepSubmitEnabled={isLastStepSubmitEnabled}
                 />
             </div>
