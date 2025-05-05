@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import { Error, Success } from '@errors/utils';
 
 import { protectedEndpoint } from '@api/providers/server';
@@ -23,7 +25,13 @@ import { clientFormDataSchema } from '../schemas/client-form-data.schema';
 
 // mutation to create a template
 export const createClient = protectedEndpoint
-    .input(clientFormDataSchema)
+    .input(
+        clientFormDataSchema.and(
+            z.object({
+                isDraft: z.boolean().optional(),
+            }),
+        ),
+    )
     .mutation(
         queryMutationCallback(
             async ({
@@ -38,6 +46,7 @@ export const createClient = protectedEndpoint
                     behaviors,
                     replacementPrograms,
                     interventions,
+                    isDraft = false,
                 } = input;
 
                 const clientId = uuidv4();
@@ -49,6 +58,8 @@ export const createClient = protectedEndpoint
 
                         firstName,
                         lastName,
+
+                        isDraft,
 
                         createdBy: user.id,
 
