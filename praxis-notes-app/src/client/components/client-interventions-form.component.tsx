@@ -64,7 +64,7 @@ export function ClientInterventionsForm({
 
     const addIntervention = () => {
         prepend({
-            id: 'New Intervention',
+            id: 'intervention-1                      ',
             behaviorIds: [],
         });
     };

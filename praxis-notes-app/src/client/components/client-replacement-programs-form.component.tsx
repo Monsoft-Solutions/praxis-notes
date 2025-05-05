@@ -103,7 +103,9 @@ export function ClientReplacementProgramsForm({
                 <Button
                     type="button"
                     onClick={() => {
-                        addReplacementProgram({ id: 'New Program' });
+                        addReplacementProgram({
+                            id: 'replacement-program-2               ',
+                        });
                     }}
                     size="sm"
                     className="flex items-center gap-1"

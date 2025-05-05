@@ -95,7 +95,9 @@ export function ClientBehaviorsForm({
                 <Button
                     type="button"
                     onClick={() => {
-                        addBehavior({ id: 'Add a behavior' });
+                        addBehavior({
+                            id: 'behavior-2                          ',
+                        });
                     }}
                     size="sm"
                     className="flex items-center gap-1"
