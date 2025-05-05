@@ -55,7 +55,7 @@ export function ClientForm({
     const navigate = Route.useNavigate();
 
     const { mutateAsync: createClient } = api.client.createClient.useMutation();
-    const { mutateAsync: deleteClient } = api.client.deleteClient.useMutation();
+    const { mutateAsync: updateClient } = api.client.updateClient.useMutation();
 
     const { data: behaviorsQuery } = api.behavior.getBehaviors.useQuery();
     const { data: replacementProgramsQuery } =
@@ -130,10 +130,18 @@ export function ClientForm({
 
             const formData = form.getValues();
 
-            await createClient({
-                ...formData,
-                isDraft,
-            });
+            if (draftId) {
+                await updateClient({
+                    clientId: draftId,
+                    ...formData,
+                    isDraft,
+                });
+            } else {
+                await createClient({
+                    ...formData,
+                    isDraft,
+                });
+            }
 
             if (isDraft) {
                 toast.success('Client saved as draft');
@@ -145,17 +153,13 @@ export function ClientForm({
                 });
             }
 
-            if (draftId) {
-                await deleteClient({ id: draftId });
-            }
-
             await apiClientUtils.client.getClients.invalidate();
 
             trackEvent('client', 'client_save');
 
             setIsSaving(false);
         },
-        [form, createClient, navigate, deleteClient, draftId],
+        [form, createClient, navigate, draftId, updateClient],
     );
 
     useBlocker({
