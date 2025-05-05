@@ -250,7 +250,12 @@ export function ClientForm({
         {
             title: 'Behaviors',
             description: 'Add behaviors for this client',
-            content: <ClientBehaviorsForm existingBehaviors={behaviors} />,
+            content: (
+                <ClientBehaviorsForm
+                    existingBehaviors={behaviors}
+                    onAutoSave={handleAutoSave}
+                />
+            ),
         },
 
         {
@@ -260,6 +265,7 @@ export function ClientForm({
                 <ClientReplacementProgramsForm
                     existingPrograms={replacementPrograms}
                     existingBehaviors={behaviors}
+                    onAutoSave={handleAutoSave}
                 />
             ),
         },
@@ -271,6 +277,7 @@ export function ClientForm({
                 <ClientInterventionsForm
                     existingInterventions={interventions}
                     existingBehaviors={behaviors}
+                    onAutoSave={handleAutoSave}
                 />
             ),
         },
