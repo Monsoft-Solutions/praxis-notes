@@ -60,7 +60,7 @@ export const createClient = protectedEndpoint
 
                 if (error) return Error();
 
-                return Success();
+                return Success({ id: clientId });
             },
         ),
     );
