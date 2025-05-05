@@ -100,6 +100,8 @@ export function ClientForm({
                     ...formData,
                     isDraft,
                 });
+
+                await apiClientUtils.client.getClient.refetch();
             } else {
                 const response = await createClient({
                     ...formData,
