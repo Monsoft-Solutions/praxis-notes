@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { clientGenderEnum } from '../enums';
+
 /**
  * Basic client information schema
  */
@@ -8,7 +10,7 @@ export const clientFormBasicInfoSchema = z.object({
 
     lastName: z.string().min(1, 'Last name is required').max(255),
 
-    gender: z.enum(['male', 'female', 'other']),
+    gender: clientGenderEnum,
 
     notes: z.string().optional().or(z.literal('')),
 });
