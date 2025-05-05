@@ -43,15 +43,16 @@ export const EditClientBasicInfo = ({
         clientId,
     });
 
-    const updateClientMutation = api.client.updateClient.useMutation({
-        onSuccess: () => {
-            toast.success('Client information updated');
-            if (onSaved) onSaved();
-        },
-        onError: () => {
-            toast.error('Failed to update client information');
-        },
-    });
+    const updateClientBasicInfoMutation =
+        api.client.updateClientBasicInfo.useMutation({
+            onSuccess: () => {
+                toast.success('Client information updated');
+                if (onSaved) onSaved();
+            },
+            onError: () => {
+                toast.error('Failed to update client information');
+            },
+        });
 
     useEffect(() => {
         if (!clientQuery?.error && clientQuery?.data) {
@@ -65,7 +66,7 @@ export const EditClientBasicInfo = ({
     }, [clientQuery, form]);
 
     const onSubmit = (data: ClientFormValues) => {
-        updateClientMutation.mutate({
+        updateClientBasicInfoMutation.mutate({
             clientId,
             ...data,
         });
@@ -130,9 +131,9 @@ export const EditClientBasicInfo = ({
                 <div className="flex justify-end pt-4">
                     <Button
                         type="submit"
-                        disabled={updateClientMutation.isPending}
+                        disabled={updateClientBasicInfoMutation.isPending}
                     >
-                        {updateClientMutation.isPending
+                        {updateClientBasicInfoMutation.isPending
                             ? 'Saving...'
                             : 'Save Changes'}
                     </Button>

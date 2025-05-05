@@ -6,7 +6,7 @@ import { getClient } from './get-client.query';
 
 // mutations
 import { createClient } from './create-client.mutation';
-import { updateClient } from './update-client.mutation';
+import { updateClientBasicInfo } from './update-client-basic-info.mutation';
 import { updateClientBehaviors } from './update-client-behaviors.mutation';
 import { updateClientReplacementPrograms } from './update-client-replacement-programs.mutation';
 import { updateClientInterventions } from './update-client-interventions.mutation';
@@ -21,7 +21,7 @@ export const client = endpoints({
 
     // mutations
     createClient,
-    updateClient,
+    updateClientBasicInfo,
     updateClientBehaviors,
     updateClientReplacementPrograms,
     updateClientInterventions,

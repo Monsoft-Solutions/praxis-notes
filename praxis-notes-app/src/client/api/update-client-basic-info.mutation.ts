@@ -15,7 +15,7 @@ import { clientTable } from '@db/db.tables';
 import { eq } from 'drizzle-orm';
 
 // mutation to update a client
-export const updateClient = protectedEndpoint
+export const updateClientBasicInfo = protectedEndpoint
     .input(
         z.object({
             clientId: z.string(),
