@@ -22,6 +22,8 @@ export const clientTable = table('clients', {
 
     isActive: boolean('is_active').default(true).notNull(),
 
+    isDraft: boolean('is_draft').default(false).notNull(),
+
     createdAt: bigint('created_at', {
         mode: 'number',
     }).notNull(),
