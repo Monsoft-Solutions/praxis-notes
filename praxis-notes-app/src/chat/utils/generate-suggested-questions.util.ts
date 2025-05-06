@@ -41,7 +41,7 @@ export const generateSuggestedQuestions = (async ({
             prompt,
             modelParams: {
                 provider: 'anthropic',
-                model: 'claude-3-7-sonnet-latest',
+                model: 'claude-3-haiku-20240307',
                 activeTools: [],
             },
         });
