@@ -38,7 +38,15 @@ export const validateSession = (async ({ sessionId }) => {
     // otherwise...
 
     const {
-        user: { id: userId, organizationId, roles: userRoles, hasDoneTour },
+        user: {
+            id: userId,
+            organizationId,
+            roles: userRoles,
+            hasDoneTour,
+            firstName,
+            lastName,
+            language,
+        },
     } = session;
 
     const validatedSession = {
@@ -47,6 +55,9 @@ export const validateSession = (async ({ sessionId }) => {
             organizationId,
             roles: userRoles.map((userRole) => userRole.role.name),
             hasDoneTour,
+            firstName,
+            lastName,
+            language,
         },
     };
 
