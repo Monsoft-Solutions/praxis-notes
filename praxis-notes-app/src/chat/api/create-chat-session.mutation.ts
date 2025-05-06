@@ -12,8 +12,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { chatSessionTable, chatSuggestedQuestionTable } from '../db';
 
 import { emit } from '@events/providers';
-import { userTable } from '@db/db.tables';
-import { eq } from 'drizzle-orm';
 import { generateSuggestedQuestions } from '../utils/generate-suggested-questions.util';
 
 export const createChatSession = protectedEndpoint.mutation(
@@ -45,21 +43,8 @@ export const createChatSession = protectedEndpoint.mutation(
             // if insertion failed, return an error
             if (sessionError) return Error();
 
-            // Get user information for generating suggested questions
-            const { data: userData, error: userError } = await catchError(
-                db.query.userTable.findFirst({
-                    where: eq(userTable.id, user.id),
-                    columns: {
-                        firstName: true,
-                        language: true,
-                    },
-                }),
-            );
-
-            if (userError) return Error();
-
-            const userName = userData?.firstName ?? 'User';
-            const userLanguage = userData?.language ?? 'en';
+            const userName = user.firstName;
+            const userLanguage = user.language ?? 'en';
 
             // Generate suggested questions
             const { data: suggestedQuestions, error: suggestionsError } =
@@ -75,36 +60,38 @@ export const createChatSession = protectedEndpoint.mutation(
                     'Failed to generate suggested questions:',
                     suggestionsError,
                 );
-            } else if (suggestedQuestions) {
-                // Store each suggested question in the database
-                const suggestedQuestionsPromises = suggestedQuestions.map(
-                    (questionText) => {
-                        const questionId = uuidv4();
-                        return catchError(
-                            db.insert(chatSuggestedQuestionTable).values({
-                                id: questionId,
-                                sessionId,
-                                questionText,
-                                createdAt: now,
-                            }),
-                        );
-                    },
-                );
 
-                // Wait for all insertions to complete
-                await Promise.all(suggestedQuestionsPromises);
-
-                // Emit event for each suggested question
-                // for (const questionText of suggestedQuestions) {
-                //     emit({
-                //         event: 'chatSuggestedQuestionCreated',
-                //         payload: {
-                //             sessionId,
-                //             questionText,
-                //         },
-                //     });
-                // }
+                return Error('FAILED_TO_GENERATE_SUGGESTED_QUESTIONS');
             }
+
+            // Store each suggested question in the database
+            const suggestedQuestionsPromises = suggestedQuestions.map(
+                (questionText) => {
+                    const questionId = uuidv4();
+                    return catchError(
+                        db.insert(chatSuggestedQuestionTable).values({
+                            id: questionId,
+                            sessionId,
+                            questionText,
+                            createdAt: now,
+                        }),
+                    );
+                },
+            );
+
+            // Wait for all insertions to complete
+            await Promise.all(suggestedQuestionsPromises);
+
+            // Emit event for each suggested question
+            // for (const questionText of suggestedQuestions) {
+            //     emit({
+            //         event: 'chatSuggestedQuestionCreated',
+            //         payload: {
+            //             sessionId,
+            //             questionText,
+            //         },
+            //     });
+            // }
 
             // emit the new chat session created event
             emit({

@@ -2,17 +2,16 @@ import { Function } from '@errors/types';
 import { Success } from '@errors/utils';
 import { ClientAbaData } from '@src/client-session/schemas/client-aba-data.schema';
 
-import { GenerateNoteSchema } from '@src/notes/schema/generate-note.schema';
+import { GenerateNotesInput } from '@src/notes/schema/generate-note.schema';
 /**
  * Creates a prompt for generating session notes based on session data
  * @param sessionData The session data to use for generating notes
  * @returns A formatted prompt string
  */
-export const generateNotesPrompt = ((
-    generateNoteSchema: GenerateNoteSchema,
-) => {
-    const { sessionData, clientData } = generateNoteSchema;
-
+export const generateNotesPrompt = (({
+    clientData,
+    sessionData,
+}: GenerateNotesInput) => {
     const prompt = `
 You are a credentialed Registered Behavior Technician (RBT) generating an insurance-ready session note for CPT code 97153 (one-on-one adaptive behavior treatment by protocol).
 
@@ -104,7 +103,7 @@ FINAL VERIFICATION CHECKLIST
 `;
 
     return Success(prompt);
-}) satisfies Function<GenerateNoteSchema, string>;
+}) satisfies Function<GenerateNotesInput, string>;
 
 const expandClientData = (clientData: ClientAbaData) => {
     // Create a map of behavior IDs to names for easy lookup

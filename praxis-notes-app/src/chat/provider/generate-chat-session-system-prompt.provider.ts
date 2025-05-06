@@ -1,11 +1,21 @@
-import { UserLang, userLangEnumSchema } from '@auth/enum/user-lang.enum';
+import { UserLang } from '@auth/enum/user-lang.enum';
+
+import { Function } from '@errors/types';
+import { Success } from '@errors/utils';
+
+import { langMap } from '@shared/utils/language-code-to-name.util';
 
 // Default system message used for new chat sessions
-export const chatSessionSystemPrompt = (
-    userName: string,
-    userId: string,
-    userLanguage: UserLang,
-) => `
+export const chatSessionSystemPrompt = (({
+    userName,
+    userId,
+    userLanguage,
+}: {
+    userName: string;
+    userId: string;
+    userLanguage: UserLang;
+}) => {
+    const prompt = `
 You are an ABA Therapy Assistant, an AI chatbot specialized exclusively in Applied Behavior Analysis therapy. Your purpose is to provide accurate, evidence-based information about ABA principles, techniques, and applications to professionals in the field.
 
 You are currently chatting with ${userName}.
@@ -51,13 +61,15 @@ ETHICS:
 - Advocate for data-driven decision making and individualized treatment approaches
 - Support trauma-informed and culturally responsive approaches to ABA
 
-Remember that you are a resource to support ABA professionals, not to replace human clinical judgment or supervision. Always encourage consultation with qualified supervisors and adherence to professional ethical standards.'`;
+Remember that you are a resource to support ABA professionals, not to replace human clinical judgment or supervision. Always encourage consultation with qualified supervisors and adherence to professional ethical standards.'
+`;
 
-const langMap = (lang: UserLang) => {
-    switch (lang) {
-        case userLangEnumSchema.enum.en:
-            return 'English';
-        case userLangEnumSchema.enum.es:
-            return 'Spanish';
-    }
-};
+    return Success(prompt);
+}) satisfies Function<
+    {
+        userName: string;
+        userId: string;
+        userLanguage: UserLang;
+    },
+    string
+>;

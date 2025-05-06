@@ -1,10 +1,11 @@
 import { z } from 'zod';
 
-import { createFileRoute, Navigate } from '@tanstack/react-router';
-// import { ChatView } from '@src/chat/views';
+import { createFileRoute } from '@tanstack/react-router';
+
+import { ChatView } from '@src/chat/views';
 
 export const Route = createFileRoute('/_private/_app/chat/')({
-    component: () => <Navigate to="/" />,
+    component: () => <ChatView />,
 
     validateSearch: z.object({
         sessionId: z.string().optional(),

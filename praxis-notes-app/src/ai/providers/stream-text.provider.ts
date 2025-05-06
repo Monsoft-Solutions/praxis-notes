@@ -8,7 +8,7 @@ import { streamText as aiSdkStreamText, Message, smoothStream } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 
 import { thinkTool } from '../tools/think.tool';
-import { AiRequest } from '../type/ai-request.type';
+import { AiRequest } from '../schemas/ai-request.schema';
 import { getClientDataTool } from '../tools/get-client-data.tool';
 import { listAvailableClientsTool } from '../tools/list-available-clients.tool';
 
@@ -53,7 +53,7 @@ export const streamText = (async ({
             getClientData: getClientDataTool,
             listAvailableClients: listAvailableClientsTool,
         },
-        experimental_activeTools: modelParams.active_tools,
+        experimental_activeTools: modelParams.activeTools,
         maxSteps: 10,
         maxRetries: 3,
 

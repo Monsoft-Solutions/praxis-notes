@@ -172,10 +172,8 @@ export const generateNotes = protectedEndpoint
 
             const { data: generatedNotes, error: generatedNotesError } =
                 await generateNotesProvider({
-                    input: {
-                        sessionData,
-                        clientData,
-                    },
+                    sessionData,
+                    clientData,
                 });
 
             if (generatedNotesError) return Error();

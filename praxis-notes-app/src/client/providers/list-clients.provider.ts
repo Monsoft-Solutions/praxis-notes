@@ -1,10 +1,12 @@
 import { db } from '@db/providers/server';
-import { catchError } from '@errors/utils/catch-error.util';
 import { eq } from 'drizzle-orm';
 import { clientTable } from '@db/db.tables';
-import { Success } from '@errors/utils/success.util';
 
-export const listClients = async (userId: string) => {
+import { Function } from '@errors/types';
+import { Error, Success } from '@errors/utils';
+import { catchError } from '@errors/utils/catch-error.util';
+
+export const listClients = (async ({ userId }: { userId: string }) => {
     const { data: clients, error: clientsError } = await catchError(
         db.query.clientTable.findMany({
             where: eq(clientTable.createdBy, userId),
@@ -20,4 +22,12 @@ export const listClients = async (userId: string) => {
     if (clientsError) return Error();
 
     return Success(clients);
-};
+}) satisfies Function<
+    { userId: string },
+    {
+        id: string;
+        firstName: string;
+        lastName: string;
+        isActive: boolean;
+    }[]
+>;

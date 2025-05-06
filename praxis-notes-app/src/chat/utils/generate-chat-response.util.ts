@@ -3,7 +3,7 @@ import { Function } from '@errors/types';
 import { Success, Error } from '@errors/utils';
 
 import { ChatMessage } from '../schemas';
-import { chatSessionSystemPrompt } from '../constants';
+import { chatSessionSystemPrompt } from '../provider';
 
 import { streamText } from '@src/ai/providers';
 import { Message } from 'ai';
@@ -33,11 +33,17 @@ export const generateChatResponse = (async ({
         content: msg.content,
     }));
 
+    const { data: systemPrompt } = chatSessionSystemPrompt({
+        userName,
+        userId,
+        userLanguage,
+    });
+
     // Add system message at the start
     const systemMessage: Message = {
         id: 'prompt',
         role: 'system',
-        content: chatSessionSystemPrompt(userName, userId, userLanguage),
+        content: systemPrompt,
     };
 
     // Typically here, you would call an external AI API (OpenAI, Anthropic, etc.)
@@ -53,7 +59,7 @@ export const generateChatResponse = (async ({
         modelParams: {
             provider: 'anthropic',
             model: 'claude-3-7-sonnet-latest',
-            active_tools: ['getClientData', 'listAvailableClients', 'think'],
+            activeTools: ['getClientData', 'listAvailableClients', 'think'],
         },
     });
 

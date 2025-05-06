@@ -15,7 +15,7 @@ export const listAvailableClientsTool = tool({
     description: 'Get available clients for the user',
     execute: async ({ userId }) => {
         console.log('Executing listAvailableClientsTool', userId);
-        const clients = await listClients(userId);
+        const clients = await listClients({ userId });
         return clients;
     },
 });
