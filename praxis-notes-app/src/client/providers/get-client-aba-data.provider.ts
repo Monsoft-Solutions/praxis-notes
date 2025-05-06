@@ -28,7 +28,7 @@ export const getClientAbaData = async (clientId: string) => {
                 intervention: true,
                 behaviors: {
                     with: {
-                        clientBehavior: true,
+                        behavior: true,
                     },
                 },
             },
@@ -47,11 +47,7 @@ export const getClientAbaData = async (clientId: string) => {
                     replacementProgram: true,
                     behaviors: {
                         with: {
-                            clientBehavior: {
-                                with: {
-                                    behavior: true,
-                                },
-                            },
+                            behavior: true,
                         },
                     },
                 },
@@ -86,8 +82,7 @@ export const getClientAbaData = async (clientId: string) => {
             isCustom: organizationId !== null,
             interventionId: clientIntervention.interventionId,
             behaviors: clientIntervention.behaviors.map(
-                (clientBehaviorIntervention) =>
-                    clientBehaviorIntervention.clientBehavior.behaviorId,
+                ({ behaviorId }) => behaviorId,
             ),
         };
     });
@@ -101,9 +96,7 @@ export const getClientAbaData = async (clientId: string) => {
                 name,
                 description,
                 isCustom: organizationId !== null,
-                behaviorIds: behaviors.map(
-                    (behavior) => behavior.clientBehavior.behavior.id,
-                ),
+                behaviorIds: behaviors.map(({ behaviorId }) => behaviorId),
             };
         },
     );

@@ -54,14 +54,14 @@ export const getClient = protectedEndpoint
             const replacementPrograms = client.replacementPrograms.map(
                 ({ replacementProgram: { id }, behaviors }) => ({
                     id,
-                    behaviorIds: behaviors.map(({ id }) => id),
+                    behaviorIds: behaviors.map(({ behaviorId }) => behaviorId),
                 }),
             );
 
             const interventions = client.interventions.map(
                 ({ intervention: { id }, behaviors }) => ({
                     id,
-                    behaviorIds: behaviors.map(({ id }) => id),
+                    behaviorIds: behaviors.map(({ behaviorId }) => behaviorId),
                 }),
             );
 

@@ -14,7 +14,6 @@ import { queryMutationCallback } from '@api/providers/server/query-mutation-call
 import {
     clientInterventionTable,
     clientBehaviorInterventionTable,
-    clientBehaviorTable,
 } from '@db/db.tables';
 import { eq, inArray } from 'drizzle-orm';
 
@@ -44,14 +43,6 @@ export const updateClientInterventions = protectedEndpoint
                                         clientInterventionTable.clientId,
                                         clientId,
                                     ),
-                                );
-
-                            // Get existing client behaviors
-                            const clientBehaviors = await tx
-                                .select()
-                                .from(clientBehaviorTable)
-                                .where(
-                                    eq(clientBehaviorTable.clientId, clientId),
                                 );
 
                             // Track intervention IDs to identify interventions to be deleted
@@ -146,14 +137,6 @@ export const updateClientInterventions = protectedEndpoint
 
                                     // Create new behavior associations
                                     for (const behaviorId of intervention.behaviorIds) {
-                                        const clientBehavior =
-                                            clientBehaviors.find(
-                                                (b) =>
-                                                    b.behaviorId === behaviorId,
-                                            );
-
-                                        if (!clientBehavior) continue;
-
                                         await tx
                                             .insert(
                                                 clientBehaviorInterventionTable,
@@ -162,8 +145,7 @@ export const updateClientInterventions = protectedEndpoint
                                                 id: uuidv4(),
                                                 clientInterventionId:
                                                     existingIntervention.id,
-                                                clientBehaviorId:
-                                                    clientBehavior.id,
+                                                behaviorId,
                                                 createdAt: Date.now(),
                                             });
                                     }
@@ -184,14 +166,6 @@ export const updateClientInterventions = protectedEndpoint
 
                                     // Add behavior associations for the new intervention
                                     for (const behaviorId of intervention.behaviorIds) {
-                                        const clientBehavior =
-                                            clientBehaviors.find(
-                                                (b) =>
-                                                    b.behaviorId === behaviorId,
-                                            );
-
-                                        if (!clientBehavior) continue;
-
                                         await tx
                                             .insert(
                                                 clientBehaviorInterventionTable,
@@ -200,8 +174,7 @@ export const updateClientInterventions = protectedEndpoint
                                                 id: uuidv4(),
                                                 clientInterventionId:
                                                     newInterventionId,
-                                                clientBehaviorId:
-                                                    clientBehavior.id,
+                                                behaviorId,
                                                 createdAt: Date.now(),
                                             });
                                     }

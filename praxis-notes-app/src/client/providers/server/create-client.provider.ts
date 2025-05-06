@@ -97,18 +97,12 @@ export const createClient = (async ({
         if (replacementProgramsError) return Error();
 
         for (const behaviorId of replacementProgram.behaviorIds) {
-            const clientBehavior = clientBehaviors.find(
-                (behavior) => behavior.behaviorId === behaviorId,
-            );
-
-            if (!clientBehavior) return Error();
-
             const { error: replacementProgramBehaviorsError } =
                 await catchError(
                     db.insert(clientReplacementProgramBehaviorTable).values({
                         id: uuidv4(),
                         clientReplacementProgramId,
-                        clientBehaviorId: clientBehavior.id,
+                        behaviorId,
                     }),
                 );
 
@@ -142,7 +136,7 @@ export const createClient = (async ({
                 db.insert(clientBehaviorInterventionTable).values({
                     id: uuidv4(),
                     clientInterventionId,
-                    clientBehaviorId: clientBehavior.id,
+                    behaviorId,
                     createdAt: Date.now(),
                 }),
             );

@@ -26,7 +26,7 @@ export const getClientInterventions = protectedEndpoint
                         intervention: true,
                         behaviors: {
                             with: {
-                                clientBehavior: true,
+                                behavior: true,
                             },
                         },
                     },
@@ -47,7 +47,7 @@ export const getClientInterventions = protectedEndpoint
                         isCustom: organizationId !== null,
                         clientInterventionId: clientIntervention.id,
                         behaviors: clientIntervention.behaviors.map(
-                            ({ clientBehavior }) => clientBehavior.behaviorId,
+                            ({ behaviorId }) => behaviorId,
                         ),
                     };
                 },

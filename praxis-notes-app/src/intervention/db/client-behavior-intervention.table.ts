@@ -3,7 +3,7 @@ import { relations } from 'drizzle-orm';
 import { table, char, bigint } from '@db/sql';
 
 import { clientInterventionTable } from './client-intervention.table';
-import { clientBehaviorTable } from '@src/behavior/db';
+import { behaviorTable } from '@src/behavior/db';
 
 /**
  * many-to-many relationship between client behaviors and client interventions
@@ -20,8 +20,8 @@ export const clientBehaviorInterventionTable = table(
             })
             .notNull(),
 
-        clientBehaviorId: char('client_behavior_id', { length: 36 })
-            .references(() => clientBehaviorTable.id, {
+        behaviorId: char('behavior_id', { length: 36 })
+            .references(() => behaviorTable.id, {
                 onDelete: 'cascade',
             })
             .notNull(),
@@ -41,9 +41,9 @@ export const clientBehaviorInterventionTableRelations = relations(
             references: [clientInterventionTable.id],
         }),
 
-        clientBehavior: one(clientBehaviorTable, {
-            fields: [clientBehaviorInterventionTable.clientBehaviorId],
-            references: [clientBehaviorTable.id],
+        behavior: one(behaviorTable, {
+            fields: [clientBehaviorInterventionTable.behaviorId],
+            references: [behaviorTable.id],
         }),
     }),
 );
