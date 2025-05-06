@@ -26,9 +26,9 @@ export const getClientAbaData = async (clientId: string) => {
             where: (record) => eq(record.clientId, clientId),
             with: {
                 intervention: true,
-                clientBehaviorInterventions: {
+                behaviors: {
                     with: {
-                        clientBehavior: true,
+                        behavior: true,
                     },
                 },
             },
@@ -47,11 +47,7 @@ export const getClientAbaData = async (clientId: string) => {
                     replacementProgram: true,
                     behaviors: {
                         with: {
-                            clientBehavior: {
-                                with: {
-                                    behavior: true,
-                                },
-                            },
+                            behavior: true,
                         },
                     },
                 },
@@ -85,9 +81,8 @@ export const getClientAbaData = async (clientId: string) => {
             description,
             isCustom: organizationId !== null,
             interventionId: clientIntervention.interventionId,
-            behaviors: clientIntervention.clientBehaviorInterventions.map(
-                (clientBehaviorIntervention) =>
-                    clientBehaviorIntervention.clientBehavior.behaviorId,
+            behaviors: clientIntervention.behaviors.map(
+                ({ behaviorId }) => behaviorId,
             ),
         };
     });
@@ -101,9 +96,7 @@ export const getClientAbaData = async (clientId: string) => {
                 name,
                 description,
                 isCustom: organizationId !== null,
-                behaviorIds: behaviors.map(
-                    (behavior) => behavior.clientBehavior.behavior.id,
-                ),
+                behaviorIds: behaviors.map(({ behaviorId }) => behaviorId),
             };
         },
     );

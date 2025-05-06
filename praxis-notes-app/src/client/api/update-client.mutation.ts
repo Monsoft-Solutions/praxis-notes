@@ -1,52 +1,78 @@
-import { Error, Success } from '@errors/utils';
-
-import { protectedEndpoint } from '@api/providers/server';
-
 import { z } from 'zod';
-
-import { db } from '@db/providers/server';
-
-import { catchError } from '@errors/utils/catch-error.util';
-
-import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
-
-import { clientTable } from '@db/db.tables';
 
 import { eq } from 'drizzle-orm';
 
-// mutation to update a client
+import { Error, Success } from '@errors/utils';
+import { catchError } from '@errors/utils/catch-error.util';
+
+import { protectedEndpoint } from '@api/providers/server';
+
+import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
+
+import { clientFormDataSchema } from '../schemas/client-form-data.schema';
+
+import { createClient as createClientProvider } from '../providers/server';
+
+import { db } from '@db/providers/server';
+
+import { clientTable } from '@db/db.tables';
+
+// mutation to create a template
 export const updateClient = protectedEndpoint
     .input(
-        z.object({
-            clientId: z.string(),
-            firstName: z.string(),
-            lastName: z.string(),
-            isActive: z.boolean(),
-        }),
+        clientFormDataSchema.and(
+            z.object({
+                clientId: z.string(),
+                isDraft: z.boolean().optional(),
+            }),
+        ),
     )
     .mutation(
-        queryMutationCallback(async ({ input }) => {
-            const { clientId, firstName, lastName, isActive } = input;
+        queryMutationCallback(
+            async ({
+                ctx: {
+                    session: { user },
+                },
+                input,
+            }) => {
+                const {
+                    firstName,
+                    lastName,
+                    gender,
+                    behaviors,
+                    replacementPrograms,
+                    interventions,
+                    isDraft = false,
+                    clientId,
+                } = input;
 
-            // Update the client record
-            const { error } = await catchError(
-                db
-                    .update(clientTable)
-                    .set({
-                        firstName,
-                        lastName,
-                        isActive,
-                        updatedAt: Date.now(),
-                    })
-                    .where(eq(clientTable.id, clientId)),
-            );
+                const { error: clientDeleteError } = await catchError(
+                    db.delete(clientTable).where(eq(clientTable.id, clientId)),
+                );
 
-            // if update failed, return the error
-            if (error) {
-                if (error === 'DUPLICATE_ENTRY') return Error('DUPLICATE');
-                return Error();
-            }
+                if (clientDeleteError) return Error();
 
-            return Success();
-        }),
+                const { error: clientCreateError } = await createClientProvider(
+                    {
+                        clientId,
+                        user,
+
+                        clientFormData: {
+                            firstName,
+                            lastName,
+                            gender,
+                            behaviors,
+                            replacementPrograms,
+                            interventions,
+                        },
+
+                        isDraft,
+                    },
+                );
+
+                if (clientCreateError) return Error();
+
+                return Success();
+            },
+        ),
     );

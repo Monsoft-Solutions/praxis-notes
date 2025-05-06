@@ -14,7 +14,6 @@ import { queryMutationCallback } from '@api/providers/server/query-mutation-call
 import {
     clientReplacementProgramTable,
     clientReplacementProgramBehaviorTable,
-    clientBehaviorTable,
 } from '@db/db.tables';
 import { eq, inArray } from 'drizzle-orm';
 
@@ -44,14 +43,6 @@ export const updateClientReplacementPrograms = protectedEndpoint
                                         clientReplacementProgramTable.clientId,
                                         clientId,
                                     ),
-                                );
-
-                            // Get existing client behaviors
-                            const clientBehaviors = await tx
-                                .select()
-                                .from(clientBehaviorTable)
-                                .where(
-                                    eq(clientBehaviorTable.clientId, clientId),
                                 );
 
                             // Track program IDs to identify programs to be deleted
@@ -137,16 +128,6 @@ export const updateClientReplacementPrograms = protectedEndpoint
 
                                     // Create new behavior associations
                                     for (const behaviorId of program.behaviorIds) {
-                                        const clientBehavior =
-                                            clientBehaviors.find(
-                                                (b) =>
-                                                    b.behaviorId === behaviorId,
-                                            );
-
-                                        if (!clientBehavior) {
-                                            continue;
-                                        }
-
                                         await tx
                                             .insert(
                                                 clientReplacementProgramBehaviorTable,
@@ -155,8 +136,7 @@ export const updateClientReplacementPrograms = protectedEndpoint
                                                 id: uuidv4(),
                                                 clientReplacementProgramId:
                                                     existingProgram.id,
-                                                clientBehaviorId:
-                                                    clientBehavior.id,
+                                                behaviorId,
                                             });
                                     }
                                 } else {
@@ -174,14 +154,6 @@ export const updateClientReplacementPrograms = protectedEndpoint
 
                                     // Add behavior associations for the new program
                                     for (const behaviorId of program.behaviorIds) {
-                                        const clientBehavior =
-                                            clientBehaviors.find(
-                                                (b) =>
-                                                    b.behaviorId === behaviorId,
-                                            );
-
-                                        if (!clientBehavior) continue;
-
                                         await tx
                                             .insert(
                                                 clientReplacementProgramBehaviorTable,
@@ -190,8 +162,7 @@ export const updateClientReplacementPrograms = protectedEndpoint
                                                 id: uuidv4(),
                                                 clientReplacementProgramId:
                                                     newProgramId,
-                                                clientBehaviorId:
-                                                    clientBehavior.id,
+                                                behaviorId,
                                             });
                                     }
                                 }

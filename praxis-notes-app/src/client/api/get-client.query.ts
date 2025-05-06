@@ -17,15 +17,61 @@ export const getClient = protectedEndpoint
     .query(
         queryMutationCallback(async ({ input: { clientId } }) => {
             // get client from db
-            const clients = await db
-                .select()
-                .from(clientTable)
-                .where(eq(clientTable.id, clientId));
+            const client = await db.query.clientTable.findFirst({
+                where: eq(clientTable.id, clientId),
 
-            if (clients.length === 0) return Error('NOT_FOUND');
+                with: {
+                    behaviors: {
+                        with: {
+                            behavior: true,
+                        },
+                    },
+                    replacementPrograms: {
+                        with: {
+                            replacementProgram: true,
+                            behaviors: true,
+                        },
+                    },
+                    interventions: {
+                        with: {
+                            intervention: true,
+                            behaviors: true,
+                        },
+                    },
+                },
+            });
 
-            const client = clients[0];
+            if (!client) return Error('NOT_FOUND');
 
-            return Success(client);
+            const behaviors = client.behaviors.map(
+                ({ behavior, type, baseline }) => ({
+                    ...behavior,
+                    type,
+                    baseline,
+                }),
+            );
+
+            const replacementPrograms = client.replacementPrograms.map(
+                ({ replacementProgram: { id }, behaviors }) => ({
+                    id,
+                    behaviorIds: behaviors.map(({ behaviorId }) => behaviorId),
+                }),
+            );
+
+            const interventions = client.interventions.map(
+                ({ intervention: { id }, behaviors }) => ({
+                    id,
+                    behaviorIds: behaviors.map(({ behaviorId }) => behaviorId),
+                }),
+            );
+
+            const clientData = {
+                ...client,
+                behaviors,
+                replacementPrograms,
+                interventions,
+            };
+
+            return Success(clientData);
         }),
     );

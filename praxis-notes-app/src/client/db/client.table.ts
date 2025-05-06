@@ -1,8 +1,26 @@
 import { relations } from 'drizzle-orm';
 
-import { table, char, varchar, boolean, bigint } from '@db/sql';
+import {
+    table,
+    char,
+    varchar,
+    boolean,
+    bigint,
+    enumType,
+    sqlEnum,
+} from '@db/sql';
 
-import { organizationTable, userTable } from '@db/db.tables';
+import { clientGenderEnum } from '../enums';
+
+import {
+    organizationTable,
+    userTable,
+    clientBehaviorTable,
+    clientInterventionTable,
+    clientReplacementProgramTable,
+} from '@db/db.tables';
+
+export const genderEnum = enumType('gender', clientGenderEnum.options);
 
 /**
  * clients
@@ -20,7 +38,11 @@ export const clientTable = table('clients', {
 
     lastName: varchar('last_name', { length: 255 }).notNull(),
 
+    gender: sqlEnum('gender', genderEnum).notNull(),
+
     isActive: boolean('is_active').default(true).notNull(),
+
+    isDraft: boolean('is_draft').default(false).notNull(),
 
     createdAt: bigint('created_at', {
         mode: 'number',
@@ -35,9 +57,15 @@ export const clientTable = table('clients', {
         .notNull(),
 });
 
-export const clientTableRelations = relations(clientTable, ({ one }) => ({
+export const clientTableRelations = relations(clientTable, ({ one, many }) => ({
     organization: one(organizationTable, {
         fields: [clientTable.organizationId],
         references: [organizationTable.id],
     }),
+
+    behaviors: many(clientBehaviorTable),
+
+    replacementPrograms: many(clientReplacementProgramTable),
+
+    interventions: many(clientInterventionTable),
 }));

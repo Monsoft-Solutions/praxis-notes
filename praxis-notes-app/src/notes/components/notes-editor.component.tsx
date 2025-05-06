@@ -19,6 +19,8 @@ import { trackEvent } from '@analytics/providers';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
 
+import { Route } from '@routes/_private/_app/clients/$clientId/sessions/$sessionId/index.tsx';
+
 type NotesEditorProps = {
     sessionId: string;
     initialData?: string;
@@ -29,6 +31,8 @@ const saveNotesButtonId: TourStepId = 'save-notes-button';
 const downloadNotesButtonId: TourStepId = 'download-notes-button';
 
 export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
+    const { isGenerating } = Route.useSearch();
+
     const { mutateAsync: generateNotes } =
         api.notes.generateNotes.useMutation();
 
@@ -38,7 +42,9 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
 
     const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
 
-    const [isGeneratingNotes, setIsGeneratingNotes] = useState(false);
+    const [isGeneratingNotes, setIsGeneratingNotes] = useState(
+        isGenerating ?? false,
+    );
 
     const [isSavingNotes, setIsSavingNotes] = useState(false);
 
