@@ -9,10 +9,9 @@ import { queryMutationCallback } from '@api/providers/server/query-mutation-call
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { chatSessionTable, chatSuggestedQuestionTable } from '../db';
+import { chatSessionTable } from '../db';
 
 import { emit } from '@events/providers';
-import { generateSuggestedQuestions } from '../utils/generate-suggested-questions.util';
 
 export const createChatSession = protectedEndpoint.mutation(
     queryMutationCallback(
@@ -43,55 +42,14 @@ export const createChatSession = protectedEndpoint.mutation(
             // if insertion failed, return an error
             if (sessionError) return Error();
 
-            const userName = user.firstName;
-            const userLanguage = user.language ?? 'en';
-
-            // Generate suggested questions
-            const { data: suggestedQuestions, error: suggestionsError } =
-                await generateSuggestedQuestions({
-                    userName,
-                    userLanguage,
-                });
-
-            if (suggestionsError) {
-                // If we fail to generate questions, continue with the session creation
-                // but log the error
-                console.error(
-                    'Failed to generate suggested questions:',
-                    suggestionsError,
-                );
-
-                return Error('FAILED_TO_GENERATE_SUGGESTED_QUESTIONS');
-            }
-
-            // Store each suggested question in the database
-            const suggestedQuestionsPromises = suggestedQuestions.map(
-                (questionText) => {
-                    const questionId = uuidv4();
-                    return catchError(
-                        db.insert(chatSuggestedQuestionTable).values({
-                            id: questionId,
-                            sessionId,
-                            questionText,
-                            createdAt: now,
-                        }),
-                    );
+            // emit event that will trigger the generation of suggested questions
+            // listener will emit another event with the generated questions
+            emit({
+                event: 'suggestedQuestionsRequested',
+                payload: {
+                    sessionId,
                 },
-            );
-
-            // Wait for all insertions to complete
-            await Promise.all(suggestedQuestionsPromises);
-
-            // Emit event for each suggested question
-            // for (const questionText of suggestedQuestions) {
-            //     emit({
-            //         event: 'chatSuggestedQuestionCreated',
-            //         payload: {
-            //             sessionId,
-            //             questionText,
-            //         },
-            //     });
-            // }
+            });
 
             // emit the new chat session created event
             emit({

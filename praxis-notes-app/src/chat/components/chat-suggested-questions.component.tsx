@@ -1,7 +1,10 @@
-import { api } from '@api/providers/web';
+import { useState } from 'react';
+
 import { Button } from '@shared/ui/button.ui';
+
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/ui/tooltip.ui';
-import { ChatSuggestedQuestion } from '../schemas/chat-suggested-question.schema';
+
+import { api } from '@api/providers/web';
 
 type ChatSuggestedQuestionsProps = {
     sessionId: string;
@@ -14,19 +17,21 @@ export function ChatSuggestedQuestions({
     onQuestionSelect,
     className,
 }: ChatSuggestedQuestionsProps) {
-    const { data: suggestedQuestionsData } =
-        api.chat.getSuggestedQuestions.useQuery(
-            { sessionId },
-            {
-                enabled: !!sessionId,
+    const [suggestedQuestions, setSuggestedQuestions] = useState<
+        { id: string; questionText: string }[] | undefined
+    >(undefined);
+
+    api.chat.onSuggestedQuestionsCreated.useSubscription(
+        { sessionId },
+
+        {
+            onData: (data) => {
+                setSuggestedQuestions(data);
             },
-        );
+        },
+    );
 
-    if (suggestedQuestionsData?.error || !suggestedQuestionsData?.data) {
-        return null;
-    }
-
-    const suggestedQuestions = suggestedQuestionsData.data.questions;
+    if (!suggestedQuestions) return null;
 
     return (
         // {isLoading && (
@@ -53,7 +58,7 @@ export function ChatSuggestedQuestions({
                 <span>Try asking about:</span>
             </p>
             <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                {suggestedQuestions.map((question: ChatSuggestedQuestion) => (
+                {suggestedQuestions.map((question) => (
                     <Tooltip key={question.id}>
                         <TooltipTrigger asChild>
                             <Button
