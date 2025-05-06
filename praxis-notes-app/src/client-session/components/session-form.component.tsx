@@ -149,19 +149,7 @@ export function SessionForm({
                 if (isEditMode && sessionId) {
                     const response = await updateClientSession({
                         sessionId,
-                        sessionForm: {
-                            ...sessionData,
-                            replacementProgramEntries:
-                                sessionData.replacementProgramEntries.map(
-                                    (entry) => ({
-                                        ...entry,
-                                        progress:
-                                            entry.progress !== null
-                                                ? String(entry.progress)
-                                                : null,
-                                    }),
-                                ),
-                        },
+                        sessionForm: sessionData,
                     });
 
                     success = response.error === null;
@@ -186,6 +174,7 @@ export function SessionForm({
                         responseData = createSessionResponse.data;
                         responseId = responseData.id;
                         trackEvent('session', 'session_create');
+                        success = true;
                     } else {
                         toast.error('Error saving session');
                     }
@@ -193,7 +182,7 @@ export function SessionForm({
 
                 // Handle notes generation if needed and successful
                 if (initNotes && success && responseId) {
-                    await generateNotes({
+                    void generateNotes({
                         sessionId: responseId,
                     });
                     toast.success('Notes generated');
@@ -326,6 +315,7 @@ export function SessionForm({
                                     handleSaveSession({
                                         data,
                                         initNotes: false,
+                                        doNavigate: false,
                                     }),
                                 )(e);
                             }}
@@ -348,6 +338,7 @@ export function SessionForm({
                                         handleSaveSession({
                                             data,
                                             initNotes: false,
+                                            doNavigate: true,
                                         }),
                                     )(e);
                                 }}
@@ -368,6 +359,7 @@ export function SessionForm({
                                         handleSaveSession({
                                             data,
                                             initNotes: true,
+                                            doNavigate: true,
                                         }),
                                     )(e);
                                 }}

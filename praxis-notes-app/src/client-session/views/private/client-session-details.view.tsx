@@ -46,8 +46,8 @@ export function ClientSessionDetailsView() {
         startTime: session.startTime,
         endTime: session.endTime,
         location: session.location,
-        presentParticipants: session.participants.map((p) => p.id),
-        environmentalChanges: session.environmentalChanges.map((ec) => ec.id),
+        presentParticipants: session.participants.map((p) => p.name),
+        environmentalChanges: session.environmentalChanges.map((ec) => ec.name),
         abcIdEntries: session.abcEntries.map((entry) => ({
             antecedentId: entry.antecedent.id,
             behaviorIds: entry.behaviors.map((b) => b.id),
