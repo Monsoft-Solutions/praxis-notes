@@ -142,6 +142,7 @@ export function SessionForm({
                 if (success) {
                     void generateNotes({
                         sessionId: response.data.id,
+                        save: true,
                     });
                 }
 

@@ -3,10 +3,11 @@ import { Function } from '@errors/types';
 import { Success, Error } from '@errors/utils';
 
 import { ChatMessage } from '../schemas';
-import { chatSessionSystemPrompt } from '../constants';
+import { chatSessionSystemPrompt } from '../provider';
 
 import { streamText } from '@src/ai/providers';
 import { Message } from 'ai';
+import { UserLang } from '@auth/enum/user-lang.enum';
 
 /**
  * Generates an AI response for a chat conversation
@@ -16,8 +17,14 @@ import { Message } from 'ai';
  */
 export const generateChatResponse = (async ({
     messages,
+    userName,
+    userId,
+    userLanguage,
 }: {
     messages: ChatMessage[];
+    userName: string;
+    userId: string;
+    userLanguage: UserLang;
 }) => {
     // Prepare the conversation history
     const messageHistory = messages.map((msg) => ({
@@ -26,11 +33,17 @@ export const generateChatResponse = (async ({
         content: msg.content,
     }));
 
+    const { data: systemPrompt } = chatSessionSystemPrompt({
+        userName,
+        userId,
+        userLanguage,
+    });
+
     // Add system message at the start
     const systemMessage: Message = {
         id: 'prompt',
         role: 'system',
-        content: chatSessionSystemPrompt,
+        content: systemPrompt,
     };
 
     // Typically here, you would call an external AI API (OpenAI, Anthropic, etc.)
@@ -43,12 +56,22 @@ export const generateChatResponse = (async ({
 
     const { data: textStream, error: textGenerationError } = await streamText({
         messages: [systemMessage, ...messageHistory],
+        modelParams: {
+            provider: 'anthropic',
+            model: 'claude-3-7-sonnet-latest',
+            activeTools: ['getClientData', 'listAvailableClients', 'think'],
+        },
     });
 
     if (textGenerationError) return Error('TEXT_GENERATION_ERROR');
 
     return Success(textStream);
 }) satisfies Function<
-    { messages: ChatMessage[] },
+    {
+        messages: ChatMessage[];
+        userName: string;
+        userId: string;
+        userLanguage: UserLang;
+    },
     ReadableStreamDefaultReader<string>
 >;

@@ -18,151 +18,166 @@ import { chatSessionTable, chatMessageTable } from '../db';
 import { ChatMessage, createChatMessageSchema } from '../schemas';
 import { generateChatResponse } from '../utils/generate-chat-response.util';
 import { generateChatSessionTitle } from '../utils/generate-chat-session-title.util';
+
 export const sendMessage = protectedEndpoint
     .input(createChatMessageSchema)
     .mutation(
-        queryMutationCallback(async ({ input: { content, sessionId } }) => {
-            // Get previous messages for context
-            const { data: previousMessages, error: previousMessagesError } =
-                await catchError(
-                    db.query.chatMessageTable.findMany({
-                        where: eq(chatMessageTable.sessionId, sessionId),
-                        orderBy: chatMessageTable.createdAt,
-                    }),
+        queryMutationCallback(
+            async ({
+                input: { content, sessionId },
+                ctx: {
+                    session: { user },
+                },
+            }) => {
+                // Get previous messages for context
+                const { data: previousMessages, error: previousMessagesError } =
+                    await catchError(
+                        db.query.chatMessageTable.findMany({
+                            where: eq(chatMessageTable.sessionId, sessionId),
+                            orderBy: chatMessageTable.createdAt,
+                        }),
+                    );
+
+                if (previousMessagesError) return Error();
+
+                // current timestamp
+                const now = Date.now();
+
+                // Create the user message
+                const userMessage: ChatMessage = {
+                    id: uuidv4(),
+                    sessionId,
+                    content,
+                    role: 'user',
+                    createdAt: now,
+                };
+
+                // Insert user message
+                const { error: userMessageError } = await catchError(
+                    db.insert(chatMessageTable).values(userMessage),
                 );
 
-            if (previousMessagesError) return Error();
+                if (userMessageError) return Error();
 
-            // current timestamp
-            const now = Date.now();
-
-            // Create the user message
-            const userMessage: ChatMessage = {
-                id: uuidv4(),
-                sessionId,
-                content,
-                role: 'user',
-                createdAt: now,
-            };
-
-            // Insert user message
-            const { error: userMessageError } = await catchError(
-                db.insert(chatMessageTable).values(userMessage),
-            );
-
-            if (userMessageError) return Error();
-
-            // Emit event for the user message
-            emit({
-                event: 'chatMessageCreated',
-                payload: userMessage,
-            });
-
-            // Create the assistant message
-            const assistantMessage: ChatMessage = {
-                id: uuidv4(),
-                sessionId,
-                content: '',
-                role: 'assistant',
-                createdAt: Date.now(),
-            };
-
-            // Emit event for the assistant message
-            emit({
-                event: 'chatMessageCreated',
-                payload: assistantMessage,
-            });
-
-            // Insert assistant message
-            const { error: assistantMessageError } = await catchError(
-                db.insert(chatMessageTable).values(assistantMessage),
-            );
-
-            if (assistantMessageError) return Error();
-
-            const allMessages = [...previousMessages, userMessage];
-
-            // Generate AI response
-            const { data: responseStream, error: aiResponseError } =
-                await generateChatResponse({
-                    messages: allMessages,
+                // Emit event for the user message
+                emit({
+                    event: 'chatMessageCreated',
+                    payload: userMessage,
                 });
 
-            if (aiResponseError) return Error();
+                // Create the assistant message
+                const assistantMessage: ChatMessage = {
+                    id: uuidv4(),
+                    sessionId,
+                    content: '',
+                    role: 'assistant',
+                    createdAt: Date.now(),
+                };
 
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            while (true) {
-                const { done, value: textDelta } = await responseStream.read();
+                // Emit event for the assistant message
+                emit({
+                    event: 'chatMessageCreated',
+                    payload: assistantMessage,
+                });
 
-                if (done) break;
-
-                // update assistant message
+                // Insert assistant message
                 const { error: assistantMessageError } = await catchError(
-                    db.transaction(async (tx) => {
-                        const currentMessage =
-                            await tx.query.chatMessageTable.findFirst({
-                                where: eq(
-                                    chatMessageTable.id,
-                                    assistantMessage.id,
-                                ),
-                            });
-
-                        if (!currentMessage) throw 'MESSAGE_NOT_FOUND';
-
-                        const { content: currentContent } = currentMessage;
-
-                        const newContent = currentContent + textDelta;
-
-                        await tx
-                            .update(chatMessageTable)
-                            .set({ content: newContent })
-                            .where(
-                                eq(chatMessageTable.id, assistantMessage.id),
-                            );
-
-                        emit({
-                            event: 'chatMessageUpdated',
-                            payload: {
-                                sessionId,
-                                id: assistantMessage.id,
-                                content: newContent,
-                            },
-                        });
-                    }),
+                    db.insert(chatMessageTable).values(assistantMessage),
                 );
 
                 if (assistantMessageError) return Error();
-            }
 
-            let title: string | undefined = undefined;
+                const allMessages = [...previousMessages, userMessage];
 
-            if (previousMessages.length === 0) {
-                const { data: generatedTitle, error: generatedTitleError } =
-                    await generateChatSessionTitle({
-                        firstMessage: content,
+                // Generate AI response
+                const { data: responseStream, error: aiResponseError } =
+                    await generateChatResponse({
+                        messages: allMessages,
+                        userName: user.firstName,
+                        userId: user.id,
+                        userLanguage: user.language ?? 'en',
                     });
 
-                if (generatedTitleError) return Error();
+                if (aiResponseError) return Error();
 
-                title = generatedTitle;
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+                while (true) {
+                    const { done, value: textDelta } =
+                        await responseStream.read();
 
-                emit({
-                    event: 'chatSessionTitleUpdated',
-                    payload: {
-                        id: sessionId,
-                        title,
-                    },
-                });
-            }
+                    if (done) break;
 
-            // Update session's updatedAt timestamp
-            await catchError(
-                db
-                    .update(chatSessionTable)
-                    .set({ updatedAt: Date.now(), title })
-                    .where(eq(chatSessionTable.id, sessionId)),
-            );
+                    // update assistant message
+                    const { error: assistantMessageError } = await catchError(
+                        db.transaction(async (tx) => {
+                            const currentMessage =
+                                await tx.query.chatMessageTable.findFirst({
+                                    where: eq(
+                                        chatMessageTable.id,
+                                        assistantMessage.id,
+                                    ),
+                                });
 
-            return Success();
-        }),
+                            if (!currentMessage) throw 'MESSAGE_NOT_FOUND';
+
+                            const { content: currentContent } = currentMessage;
+
+                            const newContent = currentContent + textDelta;
+
+                            await tx
+                                .update(chatMessageTable)
+                                .set({ content: newContent })
+                                .where(
+                                    eq(
+                                        chatMessageTable.id,
+                                        assistantMessage.id,
+                                    ),
+                                );
+
+                            emit({
+                                event: 'chatMessageUpdated',
+                                payload: {
+                                    sessionId,
+                                    id: assistantMessage.id,
+                                    content: newContent,
+                                },
+                            });
+                        }),
+                    );
+
+                    if (assistantMessageError) return Error();
+                }
+
+                let title: string | undefined = undefined;
+
+                if (previousMessages.length === 0) {
+                    const { data: generatedTitle, error: generatedTitleError } =
+                        await generateChatSessionTitle({
+                            firstMessage: content,
+                        });
+
+                    if (generatedTitleError) return Error();
+
+                    title = generatedTitle;
+
+                    emit({
+                        event: 'chatSessionTitleUpdated',
+                        payload: {
+                            id: sessionId,
+                            title,
+                        },
+                    });
+                }
+
+                // Update session's updatedAt timestamp
+                await catchError(
+                    db
+                        .update(chatSessionTable)
+                        .set({ updatedAt: Date.now(), title })
+                        .where(eq(chatSessionTable.id, sessionId)),
+                );
+
+                return Success();
+            },
+        ),
     );

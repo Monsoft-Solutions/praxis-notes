@@ -351,6 +351,13 @@
       "when": 1746538010044,
       "tag": "0049_nasty_the_captain",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1746539723479,
+      "tag": "0050_dizzy_the_leader",
+      "breakpoints": true
     }
   ]
 }

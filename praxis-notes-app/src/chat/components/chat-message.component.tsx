@@ -1,6 +1,7 @@
 import { cn } from '@css/utils';
 import { Card } from '@ui/card.ui';
 import type { ChatMessage } from '../schemas';
+import ReactMarkdown from 'react-markdown';
 
 type ChatMessageProps = {
     message: ChatMessage;
@@ -28,7 +29,7 @@ export function ChatMessageComponent({
             >
                 <Card
                     className={cn(
-                        'max-w-[80%] overflow-hidden rounded-xl p-4',
+                        'max-w-[95%] overflow-hidden rounded-xl p-4',
                         isUserMessage
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted text-muted-foreground',
@@ -40,7 +41,7 @@ export function ChatMessageComponent({
                             isLoading && 'animate-pulse',
                         )}
                     >
-                        {message.content}
+                        <ReactMarkdown>{message.content}</ReactMarkdown>
                     </div>
                 </Card>
 

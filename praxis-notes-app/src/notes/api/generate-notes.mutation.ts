@@ -16,11 +16,13 @@ import { getClientAbaData } from '@src/client/providers';
 
 import { emit } from '@events/providers';
 
+import { clientSessionTable } from '@src/client-session/db';
+
 // mutation to generate notes
 export const generateNotes = protectedEndpoint
-    .input(z.object({ sessionId: z.string() }))
+    .input(z.object({ sessionId: z.string(), save: z.boolean().optional() }))
     .mutation(
-        queryMutationCallback(async ({ input: { sessionId } }) => {
+        queryMutationCallback(async ({ input: { sessionId, save } }) => {
             const { data: clientSession, error } = await catchError(
                 db.query.clientSessionTable.findFirst({
                     where: (record) => eq(record.id, sessionId),
@@ -161,15 +163,6 @@ export const generateNotes = protectedEndpoint
 
             let text = '';
 
-            emit({
-                event: 'sessionNotesUpdated',
-                payload: {
-                    sessionId,
-                    notes: text,
-                    isComplete: false,
-                },
-            });
-
             const { data: generatedNotes, error: generatedNotesError } =
                 await generateNotesProvider({
                     sessionData,
@@ -182,28 +175,37 @@ export const generateNotes = protectedEndpoint
             while (true) {
                 const { done, value: textDelta } = await generatedNotes.read();
 
-                if (done) break;
-
-                text += textDelta;
+                if (!done) text += textDelta;
 
                 emit({
                     event: 'sessionNotesUpdated',
                     payload: {
                         sessionId,
                         notes: text,
-                        isComplete: false,
+                        isComplete: done,
                     },
                 });
+
+                if (done) break;
             }
 
-            emit({
-                event: 'sessionNotesUpdated',
-                payload: {
-                    sessionId,
-                    notes: text,
-                    isComplete: true,
-                },
-            });
+            if (save) {
+                await db
+                    .update(clientSessionTable)
+                    .set({
+                        notes: text,
+                    })
+                    .where(eq(clientSessionTable.id, sessionId));
+            }
+
+            if (save) {
+                await db
+                    .update(clientSessionTable)
+                    .set({
+                        notes: text,
+                    })
+                    .where(eq(clientSessionTable.id, sessionId));
+            }
 
             return Success();
         }),

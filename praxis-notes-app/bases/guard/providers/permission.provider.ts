@@ -53,7 +53,6 @@ export function hasPermission<R extends keyof Permissions>({
         // - a boolean (undefined is treated as false)
         // - a function taking the user and resource attributes and returning a boolean
         const actionPermission = permission[
-            // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
             action as keyof typeof permission
         ] as
             | undefined
