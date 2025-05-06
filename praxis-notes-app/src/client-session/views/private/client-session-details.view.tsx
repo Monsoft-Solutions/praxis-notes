@@ -4,7 +4,6 @@ import { Button } from '@ui/button.ui';
 import { Route } from '@routes/_private/_app/clients/$clientId/sessions/$sessionId';
 import { api } from '@api/providers/web';
 import { SessionForm, SessionDetails } from '@src/client-session/components';
-import { GetClientSessionOutput } from '@src/client-session/schemas';
 
 export function ClientSessionDetailsView() {
     const { sessionId } = Route.useParams();
@@ -50,32 +49,6 @@ export function ClientSessionDetailsView() {
         ),
         valuation: session.valuation,
         observations: session.observations,
-    };
-
-    // Create a properly formatted session object for SessionDetails component
-    const formattedSession: GetClientSessionOutput = {
-        id: session.id,
-        client: {
-            id: session.client.id,
-            name: `${session.client.firstName} ${session.client.lastName}`,
-        },
-        sessionDate: session.sessionDate,
-        startTime: session.startTime,
-        endTime: session.endTime,
-        location: session.location,
-        valuation: session.valuation,
-        observations: session.observations,
-        participants: session.participants,
-        environmentalChanges: session.environmentalChanges,
-        abcEntries: session.abcEntries,
-        replacementProgramEntries: session.replacementProgramEntries.map(
-            (entry) => ({
-                ...entry,
-                // Make sure progress is never null to satisfy the schema
-                progress:
-                    typeof entry.progress === 'number' ? entry.progress : 0,
-            }),
-        ),
     };
 
     if (isEdit) {
@@ -146,7 +119,7 @@ export function ClientSessionDetailsView() {
                 </div>
             </div>
 
-            <SessionDetails session={formattedSession} sessionId={sessionId} />
+            <SessionDetails session={session} sessionId={sessionId} />
         </div>
     );
 }

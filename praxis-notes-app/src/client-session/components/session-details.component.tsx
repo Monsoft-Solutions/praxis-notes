@@ -366,7 +366,7 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                                 {clientResponse ?? '-'}
                                             </TableCell>
                                             <TableCell>
-                                                {progress || '-'}
+                                                {progress ?? '-'}
                                             </TableCell>
                                         </TableRow>
                                     ),
@@ -381,7 +381,10 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                 </CardContent>
             </Card>
 
-            <NotesEditor sessionId={sessionId} initialData={''} />
+            <NotesEditor
+                sessionId={sessionId}
+                initialData={session.notes ?? ''}
+            />
         </div>
     );
 }

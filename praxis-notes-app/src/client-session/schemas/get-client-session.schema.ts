@@ -65,13 +65,14 @@ const replacementProgramEntrySchema = z.object({
     promptTypes: z.array(promptTypeSchema),
     promptingProcedure: promptingProcedureSchema.nullable(),
     clientResponse: z.string().nullable(),
-    progress: z.number(),
+    progress: z.number().nullable(),
 });
 
 // Schema for client
 const clientSchema = z.object({
     id: z.string(),
-    name: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
     // Add other client properties as needed
 });
 
@@ -97,6 +98,7 @@ export const getClientSessionOutputSchema = z.object({
     startTime: z.string(),
     endTime: z.string(),
     observations: z.string().nullable(),
+    notes: z.string().nullable(),
     valuation: z.string(),
     client: clientSchema,
     participants: z.array(participantSchema),
