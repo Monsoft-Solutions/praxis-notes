@@ -42,7 +42,6 @@ export const createClient = protectedEndpoint
                 const clientId = uuidv4();
 
                 const { error } = await createClientProvider({
-                    id: clientId,
                     clientId,
                     user,
 

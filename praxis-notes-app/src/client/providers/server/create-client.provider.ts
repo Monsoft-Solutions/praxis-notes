@@ -20,13 +20,11 @@ import { ClientFormData } from '@src/client/schemas';
 import { User } from '@guard/types';
 
 export const createClient = (async ({
-    id,
     clientId,
     user,
     clientFormData,
     isDraft,
 }: {
-    id: string;
     clientId: string;
     user: User;
     clientFormData: ClientFormData;
@@ -43,7 +41,7 @@ export const createClient = (async ({
 
     const { error } = await catchError(
         db.insert(clientTable).values({
-            id,
+            id: clientId,
             organizationId: user.organizationId,
             createdBy: user.id,
 

@@ -54,7 +54,6 @@ export const updateClient = protectedEndpoint
 
                 const { error: clientCreateError } = await createClientProvider(
                     {
-                        id: clientId,
                         clientId,
                         user,
 
