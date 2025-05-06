@@ -163,15 +163,6 @@ export const generateNotes = protectedEndpoint
 
             let text = '';
 
-            emit({
-                event: 'sessionNotesUpdated',
-                payload: {
-                    sessionId,
-                    notes: text,
-                    isComplete: false,
-                },
-            });
-
             const { data: generatedNotes, error: generatedNotesError } =
                 await generateNotesProvider({
                     sessionData,
@@ -184,28 +175,28 @@ export const generateNotes = protectedEndpoint
             while (true) {
                 const { done, value: textDelta } = await generatedNotes.read();
 
-                if (done) break;
-
-                text += textDelta;
+                if (!done) text += textDelta;
 
                 emit({
                     event: 'sessionNotesUpdated',
                     payload: {
                         sessionId,
                         notes: text,
-                        isComplete: false,
+                        isComplete: done,
                     },
                 });
+
+                if (done) break;
             }
 
-            emit({
-                event: 'sessionNotesUpdated',
-                payload: {
-                    sessionId,
-                    notes: text,
-                    isComplete: true,
-                },
-            });
+            if (save) {
+                await db
+                    .update(clientSessionTable)
+                    .set({
+                        notes: text,
+                    })
+                    .where(eq(clientSessionTable.id, sessionId));
+            }
 
             if (save) {
                 await db
