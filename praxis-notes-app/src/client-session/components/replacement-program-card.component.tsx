@@ -17,8 +17,6 @@ import { ClientSessionForm } from '../schemas';
 import { api, apiClientUtils } from '@api/providers/web';
 import { AbcSelector } from './abc-selector.component';
 
-import { Route } from '@routes/_private/_app/clients/$clientId/sessions/new';
-
 import {
     Select,
     SelectContent,
@@ -33,17 +31,17 @@ import { Card, CardTitle, CardHeader, CardContent } from '@shared/ui/card.ui';
 
 type ReplacementProgramCardProps = {
     index: number;
+    clientId: string;
     onRemove?: () => void;
     isDetailedView: boolean;
 };
 
 export function ReplacementProgramCard({
     index,
+    clientId,
     onRemove,
     isDetailedView,
 }: ReplacementProgramCardProps) {
-    const { clientId } = Route.useParams();
-
     const { mutateAsync: createReplacementProgram } =
         api.replacementProgram.createReplacementProgram.useMutation();
 

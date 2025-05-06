@@ -27,17 +27,15 @@ import { AbcSelector } from './abc-selector.component';
 
 import { abcFunctionEnum } from '../enum';
 
-import { Route } from '@routes/_private/_app/clients/$clientId/sessions/new';
 import { Card, CardTitle, CardHeader, CardContent } from '@shared/ui/card.ui';
 
 type ABCCardProps = {
     index: number;
+    clientId: string;
     onRemove?: () => void;
 };
 
-export function ABCCard({ index, onRemove }: ABCCardProps) {
-    const { clientId } = Route.useParams();
-
+export function ABCCard({ index, clientId, onRemove }: ABCCardProps) {
     const { control } = useFormContext<ClientSessionForm>();
 
     const { data: antecedentsQuery } = api.antecedent.getAntecedents.useQuery();

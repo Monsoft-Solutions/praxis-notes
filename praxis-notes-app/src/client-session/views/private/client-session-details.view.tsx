@@ -1,8 +1,17 @@
+import { useState } from 'react';
+
 import { Link } from '@tanstack/react-router';
 
 import { format } from 'date-fns';
 
-import { Clock, MapPin, Calendar, Users, ArrowLeft } from 'lucide-react';
+import {
+    Clock,
+    MapPin,
+    Calendar,
+    Users,
+    ArrowLeft,
+    Pencil,
+} from 'lucide-react';
 
 import { Button } from '@ui/button.ui';
 
@@ -15,8 +24,10 @@ import { Route } from '@routes/_private/_app/clients/$clientId/sessions/$session
 import { api } from '@api/providers/web';
 
 import { NotesEditor } from '@src/notes/components/notes-editor.component';
+import { SessionForm } from '@src/client-session/components';
 
 export function ClientSessionDetailsView() {
+    const [isEditMode, setIsEditMode] = useState(false);
     const { sessionId } = Route.useParams();
 
     const { data: sessionQuery } = api.clientSession.getClientSession.useQuery({
@@ -28,6 +39,77 @@ export function ClientSessionDetailsView() {
     const { data: session } = sessionQuery;
 
     const { clientId } = session;
+
+    // Transform session data to match the SessionForm expected format
+    const sessionFormData = {
+        sessionDate: new Date(session.sessionDate),
+        startTime: session.startTime,
+        endTime: session.endTime,
+        location: session.location,
+        presentParticipants: session.participants.map((p) => p.id),
+        environmentalChanges: session.environmentalChanges.map((ec) => ec.id),
+        abcIdEntries: session.abcEntries.map((entry) => ({
+            antecedentId: entry.antecedent.id,
+            behaviorIds: entry.behaviors.map((b) => b.id),
+            interventionIds: entry.interventions.map((i) => i.id),
+            // Use specific enum type expected by the form
+            function: 'atention' as const,
+        })),
+        replacementProgramEntries: session.replacementProgramEntries.map(
+            (entry) => ({
+                replacementProgramId: entry.replacementProgram.id,
+                teachingProcedureId: entry.teachingProcedure?.id ?? null,
+                promptingProcedureId: entry.promptingProcedure?.id ?? null,
+                clientResponse: entry.clientResponse,
+                // Ensure progress is a string if it exists
+                progress:
+                    entry.progress != null ? String(entry.progress) : null,
+                promptTypesIds: entry.promptTypes.map((pt) => pt.id),
+            }),
+        ),
+        valuation: session.valuation,
+        observations: session.observations,
+    };
+
+    if (isEditMode) {
+        return (
+            <div className="container mx-auto px-0 py-6">
+                <div className="mb-6 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                                setIsEditMode(false);
+                            }}
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                        </Button>
+                        <h1 className="text-2xl font-bold">Edit Session</h1>
+                    </div>
+                </div>
+                <SessionForm
+                    clientId={clientId}
+                    clientName={session.client.firstName}
+                    sessionId={sessionId}
+                    isTour={false}
+                    placeholderSessionData={{
+                        ...sessionFormData,
+                        replacementProgramEntries:
+                            sessionFormData.replacementProgramEntries.map(
+                                (entry) => ({
+                                    ...entry,
+                                    progress:
+                                        entry.progress !== null
+                                            ? Number(entry.progress)
+                                            : null,
+                                }),
+                            ),
+                    }}
+                />
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto space-y-6 px-0 py-6">
@@ -44,17 +126,18 @@ export function ClientSessionDetailsView() {
                     <h1 className="text-2xl font-bold">Session Details</h1>
                 </div>
 
-                {/* <div className="flex space-x-2">
-                    <Link
-                    // to="/clients/$clientId/sessions/$sessionId/edit"
-                    // params={{ clientId, sessionId }}
+                <div className="flex space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                            setIsEditMode(true);
+                        }}
                     >
-                        <Button variant="outline" size="sm">
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit Session
-                        </Button>
-                    </Link>
-                </div> */}
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit Session
+                    </Button>
+                </div>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
