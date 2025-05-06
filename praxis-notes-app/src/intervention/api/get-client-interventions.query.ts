@@ -24,9 +24,9 @@ export const getClientInterventions = protectedEndpoint
                     where: (record) => or(eq(record.clientId, clientId)),
                     with: {
                         intervention: true,
-                        clientBehaviorInterventions: {
+                        behaviors: {
                             with: {
-                                clientBehavior: true,
+                                behavior: true,
                             },
                         },
                     },
@@ -46,13 +46,9 @@ export const getClientInterventions = protectedEndpoint
                         description,
                         isCustom: organizationId !== null,
                         clientInterventionId: clientIntervention.id,
-                        behaviors:
-                            clientIntervention.clientBehaviorInterventions.map(
-                                (clientBehaviorIntervention) => {
-                                    return clientBehaviorIntervention
-                                        .clientBehavior.behaviorId;
-                                },
-                            ),
+                        behaviors: clientIntervention.behaviors.map(
+                            ({ behaviorId }) => behaviorId,
+                        ),
                     };
                 },
             );

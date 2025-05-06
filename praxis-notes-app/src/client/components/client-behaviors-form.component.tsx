@@ -40,8 +40,10 @@ import { api, apiClientUtils } from '@api/providers/web';
 
 export function ClientBehaviorsForm({
     existingBehaviors,
+    onAutoSave,
 }: {
     existingBehaviors: Behavior[];
+    onAutoSave: () => Promise<void>;
 }) {
     const { mutateAsync: createBehavior } =
         api.behavior.createBehavior.useMutation();
@@ -82,6 +84,8 @@ export function ClientBehaviorsForm({
             baseline: 0,
             type: 'frequency',
         });
+
+        void onAutoSave();
     };
 
     const handleRemoveBehavior = (index: number, fieldId: string) => {
@@ -95,7 +99,9 @@ export function ClientBehaviorsForm({
                 <Button
                     type="button"
                     onClick={() => {
-                        addBehavior({ id: 'Add a behavior' });
+                        addBehavior({
+                            id: 'behavior-2                          ',
+                        });
                     }}
                     size="sm"
                     className="flex items-center gap-1"

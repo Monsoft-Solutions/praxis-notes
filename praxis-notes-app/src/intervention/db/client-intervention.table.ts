@@ -45,6 +45,6 @@ export const clientInterventionTableRelations = relations(
             references: [interventionTable.id],
         }),
 
-        clientBehaviorInterventions: many(clientBehaviorInterventionTable),
+        behaviors: many(clientBehaviorInterventionTable),
     }),
 );

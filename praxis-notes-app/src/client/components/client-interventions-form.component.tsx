@@ -26,11 +26,13 @@ import { api, apiClientUtils } from '@api/providers/web';
 type ClientInterventionsFormProps = {
     existingInterventions: Intervention[];
     existingBehaviors: Behavior[];
+    onAutoSave: () => Promise<void>;
 };
 
 export function ClientInterventionsForm({
     existingInterventions,
     existingBehaviors,
+    onAutoSave,
 }: ClientInterventionsFormProps) {
     const { mutateAsync: createIntervention } =
         api.intervention.createIntervention.useMutation();
@@ -64,9 +66,11 @@ export function ClientInterventionsForm({
 
     const addIntervention = () => {
         prepend({
-            id: 'New Intervention',
+            id: 'intervention-1                      ',
             behaviorIds: [],
         });
+
+        void onAutoSave();
     };
 
     const handleRemoveIntervention = (index: number, fieldId: string) => {

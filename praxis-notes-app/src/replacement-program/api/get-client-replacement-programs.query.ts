@@ -25,11 +25,7 @@ export const getClientReplacementPrograms = protectedEndpoint
                         replacementProgram: true,
                         behaviors: {
                             with: {
-                                clientBehavior: {
-                                    with: {
-                                        behavior: true,
-                                    },
-                                },
+                                behavior: true,
                             },
                         },
                     },
@@ -49,7 +45,7 @@ export const getClientReplacementPrograms = protectedEndpoint
                         description,
                         isCustom: organizationId !== null,
                         behaviorIds: behaviors.map(
-                            (behavior) => behavior.clientBehavior.behavior.id,
+                            ({ behaviorId }) => behaviorId,
                         ),
                     };
                 },

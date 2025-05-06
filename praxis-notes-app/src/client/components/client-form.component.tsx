@@ -1,6 +1,14 @@
+import { useEffect, useCallback, useState } from 'react';
+
+import { z } from 'zod';
+
+import { useBlocker } from '@tanstack/react-router';
+
 import { useForm, FormProvider } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+
+import { toast } from 'sonner';
 
 import {
     MultiStepForm,
@@ -19,15 +27,35 @@ import { ClientReviewSummary } from './client-review-summary.component';
 import { api, apiClientUtils } from '@api/providers/web';
 
 import { Route } from '@routes/_private/_app/clients/new';
-import { useEffect, useCallback } from 'react';
-import { z } from 'zod';
 
 import { trackEvent } from '@analytics/providers';
 
-export function ClientForm({ isTour }: { isTour?: boolean }) {
+const defaultInitialData: Omit<ClientFormType, 'currentStep' | 'isComplete'> = {
+    firstName: '',
+    lastName: '',
+    gender: 'male',
+    notes: '',
+    behaviors: [],
+    replacementPrograms: [],
+    interventions: [],
+};
+
+export function ClientForm({
+    initialData,
+    draftId,
+}:
+    | {
+          draftId: string;
+          initialData: Omit<ClientFormType, 'currentStep' | 'isComplete'>;
+      }
+    | {
+          draftId?: undefined;
+          initialData?: Omit<ClientFormType, 'currentStep' | 'isComplete'>;
+      }) {
     const navigate = Route.useNavigate();
 
     const { mutateAsync: createClient } = api.client.createClient.useMutation();
+    const { mutateAsync: updateClient } = api.client.updateClient.useMutation();
 
     const { data: behaviorsQuery } = api.behavior.getBehaviors.useQuery();
     const { data: replacementProgramsQuery } =
@@ -35,57 +63,87 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
     const { data: interventionsQuery } =
         api.intervention.getInterventions.useQuery();
 
+    const [clientId, setClientId] = useState<string | undefined>(draftId);
+
+    const [isSaving, setIsSaving] = useState(false);
+
     const form = useForm<ClientFormType>({
         resolver: zodResolver(clientFormSchema),
         mode: 'onChange',
 
-        defaultValues: isTour
-            ? {
-                  firstName: 'John',
-                  lastName: 'Doe',
-                  gender: 'male',
-                  notes: 'This is a test client',
-                  behaviors: [
-                      {
-                          id: 'behavior-1                          ',
-                          type: 'frequency',
-                          baseline: 1,
-                      },
-                  ],
-                  replacementPrograms: [
-                      {
-                          id: 'replacement-program-3               ',
-                          behaviorIds: ['behavior-1                          '],
-                      },
-                  ],
-                  interventions: [
-                      {
-                          id: 'intervention-1                      ',
-                          behaviorIds: ['behavior-1                          '],
-                      },
-                  ],
-                  currentStep: 1,
-                  isComplete: false,
-              }
-            : {
-                  firstName: '',
-                  lastName: '',
-                  gender: 'male',
-                  notes: '',
-                  behaviors: [],
-                  replacementPrograms: [],
-                  interventions: [],
-                  currentStep: 1,
-                  isComplete: false,
-              },
+        defaultValues: {
+            ...(initialData ?? defaultInitialData),
+            currentStep: 1,
+            isComplete: false,
+        },
 
         shouldUnregister: false,
     });
 
     const currentStep = form.watch('currentStep');
 
+    const formData = form.watch();
+
+    const handleSave = useCallback(
+        async ({
+            isDraft = false,
+            hideToast = false,
+        }: {
+            isDraft?: boolean;
+            hideToast?: boolean;
+        }) => {
+            setIsSaving(true);
+
+            if (clientId) {
+                await updateClient({
+                    clientId,
+                    ...formData,
+                    isDraft,
+                });
+
+                await apiClientUtils.client.getClient.refetch();
+            } else {
+                const response = await createClient({
+                    ...formData,
+                    isDraft,
+                });
+
+                if (response.error) {
+                    toast.error('Error saving client');
+                } else {
+                    const { id } = response.data;
+
+                    setClientId(id);
+                }
+            }
+
+            if (isDraft) {
+                if (!hideToast) toast.success('Client saved as draft');
+            } else {
+                toast.success('Client saved');
+
+                await navigate({
+                    to: '/clients',
+                });
+            }
+
+            await apiClientUtils.client.getClients.invalidate();
+
+            trackEvent('client', 'client_save');
+
+            setIsSaving(false);
+        },
+        [createClient, navigate, clientId, updateClient, formData],
+    );
+
+    const handleAutoSave = useCallback(async () => {
+        await handleSave({ isDraft: true, hideToast: true });
+    }, [handleSave]);
+
     const handleStepChange = useCallback(
-        (step: number) => {
+        async (step: number) => {
+            await handleAutoSave();
+
             // If going backwards, always allow it
             if (step < currentStep) {
                 form.setValue('currentStep', step);
@@ -125,22 +183,25 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
             // Clear validation errors when moving to new step
             form.clearErrors();
         },
-        [form, currentStep],
+        [form, currentStep, handleAutoSave],
     );
 
-    const handleComplete = useCallback(async () => {
-        const formData = form.getValues();
+    useBlocker({
+        blockerFn: () => {
+            if (isSaving) return true;
 
-        await createClient(formData);
-
-        trackEvent('client', 'client_save');
-
-        await apiClientUtils.client.getClients.invalidate();
-
-        await navigate({
-            to: '/clients',
-        });
-    }, [form, createClient, navigate]);
+            void form.handleSubmit(
+                () =>
+                    handleSave({
+                        isDraft: true,
+                    }),
+                () => {
+                    toast.error('Client was discarded');
+                },
+            )();
+            return true;
+        },
+    });
 
     useEffect(() => {
         const handler = (e: Event) => {
@@ -153,7 +214,7 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
             if (eventParsing.success) {
                 const { step } = eventParsing.data;
 
-                handleStepChange(step);
+                void handleStepChange(step);
             }
         };
 
@@ -166,7 +227,7 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
 
     useEffect(() => {
         const handler = () => {
-            void handleComplete();
+            void handleSave({});
         };
 
         window.addEventListener('clientFormSubmit', handler);
@@ -174,7 +235,7 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
         return () => {
             window.removeEventListener('clientFormSubmit', handler);
         };
-    }, [handleComplete]);
+    }, [handleSave]);
 
     if (!behaviorsQuery) return null;
     const { error: behaviorsError } = behaviorsQuery;
@@ -201,7 +262,12 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
         {
             title: 'Behaviors',
             description: 'Add behaviors for this client',
-            content: <ClientBehaviorsForm existingBehaviors={behaviors} />,
+            content: (
+                <ClientBehaviorsForm
+                    existingBehaviors={behaviors}
+                    onAutoSave={handleAutoSave}
+                />
+            ),
         },
 
         {
@@ -211,6 +277,7 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
                 <ClientReplacementProgramsForm
                     existingPrograms={replacementPrograms}
                     existingBehaviors={behaviors}
+                    onAutoSave={handleAutoSave}
                 />
             ),
         },
@@ -222,6 +289,7 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
                 <ClientInterventionsForm
                     existingInterventions={interventions}
                     existingBehaviors={behaviors}
+                    onAutoSave={handleAutoSave}
                 />
             ),
         },
@@ -248,8 +316,8 @@ export function ClientForm({ isTour }: { isTour?: boolean }) {
                 <MultiStepForm
                     steps={steps}
                     currentStep={currentStep}
-                    onStepChange={handleStepChange}
-                    onComplete={() => void handleComplete()}
+                    onStepChange={(step) => void handleStepChange(step)}
+                    onComplete={() => void handleSave({})}
                     isLastStepSubmitEnabled={isLastStepSubmitEnabled}
                 />
             </div>
