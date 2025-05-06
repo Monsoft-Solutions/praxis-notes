@@ -14,6 +14,7 @@ import { onChatMessageCreated } from './chat-message-created.subscription';
 import { onChatSessionCreated } from './chat-session-created.subscription';
 import { onChatSessionTitleUpdated } from './chat-session-title-updated.subscription';
 import { onChatMessageUpdated } from './chat-message-updated.subscription';
+import { onSuggestedQuestionsGenerated } from './suggested-questions-generated.subscription';
 
 // chat API router
 export const chat = endpoints({
@@ -28,4 +29,5 @@ export const chat = endpoints({
     onChatSessionCreated,
     onChatSessionTitleUpdated,
     onChatMessageUpdated,
+    onSuggestedQuestionsCreated: onSuggestedQuestionsGenerated,
 });
