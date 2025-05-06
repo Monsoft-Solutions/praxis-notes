@@ -14,60 +14,93 @@ export const generateNotesPrompt = ((
     const { sessionData, clientData } = generateNoteSchema;
 
     const prompt = `
-You are a credentialed Registered Behavior Technician (RBT) generating an insurance-ready session note.
+You are a credentialed Registered Behavior Technician (RBT) generating an insurance-ready session note for CPT code 97153 (one-on-one adaptive behavior treatment by protocol).
 
-Write in third-person, objective behavioural language.  
-Avoid subjective adjectives (“happy”, “upset”) unless operationally defined.
+Write in third-person, objective behavioral language without subjective interpretations. Focus on observable behaviors and measurable outcomes.
 
-SESSION SNAPSHOT
+SESSION INFORMATION
 RBT: ${sessionData.userInitials}
 Client: ${sessionData.clientInitials}
 Date: ${sessionData.sessionDate instanceof Date ? sessionData.sessionDate.toLocaleDateString() : sessionData.sessionDate}
 Time: ${sessionData.startTime} – ${sessionData.endTime}
+Total Duration: [Calculate minutes/hours]
+Units of Service: [Calculate 15-minute units]
 Location: ${sessionData.location}
 Participants: ${sessionData.presentParticipants.join(', ') || 'None'}
 Environmental changes: ${sessionData.environmentalChanges.join(', ') || 'None'}
 
+CLIENT PRESENTATION
+[Include brief description of client's initial presentation/status at beginning of session]
+
+SESSION ACTIVITIES
 ${sessionData.abcEntries
     .map(
         (abc, i) => `
 ABC #${i + 1}
-• Antecedent/Activity: ${abc.antecedentName}
-• Behaviour(s): ${abc.behaviorNames.join(', ')}
-• Intervention(s): ${abc.interventionNames.join(', ')}`,
+- Antecedent/Activity: ${abc.antecedentName}
+- Behaviour(s): ${abc.behaviorNames.join(', ')}
+- Intervention(s): ${abc.interventionNames.join(', ')}`,
     )
     .join('\n')}
 
+REPLACEMENT PROGRAMS ADDRESSED
 ${sessionData.replacementProgramEntries
     .map(
         (rep, i) => `
 Replacement Program #${i + 1}
-• Program: ${rep.replacementProgram}
-• Teaching: ${rep.teachingProcedure}
-• Prompting: ${rep.promptingProcedure} (${rep.promptTypes.join(', ')})`,
+- Program: ${rep.replacementProgram}
+- Teaching: ${rep.teachingProcedure}
+- Prompting: ${rep.promptingProcedure} (${rep.promptTypes.join(', ')})`,
     )
     .join('\n')}
 
-Overall valuation: ${sessionData.valuation}
+Overall session valuation: ${sessionData.valuation}
 General observations: ${sessionData.observations ?? 'None'}
 
-CLIENT CONTEXT  (for linking behaviours ↔ programs ↔ interventions)
+CLIENT CONTEXT (for linking behaviours ↔ programs ↔ interventions)
 ${expandClientData(clientData)}
 
-Please generate a professional narrative report that flows like a cohesive story. 
+NARRATIVE STRUCTURE GUIDELINES
+Generate a professional narrative that follows this structure:
+1. BEGINNING OF SESSION (Client presentation, setting, initial assessment)
+   - Describe client's presentation upon arrival
+   - Outline session goals tied to treatment plan
+   - Mention environmental factors
 
+2. DURING SESSION (Implementation of programs)
+   - Detail each activity chronologically
+   - Include specific behavior topographies observed
+   - Document protocols implemented verbatim from the treatment plan
+   - For each behavior observed, note its connection to a replacement program
+   - The replacement program should be linked to the behavior in the client context section. This means that the story should mention that the RBT implemented the replacement program for the behavior(s) observed.
+   - Include data on client responses (frequency, duration, intensity)
+   - Document prompting levels and client performance metrics
 
-GLOBAL NOTE RULES
-1. Structure the narrative **Before → During → After** for every activity/intervention.
-2. When describing a behaviour, include its topography (e.g., “kicking”, “hand-flapping”). Always mention the name of the behaviour.
-3. Seamlessly embed data; no bullet lists or headings in the output.
-5. Mention client, guardian, and RBT by initials only.
-6. Finish with environmental summary + next-session plan.
-7. Output must be plain text – no markdown, lists, tables, bold, or italics.
+3. END OF SESSION (Progress summary and recommendations)
+   - Summarize overall response to interventions
+   - Document progress toward specific treatment goals with metrics
+   - Include any parent/caregiver communication
+   - Briefly outline plan for next session
 
-Return **only** the narrative report, nothing else.
+CRITICAL DOCUMENTATION STANDARDS
+1. Demonstrate protocol adherence without modifications (per CPT 97153 requirements)
+2. Clearly document medical necessity by connecting each intervention to specific goals
+3. Include objective measurements of client responses (trials, percentages, frequency)
+4. Use professional terminology and avoid subjective language
+5. Format as flowing narrative text without bullets, sections, or headers
+6. Apply third-person perspective consistently (client, RBT)
+7. Document any collaboration with BCBA or other professionals
+8. Include specific metrics showing progress toward treatment plan goals
 
-After generating the note, analyze critically the output and make sure it is correct.
+Return ONLY the completed narrative note with no additional text.
+
+FINAL VERIFICATION CHECKLIST
+- Does the note clearly demonstrate medical necessity?
+- Does the note document adherence to established protocols?
+- Does the note include specific data points/metrics?
+- Does the note avoid subjective language?
+- Does the note follow the narrative flow (before→during→after)?
+- Does the note adequately link interventions to treatment goals?
 `;
 
     return Success(prompt);
