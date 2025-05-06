@@ -2,8 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 
 import { Button } from '@ui/button.ui';
 
-import { User } from 'lucide-react';
-import { Pencil } from 'lucide-react';
+import { ListTodo, Pencil, User } from 'lucide-react';
 
 import { api } from '@api/providers/web';
 
@@ -94,43 +93,72 @@ export const ClientsView = () => {
                                     <div className="font-medium">
                                         {client.firstName} {client.lastName}
                                     </div>
+
                                     <div className="text-muted-foreground text-sm">
-                                        {client.isActive
-                                            ? 'Active'
-                                            : 'Inactive'}
+                                        {client.isDraft
+                                            ? 'Draft'
+                                            : client.isActive
+                                              ? 'Active'
+                                              : 'Inactive'}
                                     </div>
                                 </div>
                             </Link>
 
                             <div className="flex space-x-2">
-                                <Button variant="outline" size="sm" asChild>
-                                    <Link
-                                        to="/clients/$clientId/edit"
-                                        params={{ clientId: client.id }}
-                                    >
-                                        <Pencil className="mr-1 h-4 w-4" />
-                                        Edit
-                                    </Link>
-                                </Button>
+                                {client.isDraft ? (
+                                    <>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            asChild
+                                        >
+                                            <Link
+                                                to="/clients/new"
+                                                search={{
+                                                    fromDraft: client.id,
+                                                }}
+                                            >
+                                                <ListTodo className="mr-1 h-4 w-4" />
+                                                Complete
+                                            </Link>
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            asChild
+                                        >
+                                            <Link
+                                                to="/clients/$clientId/edit"
+                                                params={{ clientId: client.id }}
+                                            >
+                                                <Pencil className="mr-1 h-4 w-4" />
+                                                Edit
+                                            </Link>
+                                        </Button>
 
-                                <Button
-                                    id={
-                                        index === 0
-                                            ? viewSessionsButtonId
-                                            : undefined
-                                    }
-                                    variant="ghost"
-                                    size="sm"
-                                    asChild
-                                >
-                                    <Link
-                                        to="/clients/$clientId/sessions"
-                                        params={{ clientId: client.id }}
-                                        className="hover:text-primary flex items-center space-x-4 transition-colors"
-                                    >
-                                        View Sessions
-                                    </Link>
-                                </Button>
+                                        <Button
+                                            id={
+                                                index === 0
+                                                    ? viewSessionsButtonId
+                                                    : undefined
+                                            }
+                                            variant="ghost"
+                                            size="sm"
+                                            asChild
+                                        >
+                                            <Link
+                                                to="/clients/$clientId/sessions"
+                                                params={{ clientId: client.id }}
+                                                className="hover:text-primary flex items-center space-x-4 transition-colors"
+                                            >
+                                                View Sessions
+                                            </Link>
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     ))}

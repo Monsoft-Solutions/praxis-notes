@@ -29,11 +29,13 @@ import { Behavior } from '@src/behavior/schemas';
 type ClientReplacementProgramsFormProps = {
     existingPrograms: ReplacementProgram[];
     existingBehaviors: Behavior[];
+    onAutoSave: () => Promise<void>;
 };
 
 export function ClientReplacementProgramsForm({
     existingPrograms,
     existingBehaviors,
+    onAutoSave,
 }: ClientReplacementProgramsFormProps) {
     const { mutateAsync: createReplacementProgram } =
         api.replacementProgram.createReplacementProgram.useMutation();
@@ -75,6 +77,8 @@ export function ClientReplacementProgramsForm({
             id,
             behaviorIds: [],
         });
+
+        void onAutoSave();
     };
 
     const handleRemoveProgram = (index: number, fieldId: string) => {
@@ -103,7 +107,9 @@ export function ClientReplacementProgramsForm({
                 <Button
                     type="button"
                     onClick={() => {
-                        addReplacementProgram({ id: 'New Program' });
+                        addReplacementProgram({
+                            id: 'replacement-program-2               ',
+                        });
                     }}
                     size="sm"
                     className="flex items-center gap-1"
