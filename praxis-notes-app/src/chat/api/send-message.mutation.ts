@@ -18,12 +18,17 @@ import { chatSessionTable, chatMessageTable } from '../db';
 import { ChatMessage, createChatMessageSchema } from '../schemas';
 import { generateChatResponse } from '../utils/generate-chat-response.util';
 import { generateChatSessionTitle } from '../utils/generate-chat-session-title.util';
-import { userTable } from '@db/db.tables';
+
 export const sendMessage = protectedEndpoint
     .input(createChatMessageSchema)
     .mutation(
         queryMutationCallback(
-            async ({ input: { content, sessionId }, ctx: { session } }) => {
+            async ({
+                input: { content, sessionId },
+                ctx: {
+                    session: { user },
+                },
+            }) => {
                 // Get previous messages for context
                 const { data: previousMessages, error: previousMessagesError } =
                     await catchError(
@@ -35,20 +40,6 @@ export const sendMessage = protectedEndpoint
 
                 if (previousMessagesError) return Error();
 
-                const { data: user, error: userError } = await catchError(
-                    db.query.userTable.findFirst({
-                        where: eq(userTable.id, session.user.id),
-                        columns: {
-                            firstName: true,
-                            language: true,
-                        },
-                    }),
-                );
-
-                if (userError) return Error();
-
-                const userName = user?.firstName;
-                const userLanguage = user?.language;
                 // current timestamp
                 const now = Date.now();
 
@@ -102,9 +93,9 @@ export const sendMessage = protectedEndpoint
                 const { data: responseStream, error: aiResponseError } =
                     await generateChatResponse({
                         messages: allMessages,
-                        userName: userName ?? 'Jane Doe',
-                        userId: session.user.id,
-                        userLanguage: userLanguage ?? 'en',
+                        userName: user.firstName,
+                        userId: user.id,
+                        userLanguage: user.language ?? 'en',
                     });
 
                 if (aiResponseError) return Error();
