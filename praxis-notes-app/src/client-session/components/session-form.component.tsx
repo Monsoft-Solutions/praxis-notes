@@ -156,6 +156,13 @@ export function SessionForm({
                     if (success) {
                         responseId = sessionId;
                         trackEvent('session', 'session_update');
+
+                        // After successful update, navigate back to view mode
+                        await navigate({
+                            to: '/clients/$clientId/sessions/$sessionId',
+                            params: { clientId, sessionId },
+                        });
+                        return; // Exit early after navigation
                     } else {
                         toast.error('Error updating session');
                     }
