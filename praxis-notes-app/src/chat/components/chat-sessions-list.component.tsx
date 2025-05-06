@@ -6,6 +6,7 @@ import { Button } from '@ui/button.ui';
 import { Card, CardContent, CardHeader } from '@ui/card.ui';
 import { Separator } from '@ui/separator.ui';
 import { Input } from '@ui/input.ui';
+import { ScrollArea } from '@ui/scroll-area.ui';
 
 import { cn } from '@css/utils';
 
@@ -55,10 +56,10 @@ export function ChatSessionsList({
                     return {
                         error: null,
                         data: [
+                            newSessionToAdd,
                             ...prevSessions.filter(
                                 ({ id }) => id !== newSession.id,
                             ),
-                            newSessionToAdd,
                         ],
                     };
                 });
@@ -131,51 +132,53 @@ export function ChatSessionsList({
                 </div>
             </CardHeader>
             <Separator />
-            <CardContent className="flex-1 overflow-auto p-0">
-                {filteredSessions.length === 0 ? (
-                    <div className="flex h-full flex-col items-center justify-center p-4 text-center">
-                        <p className="text-muted-foreground text-sm">
-                            No chat sessions found
-                        </p>
-                        <Button
-                            onClick={onCreateSession}
-                            variant="ghost"
-                            className="mt-2"
-                            size="sm"
-                        >
-                            Create new chat
-                        </Button>
-                    </div>
-                ) : (
-                    <ul className="space-y-1 p-2">
-                        {filteredSessions.map((session) => (
-                            <li key={session.id}>
-                                <Button
-                                    variant="ghost"
-                                    className={cn(
-                                        'w-full justify-start text-left',
-                                        activeSessionId === session.id &&
-                                            'bg-accent',
-                                    )}
-                                    onClick={() => {
-                                        onSessionSelect(session.id);
-                                    }}
-                                >
-                                    <div className="flex w-full flex-col overflow-hidden">
-                                        <span className="truncate">
-                                            {session.title}
-                                        </span>
-                                        <span className="text-muted-foreground text-xs">
-                                            {new Date(
-                                                session.updatedAt,
-                                            ).toLocaleDateString()}
-                                        </span>
-                                    </div>
-                                </Button>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+            <CardContent className="flex-1 p-0">
+                <ScrollArea className="h-[calc(100vh-15rem)]">
+                    {filteredSessions.length === 0 ? (
+                        <div className="flex h-full flex-col items-center justify-center p-4 text-center">
+                            <p className="text-muted-foreground text-sm">
+                                No chat sessions found
+                            </p>
+                            <Button
+                                onClick={onCreateSession}
+                                variant="ghost"
+                                className="mt-2"
+                                size="sm"
+                            >
+                                Create new chat
+                            </Button>
+                        </div>
+                    ) : (
+                        <ul className="space-y-1 p-2">
+                            {filteredSessions.map((session) => (
+                                <li key={session.id}>
+                                    <Button
+                                        variant="ghost"
+                                        className={cn(
+                                            'w-full justify-start text-left',
+                                            activeSessionId === session.id &&
+                                                'bg-accent',
+                                        )}
+                                        onClick={() => {
+                                            onSessionSelect(session.id);
+                                        }}
+                                    >
+                                        <div className="flex w-full flex-col overflow-hidden">
+                                            <span className="truncate">
+                                                {session.title}
+                                            </span>
+                                            <span className="text-muted-foreground text-xs">
+                                                {new Date(
+                                                    session.updatedAt,
+                                                ).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                    </Button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </ScrollArea>
             </CardContent>
         </Card>
     );

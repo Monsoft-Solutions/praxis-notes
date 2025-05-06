@@ -7,20 +7,25 @@ import { getCoreConf } from '@conf/providers/server';
 import { streamText as aiSdkStreamText, Message, smoothStream } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 
-import { deploymentEnv } from '@env/constants/deployment-env.constant';
 import { thinkTool } from '../tools/think.tool';
+import { AiRequest } from '../schemas/ai-request.schema';
+import { getClientDataTool } from '../tools/get-client-data.tool';
+import { listAvailableClientsTool } from '../tools/list-available-clients.tool';
 
 export const streamText = (async ({
     prompt,
     messages,
+    modelParams,
 }:
     | {
           prompt: string;
           messages?: undefined;
+          modelParams: AiRequest;
       }
     | {
           prompt?: undefined;
           messages: Message[];
+          modelParams: AiRequest;
       }) => {
     // get the core configuration
     const coreConfWithError = await getCoreConf();
@@ -37,12 +42,7 @@ export const streamText = (async ({
         apiKey: anthropicApiKey,
     });
 
-    type AnthropicModel = Parameters<typeof anthropic>[0];
-
-    const model: AnthropicModel =
-        deploymentEnv.MSS_DEPLOYMENT_TYPE === 'production'
-            ? 'claude-3-7-sonnet-latest'
-            : 'claude-3-7-sonnet-latest';
+    const model = modelParams.model;
 
     const { textStream } = aiSdkStreamText({
         model: anthropic(model),
@@ -50,14 +50,20 @@ export const streamText = (async ({
         messages,
         tools: {
             think: thinkTool,
+            getClientData: getClientDataTool,
+            listAvailableClients: listAvailableClientsTool,
         },
-        maxSteps: 5,
+        experimental_activeTools: modelParams.activeTools,
+        maxSteps: 10,
         maxRetries: 3,
 
         experimental_transform: smoothStream(),
     });
 
     const reader = textStream.getReader();
-
     return Success(reader);
-}) satisfies Function<{ prompt: string }, ReadableStreamDefaultReader<string>>;
+}) satisfies Function<
+    | { prompt: string; messages?: undefined; modelParams: AiRequest }
+    | { prompt?: undefined; messages: Message[]; modelParams: AiRequest },
+    ReadableStreamDefaultReader<string>
+>;

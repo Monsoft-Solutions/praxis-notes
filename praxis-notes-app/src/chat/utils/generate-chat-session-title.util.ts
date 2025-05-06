@@ -57,6 +57,11 @@ export const generateChatSessionTitle = (async ({
 
     const { data: text, error: textGenerationError } = await generateText({
         messages,
+        modelParams: {
+            model: 'claude-3-haiku-20240307',
+            provider: 'anthropic',
+            activeTools: [],
+        },
     });
 
     if (textGenerationError) return Error('TEXT_GENERATION_ERROR');

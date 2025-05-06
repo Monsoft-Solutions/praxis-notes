@@ -1,20 +1,19 @@
 import { useEffect, useMemo, useRef } from 'react';
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@ui/card.ui';
+import { Card, CardContent, CardFooter } from '@ui/card.ui';
 import { ChatMessageComponent } from './chat-message.component';
 import { ChatInputComponent } from './chat-input.component';
+import { ChatSuggestedQuestions } from './chat-suggested-questions.component';
 
 import { api } from '@api/providers/web/api.provider';
 
 import { apiClientUtils } from '@api/providers/web/api-client-utils.provider';
 import { ScrollArea } from '@shared/ui/scroll-area.ui';
 
-export function ChatWindow({ activeSessionId }: { activeSessionId: string }) {
+type ChatWindowProps = {
+    activeSessionId: string;
+};
+
+export function ChatWindow({ activeSessionId }: ChatWindowProps) {
     const { data: sessionQuery } = api.chat.getChatSession.useQuery({
         sessionId: activeSessionId,
     });
@@ -25,6 +24,10 @@ export function ChatWindow({ activeSessionId }: { activeSessionId: string }) {
 
     const handleSendMessage = async (message: string) => {
         await sendMessage({ sessionId: activeSessionId, content: message });
+    };
+
+    const handleSuggestedQuestionSelect = async (question: string) => {
+        await handleSendMessage(question);
     };
 
     api.chat.onChatMessageCreated.useSubscription(
@@ -110,7 +113,6 @@ export function ChatWindow({ activeSessionId }: { activeSessionId: string }) {
         return sessionQuery.data;
     }, [sessionQuery]);
 
-    // Scroll to bottom when messages change
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -122,45 +124,33 @@ export function ChatWindow({ activeSessionId }: { activeSessionId: string }) {
     const { messages } = session;
 
     return (
-        <Card className="flex h-[calc(100vh_-_10rem)] flex-col justify-between">
-            <CardHeader className="flex-row items-center justify-between px-6 py-4">
-                <CardTitle className="text-xl">{session.title}</CardTitle>
-            </CardHeader>
-
-            {/* <ScrollArea className="flex flex-col">
-                    {messages.length === 0 ? (
-                        <div className="flex flex-1 flex-col items-center justify-center p-6 text-center">
-                            <p className="text-muted-foreground">
-                                No messages yet. Start a conversation!
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="flex flex-col p-4">
-                            {messages.map((message) => (
-                                <ChatMessageComponent
-                                    key={message.id}
-                                    message={message}
-                                />
-                            ))}
-                            <div ref={messagesEndRef} />
+        <Card className="flex h-full flex-col items-stretch justify-between pt-0 shadow-inner">
+            <CardContent className="p-0">
+                <ScrollArea className="flex h-[calc(100vh_-_15rem)] grow-0 flex-col pt-0">
+                    {messages.map((message) => (
+                        <ChatMessageComponent
+                            key={message.id}
+                            message={message}
+                        />
+                    ))}
+                    <div ref={messagesEndRef} />
+                    {messages.length === 0 && (
+                        <div className="flex justify-start justify-self-end pt-10">
+                            <ChatSuggestedQuestions
+                                sessionId={activeSessionId}
+                                onQuestionSelect={(question) => {
+                                    void handleSuggestedQuestionSelect(
+                                        question,
+                                    );
+                                }}
+                                className="max-w-[90%]"
+                            />
                         </div>
                     )}
-                </ScrollArea> */}
-
-            <CardContent className="p-0">
-                <ScrollArea className="flex h-[calc(100vh_-_25rem)] grow-0 flex-col">
-                    <div className="">
-                        {messages.map((message) => (
-                            <ChatMessageComponent
-                                key={message.id}
-                                message={message}
-                            />
-                        ))}
-                    </div>
                 </ScrollArea>
             </CardContent>
 
-            <CardFooter className="pt-0">
+            <CardFooter className="flex flex-col items-stretch gap-2 pt-0">
                 <ChatInputComponent
                     onSend={(message) => {
                         void handleSendMessage(message);

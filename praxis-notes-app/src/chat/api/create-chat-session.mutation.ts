@@ -35,12 +35,21 @@ export const createChatSession = protectedEndpoint.mutation(
             };
 
             // insert the chat session into database
-            const { error } = await catchError(
+            const { error: sessionError } = await catchError(
                 db.insert(chatSessionTable).values(chatSession),
             );
 
             // if insertion failed, return an error
-            if (error) return Error();
+            if (sessionError) return Error();
+
+            // emit event that will trigger the generation of suggested questions
+            // listener will emit another event with the generated questions
+            emit({
+                event: 'suggestedQuestionsRequested',
+                payload: {
+                    sessionId,
+                },
+            });
 
             // emit the new chat session created event
             emit({

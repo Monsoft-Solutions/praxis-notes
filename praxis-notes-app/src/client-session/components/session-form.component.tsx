@@ -191,6 +191,7 @@ export function SessionForm({
                 if (initNotes && success && responseId) {
                     void generateNotes({
                         sessionId: responseId,
+                        save: true,
                     });
                     toast.success('Notes generated');
                 } else if (isEditMode && success) {
