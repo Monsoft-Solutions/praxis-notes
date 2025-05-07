@@ -2,7 +2,7 @@ import { Function } from '@errors/types';
 
 import { Success, Error } from '@errors/utils';
 
-import { ChatMessage } from '../schemas';
+import { ChatMessage, UserBasicDataForChat } from '../schemas';
 import { chatSessionSystemPrompt } from '../provider';
 
 import { streamText } from '@src/ai/providers';
@@ -17,14 +17,10 @@ import { UserLang } from '@auth/enum/user-lang.enum';
  */
 export const generateChatResponse = (async ({
     messages,
-    userName,
-    userId,
-    userLanguage,
+    userBasicData,
 }: {
     messages: ChatMessage[];
-    userName: string;
-    userId: string;
-    userLanguage: UserLang;
+    userBasicData: UserBasicDataForChat;
 }) => {
     // Prepare the conversation history
     const messageHistory = messages.map((msg) => ({
@@ -34,9 +30,9 @@ export const generateChatResponse = (async ({
     }));
 
     const { data: systemPrompt } = chatSessionSystemPrompt({
-        userName,
-        userId,
-        userLanguage,
+        userName: userBasicData.firstName,
+        userId: userBasicData.userId,
+        userLanguage: userBasicData.language as UserLang,
     });
 
     // Add system message at the start
@@ -60,6 +56,7 @@ export const generateChatResponse = (async ({
             provider: 'anthropic',
             model: 'claude-3-7-sonnet-latest',
             activeTools: ['getClientData', 'listAvailableClients', 'think'],
+            userBasicData,
         },
     });
 
@@ -69,9 +66,7 @@ export const generateChatResponse = (async ({
 }) satisfies Function<
     {
         messages: ChatMessage[];
-        userName: string;
-        userId: string;
-        userLanguage: UserLang;
+        userBasicData: UserBasicDataForChat;
     },
     ReadableStreamDefaultReader<string>
 >;

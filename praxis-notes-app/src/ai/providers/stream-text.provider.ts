@@ -63,8 +63,10 @@ export const streamText = (async ({
             prompt,
             messages,
             modelParams,
+            userName: modelParams.userBasicData?.firstName,
         },
         sessionId: traceId,
+        userId: modelParams.userBasicData?.userId,
     });
 
     const anthropic = createAnthropic({

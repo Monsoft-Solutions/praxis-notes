@@ -93,9 +93,12 @@ export const sendMessage = protectedEndpoint
                 const { data: responseStream, error: aiResponseError } =
                     await generateChatResponse({
                         messages: allMessages,
-                        userName: user.firstName,
-                        userId: user.id,
-                        userLanguage: user.language ?? 'en',
+                        userBasicData: {
+                            firstName: user.firstName,
+                            lastName: user.lastName,
+                            language: user.language ?? 'en',
+                            userId: user.id,
+                        },
                     });
 
                 if (aiResponseError) return Error();
