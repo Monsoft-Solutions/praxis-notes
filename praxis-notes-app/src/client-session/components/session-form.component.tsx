@@ -114,117 +114,103 @@ export function SessionForm({
             initNotes: boolean;
             doNavigate?: boolean;
         }) => {
-            try {
-                if (initNotes) {
-                    setIsGeneratingNotes(true);
-                } else if (isEditMode) {
-                    setIsUpdating(true);
-                } else {
-                    setIsSavingDraft(true);
-                }
+            if (initNotes) {
+                setIsGeneratingNotes(true);
+            } else if (isEditMode) {
+                setIsUpdating(true);
+            } else {
+                setIsSavingDraft(true);
+            }
 
-                const abcEntries = data.abcIdEntries.filter(
-                    (entry) => entry.antecedentId,
+            const abcEntries = data.abcIdEntries.filter(
+                (entry) => entry.antecedentId,
+            );
+
+            data.abcIdEntries = abcEntries;
+
+            const replacementProgramEntries =
+                data.replacementProgramEntries.filter(
+                    (entry) => entry.replacementProgramId,
                 );
 
-                data.abcIdEntries = abcEntries;
+            data.replacementProgramEntries = replacementProgramEntries;
 
-                const replacementProgramEntries =
-                    data.replacementProgramEntries.filter(
-                        (entry) => entry.replacementProgramId,
-                    );
+            // Handle update or create based on sessionId
+            let responseData = null;
+            let responseId = sessionId;
+            let success = false;
 
-                data.replacementProgramEntries = replacementProgramEntries;
+            const sessionData = {
+                ...data,
+                sessionDate: data.sessionDate.toISOString(),
+            };
 
-                // Handle update or create based on sessionId
-                let responseData = null;
-                let responseId = sessionId;
-                let success = false;
+            if (isEditMode && sessionId) {
+                const response = await updateClientSession({
+                    sessionId,
+                    sessionForm: sessionData,
+                });
 
-                const sessionData = {
-                    ...data,
-                    sessionDate: data.sessionDate.toISOString(),
-                };
+                success = response.error === null;
+                if (success) {
+                    responseId = sessionId;
+                    trackEvent('session', 'session_update');
 
-                if (isEditMode && sessionId) {
-                    const response = await updateClientSession({
-                        sessionId,
-                        sessionForm: sessionData,
-                    });
+                    await apiClientUtils.clientSession.getClientSession.refetch();
 
-                    success = response.error === null;
-                    if (success) {
-                        responseId = sessionId;
-                        trackEvent('session', 'session_update');
-
-                        await apiClientUtils.clientSession.getClientSession.refetch();
-
-                        // After successful update, navigate back to view mode
-                        await navigate({
-                            to: '/clients/$clientId/sessions/$sessionId',
-                            params: { clientId, sessionId },
-                        });
-                        return; // Exit early after navigation
-                    } else {
-                        toast.error('Error updating session');
-                    }
-                } else {
-                    const createSessionResponse = await createClientSession({
-                        clientId,
-                        sessionForm: sessionData,
-                    });
-
-                    if (createSessionResponse.error) {
-                        toast.error('Error saving session');
-                        return;
-                    }
-
-                    if ('data' in createSessionResponse) {
-                        responseData = createSessionResponse.data;
-                        responseId = responseData.id;
-                        trackEvent('session', 'session_create');
-                        success = true;
-                    } else {
-                        toast.error('Error saving session');
-                    }
-                }
-
-                // Handle notes generation if needed and successful
-                if (initNotes && success && responseId) {
-                    void generateNotes({
-                        sessionId: responseId,
-                        save: true,
-                    });
-                    toast.success('Notes generated');
-                } else if (isEditMode && success) {
-                    toast.success('Session updated successfully');
-                } else if (success) {
-                    toast.success('Session saved as draft');
-                }
-
-                // Reset loading states
-                setIsGeneratingNotes(false);
-                setIsUpdating(false);
-                setIsSavingDraft(false);
-
-                // Navigate if needed and successful
-                if (doNavigate && success && responseId) {
+                    // After successful update, navigate back to view mode
                     await navigate({
                         to: '/clients/$clientId/sessions/$sessionId',
-                        params: { clientId, sessionId: responseId },
-                        search: { isGenerating: initNotes },
+                        params: { clientId, sessionId },
                     });
+                    return; // Exit early after navigation
+                } else {
+                    toast.error('Error updating session');
                 }
-            } catch (error) {
-                // Handle errors
-                setIsGeneratingNotes(false);
-                setIsUpdating(false);
-                setIsSavingDraft(false);
+            } else {
+                const createSessionResponse = await createClientSession({
+                    clientId,
+                    sessionForm: sessionData,
+                });
 
-                toast.error('An unexpected error occurred');
-                console.error('Session save error:', error);
+                if (createSessionResponse.error) {
+                    toast.error('Error saving session');
+                } else {
+                    responseData = createSessionResponse.data;
+                    responseId = responseData.id;
+                    trackEvent('session', 'session_create');
+                    success = true;
+                }
+            }
+
+            // Handle notes generation if needed and successful
+            if (initNotes && success && responseId) {
+                void generateNotes({
+                    sessionId: responseId,
+                    save: true,
+                });
+                toast.success('Notes generated');
+            } else if (isEditMode && success) {
+                toast.success('Session updated successfully');
+            } else if (success) {
+                toast.success('Session saved as draft');
+            }
+
+            // Reset loading states
+            setIsGeneratingNotes(false);
+            setIsUpdating(false);
+            setIsSavingDraft(false);
+
+            // Navigate if needed and successful
+            if (doNavigate && success && responseId) {
+                await navigate({
+                    to: '/clients/$clientId/sessions/$sessionId',
+                    params: { clientId, sessionId: responseId },
+                    search: { isGenerating: initNotes },
+                });
             }
         },
+
         [
             clientId,
             sessionId,
