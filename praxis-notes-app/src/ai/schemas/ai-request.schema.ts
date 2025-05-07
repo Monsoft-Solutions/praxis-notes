@@ -7,6 +7,7 @@ import {
     anthropicModelEnum,
     openaiModelEnum,
 } from '../enums';
+import { userBasicDataForChatSchema } from '@src/chat/schemas';
 
 export const aiRequestSchema = z.object({
     provider: aiModelProviderEnum,
@@ -38,6 +39,8 @@ export const aiRequestSchema = z.object({
         .describe('The names of the tools available for the model')
         .optional()
         .default([]),
+
+    userBasicData: userBasicDataForChatSchema.optional(),
 });
 
 export type AiRequest = z.infer<typeof aiRequestSchema>;

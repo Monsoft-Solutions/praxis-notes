@@ -20,7 +20,6 @@ import { catchError } from '@errors/utils/catch-error.util';
 
 export const generateObject = (async ({
     prompt,
-    messages,
     modelParams,
     outputSchema,
 }: {
@@ -57,11 +56,11 @@ export const generateObject = (async ({
         name: 'generate_object',
         id: traceId,
         metadata: {
-            prompt,
-            messages,
             modelParams,
+            userName: modelParams.userBasicData?.firstName,
         },
         sessionId: traceId,
+        userId: modelParams.userBasicData?.userId,
     });
 
     const anthropic = createAnthropic({
@@ -73,6 +72,9 @@ export const generateObject = (async ({
     const generation = trace.generation({
         model,
         input: prompt,
+        metadata: {
+            userBasicData: modelParams.userBasicData,
+        },
     });
 
     const { data: result, error } = await catchError(
@@ -95,11 +97,12 @@ export const generateObject = (async ({
         },
     });
 
+    await langfuse.flushAsync();
+
     return Success(result.object);
 }) satisfies Function<
     {
         prompt: string;
-        messages?: undefined;
         modelParams: AiRequest;
         outputSchema: ZodSchema;
     },

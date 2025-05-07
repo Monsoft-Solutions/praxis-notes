@@ -5,6 +5,7 @@ import { Error, Success } from '@errors/utils';
 
 import { generateObject } from '@src/ai/providers';
 import { chatSuggestedQuestionsPrompt } from '../prompts';
+import { UserBasicDataForChat } from '../schemas';
 
 const questionSuggestionSchema = z.object({
     questions: z.array(z.string()),
@@ -17,15 +18,13 @@ type QuestionSuggestionSchema = z.infer<typeof questionSuggestionSchema>;
  * for a new chat session
  */
 export const generateSuggestedQuestions = (async ({
-    userName,
-    userLanguage = 'en',
+    userBasicData,
 }: {
-    userName: string;
-    userLanguage?: string;
+    userBasicData: UserBasicDataForChat;
 }) => {
     const prompt = chatSuggestedQuestionsPrompt({
-        userName,
-        userLanguage,
+        userName: userBasicData.firstName,
+        userLanguage: userBasicData.language,
     });
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -36,6 +35,7 @@ export const generateSuggestedQuestions = (async ({
                 provider: 'anthropic',
                 model: 'claude-3-haiku-20240307',
                 activeTools: [],
+                userBasicData,
             },
             outputSchema: questionSuggestionSchema,
         });
@@ -47,8 +47,7 @@ export const generateSuggestedQuestions = (async ({
     return Success(array);
 }) satisfies Function<
     {
-        userName: string;
-        userLanguage?: string;
+        userBasicData: UserBasicDataForChat;
     },
     string[]
 >;
