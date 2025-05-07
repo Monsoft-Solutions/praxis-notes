@@ -54,9 +54,9 @@ export function SignUpView(): ReactElement {
     };
 
     return (
-        <div className="flex h-full min-h-screen flex-col bg-gray-50">
+        <div className="flex h-full flex-col overflow-auto bg-gray-50">
             {/* Main content container */}
-            <div className="flex flex-1 flex-col overflow-auto md:flex-row">
+            <div className="flex flex-1 flex-col md:flex-row">
                 {/* Logo for mobile */}
                 <div className="bg-white px-4 py-4 md:hidden">
                     <img
