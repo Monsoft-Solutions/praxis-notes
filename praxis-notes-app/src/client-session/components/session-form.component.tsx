@@ -20,7 +20,7 @@ import { ReplacementProgramCardContainer } from './replacement-program-card-cont
 import { ValuationSelector } from './valuation-selector.component';
 import { SessionObservations } from './session-observations.component';
 
-import { api } from '@api/providers/web';
+import { api, apiClientUtils } from '@api/providers/web';
 import { Spinner } from '@shared/ui/spinner.ui';
 import { trackEvent } from '@analytics/providers/analytics.provider';
 
@@ -156,6 +156,8 @@ export function SessionForm({
                     if (success) {
                         responseId = sessionId;
                         trackEvent('session', 'session_update');
+
+                        await apiClientUtils.clientSession.getClientSession.refetch();
 
                         // After successful update, navigate back to view mode
                         await navigate({
