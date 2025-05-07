@@ -8,6 +8,7 @@ import { api } from '@api/providers/web';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
 import { useEffect } from 'react';
+import { ViewContainer } from '@shared/ui';
 
 const addClientButtonId: TourStepId = 'add-client-button';
 const viewSessionsButtonId: TourStepId = 'view-sessions-button';
@@ -50,7 +51,7 @@ export const ClientsView = () => {
     const { data: clients } = clientsQuery;
 
     return (
-        <div className="container mx-auto space-y-6 px-0 py-6">
+        <ViewContainer>
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">Clients</h1>
 
@@ -164,6 +165,6 @@ export const ClientsView = () => {
                     ))}
                 </div>
             )}
-        </div>
+        </ViewContainer>
     );
 };

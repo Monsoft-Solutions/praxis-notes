@@ -3,6 +3,7 @@ import { ChatWindow, ChatSessionsList } from '../components';
 import { api } from '@api/providers/web';
 
 import { Route } from '@routes/_private/_app/chat';
+import { ViewContainer } from '@shared/ui';
 import { Card } from '@shared/ui/card.ui';
 
 export function ChatView() {
@@ -29,7 +30,7 @@ export function ChatView() {
     };
 
     return (
-        <div className="flex h-full flex-col justify-center overflow-hidden p-6">
+        <ViewContainer>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-[300px_1fr]">
                 <ChatSessionsList
                     activeSessionId={sessionId}
@@ -57,6 +58,6 @@ export function ChatView() {
                     </Card>
                 )}
             </div>
-        </div>
+        </ViewContainer>
     );
 }

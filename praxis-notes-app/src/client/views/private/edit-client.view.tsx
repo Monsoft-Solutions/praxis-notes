@@ -10,6 +10,7 @@ import { EditClientBasicInfo } from '../../components/edit/edit-client-basic-inf
 import { EditClientBehaviors } from '../../components/edit/edit-client-behaviors.component';
 import { EditClientReplacementPrograms } from '../../components/edit/edit-client-replacement-programs.component';
 import { EditClientInterventions } from '../../components/edit/edit-client-interventions.component';
+import { ViewContainer } from '@shared/ui';
 
 export const EditClientView = () => {
     const { clientId } = Route.useParams();
@@ -36,7 +37,7 @@ export const EditClientView = () => {
     };
 
     return (
-        <div className="container mx-auto px-0 py-6">
+        <ViewContainer>
             <div className="mb-6 flex items-center justify-between">
                 <h1 className="text-2xl font-bold">Edit Client</h1>
                 <Button type="button" variant="outline" onClick={handleCancel}>
@@ -139,6 +140,6 @@ export const EditClientView = () => {
                     )}
                 </Card>
             </div>
-        </div>
+        </ViewContainer>
     );
 };

@@ -13,6 +13,7 @@ import { Route } from '@routes/_private/_app/clients/$clientId/sessions';
 import { api } from '@api/providers/web';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
+import { ViewContainer } from '@shared/ui';
 
 const addSessionButtonId: TourStepId = 'add-session-button';
 
@@ -50,7 +51,7 @@ export const ClientSessionsView = () => {
     const clientName = 'Client';
 
     return (
-        <div className="container mx-auto space-y-6 px-0 py-6">
+        <ViewContainer>
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">
                     Sessions for {clientName}
@@ -128,6 +129,6 @@ export const ClientSessionsView = () => {
                     ))}
                 </div>
             )}
-        </div>
+        </ViewContainer>
     );
 };
