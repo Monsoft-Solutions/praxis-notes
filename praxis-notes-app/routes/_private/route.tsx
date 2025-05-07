@@ -1,7 +1,5 @@
 import { createFileRoute, redirect, Outlet } from '@tanstack/react-router';
 
-import { Tour } from '@shared/components/tour.component';
-
 // private routes
 export const Route = createFileRoute('/_private')({
     beforeLoad: async ({
@@ -36,8 +34,6 @@ export const Route = createFileRoute('/_private')({
         return (
             <>
                 <Outlet />
-
-                <Tour />
             </>
         );
     },
