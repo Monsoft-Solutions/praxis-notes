@@ -10,7 +10,7 @@ export const clientFormBasicInfoSchema = z.object({
 
     lastName: z.string().min(1, 'Last name is required').max(255),
 
-    gender: clientGenderEnum,
+    gender: clientGenderEnum.nullable(),
 
     notes: z.string().optional().or(z.literal('')),
 });

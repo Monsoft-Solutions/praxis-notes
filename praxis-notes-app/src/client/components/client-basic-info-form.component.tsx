@@ -79,8 +79,8 @@ export function ClientBasicInfoForm() {
                         </FormLabel>
                         <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            value={field.value}
+                            defaultValue={field.value ?? undefined}
+                            value={field.value ?? undefined}
                         >
                             <FormControl>
                                 <SelectTrigger>

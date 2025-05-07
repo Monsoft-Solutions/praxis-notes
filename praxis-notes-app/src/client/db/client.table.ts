@@ -38,7 +38,7 @@ export const clientTable = table('clients', {
 
     lastName: varchar('last_name', { length: 255 }).notNull(),
 
-    gender: sqlEnum('gender', genderEnum).notNull(),
+    gender: sqlEnum('gender', genderEnum),
 
     isActive: boolean('is_active').default(true).notNull(),
 
