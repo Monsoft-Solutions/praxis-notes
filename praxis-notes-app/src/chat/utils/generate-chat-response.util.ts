@@ -18,9 +18,11 @@ import { UserLang } from '@auth/enum/user-lang.enum';
 export const generateChatResponse = (async ({
     messages,
     userBasicData,
+    chatSessionId,
 }: {
     messages: ChatMessage[];
     userBasicData: UserBasicDataForChat;
+    chatSessionId: string;
 }) => {
     // Prepare the conversation history
     const messageHistory = messages.map((msg) => ({
@@ -58,6 +60,7 @@ export const generateChatResponse = (async ({
             activeTools: ['getClientData', 'listAvailableClients', 'think'],
             userBasicData,
             callerName: 'generateChatResponse',
+            chatSessionId,
         },
     });
 
@@ -68,6 +71,7 @@ export const generateChatResponse = (async ({
     {
         messages: ChatMessage[];
         userBasicData: UserBasicDataForChat;
+        chatSessionId: string;
     },
     ReadableStreamDefaultReader<string>
 >;

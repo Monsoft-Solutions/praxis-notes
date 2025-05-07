@@ -99,6 +99,7 @@ export const sendMessage = protectedEndpoint
                             language: user.language ?? 'en',
                             userId: user.id,
                         },
+                        chatSessionId: sessionId,
                     });
 
                 if (aiResponseError) return Error();

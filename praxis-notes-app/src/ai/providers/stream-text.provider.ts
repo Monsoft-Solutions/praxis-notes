@@ -65,7 +65,7 @@ export const streamText = (async ({
             modelParams,
             userName: modelParams.userBasicData?.firstName,
         },
-        sessionId: traceId,
+        sessionId: modelParams.chatSessionId,
         userId: modelParams.userBasicData?.userId,
         tags: [modelParams.model, modelParams.provider, modelParams.callerName],
     });
@@ -84,10 +84,14 @@ export const streamText = (async ({
         },
     });
 
+    const cleanMessages = messages?.filter(
+        (message) => message.content.length > 0,
+    );
+
     const { textStream } = aiSdkStreamText({
         model: anthropic(model),
         prompt,
-        messages,
+        messages: cleanMessages,
         tools: {
             think: thinkTool,
             getClientData: getClientDataTool,

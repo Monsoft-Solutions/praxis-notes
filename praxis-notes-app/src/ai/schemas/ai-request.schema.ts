@@ -59,6 +59,11 @@ export const aiRequestSchema = z.object({
         .describe(
             'The name of the caller (method who is calling the AI generation)',
         ),
+
+    chatSessionId: z
+        .string()
+        .optional()
+        .describe('The chat session id to log the request'),
 });
 
 export type AiRequest = z.infer<typeof aiRequestSchema>;
