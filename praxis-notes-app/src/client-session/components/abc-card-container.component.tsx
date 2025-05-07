@@ -15,7 +15,11 @@ import { useCallback } from 'react';
 
 const abcCardContainerId: TourStepId = 'session-form-abc-entry';
 
-export function ABCCardContainer() {
+type ABCCardContainerProps = {
+    clientId: string;
+};
+
+export function ABCCardContainer({ clientId }: ABCCardContainerProps) {
     const { control } = useFormContext();
 
     const { fields, append, remove } = useFieldArray({
@@ -45,6 +49,7 @@ export function ABCCardContainer() {
                     <ABCCard
                         key={field.id}
                         index={index}
+                        clientId={clientId}
                         onRemove={
                             fields.length > 1
                                 ? () => {

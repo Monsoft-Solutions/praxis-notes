@@ -10,6 +10,8 @@ import { catchError } from '@errors/utils/catch-error.util';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import { emit } from '@events/providers';
+
 import {
     clientSessionTable,
     clientSessionParticipantTable,
@@ -28,15 +30,13 @@ import { abcFunctionEnum, clientSessionValuationEnum } from '../enum';
 import { replacementProgramResponseEnum } from '@src/replacement-program/enums';
 
 import { eq } from 'drizzle-orm';
-import { userTable } from '@db/db.tables';
 import { ClientSessionReplacementProgramEntry } from '../schemas/client-session-replacement-program-entry.schema';
 
-// mutation to create a client session
-export const createClientSession = protectedEndpoint
+// mutation to update a client session
+export const updateClientSession = protectedEndpoint
     .input(
         z.object({
-            clientId: z.string(),
-
+            sessionId: z.string(),
             sessionForm: z.object({
                 location: z.string(),
                 sessionDate: z.string(),
@@ -75,10 +75,11 @@ export const createClientSession = protectedEndpoint
     .mutation(
         queryMutationCallback(
             async ({
-                ctx: {
-                    session: { user },
-                },
-                input: { clientId, sessionForm },
+                // ctx: {
+                //     // User will be needed later for permission checks
+                //     session,
+                // },
+                input: { sessionId, sessionForm },
             }) => {
                 const {
                     sessionDate,
@@ -95,6 +96,18 @@ export const createClientSession = protectedEndpoint
                     replacementProgramEntries,
                 } = sessionForm;
 
+                // Validate that the session exists
+                const { data: existingSession, error: sessionError } =
+                    await catchError(
+                        db.query.clientSessionTable.findFirst({
+                            where: (record) => eq(record.id, sessionId),
+                        }),
+                    );
+
+                if (sessionError || !existingSession)
+                    return Error('SESSION_NOT_FOUND');
+
+                // Validate ABC entries
                 const abcEntriesNullable = await Promise.all(
                     abcIdEntries.map(
                         async ({
@@ -215,6 +228,7 @@ export const createClientSession = protectedEndpoint
                 if (abcEntries.length !== abcIdEntries.length)
                     return Error('ABC_ENTRIES_NOT_FOUND');
 
+                // Validate replacement program entries
                 // 1. Collect all unique IDs
                 const allReplacementProgramIds = [
                     ...new Set(
@@ -344,80 +358,152 @@ export const createClientSession = protectedEndpoint
                     return Error('REPLACEMENT_PROGRAM_DATA_NOT_FOUND');
                 }
 
-                const { data: client, error: clientError } = await catchError(
-                    db.query.clientTable.findFirst({
-                        where: (record) => eq(record.id, clientId),
-                    }),
-                );
-
-                if (clientError || !client) return Error('CLIENT_NOT_FOUND');
-
-                const { data: userQueryResult, error: userError } =
-                    await catchError(
-                        db
-                            .select({
-                                firstName: userTable.firstName,
-                                lastName: userTable.lastName,
-                            })
-                            .from(userTable)
-                            .where(eq(userTable.id, user.id))
-                            .limit(1),
-                    );
-
-                if (userError || !userQueryResult.length)
-                    return Error('USER_NOT_FOUND');
-
-                // generate a unique id for the client session
-                const id = uuidv4();
-
-                // create the client session object
-                const clientSession = {
-                    id,
-
-                    userId: user.id,
-                    clientId,
-
-                    location,
-                    sessionDate,
-                    startTime,
-                    endTime,
-
-                    valuation,
-                    observations,
-
-                    notes: null,
-                };
-
+                // Update the client session with all its related data
                 const { error } = await catchError(
                     db.transaction(async (tx) => {
-                        // insert the client session
+                        // Update the main client session record
                         await tx
-                            .insert(clientSessionTable)
-                            .values(clientSession);
+                            .update(clientSessionTable)
+                            .set({
+                                location,
+                                sessionDate,
+                                startTime,
+                                endTime,
+                                valuation,
+                                observations,
+                                // updatedAt is not needed as it might not be in the table schema
+                            })
+                            .where(eq(clientSessionTable.id, sessionId));
 
-                        // insert the participants
+                        // Delete and recreate all related data
+
+                        // 1. Delete participants
+                        await tx
+                            .delete(clientSessionParticipantTable)
+                            .where(
+                                eq(
+                                    clientSessionParticipantTable.clientSessionId,
+                                    sessionId,
+                                ),
+                            );
+
+                        // 2. Delete environmental changes
+                        await tx
+                            .delete(clientSessionEnvironmentalChangeTable)
+                            .where(
+                                eq(
+                                    clientSessionEnvironmentalChangeTable.clientSessionId,
+                                    sessionId,
+                                ),
+                            );
+
+                        // 3. Delete ABC entries and their related behaviors and interventions
+                        const { data: abcEntries } = await catchError(
+                            tx.query.clientSessionAbcEntryTable.findMany({
+                                where: (record) =>
+                                    eq(record.clientSessionId, sessionId),
+                            }),
+                        );
+
+                        if (abcEntries) {
+                            for (const abcEntry of abcEntries) {
+                                // Delete related behaviors
+                                await tx
+                                    .delete(clientSessionAbcEntryBehaviorTable)
+                                    .where(
+                                        eq(
+                                            clientSessionAbcEntryBehaviorTable.clientSessionAbcEntryId,
+                                            abcEntry.id,
+                                        ),
+                                    );
+
+                                // Delete related interventions
+                                await tx
+                                    .delete(
+                                        clientSessionAbcEntryInterventionTable,
+                                    )
+                                    .where(
+                                        eq(
+                                            clientSessionAbcEntryInterventionTable.clientSessionAbcEntryId,
+                                            abcEntry.id,
+                                        ),
+                                    );
+                            }
+
+                            // Delete ABC entries
+                            await tx
+                                .delete(clientSessionAbcEntryTable)
+                                .where(
+                                    eq(
+                                        clientSessionAbcEntryTable.clientSessionId,
+                                        sessionId,
+                                    ),
+                                );
+                        }
+
+                        // 4. Delete replacement program entries and their prompt types
+                        const { data: rpEntries } = await catchError(
+                            tx.query.clientSessionReplacementProgramEntryTable.findMany(
+                                {
+                                    where: (record) =>
+                                        eq(record.clientSessionId, sessionId),
+                                },
+                            ),
+                        );
+
+                        if (rpEntries) {
+                            for (const rpEntry of rpEntries) {
+                                // Delete related prompt types
+                                await tx
+                                    .delete(
+                                        clientSessionReplacementProgramEntryPromptTypeTable,
+                                    )
+                                    .where(
+                                        eq(
+                                            clientSessionReplacementProgramEntryPromptTypeTable.clientSessionReplacementProgramEntryId,
+                                            rpEntry.id,
+                                        ),
+                                    );
+                            }
+
+                            // Delete replacement program entries
+                            await tx
+                                .delete(
+                                    clientSessionReplacementProgramEntryTable,
+                                )
+                                .where(
+                                    eq(
+                                        clientSessionReplacementProgramEntryTable.clientSessionId,
+                                        sessionId,
+                                    ),
+                                );
+                        }
+
+                        // Insert new data
+
+                        // 1. Insert participants
                         for (const participant of presentParticipants) {
                             await tx
                                 .insert(clientSessionParticipantTable)
                                 .values({
                                     id: uuidv4(),
-                                    clientSessionId: id,
+                                    clientSessionId: sessionId,
                                     name: participant,
                                 });
                         }
 
-                        // insert the environmental changes
+                        // 2. Insert environmental changes
                         for (const change of environmentalChanges) {
                             await tx
                                 .insert(clientSessionEnvironmentalChangeTable)
                                 .values({
                                     id: uuidv4(),
-                                    clientSessionId: id,
+                                    clientSessionId: sessionId,
                                     name: change,
                                 });
                         }
 
-                        // insert the abc entries
+                        // 3. Insert ABC entries
                         for (const {
                             antecedentId,
                             behaviorIds,
@@ -428,7 +514,7 @@ export const createClientSession = protectedEndpoint
 
                             await tx.insert(clientSessionAbcEntryTable).values({
                                 id: clientSessionAbcEntryId,
-                                clientSessionId: id,
+                                clientSessionId: sessionId,
                                 antecedentId,
                                 function: abcFunction,
                             });
@@ -456,7 +542,7 @@ export const createClientSession = protectedEndpoint
                             }
                         }
 
-                        // insert the replacement program entries
+                        // 4. Insert replacement program entries
                         for (const {
                             replacementProgramId,
                             teachingProcedureId,
@@ -468,13 +554,13 @@ export const createClientSession = protectedEndpoint
                             const clientSessionReplacementProgramEntryId =
                                 uuidv4();
 
-                            await tx
+                            const result = await tx
                                 .insert(
                                     clientSessionReplacementProgramEntryTable,
                                 )
                                 .values({
                                     id: clientSessionReplacementProgramEntryId,
-                                    clientSessionId: id,
+                                    clientSessionId: sessionId,
                                     replacementProgramId,
                                     teachingProcedureId,
                                     promptingProcedureId,
@@ -485,6 +571,8 @@ export const createClientSession = protectedEndpoint
                                     console.error(error);
                                     throw error;
                                 });
+
+                            console.log(result);
 
                             for (const promptTypeId of promptTypesIds) {
                                 await tx
@@ -507,7 +595,17 @@ export const createClientSession = protectedEndpoint
 
                 if (error) return Error();
 
-                return Success({ id });
+                // emit a client-session-updated event
+                emit({
+                    event: 'sessionNotesUpdated',
+                    payload: {
+                        sessionId,
+                        notes: '', // Empty string as we're not updating notes specifically
+                        isComplete: true,
+                    },
+                });
+
+                return Success({ id: sessionId });
             },
         ),
     );

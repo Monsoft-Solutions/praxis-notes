@@ -18,7 +18,13 @@ import { TourStepId } from '@shared/types/tour-step-id.type';
 const replacementProgramCardContainerId: TourStepId =
     'session-form-replacement-program';
 
-export function ReplacementProgramCardContainer() {
+type ReplacementProgramCardContainerProps = {
+    clientId: string;
+};
+
+export function ReplacementProgramCardContainer({
+    clientId,
+}: ReplacementProgramCardContainerProps) {
     const [isDetailedView, setIsDetailedView] = useState(false);
     const { control } = useFormContext();
 
@@ -62,6 +68,7 @@ export function ReplacementProgramCardContainer() {
                     <ReplacementProgramCard
                         key={field.id}
                         index={index}
+                        clientId={clientId}
                         isDetailedView={isDetailedView}
                         onRemove={
                             fields.length > 1

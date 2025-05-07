@@ -20,7 +20,7 @@ import { ReplacementProgramCardContainer } from './replacement-program-card-cont
 import { ValuationSelector } from './valuation-selector.component';
 import { SessionObservations } from './session-observations.component';
 
-import { api } from '@api/providers/web';
+import { api, apiClientUtils } from '@api/providers/web';
 import { Spinner } from '@shared/ui/spinner.ui';
 import { trackEvent } from '@analytics/providers/analytics.provider';
 
@@ -37,7 +37,6 @@ type SessionFormProps = {
     clientId: string;
     clientName: string;
     sessionId?: string;
-    sessionStatus?: string;
     isTour: boolean;
     placeholderSessionData?: ClientSessionForm;
 };
@@ -45,16 +44,22 @@ type SessionFormProps = {
 export function SessionForm({
     clientId,
     clientName,
+    sessionId,
     placeholderSessionData,
     isTour,
 }: SessionFormProps) {
     const { mutateAsync: createClientSession } =
         api.clientSession.createClientSession.useMutation();
 
+    const { mutateAsync: updateClientSession } =
+        api.clientSession.updateClientSession.useMutation();
+
     const { mutateAsync: generateNotes } =
         api.notes.generateNotes.useMutation();
 
     const navigate = useNavigate();
+
+    const isEditMode = !!sessionId;
 
     // Initialize form with default values or initial data if provided
     const form = useForm<ClientSessionForm>({
@@ -95,11 +100,11 @@ export function SessionForm({
     });
 
     const [isGeneratingNotes, setIsGeneratingNotes] = useState(false);
-
     const [isSavingDraft, setIsSavingDraft] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
-    // Handle saving as draft
-    const handleCreateSession = useCallback(
+    // Handle saving as draft or updating
+    const handleSaveSession = useCallback(
         async ({
             data,
             initNotes,
@@ -111,6 +116,8 @@ export function SessionForm({
         }) => {
             if (initNotes) {
                 setIsGeneratingNotes(true);
+            } else if (isEditMode) {
+                setIsUpdating(true);
             } else {
                 setIsSavingDraft(true);
             }
@@ -128,63 +135,100 @@ export function SessionForm({
 
             data.replacementProgramEntries = replacementProgramEntries;
 
-            const response = await createClientSession({
-                clientId,
-                sessionForm: {
-                    ...data,
-                    sessionDate: data.sessionDate.toISOString(),
-                },
-            });
+            // Handle update or create based on sessionId
+            let responseData = null;
+            let responseId = sessionId;
+            let success = false;
 
-            const success = response.error === null;
+            const sessionData = {
+                ...data,
+                sessionDate: data.sessionDate.toISOString(),
+            };
 
-            if (initNotes) {
+            if (isEditMode && sessionId) {
+                const response = await updateClientSession({
+                    sessionId,
+                    sessionForm: sessionData,
+                });
+
+                success = response.error === null;
                 if (success) {
-                    void generateNotes({
-                        sessionId: response.data.id,
-                        save: true,
+                    responseId = sessionId;
+                    trackEvent('session', 'session_update');
+
+                    await apiClientUtils.clientSession.getClientSession.refetch();
+
+                    // After successful update, navigate back to view mode
+                    await navigate({
+                        to: '/clients/$clientId/sessions/$sessionId',
+                        params: { clientId, sessionId },
                     });
+                    return; // Exit early after navigation
+                } else {
+                    toast.error('Error updating session');
                 }
-
-                setIsGeneratingNotes(false);
             } else {
-                setIsSavingDraft(false);
+                const createSessionResponse = await createClientSession({
+                    clientId,
+                    sessionForm: sessionData,
+                });
+
+                if (createSessionResponse.error) {
+                    toast.error('Error saving session');
+                } else {
+                    responseData = createSessionResponse.data;
+                    responseId = responseData.id;
+                    trackEvent('session', 'session_create');
+                    success = true;
+                }
             }
 
-            if (response.error) {
-                toast.error('Error saving session');
-                return;
-            }
-
-            if (initNotes) {
+            // Handle notes generation if needed and successful
+            if (initNotes && success && responseId) {
+                void generateNotes({
+                    sessionId: responseId,
+                    save: true,
+                });
                 toast.success('Notes generated');
-            } else {
+            } else if (isEditMode && success) {
+                toast.success('Session updated successfully');
+            } else if (success) {
                 toast.success('Session saved as draft');
             }
 
-            // Track session creation regardless of notes generation
-            trackEvent('session', 'session_create');
+            // Reset loading states
+            setIsGeneratingNotes(false);
+            setIsUpdating(false);
+            setIsSavingDraft(false);
 
-            const { id } = response.data;
-
-            if (doNavigate) {
+            // Navigate if needed and successful
+            if (doNavigate && success && responseId) {
                 await navigate({
                     to: '/clients/$clientId/sessions/$sessionId',
-                    params: { clientId, sessionId: id },
+                    params: { clientId, sessionId: responseId },
                     search: { isGenerating: initNotes },
                 });
             }
         },
-        [clientId, navigate, createClientSession, generateNotes],
+
+        [
+            clientId,
+            sessionId,
+            isEditMode,
+            navigate,
+            createClientSession,
+            updateClientSession,
+            generateNotes,
+        ],
     );
 
     useBlocker({
         blockerFn: () => {
-            if (isGeneratingNotes || isSavingDraft) return true;
+            if (isGeneratingNotes || isSavingDraft || isUpdating) return true;
 
             void form.handleSubmit(
                 (data) =>
-                    handleCreateSession({
+                    handleSaveSession({
                         data,
                         initNotes: false,
                         doNavigate: false,
@@ -199,18 +243,24 @@ export function SessionForm({
 
     // Handle cancellation
     const handleCancel = async () => {
-        toast.success('Session discarded');
-
-        await navigate({
-            to: '/clients/$clientId/sessions',
-            params: { clientId },
-        });
+        if (isEditMode && sessionId) {
+            await navigate({
+                to: '/clients/$clientId/sessions/$sessionId',
+                params: { clientId, sessionId },
+            });
+        } else {
+            toast.success('Session discarded');
+            await navigate({
+                to: '/clients/$clientId/sessions',
+                params: { clientId },
+            });
+        }
     };
 
     useEffect(() => {
         const saveSessionAsDraft = () => {
             void form.handleSubmit((data) =>
-                handleCreateSession({
+                handleSaveSession({
                     data,
                     initNotes: false,
                 }),
@@ -225,7 +275,7 @@ export function SessionForm({
                 saveSessionAsDraft,
             );
         };
-    }, [form, handleCreateSession]);
+    }, [form, handleSaveSession]);
 
     return (
         <Form {...form}>
@@ -234,9 +284,9 @@ export function SessionForm({
 
                 <SessionBasicInfo />
 
-                <ABCCardContainer />
+                <ABCCardContainer clientId={clientId} />
 
-                <ReplacementProgramCardContainer />
+                <ReplacementProgramCardContainer clientId={clientId} />
 
                 <ValuationSelector />
 
@@ -252,46 +302,72 @@ export function SessionForm({
                         Cancel
                     </Button>
 
-                    <Button
-                        id={sessionDraftButtonId}
-                        variant="secondary"
-                        className="w-36"
-                        disabled={isGeneratingNotes || isSavingDraft}
-                        onClick={(e) => {
-                            void form.handleSubmit((data) =>
-                                handleCreateSession({
-                                    data,
-                                    initNotes: false,
-                                }),
-                            )(e);
-                        }}
-                    >
-                        {isSavingDraft ? (
-                            <Spinner className="h-4 w-4" />
-                        ) : (
-                            'Save as Draft'
-                        )}
-                    </Button>
+                    {isEditMode ? (
+                        <Button
+                            className="w-36"
+                            disabled={isUpdating}
+                            onClick={(e) => {
+                                void form.handleSubmit((data) =>
+                                    handleSaveSession({
+                                        data,
+                                        initNotes: false,
+                                        doNavigate: false,
+                                    }),
+                                )(e);
+                            }}
+                        >
+                            {isUpdating ? (
+                                <Spinner className="h-4 w-4" />
+                            ) : (
+                                'Update Session'
+                            )}
+                        </Button>
+                    ) : (
+                        <>
+                            <Button
+                                id={sessionDraftButtonId}
+                                variant="secondary"
+                                className="w-36"
+                                disabled={isGeneratingNotes || isSavingDraft}
+                                onClick={(e) => {
+                                    void form.handleSubmit((data) =>
+                                        handleSaveSession({
+                                            data,
+                                            initNotes: false,
+                                            doNavigate: true,
+                                        }),
+                                    )(e);
+                                }}
+                            >
+                                {isSavingDraft ? (
+                                    <Spinner className="h-4 w-4" />
+                                ) : (
+                                    'Save as Draft'
+                                )}
+                            </Button>
 
-                    <Button
-                        id={sessionGenerateNotesButtonId}
-                        className="w-36"
-                        disabled={isGeneratingNotes || isSavingDraft}
-                        onClick={(e) => {
-                            void form.handleSubmit((data) =>
-                                handleCreateSession({
-                                    data,
-                                    initNotes: true,
-                                }),
-                            )(e);
-                        }}
-                    >
-                        {isGeneratingNotes ? (
-                            <Spinner className="h-4 w-4" />
-                        ) : (
-                            'Generate Notes'
-                        )}
-                    </Button>
+                            <Button
+                                id={sessionGenerateNotesButtonId}
+                                className="w-36"
+                                disabled={isGeneratingNotes || isSavingDraft}
+                                onClick={(e) => {
+                                    void form.handleSubmit((data) =>
+                                        handleSaveSession({
+                                            data,
+                                            initNotes: true,
+                                            doNavigate: true,
+                                        }),
+                                    )(e);
+                                }}
+                            >
+                                {isGeneratingNotes ? (
+                                    <Spinner className="h-4 w-4" />
+                                ) : (
+                                    'Generate Notes'
+                                )}
+                            </Button>
+                        </>
+                    )}
                 </div>
             </form>
         </Form>

@@ -9,6 +9,7 @@ export const Route = createFileRoute(
 )({
     validateSearch: z.object({
         isGenerating: z.boolean().optional(),
+        isEdit: z.boolean().optional(),
     }),
 
     component: ClientSessionDetailsView,
