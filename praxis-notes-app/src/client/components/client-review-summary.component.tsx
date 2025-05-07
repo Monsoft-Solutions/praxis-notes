@@ -119,7 +119,7 @@ export function ClientReviewSummary({
                     </div>
                     <div>
                         <p className="text-muted-foreground text-sm">Gender</p>
-                        <p>{formatGender(gender)}</p>
+                        <p>{formatGender(gender ?? 'unknown')}</p>
                     </div>
                 </div>
                 {notes && (
