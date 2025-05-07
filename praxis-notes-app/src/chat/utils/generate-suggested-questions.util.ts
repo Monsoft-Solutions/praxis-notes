@@ -19,8 +19,10 @@ type QuestionSuggestionSchema = z.infer<typeof questionSuggestionSchema>;
  */
 export const generateSuggestedQuestions = (async ({
     userBasicData,
+    chatSessionId,
 }: {
     userBasicData: UserBasicDataForChat;
+    chatSessionId: string;
 }) => {
     const prompt = chatSuggestedQuestionsPrompt({
         userName: userBasicData.firstName,
@@ -37,6 +39,7 @@ export const generateSuggestedQuestions = (async ({
                 activeTools: [],
                 userBasicData,
                 callerName: 'generateSuggestedQuestions',
+                chatSessionId,
             },
             outputSchema: questionSuggestionSchema,
         });
@@ -49,6 +52,7 @@ export const generateSuggestedQuestions = (async ({
 }) satisfies Function<
     {
         userBasicData: UserBasicDataForChat;
+        chatSessionId: string;
     },
     string[]
 >;

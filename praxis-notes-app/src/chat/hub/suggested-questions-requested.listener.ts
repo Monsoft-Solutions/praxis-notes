@@ -47,6 +47,7 @@ void listen('suggestedQuestionsRequested', async ({ sessionId }) => {
                 language: language ?? 'en',
                 userId: id,
             },
+            chatSessionId: sessionId,
         });
 
     if (generateError) {

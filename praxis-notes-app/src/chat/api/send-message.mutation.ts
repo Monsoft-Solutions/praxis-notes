@@ -164,6 +164,7 @@ export const sendMessage = protectedEndpoint
                                 language: user.language ?? 'en',
                                 userId: user.id,
                             },
+                            chatSessionId: sessionId,
                         });
 
                     if (generatedTitleError) return Error();

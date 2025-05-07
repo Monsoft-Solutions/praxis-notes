@@ -40,9 +40,11 @@ Assistant: Redux Basics
 export const generateChatSessionTitle = (async ({
     firstMessage,
     userBasicData,
+    chatSessionId,
 }: {
     firstMessage: string;
     userBasicData: UserBasicDataForChat;
+    chatSessionId: string;
 }) => {
     const messages: Message[] = [
         {
@@ -66,6 +68,7 @@ export const generateChatSessionTitle = (async ({
             activeTools: [],
             callerName: 'generateChatSessionTitle',
             userBasicData,
+            chatSessionId,
         },
     });
 
@@ -76,6 +79,7 @@ export const generateChatSessionTitle = (async ({
     {
         firstMessage: string;
         userBasicData: UserBasicDataForChat;
+        chatSessionId: string;
     },
     string
 >;
