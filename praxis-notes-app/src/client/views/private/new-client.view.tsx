@@ -7,6 +7,7 @@ import { trackEvent } from '@analytics/providers';
 import { Route } from '@routes/_private/_app/clients/new';
 
 import { api } from '@api/providers/web';
+import { ViewContainer } from '@shared/ui';
 
 const tourData = {
     firstName: 'John',
@@ -68,7 +69,7 @@ export function NewClientView() {
     const initialData = !loggedInUser.hasDoneTour ? tourData : draftData;
 
     return (
-        <div className="space-y-6">
+        <ViewContainer>
             <div>
                 <h1 className="mt-2 text-3xl font-bold">Add New Client</h1>
 
@@ -85,6 +86,6 @@ export function NewClientView() {
             ) : (
                 <ClientForm initialData={initialData} draftId={fromDraft} />
             )}
-        </div>
+        </ViewContainer>
     );
 }

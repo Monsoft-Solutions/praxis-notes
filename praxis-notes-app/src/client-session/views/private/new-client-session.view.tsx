@@ -3,6 +3,7 @@ import { SessionForm } from '@src/client-session/components';
 import { Route } from '@routes/_private/_app/clients/$clientId/sessions/new';
 
 import { api } from '@api/providers/web';
+import { ViewContainer } from '@shared/ui';
 
 export function NewClientSessionView() {
     const { loggedInUser } = Route.useRouteContext();
@@ -29,7 +30,7 @@ export function NewClientSessionView() {
     const clientName = client.firstName;
 
     return (
-        <div className="container mx-auto px-0 py-6">
+        <ViewContainer>
             <SessionForm
                 isTour={!loggedInUser.hasDoneTour}
                 clientId={clientId}
@@ -39,6 +40,6 @@ export function NewClientSessionView() {
                     sessionDate: new Date(placeholderSessionData.sessionDate),
                 }}
             />
-        </div>
+        </ViewContainer>
     );
 }

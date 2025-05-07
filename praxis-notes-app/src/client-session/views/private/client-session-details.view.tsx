@@ -6,6 +6,7 @@ import { api } from '@api/providers/web';
 import { SessionForm, SessionDetails } from '@src/client-session/components';
 
 import { ClientSession } from '@src/client-session/schemas';
+import { ViewContainer } from '@shared/ui';
 
 export function ClientSessionDetailsView() {
     const { sessionId } = Route.useParams();
@@ -81,7 +82,7 @@ export function ClientSessionDetailsView() {
 
     if (isEdit) {
         return (
-            <div className="container mx-auto px-0 py-6">
+            <ViewContainer>
                 <div className="mb-6 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Link
@@ -114,12 +115,12 @@ export function ClientSessionDetailsView() {
                             ),
                     }}
                 />
-            </div>
+            </ViewContainer>
         );
     }
 
     return (
-        <div className="container mx-auto space-y-6 px-0 py-6">
+        <ViewContainer>
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Link
@@ -148,6 +149,6 @@ export function ClientSessionDetailsView() {
             </div>
 
             <SessionDetails session={sessionDetails} sessionId={sessionId} />
-        </div>
+        </ViewContainer>
     );
 }
