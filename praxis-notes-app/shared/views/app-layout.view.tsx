@@ -16,7 +16,7 @@ import { SupportDropdown } from '@src/contact-center/components';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
     return (
-        <SidebarProvider className="h-screen w-screen">
+        <SidebarProvider className="h-full w-full overflow-x-hidden">
             <AppSidebar />
 
             <SidebarInset>
