@@ -56,7 +56,7 @@ export const generateChatResponse = (async ({
         messages: [systemMessage, ...messageHistory],
         modelParams: {
             provider: 'anthropic',
-            model: 'claude-3-7-sonnet-latest',
+            model: 'claude-3-5-haiku-latest',
             activeTools: ['getClientData', 'listAvailableClients', 'think'],
             userBasicData,
             callerName: 'generateChatResponse',
