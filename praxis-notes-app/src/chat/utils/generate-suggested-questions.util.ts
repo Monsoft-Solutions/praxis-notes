@@ -4,6 +4,7 @@ import { Function } from '@errors/types';
 import { Error, Success } from '@errors/utils';
 
 import { generateObject } from '@src/ai/providers';
+import { chatSuggestedQuestionsPrompt } from '../prompts';
 
 const questionSuggestionSchema = z.object({
     questions: z.array(z.string()),
@@ -22,20 +23,10 @@ export const generateSuggestedQuestions = (async ({
     userName: string;
     userLanguage?: string;
 }) => {
-    const prompt = `Generate 4 engaging, specific questions or instructions about Applied Behavior Analysis (ABA) therapy 
-    that a user might want to ask an AI assistant. 
-    These should be diverse, covering different aspects of ABA such as techniques, implementation, data collection, 
-    or specific challenges.
-
-    The questions/instructions should be clear, specific, and invite detailed responses. They should be appropriate for 
-    someone interested in learning about or implementing ABA therapy.
-
-    The questions/instructions should be in the user's preferred language.
-
-    The questions/instructions should have a maximum of 20 words each.
-
-    User's preferred language: ${userLanguage}
-    User's name: ${userName}`;
+    const prompt = chatSuggestedQuestionsPrompt({
+        userName,
+        userLanguage,
+    });
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const { data: generatedObject, error: generateObjectError } =
