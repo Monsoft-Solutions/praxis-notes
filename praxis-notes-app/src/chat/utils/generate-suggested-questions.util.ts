@@ -3,10 +3,13 @@ import { z } from 'zod';
 import { Function } from '@errors/types';
 import { Error, Success } from '@errors/utils';
 
-import { generateText } from '@src/ai/providers';
-import { jsonParse } from '@shared/utils/json-parse.util';
+import { generateObject } from '@src/ai/providers';
 
-const questionSuggestionSchema = z.array(z.string());
+const questionSuggestionSchema = z.object({
+    questions: z.array(z.string()),
+});
+
+type QuestionSuggestionSchema = z.infer<typeof questionSuggestionSchema>;
 
 /**
  * Generates four suggested questions/instructions related to ABA (Applied Behavior Analysis)
@@ -27,8 +30,6 @@ export const generateSuggestedQuestions = (async ({
     The questions/instructions should be clear, specific, and invite detailed responses. They should be appropriate for 
     someone interested in learning about or implementing ABA therapy.
 
-    Format the response as a simple JSON array with exactly 4 strings, nothing else.
-
     The questions/instructions should be in the user's preferred language.
 
     The questions/instructions should have a maximum of 20 words each.
@@ -36,31 +37,23 @@ export const generateSuggestedQuestions = (async ({
     User's preferred language: ${userLanguage}
     User's name: ${userName}`;
 
-    const { data: generatedText, error: generateTextError } =
-        await generateText({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const { data: generatedObject, error: generateObjectError } =
+        await generateObject({
             prompt,
             modelParams: {
                 provider: 'anthropic',
                 model: 'claude-3-haiku-20240307',
                 activeTools: [],
             },
+            outputSchema: questionSuggestionSchema,
         });
 
-    if (generateTextError) return Error('AI_COMPLETION_FAILED');
+    if (generateObjectError) return Error('AI_COMPLETION_FAILED');
 
-    const { data: json, error: jsonError } = jsonParse(generatedText);
+    const array = (generatedObject as QuestionSuggestionSchema).questions;
 
-    if (jsonError) return Error('INVALID_JSON_RESPONSE');
-
-    const parsedResponse = questionSuggestionSchema.safeParse(json);
-
-    if (!parsedResponse.success) {
-        return Error('INVALID_RESPONSE_FORMAT');
-    }
-
-    const { data: questions } = parsedResponse;
-
-    return Success(questions);
+    return Success(array);
 }) satisfies Function<
     {
         userName: string;
