@@ -157,6 +157,12 @@ export const sendMessage = protectedEndpoint
                     const { data: generatedTitle, error: generatedTitleError } =
                         await generateChatSessionTitle({
                             firstMessage: content,
+                            userBasicData: {
+                                firstName: user.firstName,
+                                lastName: user.lastName,
+                                language: user.language ?? 'en',
+                                userId: user.id,
+                            },
                         });
 
                     if (generatedTitleError) return Error();

@@ -53,7 +53,7 @@ export const generateObject = (async ({
     const traceId = uuidv4();
 
     const trace = langfuse.trace({
-        name: 'generate_object',
+        name: modelParams.callerName,
         id: traceId,
         metadata: {
             modelParams,
@@ -61,6 +61,7 @@ export const generateObject = (async ({
         },
         sessionId: traceId,
         userId: modelParams.userBasicData?.userId,
+        tags: [modelParams.model, modelParams.provider, modelParams.callerName],
     });
 
     const anthropic = createAnthropic({

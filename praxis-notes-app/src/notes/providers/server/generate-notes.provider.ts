@@ -26,6 +26,7 @@ export const generateNotes = (async ({
             provider: 'anthropic',
             activeTools: ['think'],
             userBasicData,
+            callerName: 'generateNotes',
         },
     });
 

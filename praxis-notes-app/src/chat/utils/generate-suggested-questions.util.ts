@@ -36,6 +36,7 @@ export const generateSuggestedQuestions = (async ({
                 model: 'claude-3-haiku-20240307',
                 activeTools: [],
                 userBasicData,
+                callerName: 'generateSuggestedQuestions',
             },
             outputSchema: questionSuggestionSchema,
         });

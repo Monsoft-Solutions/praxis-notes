@@ -57,7 +57,7 @@ export const streamText = (async ({
     const traceId = uuidv4();
 
     const trace = langfuse.trace({
-        name: 'ai_request',
+        name: modelParams.callerName,
         id: traceId,
         metadata: {
             prompt,
@@ -67,6 +67,7 @@ export const streamText = (async ({
         },
         sessionId: traceId,
         userId: modelParams.userBasicData?.userId,
+        tags: [modelParams.model, modelParams.provider, modelParams.callerName],
     });
 
     const anthropic = createAnthropic({

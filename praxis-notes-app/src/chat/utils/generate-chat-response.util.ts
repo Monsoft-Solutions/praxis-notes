@@ -57,6 +57,7 @@ export const generateChatResponse = (async ({
             model: 'claude-3-7-sonnet-latest',
             activeTools: ['getClientData', 'listAvailableClients', 'think'],
             userBasicData,
+            callerName: 'generateChatResponse',
         },
     });
 

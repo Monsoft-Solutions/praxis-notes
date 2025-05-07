@@ -40,7 +40,25 @@ export const aiRequestSchema = z.object({
         .optional()
         .default([]),
 
-    userBasicData: userBasicDataForChatSchema.optional(),
+    userBasicData: userBasicDataForChatSchema
+        .optional()
+        .describe('The user basic data to log the request'),
+
+    metadata: z
+        .record(z.string(), z.any())
+        .optional()
+        .describe('The metadata to log the request'),
+
+    tags: z
+        .array(z.string())
+        .optional()
+        .describe('The tags to log the request'),
+
+    callerName: z
+        .string()
+        .describe(
+            'The name of the caller (method who is calling the AI generation)',
+        ),
 });
 
 export type AiRequest = z.infer<typeof aiRequestSchema>;
