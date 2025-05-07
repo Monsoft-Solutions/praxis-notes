@@ -23,10 +23,11 @@ import {
     TableHeader,
     TableRow,
 } from '@ui/table.ui';
-import { GetClientSessionOutput } from '../schemas';
+
+import { ClientSession } from '../schemas';
 
 type SessionDetailsProps = {
-    session: GetClientSessionOutput;
+    session: ClientSession;
     sessionId: string;
 };
 
@@ -95,15 +96,15 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                             <div>
                                 <div className="font-medium">Participants</div>
                                 <div className="mt-1 flex flex-wrap gap-1">
-                                    {session.participants.length ? (
-                                        session.participants.map(
+                                    {session.presentParticipants.length ? (
+                                        session.presentParticipants.map(
                                             (participant, index: number) => (
                                                 <Badge
                                                     key={index}
                                                     variant="secondary"
                                                     className="bg-secondary/70 px-2 py-1 text-xs font-normal"
                                                 >
-                                                    {participant.name}
+                                                    {participant}
                                                 </Badge>
                                             ),
                                         )
@@ -134,7 +135,7 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                                     variant="secondary"
                                                     className="bg-secondary/70 px-2 py-1 text-xs font-normal"
                                                 >
-                                                    {change.name}
+                                                    {change}
                                                 </Badge>
                                             ),
                                         )
@@ -224,9 +225,9 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                 {session.abcEntries.map(
                                     (
                                         {
-                                            antecedent,
-                                            behaviors,
-                                            interventions,
+                                            antecedentName,
+                                            behaviorNames,
+                                            interventionNames,
                                         },
                                         index,
                                     ) => (
@@ -235,20 +236,18 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                                 {index + 1}
                                             </TableCell>
                                             <TableCell>
-                                                {antecedent.name}
+                                                {antecedentName}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex flex-wrap gap-1">
-                                                    {behaviors.map(
+                                                    {behaviorNames.map(
                                                         (behavior) => (
                                                             <Badge
-                                                                key={
-                                                                    behavior.id
-                                                                }
+                                                                key={behavior}
                                                                 variant="outline"
                                                                 className="mr-1 font-normal"
                                                             >
-                                                                {behavior.name}
+                                                                {behavior}
                                                             </Badge>
                                                         ),
                                                     )}
@@ -256,18 +255,16 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex flex-wrap gap-1">
-                                                    {interventions.map(
+                                                    {interventionNames.map(
                                                         (intervention) => (
                                                             <Badge
                                                                 key={
-                                                                    intervention.id
+                                                                    intervention
                                                                 }
                                                                 variant="outline"
                                                                 className="mr-1 font-normal"
                                                             >
-                                                                {
-                                                                    intervention.name
-                                                                }
+                                                                {intervention}
                                                             </Badge>
                                                         ),
                                                     )}
@@ -319,9 +316,9 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                             replacementProgram,
                                             teachingProcedure,
                                             promptingProcedure,
+                                            promptTypes,
                                             clientResponse,
                                             progress,
-                                            promptTypes,
                                         },
                                         index,
                                     ) => (
@@ -330,14 +327,13 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                                 {index + 1}
                                             </TableCell>
                                             <TableCell>
-                                                {replacementProgram.name}
+                                                {replacementProgram}
                                             </TableCell>
                                             <TableCell>
-                                                {teachingProcedure?.name ?? '-'}
+                                                {teachingProcedure ?? '-'}
                                             </TableCell>
                                             <TableCell>
-                                                {promptingProcedure?.name ??
-                                                    '-'}
+                                                {promptingProcedure ?? '-'}
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex flex-wrap gap-1">
@@ -346,14 +342,12 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                                             (promptType) => (
                                                                 <Badge
                                                                     key={
-                                                                        promptType.id
+                                                                        promptType
                                                                     }
                                                                     variant="secondary"
                                                                     className="text-xs font-normal"
                                                                 >
-                                                                    {
-                                                                        promptType.name
-                                                                    }
+                                                                    {promptType}
                                                                 </Badge>
                                                             ),
                                                         )
@@ -362,9 +356,11 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                                     )}
                                                 </div>
                                             </TableCell>
+
                                             <TableCell>
                                                 {clientResponse ?? '-'}
                                             </TableCell>
+
                                             <TableCell>
                                                 {progress ?? '-'}
                                             </TableCell>

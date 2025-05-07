@@ -17,6 +17,7 @@ import { getClientAbaData } from '@src/client/providers';
 import { emit } from '@events/providers';
 
 import { clientSessionTable } from '@src/client-session/db';
+import { ClientSession } from '@src/client-session/schemas';
 
 // mutation to generate notes
 export const generateNotes = protectedEndpoint
@@ -146,7 +147,7 @@ export const generateNotes = protectedEndpoint
                 clientSession.client.lastName,
             );
 
-            const sessionData = {
+            const sessionData: ClientSession = {
                 ...clientSession,
                 sessionDate: new Date(clientSession.sessionDate),
                 presentParticipants: clientSession.participants.map(
@@ -156,7 +157,13 @@ export const generateNotes = protectedEndpoint
                     (change) => change.name,
                 ),
                 abcEntries,
-                replacementProgramEntries,
+                replacementProgramEntries: replacementProgramEntries.map(
+                    (entry) => ({
+                        ...entry,
+                        clientResponse: '',
+                        progress: 0,
+                    }),
+                ),
                 userInitials,
                 clientInitials,
             };

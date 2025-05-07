@@ -5,6 +5,8 @@ import { Route } from '@routes/_private/_app/clients/$clientId/sessions/$session
 import { api } from '@api/providers/web';
 import { SessionForm, SessionDetails } from '@src/client-session/components';
 
+import { ClientSession } from '@src/client-session/schemas';
+
 export function ClientSessionDetailsView() {
     const { sessionId } = Route.useParams();
     const search = Route.useSearch();
@@ -49,6 +51,32 @@ export function ClientSessionDetailsView() {
         ),
         valuation: session.valuation,
         observations: session.observations,
+    };
+
+    const sessionDetails: ClientSession = {
+        ...sessionFormData,
+
+        abcEntries: session.abcEntries.map((entry) => ({
+            antecedentName: entry.antecedent.name,
+            behaviorNames: entry.behaviors.map((b) => b.name),
+            interventionNames: entry.interventions.map((i) => i.name),
+        })),
+
+        replacementProgramEntries: session.replacementProgramEntries.map(
+            (entry) => ({
+                replacementProgram: entry.replacementProgram.name,
+                teachingProcedure: entry.teachingProcedure?.name ?? null,
+                promptingProcedure: entry.promptingProcedure?.name ?? null,
+                promptTypes: entry.promptTypes.map((pt) => pt.name),
+                clientResponse: entry.clientResponse,
+                progress: entry.progress ?? null,
+            }),
+        ),
+
+        notes: session.notes,
+
+        userInitials: session.userInitials,
+        clientInitials: session.clientInitials,
     };
 
     if (isEdit) {
@@ -119,7 +147,7 @@ export function ClientSessionDetailsView() {
                 </div>
             </div>
 
-            <SessionDetails session={session} sessionId={sessionId} />
+            <SessionDetails session={sessionDetails} sessionId={sessionId} />
         </div>
     );
 }

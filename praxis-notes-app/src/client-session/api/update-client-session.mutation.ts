@@ -349,6 +349,8 @@ export const updateClientSession = protectedEndpoint
                         teachingProcedure: teachingProcedure?.name ?? null,
                         promptingProcedure: promptingProcedure?.name ?? null,
                         promptTypes: promptTypes.map((pt) => pt.name),
+                        clientResponse: entry.clientResponse,
+                        progress: entry.progress,
                     });
                 }
 
