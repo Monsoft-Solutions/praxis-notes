@@ -8,6 +8,13 @@ import { SessionForm, SessionDetails } from '@src/client-session/components';
 import { ClientSession } from '@src/client-session/schemas';
 import { ViewContainer } from '@shared/ui';
 
+function getLinkedAbcEntryIndex(
+    linkedAbcEntryId: string | null,
+    abcEntries: { id: string }[],
+) {
+    return abcEntries.findIndex((entry) => entry.id === linkedAbcEntryId);
+}
+
 export function ClientSessionDetailsView() {
     const { sessionId } = Route.useParams();
     const search = Route.useSearch();
@@ -48,6 +55,10 @@ export function ClientSessionDetailsView() {
                 progress:
                     entry.progress != null ? String(entry.progress) : null,
                 promptTypesIds: entry.promptTypes.map((pt) => pt.id),
+                linkedAbcEntryIndex: getLinkedAbcEntryIndex(
+                    entry.linkedAbcEntryId,
+                    session.abcEntries,
+                ),
             }),
         ),
         valuation: session.valuation,
@@ -61,6 +72,7 @@ export function ClientSessionDetailsView() {
             antecedentName: entry.antecedent.name,
             behaviorNames: entry.behaviors.map((b) => b.name),
             interventionNames: entry.interventions.map((i) => i.name),
+            id: entry.id,
         })),
 
         replacementProgramEntries: session.replacementProgramEntries.map(
@@ -71,6 +83,7 @@ export function ClientSessionDetailsView() {
                 promptTypes: entry.promptTypes.map((pt) => pt.name),
                 clientResponse: entry.clientResponse,
                 progress: entry.progress ?? null,
+                linkedAbcEntryId: entry.linkedAbcEntryId ?? null,
             }),
         ),
 

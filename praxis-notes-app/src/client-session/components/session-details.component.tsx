@@ -25,11 +25,33 @@ import {
 } from '@ui/table.ui';
 
 import { ClientSession } from '../schemas';
+import { ClientSessionReplacementProgramEntry as ReplacementProgramEntry } from '../schemas/client-session-replacement-program-entry.schema';
 
 type SessionDetailsProps = {
     session: ClientSession;
     sessionId: string;
 };
+
+/*
+    It is used to display the linked ABC entry in the replacement program table.
+*/
+function getLinkedAbcText(
+    entry: ReplacementProgramEntry,
+    abcEntries: ClientSession['abcEntries'],
+): string {
+    const { linkedAbcEntryId } = entry;
+    const linkedAbc = linkedAbcEntryId
+        ? abcEntries.find((abc) => abc.id === linkedAbcEntryId)
+        : undefined;
+
+    const linkedAbcIndex = linkedAbc ? abcEntries.indexOf(linkedAbc) : -1;
+
+    const linkedAbcText = linkedAbc
+        ? `ABC - ${linkedAbcIndex + 1} - ${linkedAbc.antecedentName}`
+        : '-';
+
+    return linkedAbcText;
+}
 
 export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
     return (
@@ -307,65 +329,72 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                     <TableHead>Prompts Used</TableHead>
                                     <TableHead>Client Response</TableHead>
                                     <TableHead>Progress</TableHead>
+                                    <TableHead>Linked ABC Entry</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {session.replacementProgramEntries.map(
-                                    (
-                                        {
-                                            replacementProgram,
-                                            teachingProcedure,
-                                            promptingProcedure,
-                                            promptTypes,
-                                            clientResponse,
-                                            progress,
-                                        },
-                                        index,
-                                    ) => (
-                                        <TableRow key={index}>
-                                            <TableCell className="font-medium">
-                                                {index + 1}
-                                            </TableCell>
-                                            <TableCell>
-                                                {replacementProgram}
-                                            </TableCell>
-                                            <TableCell>
-                                                {teachingProcedure ?? '-'}
-                                            </TableCell>
-                                            <TableCell>
-                                                {promptingProcedure ?? '-'}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {promptTypes.length ? (
-                                                        promptTypes.map(
-                                                            (promptType) => (
-                                                                <Badge
-                                                                    key={
-                                                                        promptType
-                                                                    }
-                                                                    variant="secondary"
-                                                                    className="text-xs font-normal"
-                                                                >
-                                                                    {promptType}
-                                                                </Badge>
-                                                            ),
-                                                        )
-                                                    ) : (
-                                                        <span>-</span>
-                                                    )}
-                                                </div>
-                                            </TableCell>
+                                    (entry, index) => {
+                                        const linkedAbcText = getLinkedAbcText(
+                                            entry,
+                                            session.abcEntries,
+                                        );
 
-                                            <TableCell>
-                                                {clientResponse ?? '-'}
-                                            </TableCell>
-
-                                            <TableCell>
-                                                {progress ?? '-'}
-                                            </TableCell>
-                                        </TableRow>
-                                    ),
+                                        return (
+                                            <TableRow key={index}>
+                                                <TableCell className="font-medium">
+                                                    {index + 1}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {entry.replacementProgram}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {entry.teachingProcedure ??
+                                                        '-'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {entry.promptingProcedure ??
+                                                        '-'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {entry.promptTypes
+                                                            .length ? (
+                                                            entry.promptTypes.map(
+                                                                (
+                                                                    promptType,
+                                                                ) => (
+                                                                    <Badge
+                                                                        key={
+                                                                            promptType
+                                                                        }
+                                                                        variant="secondary"
+                                                                        className="text-xs font-normal"
+                                                                    >
+                                                                        {
+                                                                            promptType
+                                                                        }
+                                                                    </Badge>
+                                                                ),
+                                                            )
+                                                        ) : (
+                                                            <span>-</span>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {entry.clientResponse ??
+                                                        '-'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {entry.progress ?? '-'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {linkedAbcText}
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    },
                                 )}
                             </TableBody>
                         </Table>

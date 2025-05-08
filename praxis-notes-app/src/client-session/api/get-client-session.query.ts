@@ -126,6 +126,7 @@ export const getClientSession = protectedEndpoint
                             promptingProcedure,
                             clientResponse,
                             progress,
+                            linkedAbcEntryId,
                         }) => {
                             const promptTypesNullable =
                                 replacementProgramEntryPromptTypes.map(
@@ -150,6 +151,7 @@ export const getClientSession = protectedEndpoint
                                 promptingProcedure,
                                 clientResponse,
                                 progress,
+                                linkedAbcEntryId,
                             };
                         },
                     );

@@ -69,7 +69,7 @@ export const generateNotes = protectedEndpoint
             if (!clientSession) return Error('NOT_FOUND');
 
             const abcEntriesNullable = clientSession.abcEntries.map(
-                ({ antecedent, behaviors, interventions }) => {
+                ({ antecedent, behaviors, interventions, id }) => {
                     if (!antecedent) return null;
 
                     const antecedentName = antecedent.name;
@@ -99,6 +99,7 @@ export const generateNotes = protectedEndpoint
                         antecedentName,
                         behaviorNames,
                         interventionNames,
+                        id,
                     };
                 },
             );
