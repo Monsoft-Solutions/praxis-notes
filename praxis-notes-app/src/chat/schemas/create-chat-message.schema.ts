@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { aiGenerationQualitySelectorSchema } from '@src/ai/schemas';
+import { aiGenerationQualitySelectorSchema } from '@src/ai/schemas/ai-generation-quality-selector.schema';
 
 export const createChatMessageSchema = z.object({
     sessionId: z.string(),
