@@ -62,7 +62,7 @@ export function ChatInputComponent({
                         }}
                         placeholder={placeholder}
                         className={cn(
-                            'max-w-[60ch] resize-none break-words rounded-none border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
+                            'resize-none break-words rounded-none border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
                             isLoading && 'opacity-50',
                         )}
                         disabled={isLoading}
