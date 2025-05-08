@@ -92,6 +92,7 @@ export function SessionForm({
                     clientResponse: null,
                     progress: null,
                     promptTypesIds: [],
+                    linkedAbcEntryIndex: null,
                 },
             ],
             valuation: 'good',

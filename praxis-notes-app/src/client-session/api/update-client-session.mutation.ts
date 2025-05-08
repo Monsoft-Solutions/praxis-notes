@@ -67,6 +67,7 @@ export const updateClientSession = protectedEndpoint
                         clientResponse:
                             replacementProgramResponseEnum.nullable(),
                         progress: z.number().nullable(),
+                        linkedAbcEntryIndex: z.number().nullable().optional(),
                     }),
                 ),
             }),
@@ -503,6 +504,8 @@ export const updateClientSession = protectedEndpoint
                                 });
                         }
 
+                        const newAbcIds = [];
+
                         // 3. Insert ABC entries
                         for (const {
                             antecedentId,
@@ -518,6 +521,8 @@ export const updateClientSession = protectedEndpoint
                                 antecedentId,
                                 function: abcFunction,
                             });
+
+                            newAbcIds.push(clientSessionAbcEntryId);
 
                             for (const behaviorId of behaviorIds) {
                                 await tx
@@ -550,9 +555,15 @@ export const updateClientSession = protectedEndpoint
                             clientResponse,
                             progress,
                             promptTypesIds,
+                            linkedAbcEntryIndex,
                         } of replacementProgramEntries) {
                             const clientSessionReplacementProgramEntryId =
                                 uuidv4();
+
+                            const linkedAbcEntryId =
+                                linkedAbcEntryIndex != null
+                                    ? newAbcIds[linkedAbcEntryIndex]
+                                    : null;
 
                             const result = await tx
                                 .insert(
@@ -566,6 +577,7 @@ export const updateClientSession = protectedEndpoint
                                     promptingProcedureId,
                                     clientResponse,
                                     progress,
+                                    linkedAbcEntryId,
                                 })
                                 .catch((error: unknown) => {
                                     console.error(error);

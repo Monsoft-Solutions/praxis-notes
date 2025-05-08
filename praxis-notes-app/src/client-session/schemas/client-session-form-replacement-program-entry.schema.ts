@@ -9,6 +9,7 @@ export const clientSessionFormReplacementProgramEntrySchema = z.object({
     clientResponse: replacementProgramResponseEnum.nullable(),
     progress: z.number().nullable(),
     promptTypesIds: z.array(z.string()),
+    linkedAbcEntryIndex: z.number().nullable().optional(),
 });
 
 export type ClientSessionFormReplacementProgramEntry = z.infer<

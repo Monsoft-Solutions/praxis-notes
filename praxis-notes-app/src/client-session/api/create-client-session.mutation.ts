@@ -67,6 +67,7 @@ export const createClientSession = protectedEndpoint
                         clientResponse:
                             replacementProgramResponseEnum.nullable(),
                         progress: z.number().nullable(),
+                        linkedAbcEntryIndex: z.number().nullable().optional(),
                     }),
                 ),
             }),
@@ -418,6 +419,8 @@ export const createClientSession = protectedEndpoint
                         }
 
                         // insert the abc entries
+                        const newAbcIds = [];
+
                         for (const {
                             antecedentId,
                             behaviorIds,
@@ -425,6 +428,8 @@ export const createClientSession = protectedEndpoint
                             function: abcFunction,
                         } of abcIdEntries) {
                             const clientSessionAbcEntryId = uuidv4();
+
+                            newAbcIds.push(clientSessionAbcEntryId);
 
                             await tx.insert(clientSessionAbcEntryTable).values({
                                 id: clientSessionAbcEntryId,
@@ -464,9 +469,15 @@ export const createClientSession = protectedEndpoint
                             clientResponse,
                             progress,
                             promptTypesIds,
+                            linkedAbcEntryIndex,
                         } of replacementProgramEntries) {
                             const clientSessionReplacementProgramEntryId =
                                 uuidv4();
+
+                            const linkedAbcEntryId =
+                                linkedAbcEntryIndex != null
+                                    ? newAbcIds[linkedAbcEntryIndex]
+                                    : null;
 
                             await tx
                                 .insert(
@@ -480,6 +491,7 @@ export const createClientSession = protectedEndpoint
                                     promptingProcedureId,
                                     clientResponse,
                                     progress,
+                                    linkedAbcEntryId,
                                 })
                                 .catch((error: unknown) => {
                                     console.error(error);

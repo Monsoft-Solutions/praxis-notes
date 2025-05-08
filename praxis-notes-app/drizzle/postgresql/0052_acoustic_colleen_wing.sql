@@ -1,0 +1,2 @@
+ALTER TABLE "client_session_replacement_program_entry" ADD COLUMN "linked_abc_entry_id" char(36);--> statement-breakpoint
+ALTER TABLE "client_session_replacement_program_entry" ADD CONSTRAINT "client_session_replacement_program_entry_linked_abc_entry_id_client_session_abc_entry_id_fk" FOREIGN KEY ("linked_abc_entry_id") REFERENCES "public"."client_session_abc_entry"("id") ON DELETE set null ON UPDATE no action;
