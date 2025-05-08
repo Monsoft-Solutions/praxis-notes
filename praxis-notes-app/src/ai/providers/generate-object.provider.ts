@@ -18,6 +18,8 @@ import { Langfuse } from 'langfuse';
 import { ZodSchema } from 'zod';
 import { catchError } from '@errors/utils/catch-error.util';
 
+let langfuse: Langfuse | undefined;
+
 export const generateObject = (async ({
     prompt,
     modelParams,
@@ -44,25 +46,30 @@ export const generateObject = (async ({
         langfuseBaseUrl,
     } = coreConf;
 
-    const langfuse = new Langfuse({
-        secretKey: langfuseSecretKey,
-        publicKey: langfusePublicKey,
-        baseUrl: langfuseBaseUrl,
-    });
+    if (!langfuse) {
+        initLangfuse({
+            langfuseSecretKey,
+            langfusePublicKey,
+            langfuseBaseUrl,
+        });
+    }
 
     const traceId = uuidv4();
 
-    const trace = langfuse.trace({
+    const trace = langfuse?.trace({
         name: modelParams.callerName,
         id: traceId,
         metadata: {
             modelParams,
-            userName: modelParams.userBasicData?.firstName,
         },
-        sessionId: traceId,
+        sessionId: modelParams.chatSessionId ?? traceId,
         userId: modelParams.userBasicData?.userId,
         tags: [modelParams.model, modelParams.provider, modelParams.callerName],
     });
+
+    if (modelParams.provider !== 'anthropic') {
+        return Error('PROVIDER_NOT_SUPPORTED');
+    }
 
     const anthropic = createAnthropic({
         apiKey: anthropicApiKey,
@@ -70,7 +77,7 @@ export const generateObject = (async ({
 
     const model = modelParams.model;
 
-    const generation = trace.generation({
+    const generation = trace?.generation({
         model,
         input: prompt,
         metadata: {
@@ -86,9 +93,19 @@ export const generateObject = (async ({
         }),
     );
 
-    if (error) return Error('AI_GENERATE_OBJECT_FAILED');
+    if (error) {
+        generation?.end({
+            input: prompt,
+            output: `Error: ${String(error)}`,
+            metadata: {
+                error: String(error),
+            },
+        });
+        await langfuse?.flushAsync();
+        return Error('AI_GENERATE_OBJECT_FAILED');
+    }
 
-    generation.end({
+    generation?.end({
         input: prompt,
         output: result.object,
         usage: {
@@ -98,7 +115,7 @@ export const generateObject = (async ({
         },
     });
 
-    await langfuse.flushAsync();
+    await langfuse?.flushAsync();
 
     return Success(result.object);
 }) satisfies Function<
@@ -109,3 +126,20 @@ export const generateObject = (async ({
     },
     GenerateObjectResult<unknown>['object']
 >;
+
+const initLangfuse = ({
+    langfuseSecretKey,
+    langfusePublicKey,
+    langfuseBaseUrl,
+}: {
+    langfuseSecretKey: string;
+    langfusePublicKey: string;
+    langfuseBaseUrl: string;
+}) => {
+    if (langfuse) return;
+    langfuse = new Langfuse({
+        secretKey: langfuseSecretKey,
+        publicKey: langfusePublicKey,
+        baseUrl: langfuseBaseUrl,
+    });
+};

@@ -17,6 +17,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Langfuse } from 'langfuse';
 import { logger } from '@logger/providers';
 
+let langfuse: Langfuse | undefined;
+
 export const streamText = (async ({
     prompt,
     messages,
@@ -32,6 +34,8 @@ export const streamText = (async ({
           messages: Message[];
           modelParams: AiRequest;
       }) => {
+    const traceId = uuidv4();
+
     // get the core configuration
     const coreConfWithError = await getCoreConf();
 
@@ -48,22 +52,20 @@ export const streamText = (async ({
         langfuseBaseUrl,
     } = coreConf;
 
-    const langfuse = new Langfuse({
-        secretKey: langfuseSecretKey,
-        publicKey: langfusePublicKey,
-        baseUrl: langfuseBaseUrl,
-    });
-
-    const traceId = uuidv4();
-
-    const trace = langfuse.trace({
+    if (!langfuse) {
+        initLangfuse({
+            langfuseSecretKey,
+            langfusePublicKey,
+            langfuseBaseUrl,
+        });
+    }
+    const trace = langfuse?.trace({
         name: modelParams.callerName,
         id: traceId,
         metadata: {
             prompt,
             messages,
             modelParams,
-            userName: modelParams.userBasicData?.firstName,
         },
         sessionId: modelParams.chatSessionId,
         userId: modelParams.userBasicData?.userId,
@@ -76,7 +78,7 @@ export const streamText = (async ({
 
     const model = modelParams.model;
 
-    const generation = trace.generation({
+    const generation = trace?.generation({
         model,
         input: messages && messages.length > 0 ? messages : prompt,
         metadata: {
@@ -108,8 +110,12 @@ export const streamText = (async ({
                 return;
             }
 
-            trace.event({
-                name: `event_inner_step_${step.toolCalls.length > 0 ? step.toolCalls[0].toolName : 'multiple'}`,
+            trace?.event({
+                name: `event_inner_step_${
+                    step.toolCalls.length
+                        ? step.toolCalls[0].toolName
+                        : 'no_tool'
+                }`,
                 metadata: {
                     stepType: step.stepType,
                     finishReason: step.finishReason,
@@ -119,8 +125,12 @@ export const streamText = (async ({
                 output: step.response.messages,
             });
 
-            trace.generation({
-                name: `update_inner_step_${step.toolCalls.length > 0 ? step.toolCalls[0].toolName : 'multiple'}`,
+            trace?.generation({
+                name: `inner_step_call_${
+                    step.toolCalls.length
+                        ? step.toolCalls[0].toolName
+                        : 'no_tool'
+                }`,
                 model,
                 input: step.request.body,
                 output: step.response.messages,
@@ -136,7 +146,7 @@ export const streamText = (async ({
             });
         },
         onFinish: async (result) => {
-            generation.end({
+            generation?.end({
                 input: messages && messages.length > 0 ? messages : prompt,
                 output: result.text,
                 usage: {
@@ -154,10 +164,10 @@ export const streamText = (async ({
                     })),
                 },
             });
-            await langfuse.flushAsync();
+            await langfuse?.flushAsync();
         },
-        onError: (error) => {
-            generation.event({
+        onError: async (error) => {
+            trace?.event({
                 name: 'error',
                 metadata: {
                     error: error.error,
@@ -168,6 +178,7 @@ export const streamText = (async ({
                     ? `Error on ai-sdk stream-text: ${error.error}`
                     : 'Error on ai-sdk stream-text',
             );
+            await langfuse?.flushAsync();
         },
     });
 
@@ -178,3 +189,20 @@ export const streamText = (async ({
     | { prompt?: undefined; messages: Message[]; modelParams: AiRequest },
     ReadableStreamDefaultReader<string>
 >;
+
+const initLangfuse = ({
+    langfuseSecretKey,
+    langfusePublicKey,
+    langfuseBaseUrl,
+}: {
+    langfuseSecretKey: string;
+    langfusePublicKey: string;
+    langfuseBaseUrl: string;
+}) => {
+    if (langfuse) return;
+    langfuse = new Langfuse({
+        secretKey: langfuseSecretKey,
+        publicKey: langfusePublicKey,
+        baseUrl: langfuseBaseUrl,
+    });
+};

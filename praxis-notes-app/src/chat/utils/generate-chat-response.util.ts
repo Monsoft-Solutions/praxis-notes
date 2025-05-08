@@ -58,7 +58,10 @@ export const generateChatResponse = (async ({
             provider: 'anthropic',
             model: 'claude-3-5-haiku-latest',
             activeTools: ['getClientData', 'listAvailableClients', 'think'],
-            userBasicData,
+            userBasicData: {
+                ...userBasicData,
+                lastName: userBasicData.lastName ?? '',
+            },
             callerName: 'generateChatResponse',
             chatSessionId,
         },

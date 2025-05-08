@@ -42,7 +42,7 @@ export const aiRequestSchema = z.object({
 
     userBasicData: userBasicDataForChatSchema
         .optional()
-        .describe('The user basic data to log the request'),
+        .describe('The (masked) user data to log the request'),
 
     metadata: z
         .record(z.string(), z.any())

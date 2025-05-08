@@ -67,7 +67,10 @@ export const generateChatSessionTitle = (async ({
             provider: 'anthropic',
             activeTools: [],
             callerName: 'generateChatSessionTitle',
-            userBasicData,
+            userBasicData: {
+                ...userBasicData,
+                lastName: userBasicData.lastName ?? '',
+            },
             chatSessionId,
         },
     });

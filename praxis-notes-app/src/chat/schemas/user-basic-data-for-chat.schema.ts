@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const userBasicDataForChatSchema = z.object({
     firstName: z.string(),
-    lastName: z.string().nullable(),
+    lastName: z.string().nullable().optional(),
     language: z.string(),
     userId: z.string(),
 });
