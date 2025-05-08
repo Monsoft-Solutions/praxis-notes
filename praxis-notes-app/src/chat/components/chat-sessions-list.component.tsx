@@ -104,8 +104,8 @@ export function ChatSessionsList({
     );
 
     return (
-        <Card className="flex h-full flex-col">
-            <CardHeader className="px-4 py-3">
+        <Card className="flex h-full flex-col p-0">
+            <CardHeader className="px-4 py-2">
                 <div className="mt-2 flex items-center justify-between">
                     <div className="relative flex items-center">
                         <SearchIcon className="text-muted-foreground absolute left-2 top-2.5 h-4 w-4" />
@@ -123,8 +123,8 @@ export function ChatSessionsList({
                     <Button
                         onClick={onCreateSession}
                         size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
+                        variant="outline"
+                        className="bg-primary text-primary-foreground h-8 w-8 rounded-full"
                     >
                         <PlusIcon className="h-4 w-4" />
                         <span className="sr-only">New chat</span>
@@ -133,7 +133,7 @@ export function ChatSessionsList({
             </CardHeader>
             <Separator />
             <CardContent className="flex-1 p-0">
-                <ScrollArea className="h-[calc(100vh-15rem)]">
+                <ScrollArea className="h-[60vh] max-h-[60vh] lg:h-[calc(100vh-15rem)] lg:max-h-none">
                     {filteredSessions.length === 0 ? (
                         <div className="flex h-full flex-col items-center justify-center p-4 text-center">
                             <p className="text-muted-foreground text-sm">
