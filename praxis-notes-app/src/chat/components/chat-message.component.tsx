@@ -17,35 +17,38 @@ export function ChatMessageComponent({
     return (
         <div
             className={cn(
-                'flex w-full items-start gap-4 p-4',
+                'flex w-full items-start gap-2 px-3 py-2 sm:gap-4 sm:px-4',
                 isUserMessage ? 'justify-end' : 'justify-start',
             )}
         >
             <div
                 className={cn(
-                    'flex flex-col gap-2',
+                    'flex flex-col gap-1 sm:gap-2',
                     isUserMessage ? 'items-end' : 'items-start',
                 )}
             >
                 <Card
                     className={cn(
-                        'max-w-[95%] overflow-hidden rounded-xl p-4',
+                        'max-w-[85%] overflow-hidden shadow-sm sm:max-w-[80%] md:max-w-[75%]',
                         isUserMessage
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-muted-foreground',
+                            ? 'bg-primary rounded-2xl rounded-tr-sm text-white'
+                            : 'bg-muted border-muted rounded-2xl rounded-tl-sm dark:text-slate-100',
                     )}
                 >
                     <div
                         className={cn(
-                            'prose prose-sm',
-                            isLoading && 'animate-pulse',
+                            'px-3 py-2 sm:px-4 sm:py-3',
+                            isUserMessage
+                                ? 'prose prose-sm text-white'
+                                : 'prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:p-2 prose-pre:bg-black/10 dark:prose-pre:bg-white/10',
+                            isLoading && 'animate-pulse opacity-70',
                         )}
                     >
                         <ReactMarkdown>{message.content}</ReactMarkdown>
                     </div>
                 </Card>
 
-                <p className="text-muted-foreground text-xs">
+                <p className="text-muted-foreground px-1 text-[10px] sm:text-xs">
                     {new Date(message.createdAt).toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit',

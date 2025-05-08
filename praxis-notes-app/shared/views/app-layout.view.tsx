@@ -49,7 +49,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     </div>
                 </header>
 
-                <main className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
+                <main className="flex flex-1 flex-col gap-4 overflow-y-auto">
                     {children}
                 </main>
             </SidebarInset>
