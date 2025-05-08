@@ -8,6 +8,8 @@ import { chatSessionSystemPrompt } from '../provider';
 import { streamText } from '@src/ai/providers';
 import { Message } from 'ai';
 import { UserLang } from '@auth/enum/user-lang.enum';
+import { anthropicModelEnum } from '@src/ai/enums';
+import { AiGenerationQualitySelector } from '@src/ai/schemas';
 
 /**
  * Generates an AI response for a chat conversation
@@ -19,10 +21,12 @@ export const generateChatResponse = (async ({
     messages,
     userBasicData,
     chatSessionId,
+    model,
 }: {
     messages: ChatMessage[];
     userBasicData: UserBasicDataForChat;
     chatSessionId: string;
+    model: AiGenerationQualitySelector;
 }) => {
     // Prepare the conversation history
     const messageHistory = messages.map((msg) => ({
@@ -56,7 +60,7 @@ export const generateChatResponse = (async ({
         messages: [systemMessage, ...messageHistory],
         modelParams: {
             provider: 'anthropic',
-            model: 'claude-3-5-haiku-latest',
+            model: getModel(model),
             activeTools: ['getClientData', 'listAvailableClients', 'think'],
             userBasicData: {
                 ...userBasicData,
@@ -75,6 +79,18 @@ export const generateChatResponse = (async ({
         messages: ChatMessage[];
         userBasicData: UserBasicDataForChat;
         chatSessionId: string;
+        model: AiGenerationQualitySelector;
     },
     ReadableStreamDefaultReader<string>
 >;
+
+const getModel = (model: AiGenerationQualitySelector) => {
+    switch (model) {
+        case 'Fast':
+            return anthropicModelEnum.Enum['claude-3-haiku-20240307'];
+        case 'Smart':
+            return anthropicModelEnum.Enum['claude-3-5-haiku-latest'];
+        case 'Genius':
+            return anthropicModelEnum.Enum['claude-3-7-sonnet-latest'];
+    }
+};

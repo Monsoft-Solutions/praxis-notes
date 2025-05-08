@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Card, CardContent, CardFooter } from '@ui/card.ui';
 import { ChatMessageComponent } from './chat-message.component';
 import { ChatInputComponent } from './chat-input.component';
@@ -8,6 +8,7 @@ import { api } from '@api/providers/web/api.provider';
 
 import { apiClientUtils } from '@api/providers/web/api-client-utils.provider';
 import { ScrollArea } from '@shared/ui/scroll-area.ui';
+import { AiGenerationQualitySelector } from '@src/ai/schemas';
 
 type ChatWindowProps = {
     activeSessionId: string;
@@ -18,16 +19,27 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
         sessionId: activeSessionId,
     });
 
+    const [selectedModel, setSelectedModel] =
+        useState<AiGenerationQualitySelector>('Smart');
+
     const { setData: setSession } = apiClientUtils.chat.getChatSession;
 
     const { mutateAsync: sendMessage } = api.chat.sendMessage.useMutation();
 
     const handleSendMessage = async (message: string) => {
-        await sendMessage({ sessionId: activeSessionId, content: message });
+        await sendMessage({
+            sessionId: activeSessionId,
+            content: message,
+            model: selectedModel,
+        });
     };
 
     const handleSuggestedQuestionSelect = async (question: string) => {
         await handleSendMessage(question);
+    };
+
+    const handleModelChange = (model: AiGenerationQualitySelector) => {
+        setSelectedModel(model);
     };
 
     api.chat.onChatMessageCreated.useSubscription(
@@ -124,37 +136,43 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
     const { messages } = session;
 
     return (
-        <Card className="flex h-full flex-col items-stretch justify-between pt-0 shadow-inner">
-            <CardContent className="p-0">
-                <ScrollArea className="flex h-[calc(100vh_-_15rem)] grow-0 flex-col pt-0">
-                    {messages.map((message) => (
-                        <ChatMessageComponent
-                            key={message.id}
-                            message={message}
-                        />
-                    ))}
-                    <div ref={messagesEndRef} />
-                    {messages.length === 0 && (
-                        <div className="flex justify-start justify-self-end pt-10">
-                            <ChatSuggestedQuestions
-                                sessionId={activeSessionId}
-                                onQuestionSelect={(question) => {
-                                    void handleSuggestedQuestionSelect(
-                                        question,
-                                    );
-                                }}
-                                className="max-w-[90%]"
+        <Card className="sm:shadow-floating mt-0 flex h-full flex-col items-stretch justify-between space-y-0 border-none p-2 pt-0 shadow-none sm:border lg:max-h-[calc(100vh-6rem)]">
+            <CardContent className="flex-grow overflow-hidden p-0">
+                <ScrollArea className="h-[calc(100vh-11rem)] md:h-[calc(100vh-12rem)] lg:h-[calc(100vh-10rem)]">
+                    <div className="h-32 w-full lg:h-20"></div>
+                    <div className="py-4">
+                        {messages.map((message) => (
+                            <ChatMessageComponent
+                                key={message.id}
+                                message={message}
                             />
-                        </div>
-                    )}
+                        ))}
+                        <div ref={messagesEndRef} />
+                        {messages.length === 0 && (
+                            <div className="flex justify-start justify-self-end pt-10">
+                                <ChatSuggestedQuestions
+                                    sessionId={activeSessionId}
+                                    onQuestionSelect={(question) => {
+                                        void handleSuggestedQuestionSelect(
+                                            question,
+                                        );
+                                    }}
+                                    className="max-w-[90%]"
+                                />
+                            </div>
+                        )}
+                    </div>
+                    <div className="h-2 w-full"></div>
                 </ScrollArea>
             </CardContent>
 
-            <CardFooter className="flex flex-col items-stretch gap-2 pt-0">
+            <CardFooter className="bg-background sticky bottom-0 mt-auto flex flex-col items-stretch gap-2 border-t pt-2">
                 <ChatInputComponent
                     onSend={(message) => {
                         void handleSendMessage(message);
                     }}
+                    model={selectedModel}
+                    onModelChange={handleModelChange}
                     placeholder="Type a message..."
                 />
             </CardFooter>

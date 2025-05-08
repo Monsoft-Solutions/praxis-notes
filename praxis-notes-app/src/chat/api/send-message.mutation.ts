@@ -24,7 +24,7 @@ export const sendMessage = protectedEndpoint
     .mutation(
         queryMutationCallback(
             async ({
-                input: { content, sessionId },
+                input: { content, sessionId, model },
                 ctx: {
                     session: { user },
                 },
@@ -100,6 +100,7 @@ export const sendMessage = protectedEndpoint
                             userId: user.id,
                         },
                         chatSessionId: sessionId,
+                        model,
                     });
 
                 if (aiResponseError) return Error();
