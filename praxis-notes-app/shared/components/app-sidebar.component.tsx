@@ -1,6 +1,13 @@
 import { Link } from '@tanstack/react-router';
 
-import { Power } from 'lucide-react';
+import {
+    Power,
+    LayoutDashboard,
+    Users,
+    MessageCircle,
+    CreditCard,
+    User,
+} from 'lucide-react';
 
 import {
     Sidebar,
@@ -23,16 +30,23 @@ import { TourStepId } from '@shared/types/tour-step-id.type';
 type NavItem = {
     title: string;
     url: string;
+    icon?: React.ReactNode;
     isActive?: boolean;
 };
 
-type NavSection = {
-    title: string;
-    items: NavItem[];
-};
+type NavSection =
+    | {
+          title: string;
+          items: NavItem[];
+      }
+    | {
+          title: string;
+          url: string;
+          icon?: React.ReactNode;
+      };
 
 // This is sample data.
-const navbarSections = [
+const navbarSections: NavSection[] = [
     {
         title: 'Main',
 
@@ -40,41 +54,48 @@ const navbarSections = [
             {
                 title: 'Dashboard',
                 url: '/dashboard',
+                icon: <LayoutDashboard className="size-4 stroke-2" />,
             },
 
             {
                 title: 'Clients',
                 url: '/clients',
+                icon: <Users className="size-4 stroke-2" />,
             },
         ],
     },
+
+    // {
+    //     title: 'Admin',
+
+    //     items: [
+    //         {
+    //             title: 'Antecedents',
+    //             url: '/antecedents',
+    //         },
+
+    //         {
+    //             title: 'Behaviors',
+    //             url: '/behaviors',
+    //         },
+
+    //         {
+    //             title: 'Interventions',
+    //             url: '/interventions',
+    //         },
+
+    //         {
+    //             title: 'Replacement Programs',
+    //             url: '/replacement-programs',
+    //         },
+    //     ],
+    // },
 
     {
-        title: 'Admin',
-
-        items: [
-            {
-                title: 'Antecedents',
-                url: '/antecedents',
-            },
-
-            {
-                title: 'Behaviors',
-                url: '/behaviors',
-            },
-
-            {
-                title: 'Interventions',
-                url: '/interventions',
-            },
-
-            {
-                title: 'Replacement Programs',
-                url: '/replacement-programs',
-            },
-        ],
+        title: 'Chat',
+        url: '/chat',
+        icon: <MessageCircle className="size-4 stroke-2" />,
     },
-
     {
         title: 'Subscription',
 
@@ -82,15 +103,17 @@ const navbarSections = [
             {
                 title: 'Pricing',
                 url: '/pricing',
+                icon: <CreditCard className="size-4 stroke-2" />,
             },
 
             {
                 title: 'Account',
                 url: '/account',
+                icon: <User className="size-4 stroke-2" />,
             },
         ],
     },
-] as const satisfies NavSection[];
+];
 
 const clientItemId: TourStepId = 'client-sidebar-item';
 
@@ -124,23 +147,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
                         <SidebarGroupContent>
                             <SidebarMenu>
-                                {item.items.map(({ title, url }) => (
-                                    <SidebarMenuItem key={title}>
+                                {'items' in item ? (
+                                    item.items.map(({ title, url, icon }) => (
+                                        <SidebarMenuItem key={title}>
+                                            <SidebarMenuButton asChild>
+                                                <Link to={url}>
+                                                    {icon}
+                                                    <span
+                                                        id={
+                                                            title === 'Clients'
+                                                                ? clientItemId
+                                                                : undefined
+                                                        }
+                                                    >
+                                                        {title}
+                                                    </span>
+                                                </Link>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    ))
+                                ) : (
+                                    <SidebarMenuItem>
                                         <SidebarMenuButton asChild>
-                                            <Link to={url}>
-                                                <span
-                                                    id={
-                                                        title === 'Clients'
-                                                            ? clientItemId
-                                                            : undefined
-                                                    }
-                                                >
-                                                    {title}
-                                                </span>
+                                            <Link to={item.url}>
+                                                {item.icon}
+                                                <span>{item.title}</span>
                                             </Link>
                                         </SidebarMenuButton>
                                     </SidebarMenuItem>
-                                ))}
+                                )}
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
