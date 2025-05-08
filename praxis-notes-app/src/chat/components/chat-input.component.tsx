@@ -29,7 +29,7 @@ export function ChatInputComponent({
     return (
         <form
             onSubmit={handleSubmit}
-            className="bg-background flex w-full items-end gap-2 p-4"
+            className="bg-background flex w-full items-end gap-2"
         >
             <Textarea
                 value={input}
@@ -38,7 +38,7 @@ export function ChatInputComponent({
                 }}
                 placeholder={placeholder}
                 className={cn(
-                    'bg-background min-h-[60px] resize-none',
+                    'bg-background border-muted max-h-[120px] min-h-[40px] resize-none rounded-full px-4 py-3',
                     isLoading && 'opacity-50',
                 )}
                 disabled={isLoading}
@@ -53,7 +53,7 @@ export function ChatInputComponent({
                 type="submit"
                 size="icon"
                 disabled={!input.trim() || isLoading}
-                className="h-[60px] w-[60px] shrink-0"
+                className="h-[40px] w-[40px] shrink-0 rounded-full"
             >
                 <SendIcon className="h-5 w-5" />
                 <span className="sr-only">Send message</span>

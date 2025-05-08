@@ -1,11 +1,27 @@
+import { cn } from '@css/utils';
 import React from 'react';
 
 type ViewContainerProps = {
     children: React.ReactNode;
+    className?: string;
+    noPadding?: boolean;
 };
 
-export const ViewContainer: React.FC<ViewContainerProps> = ({ children }) => {
+export const ViewContainer: React.FC<ViewContainerProps> = ({
+    children,
+    className,
+    noPadding = false,
+}) => {
     return (
-        <div className="container mx-auto space-y-6 px-0 py-6">{children}</div>
+        <div
+            className={cn(
+                className,
+                'container mx-auto',
+                !noPadding && 'space-y-6 p-4',
+                noPadding && 'p-0',
+            )}
+        >
+            {children}
+        </div>
     );
 };
