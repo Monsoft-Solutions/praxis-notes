@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Card, CardContent, CardFooter } from '@ui/card.ui';
 import { ChatMessageComponent } from './chat-message.component';
 import { ChatInputComponent } from './chat-input.component';
@@ -8,6 +8,7 @@ import { api } from '@api/providers/web/api.provider';
 
 import { apiClientUtils } from '@api/providers/web/api-client-utils.provider';
 import { ScrollArea } from '@shared/ui/scroll-area.ui';
+import { AiGenerationQualitySelector } from '@src/ai/schemas';
 
 type ChatWindowProps = {
     activeSessionId: string;
@@ -18,16 +19,27 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
         sessionId: activeSessionId,
     });
 
+    const [selectedModel, setSelectedModel] =
+        useState<AiGenerationQualitySelector>('Smart');
+
     const { setData: setSession } = apiClientUtils.chat.getChatSession;
 
     const { mutateAsync: sendMessage } = api.chat.sendMessage.useMutation();
 
     const handleSendMessage = async (message: string) => {
-        await sendMessage({ sessionId: activeSessionId, content: message });
+        await sendMessage({
+            sessionId: activeSessionId,
+            content: message,
+            model: selectedModel,
+        });
     };
 
     const handleSuggestedQuestionSelect = async (question: string) => {
         await handleSendMessage(question);
+    };
+
+    const handleModelChange = (model: AiGenerationQualitySelector) => {
+        setSelectedModel(model);
     };
 
     api.chat.onChatMessageCreated.useSubscription(
@@ -154,11 +166,13 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
                 </ScrollArea>
             </CardContent>
 
-            <CardFooter className="bg-background sticky bottom-0 mt-auto flex flex-col items-stretch gap-2 border-t pb-3 pt-3 md:pb-4">
+            <CardFooter className="bg-background sticky bottom-0 mt-auto flex flex-col items-stretch gap-2 border-t pt-2">
                 <ChatInputComponent
                     onSend={(message) => {
                         void handleSendMessage(message);
                     }}
+                    model={selectedModel}
+                    onModelChange={handleModelChange}
                     placeholder="Type a message..."
                 />
             </CardFooter>
