@@ -12,6 +12,13 @@ import { AiRequest } from '../schemas/ai-request.schema';
 import { getClientDataTool } from '../tools/get-client-data.tool';
 import { listAvailableClientsTool } from '../tools/list-available-clients.tool';
 
+import { v4 as uuidv4 } from 'uuid';
+
+import { Langfuse } from 'langfuse';
+import { logger } from '@logger/providers';
+
+let langfuse: Langfuse | undefined;
+
 export const streamText = (async ({
     prompt,
     messages,
@@ -27,6 +34,8 @@ export const streamText = (async ({
           messages: Message[];
           modelParams: AiRequest;
       }) => {
+    const traceId = uuidv4();
+
     // get the core configuration
     const coreConfWithError = await getCoreConf();
 
@@ -36,7 +45,32 @@ export const streamText = (async ({
 
     const { data: coreConf } = coreConfWithError;
 
-    const { anthropicApiKey } = coreConf;
+    const {
+        anthropicApiKey,
+        langfuseSecretKey,
+        langfusePublicKey,
+        langfuseBaseUrl,
+    } = coreConf;
+
+    if (!langfuse) {
+        initLangfuse({
+            langfuseSecretKey,
+            langfusePublicKey,
+            langfuseBaseUrl,
+        });
+    }
+    const trace = langfuse?.trace({
+        name: modelParams.callerName,
+        id: traceId,
+        metadata: {
+            prompt,
+            messages,
+            modelParams,
+        },
+        sessionId: modelParams.chatSessionId,
+        userId: modelParams.userBasicData?.userId,
+        tags: [modelParams.model, modelParams.provider, modelParams.callerName],
+    });
 
     const anthropic = createAnthropic({
         apiKey: anthropicApiKey,
@@ -44,10 +78,22 @@ export const streamText = (async ({
 
     const model = modelParams.model;
 
+    const generation = trace?.generation({
+        model,
+        input: messages && messages.length > 0 ? messages : prompt,
+        metadata: {
+            activeTools: modelParams.activeTools,
+        },
+    });
+
+    const cleanMessages = messages?.filter(
+        (message) => message.content.length > 0,
+    );
+
     const { textStream } = aiSdkStreamText({
         model: anthropic(model),
         prompt,
-        messages,
+        messages: cleanMessages,
         tools: {
             think: thinkTool,
             getClientData: getClientDataTool,
@@ -58,6 +104,82 @@ export const streamText = (async ({
         maxRetries: 3,
 
         experimental_transform: smoothStream(),
+
+        onStepFinish: (step) => {
+            if (step.finishReason === 'stop') {
+                return;
+            }
+
+            trace?.event({
+                name: `event_inner_step_${
+                    step.toolCalls.length
+                        ? step.toolCalls[0].toolName
+                        : 'no_tool'
+                }`,
+                metadata: {
+                    stepType: step.stepType,
+                    finishReason: step.finishReason,
+                    modelId: step.response.modelId,
+                },
+                input: step.request.body,
+                output: step.response.messages,
+            });
+
+            trace?.generation({
+                name: `inner_step_call_${
+                    step.toolCalls.length
+                        ? step.toolCalls[0].toolName
+                        : 'no_tool'
+                }`,
+                model,
+                input: step.request.body,
+                output: step.response.messages,
+                usage: {
+                    input: step.usage.promptTokens,
+                    output: step.usage.completionTokens,
+                    total: step.usage.totalTokens,
+                },
+                metadata: {
+                    stepType: step.stepType,
+                    finishReason: step.finishReason,
+                },
+            });
+        },
+        onFinish: async (result) => {
+            generation?.end({
+                input: messages && messages.length > 0 ? messages : prompt,
+                output: result.text,
+                usage: {
+                    input: result.usage.promptTokens,
+                    output: result.usage.completionTokens,
+                    total: result.usage.totalTokens,
+                },
+                metadata: {
+                    finishReason: result.finishReason,
+                    steps: result.steps.map((step) => ({
+                        type: step.stepType,
+                        finishReason: step.finishReason,
+                        input: step.request.body,
+                        output: step.text,
+                    })),
+                },
+            });
+            await langfuse?.flushAsync();
+        },
+        onError: async (error) => {
+            trace?.event({
+                name: 'error',
+                metadata: {
+                    error: error.error,
+                },
+            });
+            logger.error(
+                typeof error.error === 'string'
+                    ? `Error on ai-sdk stream-text: ${error.error}`
+                    : 'Error on ai-sdk stream-text',
+            );
+            await langfuse?.flushAsync();
+        },
     });
 
     const reader = textStream.getReader();
@@ -67,3 +189,20 @@ export const streamText = (async ({
     | { prompt?: undefined; messages: Message[]; modelParams: AiRequest },
     ReadableStreamDefaultReader<string>
 >;
+
+const initLangfuse = ({
+    langfuseSecretKey,
+    langfusePublicKey,
+    langfuseBaseUrl,
+}: {
+    langfuseSecretKey: string;
+    langfusePublicKey: string;
+    langfuseBaseUrl: string;
+}) => {
+    if (langfuse) return;
+    langfuse = new Langfuse({
+        secretKey: langfuseSecretKey,
+        publicKey: langfusePublicKey,
+        baseUrl: langfuseBaseUrl,
+    });
+};

@@ -7,6 +7,7 @@ import {
     anthropicModelEnum,
     openaiModelEnum,
 } from '../enums';
+import { userBasicDataForChatSchema } from '@src/chat/schemas';
 
 export const aiRequestSchema = z.object({
     provider: aiModelProviderEnum,
@@ -38,6 +39,31 @@ export const aiRequestSchema = z.object({
         .describe('The names of the tools available for the model')
         .optional()
         .default([]),
+
+    userBasicData: userBasicDataForChatSchema
+        .optional()
+        .describe('The (masked) user data to log the request'),
+
+    metadata: z
+        .record(z.string(), z.any())
+        .optional()
+        .describe('The metadata to log the request'),
+
+    tags: z
+        .array(z.string())
+        .optional()
+        .describe('The tags to log the request'),
+
+    callerName: z
+        .string()
+        .describe(
+            'The name of the caller (method who is calling the AI generation)',
+        ),
+
+    chatSessionId: z
+        .string()
+        .optional()
+        .describe('The chat session id to log the request'),
 });
 
 export type AiRequest = z.infer<typeof aiRequestSchema>;

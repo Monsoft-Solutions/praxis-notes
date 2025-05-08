@@ -28,4 +28,8 @@ export const coreConfigData: InferInsertModel<typeof coreConfTable> = {
         .parse(process.env.MSS_SLACK_WEBHOOK_URL_INFO),
 
     sentryDsn: z.string().parse(process.env.MSS_CLIENT_SENTRY_DSN),
+
+    langfuseSecretKey: z.string().parse(process.env.MSS_LANGFUSE_SECRET_KEY),
+    langfusePublicKey: z.string().parse(process.env.MSS_LANGFUSE_PUBLIC_KEY),
+    langfuseBaseUrl: z.string().parse(process.env.MSS_LANGFUSE_BASE_URL),
 };

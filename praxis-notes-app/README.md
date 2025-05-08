@@ -59,6 +59,10 @@ Documentation is built with VitePress and source files are located in the `/docs
     -   env-cmd (on-script)
     -   cross-env (platform-independent)
     -   zod (type-safe)
+    -   Required environment variables include:
+        -   `MSS_LANGFUSE_SECRET_KEY`: Secret key for LangFuse AI telemetry
+        -   `MSS_LANGFUSE_PUBLIC_KEY`: Public key for LangFuse AI telemetry
+        -   `MSS_LANGFUSE_BASE_URL`: Base URL for the LangFuse API endpoint
 
 -   **Authentication & Authorization**
 

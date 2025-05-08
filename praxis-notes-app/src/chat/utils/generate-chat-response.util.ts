@@ -2,7 +2,7 @@ import { Function } from '@errors/types';
 
 import { Success, Error } from '@errors/utils';
 
-import { ChatMessage } from '../schemas';
+import { ChatMessage, UserBasicDataForChat } from '../schemas';
 import { chatSessionSystemPrompt } from '../provider';
 
 import { streamText } from '@src/ai/providers';
@@ -19,15 +19,13 @@ import { AiGenerationQualitySelector } from '@src/ai/schemas';
  */
 export const generateChatResponse = (async ({
     messages,
-    userName,
-    userId,
-    userLanguage,
+    userBasicData,
+    chatSessionId,
     model,
 }: {
     messages: ChatMessage[];
-    userName: string;
-    userId: string;
-    userLanguage: UserLang;
+    userBasicData: UserBasicDataForChat;
+    chatSessionId: string;
     model: AiGenerationQualitySelector;
 }) => {
     // Prepare the conversation history
@@ -38,9 +36,9 @@ export const generateChatResponse = (async ({
     }));
 
     const { data: systemPrompt } = chatSessionSystemPrompt({
-        userName,
-        userId,
-        userLanguage,
+        userName: userBasicData.firstName,
+        userId: userBasicData.userId,
+        userLanguage: userBasicData.language as UserLang,
     });
 
     // Add system message at the start
@@ -64,6 +62,12 @@ export const generateChatResponse = (async ({
             provider: 'anthropic',
             model: getModel(model),
             activeTools: ['getClientData', 'listAvailableClients', 'think'],
+            userBasicData: {
+                ...userBasicData,
+                lastName: userBasicData.lastName ?? '',
+            },
+            callerName: 'generateChatResponse',
+            chatSessionId,
         },
     });
 
@@ -73,9 +77,8 @@ export const generateChatResponse = (async ({
 }) satisfies Function<
     {
         messages: ChatMessage[];
-        userName: string;
-        userId: string;
-        userLanguage: UserLang;
+        userBasicData: UserBasicDataForChat;
+        chatSessionId: string;
         model: AiGenerationQualitySelector;
     },
     ReadableStreamDefaultReader<string>

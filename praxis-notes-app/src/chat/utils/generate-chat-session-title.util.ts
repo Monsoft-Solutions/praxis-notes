@@ -5,6 +5,7 @@ import { Success, Error } from '@errors/utils';
 import { generateText } from '@src/ai/providers';
 
 import { Message } from 'ai';
+import { UserBasicDataForChat } from '../schemas';
 
 const prompt = `
 You are a helpful assistant that generates a title for a chat session.
@@ -38,8 +39,12 @@ Assistant: Redux Basics
  */
 export const generateChatSessionTitle = (async ({
     firstMessage,
+    userBasicData,
+    chatSessionId,
 }: {
     firstMessage: string;
+    userBasicData: UserBasicDataForChat;
+    chatSessionId: string;
 }) => {
     const messages: Message[] = [
         {
@@ -61,10 +66,23 @@ export const generateChatSessionTitle = (async ({
             model: 'claude-3-haiku-20240307',
             provider: 'anthropic',
             activeTools: [],
+            callerName: 'generateChatSessionTitle',
+            userBasicData: {
+                ...userBasicData,
+                lastName: userBasicData.lastName ?? '',
+            },
+            chatSessionId,
         },
     });
 
     if (textGenerationError) return Error('TEXT_GENERATION_ERROR');
 
     return Success(text);
-}) satisfies Function<{ firstMessage: string }, string>;
+}) satisfies Function<
+    {
+        firstMessage: string;
+        userBasicData: UserBasicDataForChat;
+        chatSessionId: string;
+    },
+    string
+>;

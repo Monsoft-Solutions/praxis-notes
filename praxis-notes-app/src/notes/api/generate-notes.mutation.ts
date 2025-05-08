@@ -174,6 +174,12 @@ export const generateNotes = protectedEndpoint
                 await generateNotesProvider({
                     sessionData,
                     clientData,
+                    userBasicData: {
+                        firstName: clientSession.user.firstName,
+                        lastName: clientSession.user.lastName,
+                        language: clientSession.user.language ?? 'en',
+                        userId: clientSession.user.id,
+                    },
                 });
 
             if (generatedNotesError) return Error();

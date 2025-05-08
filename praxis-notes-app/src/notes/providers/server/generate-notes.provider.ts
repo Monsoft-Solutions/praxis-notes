@@ -11,6 +11,7 @@ import { GenerateNotesInput } from '@src/notes/schema/generate-note.schema';
 export const generateNotes = (async ({
     clientData,
     sessionData,
+    userBasicData,
 }: GenerateNotesInput) => {
     // Use the prompt from our dedicated module
     const { data: prompt } = generateNotesPrompt({
@@ -24,6 +25,8 @@ export const generateNotes = (async ({
             model: 'claude-3-7-sonnet-latest',
             provider: 'anthropic',
             activeTools: ['think'],
+            userBasicData,
+            callerName: 'generateNotes',
         },
     });
 
