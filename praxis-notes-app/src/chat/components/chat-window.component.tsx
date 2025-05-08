@@ -136,7 +136,7 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
     const { messages } = session;
 
     return (
-        <Card className="mt-0 flex h-full flex-col items-stretch justify-between space-y-0 border-none p-2 pt-0 shadow-none sm:border sm:shadow-inner lg:max-h-[calc(100vh-6rem)]">
+        <Card className="sm:shadow-floating mt-0 flex h-full flex-col items-stretch justify-between space-y-0 border-none p-2 pt-0 shadow-none sm:border lg:max-h-[calc(100vh-6rem)]">
             <CardContent className="flex-grow overflow-hidden p-0">
                 <ScrollArea className="h-[calc(100vh-11rem)] md:h-[calc(100vh-12rem)] lg:h-[calc(100vh-10rem)]">
                     <div className="h-32 w-full lg:h-20"></div>

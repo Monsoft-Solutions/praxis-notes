@@ -43,7 +43,7 @@ export function ChatView() {
 
     return (
         <ViewContainer
-            className="flex h-[calc(100vh-5rem)] flex-col overflow-hidden p-0 pt-0 sm:h-[calc(100vh-6rem)] lg:h-[calc(100vh-4rem)]"
+            className="flex flex-col overflow-hidden p-0 pt-0"
             noPadding={true}
         >
             {/* Mobile sessions dialog */}
