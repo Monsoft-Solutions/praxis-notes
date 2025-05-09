@@ -183,6 +183,8 @@
         "@sentry/react": "8.54.0",
         "@sentry/vite-plugin": "3.1.2",
 
+        "better-auth": "1.2.7 || auth (better-auth)",
+
         "bcryptjs": "2.4.3 || password hashing (bcryptjs)",
         "@types/bcryptjs": "2.4.6",
 
