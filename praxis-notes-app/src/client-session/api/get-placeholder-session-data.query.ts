@@ -78,6 +78,7 @@ export const getPlaceholderSessionData = protectedEndpoint
                 ],
                 observations: null,
                 valuation: 'fair',
+                reinforcerIds: [],
             };
 
             return Success(placeholderSessionData);

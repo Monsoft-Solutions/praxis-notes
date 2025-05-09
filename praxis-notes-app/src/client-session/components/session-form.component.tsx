@@ -19,6 +19,7 @@ import { ABCCardContainer } from './abc-card-container.component';
 import { ReplacementProgramCardContainer } from './replacement-program-card-container.component';
 import { ValuationSelector } from './valuation-selector.component';
 import { SessionObservations } from './session-observations.component';
+import { ReinforcerSelector } from './reinforcer-selector.component';
 
 import { api, apiClientUtils } from '@api/providers/web';
 import { Spinner } from '@shared/ui/spinner.ui';
@@ -72,6 +73,7 @@ export function SessionForm({
             location: isTour ? 'home' : undefined,
             presentParticipants: [],
             environmentalChanges: [],
+            reinforcerIds: [],
             abcIdEntries: [
                 {
                     antecedentId: isTour
@@ -289,7 +291,10 @@ export function SessionForm({
 
                 <ReplacementProgramCardContainer clientId={clientId} />
 
-                <ValuationSelector />
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <ValuationSelector />
+                    <ReinforcerSelector />
+                </div>
 
                 <SessionObservations />
 

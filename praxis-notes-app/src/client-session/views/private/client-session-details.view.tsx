@@ -63,6 +63,8 @@ export function ClientSessionDetailsView() {
         ),
         valuation: session.valuation,
         observations: session.observations,
+        // TODO: Update this to the actual reinforcer ids
+        reinforcerIds: [],
     };
 
     const sessionDetails: ClientSession = {
