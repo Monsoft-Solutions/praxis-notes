@@ -173,6 +173,17 @@ export const streamText = (async ({
                     error: error.error,
                 },
             });
+            trace?.update({
+                metadata: {
+                    error: error.error,
+                },
+                tags: ['error'],
+            });
+            generation?.end({
+                metadata: {
+                    error: error.error,
+                },
+            });
             logger.error(
                 typeof error.error === 'string'
                     ? `Error on ai-sdk stream-text: ${error.error}`
