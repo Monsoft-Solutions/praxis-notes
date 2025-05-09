@@ -119,6 +119,8 @@ export const generateNotes = protectedEndpoint
                             teachingProcedure,
                             promptingProcedure,
                             promptTypes,
+                            progress,
+                            linkedAbcEntryId,
                         }) => {
                             return {
                                 replacementProgram: replacementProgram.name,
@@ -127,6 +129,8 @@ export const generateNotes = protectedEndpoint
                                 promptTypes: promptTypes
                                     .map(({ promptType }) => promptType?.name)
                                     .filter((name): name is string => !!name),
+                                progress,
+                                linkedAbcEntryId,
                             };
                         },
                     )
@@ -162,7 +166,7 @@ export const generateNotes = protectedEndpoint
                     (entry) => ({
                         ...entry,
                         clientResponse: '',
-                        progress: 0,
+                        progress: entry.progress ?? 0,
                     }),
                 ),
                 userInitials,
