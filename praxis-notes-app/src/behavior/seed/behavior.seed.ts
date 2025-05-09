@@ -16,7 +16,6 @@ export const behaviorSeed = async () => {
             });
 
             if (existingBehavior) {
-                console.log(`behavior ${name} already exist`);
                 return;
             }
 
