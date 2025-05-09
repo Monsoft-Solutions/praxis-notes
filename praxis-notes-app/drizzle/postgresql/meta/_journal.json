@@ -379,6 +379,13 @@
       "when": 1746758738703,
       "tag": "0053_absurd_romulus",
       "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1746763360826,
+      "tag": "0054_wide_firebird",
+      "breakpoints": true
     }
   ]
 }

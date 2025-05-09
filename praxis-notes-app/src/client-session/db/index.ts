@@ -6,3 +6,4 @@ export * from './client-session-abc-entry-behavior.table';
 export * from './client-session-abc-entry-intervention.table';
 export * from './client-session-replacement-program-entry.table';
 export * from './client-session-replacement-program-entry-prompt-type.table';
+export * from './client-session-reinforcer.table';

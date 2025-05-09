@@ -19,6 +19,7 @@ import {
     clientSessionAbcEntryInterventionTable,
     clientSessionReplacementProgramEntryTable,
     clientSessionReplacementProgramEntryPromptTypeTable,
+    clientSessionReinforcerTable,
 } from '../db';
 
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
@@ -70,6 +71,8 @@ export const createClientSession = protectedEndpoint
                         linkedAbcEntryIndex: z.number().nullable().optional(),
                     }),
                 ),
+
+                reinforcerIds: z.array(z.string()),
             }),
         }),
     )
@@ -94,6 +97,7 @@ export const createClientSession = protectedEndpoint
 
                     abcIdEntries,
                     replacementProgramEntries,
+                    reinforcerIds,
                 } = sessionForm;
 
                 const abcEntriesNullable = await Promise.all(
@@ -513,6 +517,16 @@ export const createClientSession = protectedEndpoint
                                         throw error;
                                     });
                             }
+                        }
+
+                        // insert the reinforcer ids
+                        for (const reinforcerId of reinforcerIds) {
+                            await tx
+                                .insert(clientSessionReinforcerTable)
+                                .values({
+                                    clientSessionId: id,
+                                    reinforcerId,
+                                });
                         }
                     }),
                 );
