@@ -1,5 +1,7 @@
 // re-export all app seeds
 
+export * from '@src/reinforcer/seed';
+
 export * from '@src/template/seed';
 export * from '@src/antecedent/seed';
 export * from '@src/behavior/seed';
