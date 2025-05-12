@@ -37,6 +37,8 @@ import {
 
 import { ShortInfoMessage } from '@shared/components/short-info-message.component';
 
+import { SocialLogIn } from './social-log-in.component';
+
 // ----------------------------------------------------------------------
 
 // Sign up form component
@@ -197,6 +199,8 @@ export function SignUpForm({
                         </Button>
                     </form>
                 </Form>
+
+                <SocialLogIn />
             </CardContent>
 
             <CardFooter className="flex justify-center border-t p-4">
