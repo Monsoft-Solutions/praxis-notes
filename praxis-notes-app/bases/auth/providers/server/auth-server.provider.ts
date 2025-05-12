@@ -14,6 +14,8 @@ import bcrypt from 'bcryptjs';
 
 import { sendVerificationEmail as sendVerificationEmailUtil } from './send-verification-email.provider';
 
+import { GoogleProfile } from '@auth/types';
+
 export const authServer = betterAuth({
     basePath: authPath,
 
@@ -45,6 +47,18 @@ export const authServer = betterAuth({
         google: {
             clientId: authEnv.MSS_GOOGLE_ID,
             clientSecret: authEnv.MSS_GOOGLE_SECRET,
+
+            mapProfileToUser: ({
+                email,
+                given_name,
+                family_name,
+            }: GoogleProfile) => {
+                return {
+                    email,
+                    firstName: given_name,
+                    lastName: family_name,
+                };
+            },
         },
     },
 
