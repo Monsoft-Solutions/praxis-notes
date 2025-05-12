@@ -17,18 +17,12 @@ import {
 } from '@db/db.tables';
 
 import { ClientFormData } from '@src/client/schemas';
-import { User } from '@guard/types';
 
 export const createClient = (async ({
     clientId,
     user,
     clientFormData,
     isDraft,
-}: {
-    clientId: string;
-    user: User;
-    clientFormData: ClientFormData;
-    isDraft: boolean;
 }) => {
     const {
         firstName,
@@ -147,9 +141,8 @@ export const createClient = (async ({
 
     return Success();
 }) satisfies Function<{
-    id: string;
     clientId: string;
-    user: User;
+    user: { id: string; organizationId: string };
     clientFormData: ClientFormData;
     isDraft: boolean;
 }>;

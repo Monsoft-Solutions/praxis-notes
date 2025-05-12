@@ -166,7 +166,7 @@ export const getClientSession = protectedEndpoint
                     ...clientSessionRecord,
                     abcEntries,
                     replacementProgramEntries,
-                    userInitials: `${user.firstName.at(0) ?? ''}${user.lastName?.at(0) ?? ''}`,
+                    userInitials: `${user.name.at(0) ?? ''}${user.lastName?.at(0) ?? ''}`,
                     clientInitials: `${client.firstName.at(0) ?? ''}${client.lastName.at(0) ?? ''}`,
                 };
 

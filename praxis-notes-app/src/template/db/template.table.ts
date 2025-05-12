@@ -1,7 +1,7 @@
 import { relations } from 'drizzle-orm';
 import { char, enumType, sqlEnum, table, varchar } from '@db/sql';
 
-import { userTable } from '../../../bases/db/db.tables';
+import { user } from '../../../bases/db/db.tables';
 
 import { templateStatusEnum } from '../enums';
 
@@ -20,7 +20,7 @@ export const templateTable = table('template', {
     // creator of the template
     creator: char('creator', { length: 36 })
         .notNull()
-        .references(() => userTable.id),
+        .references(() => user.id),
 
     // current status of the template
     status: sqlEnum('status', statusEnum).notNull().default('draft'),
@@ -28,8 +28,8 @@ export const templateTable = table('template', {
 
 export const templateTableRelations = relations(templateTable, ({ one }) => ({
     // creator of the template
-    creator: one(userTable, {
+    creator: one(user, {
         fields: [templateTable.creator],
-        references: [userTable.id],
+        references: [user.id],
     }),
 }));

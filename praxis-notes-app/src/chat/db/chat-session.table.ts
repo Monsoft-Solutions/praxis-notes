@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 
 import { char, table, varchar, bigint } from '@db/sql';
 
-import { userTable } from '../../../bases/db/db.tables';
+import { user } from '../../../bases/db/db.tables';
 import { chatMessageTable } from './chat-message.table';
 // chat sessions
 export const chatSessionTable = table('chat_session', {
@@ -11,7 +11,7 @@ export const chatSessionTable = table('chat_session', {
     // user who owns the chat session
     userId: char('user_id', { length: 36 })
         .notNull()
-        .references(() => userTable.id),
+        .references(() => user.id),
 
     // title of the chat session
     title: varchar('title', { length: 255 }).notNull(),
@@ -32,9 +32,9 @@ export const chatSessionTableRelations = relations(
 
     ({ one, many }) => ({
         // owner of the chat session
-        user: one(userTable, {
+        user: one(user, {
             fields: [chatSessionTable.userId],
-            references: [userTable.id],
+            references: [user.id],
         }),
 
         // messages in the chat session

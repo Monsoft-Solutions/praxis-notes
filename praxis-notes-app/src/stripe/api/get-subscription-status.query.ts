@@ -8,8 +8,6 @@ import { db } from '@db/providers/server';
 
 import { StripeSubscription, StripeSubscriptionStatus } from '../types';
 
-import { authenticationTable } from '@db/db.tables';
-
 import { createStripeSdk } from '../utils';
 
 import { eq } from 'drizzle-orm';
@@ -27,18 +25,17 @@ export const getSubscriptionStatus = protectedEndpoint.query(
 
             if (stripeCreateError) return Error();
 
-            const { data: userAuthentication, error: userAuthenticationError } =
-                await catchError(
-                    db.query.authenticationTable.findFirst({
-                        where: eq(authenticationTable.userId, sessionUser.id),
-                    }),
-                );
+            const { data: userRecord, error: userError } = await catchError(
+                db.query.user.findFirst({
+                    where: ({ id }) => eq(id, sessionUser.id),
+                }),
+            );
 
-            if (userAuthenticationError) return Error();
+            if (userError) return Error();
 
-            if (!userAuthentication) return Success(null);
+            if (!userRecord) return Success(null);
 
-            const { email: userEmail } = userAuthentication;
+            const { email: userEmail } = userRecord;
 
             // Find the Stripe customer by email
             const { data: customersList, error: customersListError } =

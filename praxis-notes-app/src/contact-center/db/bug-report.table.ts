@@ -3,7 +3,7 @@ import { relations } from 'drizzle-orm';
 // import from the db base, not from drizzle
 import { char, table, varchar, text, bigint, enumType, sqlEnum } from '@db/sql';
 
-import { userTable } from '../../../bases/db/db.tables';
+import { user } from '../../../bases/db/db.tables';
 
 import { bugStatusEnum } from '../enums/bug-status.enum';
 import { bugSeverityEnum } from '../enums/bug-severity.enum';
@@ -28,7 +28,7 @@ export const bugReportTable = table('bug_report', {
     // user who submitted the bug report
     userId: char('user_id', { length: 36 })
         .notNull()
-        .references(() => userTable.id),
+        .references(() => user.id),
 
     // title of the bug report
     title: varchar('title', { length: 255 }).notNull(),
@@ -56,8 +56,8 @@ export const bugReportTable = table('bug_report', {
 
 export const bugReportTableRelations = relations(bugReportTable, ({ one }) => ({
     // user who submitted the bug report
-    user: one(userTable, {
+    user: one(user, {
         fields: [bugReportTable.userId],
-        references: [userTable.id],
+        references: [user.id],
     }),
 }));

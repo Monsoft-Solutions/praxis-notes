@@ -3,7 +3,7 @@ import { relations } from 'drizzle-orm';
 // import from the db base, not from drizzle
 import { char, table, text, bigint, enumType, sqlEnum } from '@db/sql';
 
-import { userTable } from '../../../bases/db/db.tables';
+import { user } from '../../../bases/db/db.tables';
 
 import { feedbackStatusEnum } from '../enums/feedback-status.enum';
 import { feedbackTypeEnum } from '../enums/feedback-type.enum';
@@ -27,7 +27,7 @@ export const feedbackTable = table('feedback', {
     // user who submitted the feedback
     userId: char('user_id', { length: 36 })
         .notNull()
-        .references(() => userTable.id),
+        .references(() => user.id),
 
     // type of feedback (feature, improvement, ux, performance, other)
     type: sqlEnum('type', feedbackTypeEnumSql).notNull(),
@@ -48,8 +48,8 @@ export const feedbackTable = table('feedback', {
 
 export const feedbackTableRelations = relations(feedbackTable, ({ one }) => ({
     // user who submitted the feedback
-    user: one(userTable, {
+    user: one(user, {
         fields: [feedbackTable.userId],
-        references: [userTable.id],
+        references: [user.id],
     }),
 }));
