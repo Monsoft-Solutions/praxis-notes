@@ -157,6 +157,7 @@
         "react-day-picker": "8.10.1",
 
         "lucide-react": "0.468.0 || icons (lucide)",
+        "react-icons": "5.5.0",
 
         "@fontsource-variable/inter": "5.1.0 || fonts (fontsource)",
 

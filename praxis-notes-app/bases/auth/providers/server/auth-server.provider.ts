@@ -41,6 +41,13 @@ export const authServer = betterAuth({
         requireEmailVerification: true,
     },
 
+    socialProviders: {
+        google: {
+            clientId: authEnv.MSS_GOOGLE_ID,
+            clientSecret: authEnv.MSS_GOOGLE_SECRET,
+        },
+    },
+
     user: {
         additionalFields: userAdditionalFields,
     },
