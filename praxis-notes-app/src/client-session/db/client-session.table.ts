@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 
 import { char, enumType, table, varchar, text } from '@db/sql';
 
-import { clientTable, userTable } from '@db/db.tables';
+import { clientTable, user } from '@db/db.tables';
 
 import { clientSessionValuationEnum } from '../enum';
 
@@ -30,7 +30,7 @@ export const clientSessionTable = table('client_session', {
 
     // user/therapist who conducted the session
     userId: char('user_id', { length: 36 })
-        .references(() => userTable.id, {
+        .references(() => user.id, {
             onDelete: 'cascade',
         })
         .notNull(),
@@ -66,9 +66,9 @@ export const clientSessionTableRelations = relations(
             clientSessionReplacementProgramEntryTable,
         ),
 
-        user: one(userTable, {
+        user: one(user, {
             fields: [clientSessionTable.userId],
-            references: [userTable.id],
+            references: [user.id],
         }),
     }),
 );

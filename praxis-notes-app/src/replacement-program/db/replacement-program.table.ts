@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 
 import { table, char, varchar, text } from '@db/sql';
 
-import { organizationTable } from '@db/db.tables';
+import { organization } from '@db/db.tables';
 
 /**
  * replacement programs that can be assigned to clients to replace challenging behaviors
@@ -12,7 +12,7 @@ export const replacementProgramTable = table('replacement_programs', {
 
     // If organizationId is null, the replacement program is considered global
     organizationId: char('organization_id', { length: 36 }).references(
-        () => organizationTable.id,
+        () => organization.id,
         {
             onDelete: 'cascade',
         },
@@ -26,9 +26,9 @@ export const replacementProgramTable = table('replacement_programs', {
 export const replacementProgramTableRelations = relations(
     replacementProgramTable,
     ({ one }) => ({
-        organization: one(organizationTable, {
+        organization: one(organization, {
             fields: [replacementProgramTable.organizationId],
-            references: [organizationTable.id],
+            references: [organization.id],
         }),
     }),
 );

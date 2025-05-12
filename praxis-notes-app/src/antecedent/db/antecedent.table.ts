@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 
 import { char, table, varchar, text } from '@db/sql';
 
-import { organizationTable } from '@db/db.tables';
+import { organization } from '@db/db.tables';
 
 /**
  * antecedents
@@ -12,7 +12,7 @@ export const antecedentTable = table('antecedent', {
 
     // if null, the behavior is considered global
     organizationId: char('organization_id', { length: 36 }).references(
-        () => organizationTable.id,
+        () => organization.id,
         { onDelete: 'cascade' },
     ),
 

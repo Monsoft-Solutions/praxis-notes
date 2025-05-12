@@ -1,12 +1,13 @@
 import { InferInsertModel } from 'drizzle-orm';
 
-import { userTable } from '@db/db.tables';
+import { user } from '@db/db.tables';
 
-import { testOrganization } from './test-organization.constant';
-
-export const testUser: InferInsertModel<typeof userTable> = {
+export const testUser: InferInsertModel<typeof user> = {
     id: 'test-user-id',
-    firstName: 'Test',
+    name: 'Test',
     lastName: 'User',
-    organizationId: testOrganization.id,
+    email: 'test@email.com',
+    emailVerified: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
 };

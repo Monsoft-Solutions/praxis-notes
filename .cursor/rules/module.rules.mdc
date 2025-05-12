@@ -179,7 +179,7 @@ follow this template:
         // import from the db base, not from drizzle
         import { char, enumType, sqlEnum, table, varchar, bigint } from '@db/sql';
 
-        import { userTable } from '../../../bases/db/db.tables';
+        import { user } from '../../../bases/db/db.tables';
 
         import { templateStatusEnum } from '../enums';
 
@@ -198,7 +198,7 @@ follow this template:
         // creator of the template
         creator: char('creator', { length: 36 })
                 .notNull()
-                .references(() => userTable.id),
+                .references(() => user.id),
 
         // current status of the template
         status: sqlEnum('status', statusEnum).notNull().default('draft'),
@@ -211,9 +211,9 @@ follow this template:
 
         export const templateTableRelations = relations(templateTable, ({ one }) => ({
         // creator of the template
-        creator: one(userTable, {
+        creator: one(user, {
                 fields: [templateTable.creator],
-                references: [userTable.id],
+                references: [user.id],
         }),
         }));
         ```
@@ -717,7 +717,7 @@ follow this template:
 
         import { db } from '@db/providers/server';
 
-        import { userTable } from '@auth/db';
+        import { user } from '@auth/db';
 
         import { templateTable } from '@app/db';
         import { TemplatesStats } from '@src/template/schemas';
@@ -760,12 +760,12 @@ follow this template:
         } = await catchError(
                 db
                 .select({
-                        userId: userTable.id,
+                        userId: user.id,
                         templatesCount: count(templateTable.id),
                 })
-                .from(userTable)
-                .leftJoin(templateTable, eq(userTable.id, templateTable.creator))
-                .groupBy(userTable.id),
+                .from(user)
+                .leftJoin(templateTable, eq(user.id, templateTable.creator))
+                .groupBy(user.id),
         );
 
         if (templatesPerUserQueryError) return Error('TEMPLATES_PER_USER_QUERY');

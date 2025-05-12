@@ -13,8 +13,8 @@ import {
 import { clientGenderEnum } from '../enums';
 
 import {
-    organizationTable,
-    userTable,
+    organization,
+    user,
     clientBehaviorTable,
     clientInterventionTable,
     clientReplacementProgramTable,
@@ -29,7 +29,7 @@ export const clientTable = table('clients', {
     id: char('id', { length: 36 }).primaryKey(),
 
     organizationId: char('organization_id', { length: 36 })
-        .references(() => organizationTable.id, {
+        .references(() => organization.id, {
             onDelete: 'cascade',
         })
         .notNull(),
@@ -53,14 +53,14 @@ export const clientTable = table('clients', {
     }).notNull(),
 
     createdBy: char('created_by', { length: 36 })
-        .references(() => userTable.id)
+        .references(() => user.id)
         .notNull(),
 });
 
 export const clientTableRelations = relations(clientTable, ({ one, many }) => ({
-    organization: one(organizationTable, {
+    organization: one(organization, {
         fields: [clientTable.organizationId],
-        references: [organizationTable.id],
+        references: [organization.id],
     }),
 
     behaviors: many(clientBehaviorTable),

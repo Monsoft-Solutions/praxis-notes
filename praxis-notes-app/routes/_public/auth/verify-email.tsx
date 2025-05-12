@@ -4,9 +4,7 @@ import { z } from 'zod';
 
 import { toast } from 'sonner';
 
-import { vanillaApi } from '@api/providers/web';
-
-import { setWebSessionId } from '@auth/providers/web';
+import { authClient } from '@auth/providers/web/auth-client.provider';
 
 import { EmailVerificationFailedView } from '@shared/views/email-verification-failed.view';
 
@@ -21,18 +19,14 @@ export const Route = createFileRoute('/_public/auth/verify-email')({
     validateSearch,
 
     beforeLoad: async (ctx) => {
-        const verifyEmailResult = await vanillaApi.auth.verifyEmail.mutate({
-            id: ctx.search.id,
+        const verifyEmailResult = await authClient.verifyEmail({
+            query: {
+                token: ctx.search.id,
+            },
         });
 
         if (!verifyEmailResult.error) {
             toast.success('Welcome to Praxis Notes !');
-
-            const { sessionId } = verifyEmailResult.data;
-
-            setWebSessionId({
-                sessionId,
-            });
 
             throw redirect({
                 to: '/',

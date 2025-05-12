@@ -9,6 +9,8 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 import express from 'express';
 import cors from 'cors';
 
+import { toNodeHandler } from 'better-auth/node';
+
 import { apiPath } from '@api/constants';
 import { apiContext } from '@api/providers/server';
 
@@ -19,6 +21,10 @@ import { definedEnv } from '@env/constants/defined-env.constant';
 import { appInnerPort, appUrl } from '@dist/constants';
 
 import { devWebPort } from '@dev/constants';
+
+import { authServer } from '../auth/providers/server';
+
+import { authPath } from '@auth/constants';
 
 export * from '@app/hub';
 
@@ -42,6 +48,10 @@ server.use(cors());
 
 // add trpc middleware
 server.use(apiPath, trpcMiddleware);
+
+server.all(`${authPath}/*`, (req, res) => {
+    void toNodeHandler(authServer)(req, res);
+});
 
 // source of web files:
 // bin: already built as distribution files, to be served statically

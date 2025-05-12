@@ -1,20 +1,57 @@
 import type { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone';
 
-import { authHeaderKey } from '@api/constants';
+import { catchError } from '@errors/utils/catch-error.util';
 
-import { authHeaderToSessionId } from '@api/utils';
+import { db } from '@db/providers/server';
+import { eq } from 'drizzle-orm';
+
+import { authServer } from '@auth/providers/server';
 
 // Server context created on every API request
-export const apiContext = ({ req: { headers } }: CreateHTTPContextOptions) => {
-    const authHeader = headers[authHeaderKey];
+export const apiContext = async ({ req }: CreateHTTPContextOptions) => {
+    const headers = new Headers();
 
-    if (!authHeader) return { session: null };
+    Object.entries(req.headers).forEach(([key, value]) => {
+        headers.append(key, value as string);
+    });
 
-    const { data: sessionId, error } = authHeaderToSessionId({ authHeader });
+    const sessionAndUser = await authServer.api.getSession({
+        headers,
+    });
 
-    if (error) return { session: null };
+    if (sessionAndUser === null) return { session: null };
 
-    const session = { id: sessionId };
+    const {
+        session: { activeOrganizationId: organizationId, ...rawSession },
+        user: rawUser,
+    } = sessionAndUser;
+
+    if (!organizationId) return { session: null };
+
+    const { data: userRoles, error: userRolesError } = await catchError(
+        db.query.userRoleTable.findMany({
+            where: ({ userId }) => eq(userId, rawUser.id),
+
+            with: {
+                role: true,
+            },
+        }),
+    );
+
+    if (userRolesError) return { session: null };
+
+    const roles = userRoles.map(({ role }) => role.name);
+
+    const user = {
+        ...rawUser,
+        organizationId,
+        roles,
+    };
+
+    const session = {
+        ...rawSession,
+        user,
+    };
 
     return { session };
 };

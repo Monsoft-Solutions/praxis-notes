@@ -3,7 +3,7 @@ import { relations } from 'drizzle-orm';
 // import from the db base, not from drizzle
 import { char, table, text, bigint, enumType, sqlEnum } from '@db/sql';
 
-import { userTable } from '../../../bases/db/db.tables';
+import { user } from '../../../bases/db/db.tables';
 
 import { supportStatusEnum } from '../enums/support-status.enum';
 
@@ -18,7 +18,7 @@ export const supportMessageTable = table('support_message', {
     id: char('id', { length: 36 }).primaryKey(),
 
     // user who sent the message (can be null for anonymous messages)
-    userId: char('user_id', { length: 36 }).references(() => userTable.id),
+    userId: char('user_id', { length: 36 }).references(() => user.id),
 
     // message content
     message: text('message').notNull(),
@@ -38,9 +38,9 @@ export const supportMessageTableRelations = relations(
     supportMessageTable,
     ({ one }) => ({
         // user who sent the message
-        user: one(userTable, {
+        user: one(user, {
             fields: [supportMessageTable.userId],
-            references: [userTable.id],
+            references: [user.id],
         }),
     }),
 );

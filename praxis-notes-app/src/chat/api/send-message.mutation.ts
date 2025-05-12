@@ -94,7 +94,7 @@ export const sendMessage = protectedEndpoint
                     await generateChatResponse({
                         messages: allMessages,
                         userBasicData: {
-                            firstName: user.firstName,
+                            firstName: user.name,
                             lastName: user.lastName,
                             language: user.language ?? 'en',
                             userId: user.id,
@@ -160,7 +160,7 @@ export const sendMessage = protectedEndpoint
                         await generateChatSessionTitle({
                             firstMessage: content,
                             userBasicData: {
-                                firstName: user.firstName,
+                                firstName: user.name,
                                 lastName: user.lastName,
                                 language: user.language ?? 'en',
                                 userId: user.id,
