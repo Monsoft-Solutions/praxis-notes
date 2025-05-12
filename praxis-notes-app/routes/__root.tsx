@@ -57,29 +57,6 @@ const logIn = async (credentials: LogInCredentials) => {
 
     const { user } = session;
 
-    const { data: organizations, error: errorOrganizations } =
-        await authClient.organization.list();
-
-    if (errorOrganizations) {
-        toast.error('Something went wrong', {
-            description: 'Unexpected error ocurred, please try again',
-        });
-        return false;
-    }
-
-    const defaultOrganization = organizations.at(0);
-
-    if (!defaultOrganization) {
-        toast.error('No organization found', {
-            description: 'Please create an organization',
-        });
-        return false;
-    }
-
-    await authClient.organization.setActive({
-        organizationId: defaultOrganization.id,
-    });
-
     // invalidate the whole router
     // rerunning loader/beforLoad for all routes
     // to update route permission guards
@@ -130,20 +107,33 @@ const getLoggedInUser = (async () => {
             });
         }
 
-        if (organizations) {
-            const defaultOrganization = organizations.at(0);
+        const defaultOrganization = organizations?.at(0);
 
-            if (defaultOrganization) {
-                await authClient.organization.setActive({
-                    organizationId: defaultOrganization.id,
+        if (defaultOrganization) {
+            organizationId = defaultOrganization.id;
+        } else {
+            const { data: newOrganization, error: createOrganizationError } =
+                await authClient.organization.create({
+                    name: `${rawUser.name}'s Organization`,
+                    slug: `${rawUser.name.replace(' ', '-').toLowerCase()}-org`,
                 });
 
-                organizationId = defaultOrganization.id;
+            if (createOrganizationError) {
+                toast.error('Error creating organization', {
+                    description: 'Unexpected error ocurred, please try again',
+                });
+                return Success(null);
             }
+
+            organizationId = newOrganization.id;
         }
     }
 
     if (!organizationId) return Success(null);
+
+    await authClient.organization.setActive({
+        organizationId,
+    });
 
     const user = {
         ...rawUser,

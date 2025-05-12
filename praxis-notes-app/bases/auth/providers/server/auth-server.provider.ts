@@ -78,16 +78,6 @@ export const authServer = betterAuth({
                 url,
             });
         },
-
-        async onEmailVerification(user) {
-            await authServer.api.createOrganization({
-                body: {
-                    name: `${user.name}'s Organization`,
-                    slug: `${user.name.replace(' ', '-').toLowerCase()}-org`,
-                    userId: user.id,
-                },
-            });
-        },
     },
 });
 
