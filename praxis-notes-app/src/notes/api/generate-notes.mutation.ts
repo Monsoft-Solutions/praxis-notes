@@ -60,6 +60,11 @@ export const generateNotes = protectedEndpoint
                         },
                         client: true,
                         user: true,
+                        reinforcers: {
+                            with: {
+                                reinforcer: true,
+                            },
+                        },
                     },
                 }),
             );
@@ -152,6 +157,10 @@ export const generateNotes = protectedEndpoint
                 clientSession.client.lastName,
             );
 
+            const reinforcerNames = clientSession.reinforcers
+                .map(({ reinforcer }) => reinforcer?.name)
+                .filter((name): name is string => !!name);
+
             const sessionData: ClientSession = {
                 ...clientSession,
                 sessionDate: new Date(clientSession.sessionDate),
@@ -171,6 +180,7 @@ export const generateNotes = protectedEndpoint
                 ),
                 userInitials,
                 clientInitials,
+                reinforcerNames,
             };
 
             let text = '';

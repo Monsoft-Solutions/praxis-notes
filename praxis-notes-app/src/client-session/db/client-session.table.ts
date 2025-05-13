@@ -2,7 +2,11 @@ import { relations } from 'drizzle-orm';
 
 import { char, enumType, table, varchar, text } from '@db/sql';
 
-import { clientTable, userTable } from '@db/db.tables';
+import {
+    clientSessionReinforcerTable,
+    clientTable,
+    userTable,
+} from '@db/db.tables';
 
 import { clientSessionValuationEnum } from '../enum';
 
@@ -70,5 +74,7 @@ export const clientSessionTableRelations = relations(
             fields: [clientSessionTable.userId],
             references: [userTable.id],
         }),
+
+        reinforcers: many(clientSessionReinforcerTable),
     }),
 );

@@ -61,6 +61,11 @@ export const getClientSession = protectedEndpoint
                                     promptingProcedure: true,
                                 },
                             },
+                            reinforcers: {
+                                with: {
+                                    reinforcer: true,
+                                },
+                            },
                         },
                     }),
                 );
@@ -162,14 +167,22 @@ export const getClientSession = protectedEndpoint
                             replacementProgramEntry !== null,
                     );
 
-                const { client } = clientSessionRecord;
+                const reinforcersNullable = clientSessionRecord.reinforcers.map(
+                    ({ reinforcer }) => reinforcer,
+                );
 
+                const reinforcers = reinforcersNullable.filter(
+                    (reinforcer) => reinforcer !== null,
+                );
+
+                const { client } = clientSessionRecord;
                 const clientSession = {
                     ...clientSessionRecord,
                     abcEntries,
                     replacementProgramEntries,
                     userInitials: `${user.firstName.at(0) ?? ''}${user.lastName?.at(0) ?? ''}`,
                     clientInitials: `${client.firstName.at(0) ?? ''}${client.lastName.at(0) ?? ''}`,
+                    reinforcers,
                 };
 
                 return Success(clientSession);

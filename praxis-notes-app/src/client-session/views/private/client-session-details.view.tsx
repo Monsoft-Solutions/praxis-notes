@@ -64,7 +64,7 @@ export function ClientSessionDetailsView() {
         valuation: session.valuation,
         observations: session.observations,
         // TODO: Update this to the actual reinforcer ids
-        reinforcerIds: [],
+        reinforcerIds: session.reinforcers.map(({ id }) => id),
     };
 
     const sessionDetails: ClientSession = {
@@ -93,6 +93,8 @@ export function ClientSessionDetailsView() {
 
         userInitials: session.userInitials,
         clientInitials: session.clientInitials,
+
+        reinforcerNames: session.reinforcers.map(({ name }) => name),
     };
 
     if (isEdit) {

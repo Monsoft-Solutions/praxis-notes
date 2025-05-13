@@ -50,6 +50,9 @@ ${sessionData.replacementProgramEntries
     .map((rep) => replacementProgramText(rep))
     .join('\n')}
 
+## REINFORCERS USED
+${sessionData.reinforcerNames.join(', ')}
+
 Overall session valuation: ${sessionData.valuation}
 General observations: ${sessionData.observations ?? 'None'}
 
