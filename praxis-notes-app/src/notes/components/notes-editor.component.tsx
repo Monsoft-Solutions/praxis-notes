@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import ReactMarkdown from 'react-markdown';
-
 import { Save, Download, RefreshCw } from 'lucide-react';
 
 import { Button } from '@ui/button.ui';
@@ -313,20 +311,12 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                                 Edit
                             </button>
                             <button
-                                className={`px-4 py-2 ${activeTab === 'preview' ? 'border-primary border-b-2 font-medium' : 'text-muted-foreground'}`}
-                                onClick={() => {
-                                    void handleTabChange('preview');
-                                }}
-                            >
-                                Preview
-                            </button>
-                            <button
                                 className={`px-4 py-2 ${activeTab === 'spanish' ? 'border-primary border-b-2 font-medium' : 'text-muted-foreground'}`}
                                 onClick={() => {
                                     void handleTabChange('spanish');
                                 }}
                             >
-                                Spanish
+                                Translate
                             </button>
                         </div>
 
@@ -353,18 +343,11 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                                     </div>
                                 )}
                             </div>
-                        ) : activeTab === 'preview' ? (
-                            <div className="prose min-h-[500px] max-w-none rounded-md border p-4">
-                                <ReactMarkdown>{editorValue}</ReactMarkdown>
-                            </div>
                         ) : (
                             <div className="relative">
                                 {isTranslating ? (
                                     <div className="flex min-h-[500px] items-center justify-center">
                                         <Spinner className="h-8 w-8" />
-                                        <span className="ml-2">
-                                            Translating to Spanish...
-                                        </span>
                                     </div>
                                 ) : (
                                     <Textarea
