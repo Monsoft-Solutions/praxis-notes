@@ -18,7 +18,6 @@ export const antecedentSeed = async () => {
             );
 
             if (existingAntecedent) {
-                console.log(`antecedent ${name} already exist`);
                 return;
             }
 

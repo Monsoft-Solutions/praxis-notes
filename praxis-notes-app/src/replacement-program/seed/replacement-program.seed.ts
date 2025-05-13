@@ -17,7 +17,6 @@ export const replacementProgramSeed = async () => {
                 });
 
             if (existingReplacementProgram) {
-                console.log(`replacement program ${name} already exist`);
                 return;
             }
 
