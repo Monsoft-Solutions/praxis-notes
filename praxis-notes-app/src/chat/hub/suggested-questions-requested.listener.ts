@@ -36,13 +36,13 @@ void listen('suggestedQuestionsRequested', async ({ sessionId }) => {
         return;
     }
 
-    const { firstName, lastName, language, id } = session.user;
+    const { name, lastName, language, id } = session.user;
 
     // Generate suggested questions
     const { data: generatedQuestions, error: generateError } =
         await generateSuggestedQuestions({
             userBasicData: {
-                firstName,
+                firstName: name,
                 lastName,
                 language: language ?? 'en',
                 userId: id,

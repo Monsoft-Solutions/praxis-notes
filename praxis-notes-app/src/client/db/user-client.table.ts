@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 
 import { table, char, int } from '@db/sql';
 
-import { userTable } from '@db/db.tables';
+import { user } from '@db/db.tables';
 import { clientTable } from './client.table';
 
 /**
@@ -10,7 +10,7 @@ import { clientTable } from './client.table';
  */
 export const userClientTable = table('user_client', {
     userId: char('user_id', { length: 36 })
-        .references(() => userTable.id, {
+        .references(() => user.id, {
             onDelete: 'cascade',
         })
         .notNull(),
@@ -29,9 +29,9 @@ export const userClientTable = table('user_client', {
 export const userClientTableRelations = relations(
     userClientTable,
     ({ one }) => ({
-        user: one(userTable, {
+        user: one(user, {
             fields: [userClientTable.userId],
-            references: [userTable.id],
+            references: [user.id],
         }),
 
         client: one(clientTable, {

@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { db } from '@db/providers/server/db-client.provider';
 
-import { organizationTable } from '../db';
+import { organization } from '../db';
 
 import { testOrganization } from './constants';
 
@@ -9,16 +9,16 @@ import { testOrganization } from './constants';
 export const organizationSeed = async () => {
     console.log('seeding test organization...');
 
-    const organization = await db.query.organizationTable.findFirst({
-        where: eq(organizationTable.id, testOrganization.id),
+    const existingTestOrganization = await db.query.organization.findFirst({
+        where: eq(organization.id, testOrganization.id),
     });
 
-    if (organization) {
+    if (existingTestOrganization) {
         console.log('test organization already exists');
         return;
     }
 
-    await db.insert(organizationTable).values(testOrganization);
+    await db.insert(organization).values(testOrganization);
 
     console.log('test organization seeded');
 };

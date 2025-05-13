@@ -6,7 +6,7 @@ import { TourStepId } from '@shared/types/tour-step-id.type';
 
 import { wait } from './wait.util';
 
-import { vanillaApi, apiClientUtils } from '@api/providers/web';
+import { vanillaApi } from '@api/providers/web';
 
 import { toast } from 'sonner';
 
@@ -48,7 +48,6 @@ const downloadNotes = () => {
 
 const setHasDoneTour = () => {
     void vanillaApi.auth.setHasDoneTour.mutate();
-    void apiClientUtils.auth.getLoggedInUser.refetch();
 };
 
 export const tourCallback = ({

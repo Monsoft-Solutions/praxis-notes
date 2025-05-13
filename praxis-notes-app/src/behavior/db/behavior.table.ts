@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 
 import { table, varchar, text, char } from '@db/sql';
 
-import { organizationTable } from '@db/db.tables';
+import { organization } from '@db/db.tables';
 
 /**
  * behaviors that clients may have
@@ -12,7 +12,7 @@ export const behaviorTable = table('behavior', {
 
     // if null, the behavior is considered global
     organizationId: char('organization_id', { length: 36 }).references(
-        () => organizationTable.id,
+        () => organization.id,
         { onDelete: 'cascade' },
     ),
 
@@ -22,8 +22,8 @@ export const behaviorTable = table('behavior', {
 });
 
 export const behaviorTableRelations = relations(behaviorTable, ({ one }) => ({
-    organization: one(organizationTable, {
+    organization: one(organization, {
         fields: [behaviorTable.organizationId],
-        references: [organizationTable.id],
+        references: [organization.id],
     }),
 }));

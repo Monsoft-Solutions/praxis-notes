@@ -27,6 +27,8 @@ import {
     CardTitle,
 } from '@ui/card.ui';
 
+import { SocialLogIn } from './social-log-in.component';
+
 // ----------------------------------------------------------------------
 
 // Log-in form component
@@ -109,6 +111,8 @@ export function LogInForm({
                         </Button>
                     </form>
                 </Form>
+
+                <SocialLogIn />
             </CardContent>
 
             <CardFooter className="flex justify-center border-t p-4">

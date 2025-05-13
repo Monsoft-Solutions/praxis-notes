@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { db } from '@db/providers/server/db-client.provider';
 
-import { userTable } from '../db';
+import { user } from '../db';
 
 import { testUser } from './constants';
 
@@ -9,16 +9,16 @@ import { testUser } from './constants';
 export const userSeed = async () => {
     console.log('seeding test user...');
 
-    const user = await db.query.userTable.findFirst({
-        where: eq(userTable.id, testUser.id),
+    const existingTestUser = await db.query.user.findFirst({
+        where: eq(user.id, testUser.id),
     });
 
-    if (user) {
+    if (existingTestUser) {
         console.log('test user already exists');
         return;
     }
 
-    await db.insert(userTable).values(testUser);
+    await db.insert(user).values(testUser);
 
     console.log('test user seeded');
 };

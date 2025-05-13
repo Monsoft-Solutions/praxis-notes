@@ -29,7 +29,6 @@ import { abcFunctionEnum, clientSessionValuationEnum } from '../enum';
 import { replacementProgramResponseEnum } from '@src/replacement-program/enums';
 
 import { eq } from 'drizzle-orm';
-import { userTable } from '@db/db.tables';
 import { ClientSessionReplacementProgramEntry } from '../schemas/client-session-replacement-program-entry.schema';
 
 // mutation to create a client session
@@ -78,12 +77,8 @@ export const createClientSession = protectedEndpoint
     )
     .mutation(
         queryMutationCallback(
-            async ({
-                ctx: {
-                    session: { user },
-                },
-                input: { clientId, sessionForm },
-            }) => {
+            async ({ ctx: { session }, input: { clientId, sessionForm } }) => {
+                const { user: sessionUser } = session;
                 const {
                     sessionDate,
                     startTime,
@@ -359,17 +354,12 @@ export const createClientSession = protectedEndpoint
 
                 const { data: userQueryResult, error: userError } =
                     await catchError(
-                        db
-                            .select({
-                                firstName: userTable.firstName,
-                                lastName: userTable.lastName,
-                            })
-                            .from(userTable)
-                            .where(eq(userTable.id, user.id))
-                            .limit(1),
+                        db.query.user.findFirst({
+                            where: (record) => eq(record.id, sessionUser.id),
+                        }),
                     );
 
-                if (userError || !userQueryResult.length)
+                if (userError || !userQueryResult)
                     return Error('USER_NOT_FOUND');
 
                 // generate a unique id for the client session
@@ -379,7 +369,7 @@ export const createClientSession = protectedEndpoint
                 const clientSession = {
                     id,
 
-                    userId: user.id,
+                    userId: sessionUser.id,
                     clientId,
 
                     location,

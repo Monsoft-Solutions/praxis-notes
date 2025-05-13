@@ -1,7 +1,7 @@
-import { authApi } from '@auth/api/auth.api';
 import { mergeEndpoints } from './api-merge.provider';
-
 import { endpoints } from './endpoints.provider';
+
+import { authApi } from '@auth/api';
 
 import * as appEndpoints from '@app/api';
 

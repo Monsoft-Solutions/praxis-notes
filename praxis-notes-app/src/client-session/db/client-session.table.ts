@@ -2,11 +2,7 @@ import { relations } from 'drizzle-orm';
 
 import { char, enumType, table, varchar, text } from '@db/sql';
 
-import {
-    clientSessionReinforcerTable,
-    clientTable,
-    userTable,
-} from '@db/db.tables';
+import { clientTable, user } from '@db/db.tables';
 
 import { clientSessionValuationEnum } from '../enum';
 
@@ -14,6 +10,8 @@ import { clientSessionParticipantTable } from './client-session-participant.tabl
 import { clientSessionEnvironmentalChangeTable } from './client-session-environmental-change.table';
 import { clientSessionAbcEntryTable } from './client-session-abc-entry.table';
 import { clientSessionReplacementProgramEntryTable } from './client-session-replacement-program-entry.table';
+import { clientSessionReinforcerTable } from './client-session-reinforcer.table';
+
 export const clientSessionValuation = enumType(
     'client_session_valuation',
     clientSessionValuationEnum.options,
@@ -34,7 +32,7 @@ export const clientSessionTable = table('client_session', {
 
     // user/therapist who conducted the session
     userId: char('user_id', { length: 36 })
-        .references(() => userTable.id, {
+        .references(() => user.id, {
             onDelete: 'cascade',
         })
         .notNull(),
@@ -70,9 +68,9 @@ export const clientSessionTableRelations = relations(
             clientSessionReplacementProgramEntryTable,
         ),
 
-        user: one(userTable, {
+        user: one(user, {
             fields: [clientSessionTable.userId],
-            references: [userTable.id],
+            references: [user.id],
         }),
 
         reinforcers: many(clientSessionReinforcerTable),

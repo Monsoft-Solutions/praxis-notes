@@ -5,7 +5,7 @@ import { count, eq } from 'drizzle-orm';
 
 import { db } from '@db/providers/server';
 
-import { userTable } from '@auth/db';
+import { user } from '@auth/db';
 
 import { templateTable } from '@app/db';
 import { TemplatesStats } from '@src/template/schemas';
@@ -48,12 +48,12 @@ export const getTemplatesStats = (async () => {
     } = await catchError(
         db
             .select({
-                userId: userTable.id,
+                userId: user.id,
                 templatesCount: count(templateTable.id),
             })
-            .from(userTable)
-            .leftJoin(templateTable, eq(userTable.id, templateTable.creator))
-            .groupBy(userTable.id),
+            .from(user)
+            .leftJoin(templateTable, eq(user.id, templateTable.creator))
+            .groupBy(user.id),
     );
 
     if (templatesPerUserQueryError) return Error('TEMPLATES_PER_USER_QUERY');

@@ -1,8 +1,12 @@
+import { z } from 'zod';
+
 import { ReactElement } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+
+import { toast } from 'sonner';
 
 import {
     signUpFormSchema,
@@ -11,10 +15,10 @@ import {
 
 import { SignUpForm } from '@shared/components/sign-up-form.component';
 
-import { api } from '@api/providers/web';
-import { toast } from 'sonner';
-import { z } from 'zod';
 import { userLangEnumSchema } from '@auth/enum/user-lang.enum';
+
+import { authClient } from '@auth/providers/web/auth-client.provider';
+
 const signUpFormSchemaValidated: typeof signUpFormSchema = z.object({
     firstName: z.string().min(1),
     lastName: z.string().optional(),
@@ -28,8 +32,6 @@ const signUpFormSchemaValidated: typeof signUpFormSchema = z.object({
 export function SignUpView(): ReactElement {
     const navigate = useNavigate();
 
-    const { mutateAsync: signUp } = api.auth.signUp.useMutation();
-
     const form = useForm<SignUpFormType>({
         resolver: zodResolver(signUpFormSchemaValidated),
         defaultValues: {
@@ -42,10 +44,16 @@ export function SignUpView(): ReactElement {
     });
 
     const handleSubmit = async (data: SignUpFormType) => {
-        const { error } = await signUp(data);
+        const { error: errorSigningUp } = await authClient.signUp.email({
+            name: data.firstName,
+            email: data.email,
+            password: data.password,
+            lastName: data.lastName,
+        });
 
-        if (error) {
+        if (errorSigningUp) {
             toast.error('Error signing up');
+            return;
         }
 
         toast.success('Signed up successfully');
@@ -68,13 +76,6 @@ export function SignUpView(): ReactElement {
 
                 {/* Left side - Form */}
                 <div className="flex w-full flex-col items-center justify-center bg-white p-4 pb-16 md:w-1/2 md:p-8">
-                    <div className="mb-6 hidden md:block md:self-start">
-                        <img
-                            src="/images/praxis-notes-logo-main.png"
-                            alt="Praxis Notes Logo"
-                            className="w-36"
-                        />
-                    </div>
                     <SignUpForm
                         form={form}
                         onSubmit={(data) => void handleSubmit(data)}
@@ -82,7 +83,15 @@ export function SignUpView(): ReactElement {
                 </div>
 
                 {/* Right side - Content */}
-                <div className="hidden bg-blue-50 md:flex md:w-1/2 md:flex-col md:justify-center md:p-12">
+                <div className="relative hidden bg-blue-50 md:flex md:w-1/2 md:flex-col md:justify-center md:p-12">
+                    <div className="absolute right-0 top-0 mb-6 hidden md:block md:self-start">
+                        <img
+                            src="/images/praxis-notes-logo-main.png"
+                            alt="Praxis Notes Logo"
+                            className="w-36"
+                        />
+                    </div>
+
                     <div className="mx-auto max-w-lg">
                         <h2 className="mb-6 text-3xl font-bold text-gray-800">
                             AI-powered ABA session notes

@@ -6,6 +6,7 @@ export {
     char,
     varchar,
     text,
+    timestamp,
 } from 'drizzle-orm/pg-core';
 
 import { Writable } from 'drizzle-orm';

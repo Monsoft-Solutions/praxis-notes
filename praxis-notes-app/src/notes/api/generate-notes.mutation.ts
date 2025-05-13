@@ -149,7 +149,7 @@ export const generateNotes = protectedEndpoint
                 `${first?.charAt(0) ?? ''}${last?.charAt(0) ?? ''}`;
 
             const userInitials = getInitials(
-                clientSession.user.firstName,
+                clientSession.user.name,
                 clientSession.user.lastName,
             );
             const clientInitials = getInitials(
@@ -190,7 +190,7 @@ export const generateNotes = protectedEndpoint
                     sessionData,
                     clientData,
                     userBasicData: {
-                        firstName: clientSession.user.firstName,
+                        firstName: clientSession.user.name,
                         lastName: clientSession.user.lastName,
                         language: clientSession.user.language ?? 'en',
                         userId: clientSession.user.id,
