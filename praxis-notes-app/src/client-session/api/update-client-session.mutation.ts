@@ -21,6 +21,7 @@ import {
     clientSessionAbcEntryInterventionTable,
     clientSessionReplacementProgramEntryTable,
     clientSessionReplacementProgramEntryPromptTypeTable,
+    clientSessionReinforcerTable,
 } from '../db';
 
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
@@ -67,8 +68,11 @@ export const updateClientSession = protectedEndpoint
                         clientResponse:
                             replacementProgramResponseEnum.nullable(),
                         progress: z.number().nullable(),
+                        linkedAbcEntryIndex: z.number().nullable().optional(),
                     }),
                 ),
+
+                reinforcerIds: z.array(z.string()),
             }),
         }),
     )
@@ -358,6 +362,23 @@ export const updateClientSession = protectedEndpoint
                     return Error('REPLACEMENT_PROGRAM_DATA_NOT_FOUND');
                 }
 
+                // Validate reinforcers
+                const { data: reinforcers, error: reinforcersError } =
+                    await catchError(
+                        db.query.reinforcerTable.findMany({
+                            where: (record, { inArray }) =>
+                                inArray(record.id, sessionForm.reinforcerIds),
+                        }),
+                    );
+
+                if (reinforcersError) {
+                    return Error('DATABASE_FETCH_ERROR');
+                }
+
+                if (reinforcers.length !== sessionForm.reinforcerIds.length) {
+                    return Error('REINFORCERS_NOT_FOUND');
+                }
+
                 // Update the client session with all its related data
                 const { error } = await catchError(
                     db.transaction(async (tx) => {
@@ -397,7 +418,17 @@ export const updateClientSession = protectedEndpoint
                                 ),
                             );
 
-                        // 3. Delete ABC entries and their related behaviors and interventions
+                        // 3. Delete reinforcers
+                        await tx
+                            .delete(clientSessionReinforcerTable)
+                            .where(
+                                eq(
+                                    clientSessionReinforcerTable.clientSessionId,
+                                    sessionId,
+                                ),
+                            );
+
+                        // 4. Delete ABC entries and their related behaviors and interventions
                         const { data: abcEntries } = await catchError(
                             tx.query.clientSessionAbcEntryTable.findMany({
                                 where: (record) =>
@@ -441,7 +472,7 @@ export const updateClientSession = protectedEndpoint
                                 );
                         }
 
-                        // 4. Delete replacement program entries and their prompt types
+                        // 5. Delete replacement program entries and their prompt types
                         const { data: rpEntries } = await catchError(
                             tx.query.clientSessionReplacementProgramEntryTable.findMany(
                                 {
@@ -503,6 +534,8 @@ export const updateClientSession = protectedEndpoint
                                 });
                         }
 
+                        const newAbcIds = [];
+
                         // 3. Insert ABC entries
                         for (const {
                             antecedentId,
@@ -518,6 +551,8 @@ export const updateClientSession = protectedEndpoint
                                 antecedentId,
                                 function: abcFunction,
                             });
+
+                            newAbcIds.push(clientSessionAbcEntryId);
 
                             for (const behaviorId of behaviorIds) {
                                 await tx
@@ -550,9 +585,15 @@ export const updateClientSession = protectedEndpoint
                             clientResponse,
                             progress,
                             promptTypesIds,
+                            linkedAbcEntryIndex,
                         } of replacementProgramEntries) {
                             const clientSessionReplacementProgramEntryId =
                                 uuidv4();
+
+                            const linkedAbcEntryId =
+                                linkedAbcEntryIndex != null
+                                    ? newAbcIds[linkedAbcEntryIndex]
+                                    : null;
 
                             const result = await tx
                                 .insert(
@@ -566,6 +607,7 @@ export const updateClientSession = protectedEndpoint
                                     promptingProcedureId,
                                     clientResponse,
                                     progress,
+                                    linkedAbcEntryId,
                                 })
                                 .catch((error: unknown) => {
                                     console.error(error);
@@ -589,6 +631,20 @@ export const updateClientSession = protectedEndpoint
                                         throw error;
                                     });
                             }
+                        }
+
+                        // 5. Insert reinforcers
+                        for (const reinforcerId of sessionForm.reinforcerIds) {
+                            await tx
+                                .insert(clientSessionReinforcerTable)
+                                .values({
+                                    clientSessionId: sessionId,
+                                    reinforcerId,
+                                })
+                                .catch((error: unknown) => {
+                                    console.error(error);
+                                    throw error;
+                                });
                         }
                     }),
                 );

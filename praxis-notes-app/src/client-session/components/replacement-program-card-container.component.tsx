@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardFooter } from '@ui/card.ui';
 import { ReplacementProgramCard } from './replacement-program-card.component';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
+import { ClientSessionForm } from '../schemas';
 
 const replacementProgramCardContainerId: TourStepId =
     'session-form-replacement-program';
@@ -26,22 +27,32 @@ export function ReplacementProgramCardContainer({
     clientId,
 }: ReplacementProgramCardContainerProps) {
     const [isDetailedView, setIsDetailedView] = useState(false);
-    const { control } = useFormContext();
+    const { control, watch } = useFormContext<ClientSessionForm>();
 
     const { fields, append, remove } = useFieldArray({
         control,
         name: 'replacementProgramEntries',
     });
 
+    // Get current ABC entries to pass to the replacement program cards
+    const abcEntries = watch('abcIdEntries');
+    const abcEntriesForSelector = abcEntries
+        .map((entry, index: number) => ({
+            antecedentId: entry.antecedentId,
+            index,
+        }))
+        .filter((entry) => entry.antecedentId); // Only include entries with an antecedent ID
+
     // Add a new empty replacement program entry
     const handleAddEntry = () => {
         append({
-            replacementProgramId: undefined,
+            replacementProgramId: '',
             teachingProcedureId: null,
             promptingProcedureId: null,
             clientResponse: null,
             progress: null,
             promptTypesIds: [],
+            linkedAbcEntryIndex: null,
         });
     };
 
@@ -70,6 +81,7 @@ export function ReplacementProgramCardContainer({
                         index={index}
                         clientId={clientId}
                         isDetailedView={isDetailedView}
+                        abcEntries={abcEntriesForSelector}
                         onRemove={
                             fields.length > 1
                                 ? () => {

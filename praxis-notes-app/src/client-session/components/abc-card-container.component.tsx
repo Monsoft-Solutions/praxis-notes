@@ -4,14 +4,13 @@ import { Button } from '@ui/button.ui';
 
 import { PlusCircle } from 'lucide-react';
 
-import { v4 as uuidv4 } from 'uuid';
-
 import { ABCCard } from './abc-card.component';
 
 import { Card, CardContent, CardFooter } from '@ui/card.ui';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
 import { useCallback } from 'react';
+import { ClientSessionForm } from '../schemas';
 
 const abcCardContainerId: TourStepId = 'session-form-abc-entry';
 
@@ -20,7 +19,8 @@ type ABCCardContainerProps = {
 };
 
 export function ABCCardContainer({ clientId }: ABCCardContainerProps) {
-    const { control } = useFormContext();
+    const { control, getValues, setValue } =
+        useFormContext<ClientSessionForm>();
 
     const { fields, append, remove } = useFieldArray({
         control,
@@ -30,14 +30,46 @@ export function ABCCardContainer({ clientId }: ABCCardContainerProps) {
     // Add a new empty ABC entry
     const handleAddEntry = useCallback(() => {
         append({
-            id: uuidv4(),
-            activityAntecedent: '',
-            function: 'atention',
-            behaviors: [],
-            interventions: [],
-            replacementPrograms: [],
+            antecedentId: '',
+            function: 'attention',
+            behaviorIds: [],
+            interventionIds: [],
         });
     }, [append]);
+
+    // Handle removal of an ABC entry with updates to linked replacement programs
+    const handleRemoveABC = useCallback(
+        (index: number) => {
+            // Get all replacement program entries
+            const replacementPrograms = getValues('replacementProgramEntries');
+
+            // Check each replacement program if it's linked to the ABC being removed
+            replacementPrograms.forEach((_, rpIndex) => {
+                const linkedIndex = getValues(
+                    `replacementProgramEntries.${rpIndex}.linkedAbcEntryIndex`,
+                );
+
+                // If this replacement program is linked to the ABC being removed, reset the link
+                if (linkedIndex === index) {
+                    setValue(
+                        `replacementProgramEntries.${rpIndex}.linkedAbcEntryIndex`,
+                        null,
+                    );
+                }
+                // If linked to an ABC with a higher index, decrement by 1 (since removing will shift indexes)
+                else if (linkedIndex != null && linkedIndex > index) {
+                    setValue(
+                        `replacementProgramEntries.${rpIndex}.linkedAbcEntryIndex`,
+                        linkedIndex - 1,
+                    );
+                }
+            });
+
+            // Remove the ABC entry
+            remove(index);
+        },
+        [getValues, setValue, remove],
+    );
 
     return (
         <Card
@@ -53,7 +85,7 @@ export function ABCCardContainer({ clientId }: ABCCardContainerProps) {
                         onRemove={
                             fields.length > 1
                                 ? () => {
-                                      remove(index);
+                                      handleRemoveABC(index);
                                   }
                                 : undefined
                         }

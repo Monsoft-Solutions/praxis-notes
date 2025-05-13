@@ -33,19 +33,19 @@ export const getPlaceholderSessionData = protectedEndpoint
                 abcIdEntries: [
                     {
                         antecedentId: '',
-                        function: 'atention',
+                        function: 'attention',
                         behaviorIds: [],
                         interventionIds: [],
                     },
                     {
                         antecedentId: '',
-                        function: 'atention',
+                        function: 'attention',
                         behaviorIds: [],
                         interventionIds: [],
                     },
                     {
                         antecedentId: '',
-                        function: 'atention',
+                        function: 'attention',
                         behaviorIds: [],
                         interventionIds: [],
                     },
@@ -78,6 +78,7 @@ export const getPlaceholderSessionData = protectedEndpoint
                 ],
                 observations: null,
                 valuation: 'fair',
+                reinforcerIds: [],
             };
 
             return Success(placeholderSessionData);

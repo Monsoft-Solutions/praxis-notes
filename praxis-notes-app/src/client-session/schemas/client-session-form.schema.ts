@@ -16,6 +16,7 @@ export const clientSessionFormSchema = z.object({
 
     presentParticipants: z.array(z.string()),
     environmentalChanges: z.array(z.string()),
+    reinforcerIds: z.array(z.string()),
 
     abcIdEntries: z.array(clientSessionFormAbcEntrySchema),
     replacementProgramEntries: z.array(

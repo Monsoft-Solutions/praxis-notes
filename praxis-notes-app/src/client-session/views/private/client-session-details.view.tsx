@@ -8,6 +8,13 @@ import { SessionForm, SessionDetails } from '@src/client-session/components';
 import { ClientSession } from '@src/client-session/schemas';
 import { ViewContainer } from '@shared/ui';
 
+function getLinkedAbcEntryIndex(
+    linkedAbcEntryId: string | null,
+    abcEntries: { id: string }[],
+) {
+    return abcEntries.findIndex((entry) => entry.id === linkedAbcEntryId);
+}
+
 export function ClientSessionDetailsView() {
     const { sessionId } = Route.useParams();
     const search = Route.useSearch();
@@ -36,7 +43,7 @@ export function ClientSessionDetailsView() {
             behaviorIds: entry.behaviors.map((b) => b.id),
             interventionIds: entry.interventions.map((i) => i.id),
             // Use specific enum type expected by the form
-            function: 'atention' as const,
+            function: 'attention' as const,
         })),
         replacementProgramEntries: session.replacementProgramEntries.map(
             (entry) => ({
@@ -48,10 +55,16 @@ export function ClientSessionDetailsView() {
                 progress:
                     entry.progress != null ? String(entry.progress) : null,
                 promptTypesIds: entry.promptTypes.map((pt) => pt.id),
+                linkedAbcEntryIndex: getLinkedAbcEntryIndex(
+                    entry.linkedAbcEntryId,
+                    session.abcEntries,
+                ),
             }),
         ),
         valuation: session.valuation,
         observations: session.observations,
+        // TODO: Update this to the actual reinforcer ids
+        reinforcerIds: session.reinforcers.map(({ id }) => id),
     };
 
     const sessionDetails: ClientSession = {
@@ -61,6 +74,7 @@ export function ClientSessionDetailsView() {
             antecedentName: entry.antecedent.name,
             behaviorNames: entry.behaviors.map((b) => b.name),
             interventionNames: entry.interventions.map((i) => i.name),
+            id: entry.id,
         })),
 
         replacementProgramEntries: session.replacementProgramEntries.map(
@@ -71,6 +85,7 @@ export function ClientSessionDetailsView() {
                 promptTypes: entry.promptTypes.map((pt) => pt.name),
                 clientResponse: entry.clientResponse,
                 progress: entry.progress ?? null,
+                linkedAbcEntryId: entry.linkedAbcEntryId ?? null,
             }),
         ),
 
@@ -78,6 +93,8 @@ export function ClientSessionDetailsView() {
 
         userInitials: session.userInitials,
         clientInitials: session.clientInitials,
+
+        reinforcerNames: session.reinforcers.map(({ name }) => name),
     };
 
     if (isEdit) {

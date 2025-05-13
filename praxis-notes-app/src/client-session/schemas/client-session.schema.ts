@@ -28,6 +28,8 @@ export const clientSessionSchema = z.object({
     clientInitials: z.string(),
 
     notes: z.string().nullable(),
+
+    reinforcerNames: z.array(z.string()),
 });
 
 export type ClientSession = z.infer<typeof clientSessionSchema>;

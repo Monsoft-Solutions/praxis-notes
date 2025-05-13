@@ -7,6 +7,7 @@ export const clientSessionReplacementProgramEntrySchema = z.object({
     promptTypes: z.array(z.string()),
     clientResponse: z.string().nullable(),
     progress: z.number().nullable(),
+    linkedAbcEntryId: z.string().nullable().optional(),
 });
 
 export type ClientSessionReplacementProgramEntry = z.infer<

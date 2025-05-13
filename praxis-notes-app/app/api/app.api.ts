@@ -9,3 +9,4 @@ export * from '@src/antecedent/api';
 export * from '@src/stripe/api';
 export * from '@src/contact-center/api';
 export * from '@src/chat/api';
+export * from '@src/reinforcer/api';

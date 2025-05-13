@@ -28,12 +28,14 @@ import { replacementProgramResponseEnum } from '@src/replacement-program/enums';
 
 import { Input } from '@ui/input.ui';
 import { Card, CardTitle, CardHeader, CardContent } from '@shared/ui/card.ui';
+import { InfoTooltip } from '@shared/ui/info-tooltip';
 
 type ReplacementProgramCardProps = {
     index: number;
     clientId: string;
     onRemove?: () => void;
     isDetailedView: boolean;
+    abcEntries: { antecedentId: string; index: number }[];
 };
 
 export function ReplacementProgramCard({
@@ -41,6 +43,7 @@ export function ReplacementProgramCard({
     clientId,
     onRemove,
     isDetailedView,
+    abcEntries,
 }: ReplacementProgramCardProps) {
     const { mutateAsync: createReplacementProgram } =
         api.replacementProgram.createReplacementProgram.useMutation();
@@ -63,6 +66,8 @@ export function ReplacementProgramCard({
 
     const { data: promptTypesQuery } =
         api.replacementProgram.getPromptTypes.useQuery();
+
+    const { data: antecedentsQuery } = api.antecedent.getAntecedents.useQuery();
 
     if (!replacementProgramsQuery) return null;
     const { error: replacementProgramsError } = replacementProgramsQuery;
@@ -99,6 +104,22 @@ export function ReplacementProgramCard({
     if (promptTypesError) return null;
     const { data: promptTypes } = promptTypesQuery;
 
+    if (!antecedentsQuery) return null;
+    const { error: antecedentsError } = antecedentsQuery;
+    if (antecedentsError) return null;
+    const { data: antecedents } = antecedentsQuery;
+
+    // Map antecedent IDs to names for display in the linked ABC selector
+    const abcEntriesWithNames = abcEntries.map((entry) => {
+        const antecedent = antecedents.find((a) => a.id === entry.antecedentId);
+        return {
+            ...entry,
+            name: antecedent
+                ? `ABC ${entry.index + 1}: ${antecedent.name}`
+                : `ABC ${entry.index + 1}`,
+        };
+    });
+
     return (
         <Card className="relative pt-4">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -120,6 +141,52 @@ export function ReplacementProgramCard({
             </CardHeader>
 
             <CardContent className="mt-4 space-y-6">
+                {/* Linked ABC Entry */}
+                <FormField
+                    control={control}
+                    name={`replacementProgramEntries.${index}.linkedAbcEntryIndex`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="flex flex-row items-center justify-start gap-1">
+                                Linked ABC
+                                <InfoTooltip text="Optional. Connect this replacement program to a specific ABC entry if applicable." />
+                            </FormLabel>
+                            <Select
+                                onValueChange={(value) => {
+                                    field.onChange(
+                                        value === 'none'
+                                            ? null
+                                            : parseInt(value),
+                                    );
+                                }}
+                                value={
+                                    field.value == null
+                                        ? 'none'
+                                        : field.value.toString()
+                                }
+                            >
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select linked ABC" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="none">None</SelectItem>
+                                    {abcEntriesWithNames.map((entry) => (
+                                        <SelectItem
+                                            key={entry.index}
+                                            value={entry.index.toString()}
+                                        >
+                                            {entry.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
                 {/* Replacement Program */}
                 <FormField
                     control={control}

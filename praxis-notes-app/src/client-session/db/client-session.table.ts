@@ -10,6 +10,8 @@ import { clientSessionParticipantTable } from './client-session-participant.tabl
 import { clientSessionEnvironmentalChangeTable } from './client-session-environmental-change.table';
 import { clientSessionAbcEntryTable } from './client-session-abc-entry.table';
 import { clientSessionReplacementProgramEntryTable } from './client-session-replacement-program-entry.table';
+import { clientSessionReinforcerTable } from './client-session-reinforcer.table';
+
 export const clientSessionValuation = enumType(
     'client_session_valuation',
     clientSessionValuationEnum.options,
@@ -70,5 +72,7 @@ export const clientSessionTableRelations = relations(
             fields: [clientSessionTable.userId],
             references: [user.id],
         }),
+
+        reinforcers: many(clientSessionReinforcerTable),
     }),
 );

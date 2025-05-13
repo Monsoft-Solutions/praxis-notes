@@ -12,6 +12,7 @@ import {
 
 import { clientSessionReplacementProgramEntryPromptTypeTable } from '@src/client-session/db/client-session-replacement-program-entry-prompt-type.table';
 import { replacementProgramResponseEnum } from '@src/replacement-program/enums';
+import { clientSessionAbcEntryTable } from './client-session-abc-entry.table';
 
 export const replacementProgramResponse = enumType(
     'client_session_replacement_program_entry_response',
@@ -47,6 +48,13 @@ export const clientSessionReplacementProgramEntryTable = table(
         clientResponse: sqlEnum('client_response', replacementProgramResponse),
 
         progress: int('progress'),
+
+        // Link to an ABC entry
+        linkedAbcEntryId: char('linked_abc_entry_id', {
+            length: 36,
+        }).references(() => clientSessionAbcEntryTable.id, {
+            onDelete: 'set null',
+        }),
     },
 );
 
@@ -78,6 +86,13 @@ export const clientSessionReplacementProgramEntryTableRelations = relations(
                 clientSessionReplacementProgramEntryTable.promptingProcedureId,
             ],
             references: [promptingProcedureTable.id],
+        }),
+
+        linkedAbcEntry: one(clientSessionAbcEntryTable, {
+            fields: [
+                clientSessionReplacementProgramEntryTable.linkedAbcEntryId,
+            ],
+            references: [clientSessionAbcEntryTable.id],
         }),
 
         promptTypes: many(clientSessionReplacementProgramEntryPromptTypeTable),

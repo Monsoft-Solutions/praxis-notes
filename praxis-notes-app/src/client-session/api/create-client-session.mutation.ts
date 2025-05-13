@@ -19,6 +19,7 @@ import {
     clientSessionAbcEntryInterventionTable,
     clientSessionReplacementProgramEntryTable,
     clientSessionReplacementProgramEntryPromptTypeTable,
+    clientSessionReinforcerTable,
 } from '../db';
 
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
@@ -66,8 +67,11 @@ export const createClientSession = protectedEndpoint
                         clientResponse:
                             replacementProgramResponseEnum.nullable(),
                         progress: z.number().nullable(),
+                        linkedAbcEntryIndex: z.number().nullable().optional(),
                     }),
                 ),
+
+                reinforcerIds: z.array(z.string()),
             }),
         }),
     )
@@ -88,6 +92,7 @@ export const createClientSession = protectedEndpoint
 
                     abcIdEntries,
                     replacementProgramEntries,
+                    reinforcerIds,
                 } = sessionForm;
 
                 const abcEntriesNullable = await Promise.all(
@@ -408,6 +413,8 @@ export const createClientSession = protectedEndpoint
                         }
 
                         // insert the abc entries
+                        const newAbcIds = [];
+
                         for (const {
                             antecedentId,
                             behaviorIds,
@@ -415,6 +422,8 @@ export const createClientSession = protectedEndpoint
                             function: abcFunction,
                         } of abcIdEntries) {
                             const clientSessionAbcEntryId = uuidv4();
+
+                            newAbcIds.push(clientSessionAbcEntryId);
 
                             await tx.insert(clientSessionAbcEntryTable).values({
                                 id: clientSessionAbcEntryId,
@@ -454,9 +463,15 @@ export const createClientSession = protectedEndpoint
                             clientResponse,
                             progress,
                             promptTypesIds,
+                            linkedAbcEntryIndex,
                         } of replacementProgramEntries) {
                             const clientSessionReplacementProgramEntryId =
                                 uuidv4();
+
+                            const linkedAbcEntryId =
+                                linkedAbcEntryIndex != null
+                                    ? newAbcIds[linkedAbcEntryIndex]
+                                    : null;
 
                             await tx
                                 .insert(
@@ -470,6 +485,7 @@ export const createClientSession = protectedEndpoint
                                     promptingProcedureId,
                                     clientResponse,
                                     progress,
+                                    linkedAbcEntryId,
                                 })
                                 .catch((error: unknown) => {
                                     console.error(error);
@@ -491,6 +507,16 @@ export const createClientSession = protectedEndpoint
                                         throw error;
                                     });
                             }
+                        }
+
+                        // insert the reinforcer ids
+                        for (const reinforcerId of reinforcerIds) {
+                            await tx
+                                .insert(clientSessionReinforcerTable)
+                                .values({
+                                    clientSessionId: id,
+                                    reinforcerId,
+                                });
                         }
                     }),
                 );

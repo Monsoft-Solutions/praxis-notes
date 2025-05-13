@@ -1,6 +1,7 @@
 import { Function } from '@errors/types';
 import { Success } from '@errors/utils';
 import { ClientAbaData } from '@src/client-session/schemas/client-aba-data.schema';
+import { ClientSessionReplacementProgramEntry } from '@src/client-session/schemas/client-session-replacement-program-entry.schema';
 
 import { GenerateNotesInput } from '@src/notes/schema/generate-note.schema';
 /**
@@ -17,41 +18,40 @@ You are a credentialed Registered Behavior Technician (RBT) generating an insura
 
 Write in third-person, objective behavioral language without subjective interpretations. Focus on observable behaviors and measurable outcomes.
 
-SESSION INFORMATION
-RBT: ${sessionData.userInitials}
-Client: ${sessionData.clientInitials}
-Date: ${sessionData.sessionDate instanceof Date ? sessionData.sessionDate.toLocaleDateString() : sessionData.sessionDate}
-Time: ${sessionData.startTime} – ${sessionData.endTime}
-Total Duration: [Calculate minutes/hours]
-Units of Service: [Calculate 15-minute units]
-Location: ${sessionData.location}
-Participants: ${sessionData.presentParticipants.join(', ') || 'None'}
-Environmental changes: ${sessionData.environmentalChanges.join(', ') || 'None'}
+## SESSION INFORMATION
+- RBT: ${sessionData.userInitials}
+- Client: ${sessionData.clientInitials}
+- Date: ${sessionData.sessionDate instanceof Date ? sessionData.sessionDate.toLocaleDateString() : sessionData.sessionDate}
+- Time: ${sessionData.startTime} – ${sessionData.endTime}
+- Total Duration: [Calculate minutes/hours]
+- Units of Service: [Calculate 15-minute units]
+- Location: ${sessionData.location}
+- Participants: ${sessionData.presentParticipants.join(', ') || 'None'}
+- Environmental changes: ${sessionData.environmentalChanges.join(', ') || 'None'}
 
-CLIENT PRESENTATION
+## CLIENT PRESENTATION
 [Include brief description of client's initial presentation/status at beginning of session]
 
-SESSION ACTIVITIES
+## SESSION ACTIVITIES
 ${sessionData.abcEntries
     .map(
         (abc, i) => `
-ABC #${i + 1}
+### ABC #${i + 1}
 - Antecedent/Activity: ${abc.antecedentName}
 - Behaviour(s): ${abc.behaviorNames.join(', ')}
-- Intervention(s): ${abc.interventionNames.join(', ')}`,
+- Intervention(s): ${abc.interventionNames.join(', ')}
+${getAbcReplacementProgramData(abc.id, sessionData.replacementProgramEntries)}`,
     )
     .join('\n')}
 
-REPLACEMENT PROGRAMS ADDRESSED
+## REPLACEMENT PROGRAMS ADDRESSED (that don't belong to any ABC)
 ${sessionData.replacementProgramEntries
-    .map(
-        (rep, i) => `
-Replacement Program #${i + 1}
-- Program: ${rep.replacementProgram}
-- Teaching: ${rep.teachingProcedure}
-- Prompting: ${rep.promptingProcedure} (${rep.promptTypes.join(', ')})`,
-    )
+    .filter((rep) => !rep.linkedAbcEntryId)
+    .map((rep) => replacementProgramText(rep))
     .join('\n')}
+
+## REINFORCERS USED
+${sessionData.reinforcerNames.join(', ')}
 
 Overall session valuation: ${sessionData.valuation}
 General observations: ${sessionData.observations ?? 'None'}
@@ -100,6 +100,8 @@ FINAL VERIFICATION CHECKLIST
 - Does the note avoid subjective language?
 - Does the note follow the narrative flow (before→during→after)?
 - Does the note adequately link interventions to treatment goals?
+
+Your response should only contain the narrative note, no other text.
 `;
 
     return Success(prompt);
@@ -135,6 +137,75 @@ ${clientData.interventions
     })
     .join('\n')}
     `;
+
+    return output;
+};
+
+const getAbcReplacementProgramData = (
+    abdId: string | null,
+    replacementPrograms: ClientSessionReplacementProgramEntry[],
+) => {
+    if (!abdId) return '';
+
+    const replacementProgram = replacementPrograms.find(
+        (program) => program.linkedAbcEntryId === abdId,
+    );
+
+    if (!replacementProgram) return '';
+
+    // remove the found replacement program from the array
+    replacementPrograms = replacementPrograms.filter(
+        (program) => program.linkedAbcEntryId !== abdId,
+    );
+
+    return `### Used Replacement Program:\n ${replacementProgramText(replacementProgram)}`;
+};
+
+const replacementProgramText = (
+    replacementProgram: ClientSessionReplacementProgramEntry,
+) => {
+    let output = `
+- Program Name: ${replacementProgram.replacementProgram}
+`;
+
+    if (
+        replacementProgram.teachingProcedure &&
+        replacementProgram.teachingProcedure.length > 0
+    ) {
+        output += `
+- Teaching Procedure: ${replacementProgram.teachingProcedure}
+`;
+    }
+
+    if (
+        replacementProgram.promptingProcedure &&
+        replacementProgram.promptingProcedure.length > 0
+    ) {
+        output += `
+- Prompting Procedure: ${replacementProgram.promptingProcedure}
+`;
+    }
+
+    if (replacementProgram.promptTypes.length > 0) {
+        output += `
+- Prompt Types: ${replacementProgram.promptTypes.join(', ')}
+`;
+    }
+
+    if (
+        replacementProgram.clientResponse &&
+        replacementProgram.clientResponse.length > 0
+    ) {
+        output += `
+- Client Response: ${replacementProgram.clientResponse}
+`;
+    }
+
+    if (replacementProgram.progress != null) {
+        output += `
+- Progress: ${replacementProgram.progress}
+`;
+    }
 
     return output;
 };

@@ -60,6 +60,11 @@ export const generateNotes = protectedEndpoint
                         },
                         client: true,
                         user: true,
+                        reinforcers: {
+                            with: {
+                                reinforcer: true,
+                            },
+                        },
                     },
                 }),
             );
@@ -69,7 +74,7 @@ export const generateNotes = protectedEndpoint
             if (!clientSession) return Error('NOT_FOUND');
 
             const abcEntriesNullable = clientSession.abcEntries.map(
-                ({ antecedent, behaviors, interventions }) => {
+                ({ antecedent, behaviors, interventions, id }) => {
                     if (!antecedent) return null;
 
                     const antecedentName = antecedent.name;
@@ -99,6 +104,7 @@ export const generateNotes = protectedEndpoint
                         antecedentName,
                         behaviorNames,
                         interventionNames,
+                        id,
                     };
                 },
             );
@@ -118,6 +124,8 @@ export const generateNotes = protectedEndpoint
                             teachingProcedure,
                             promptingProcedure,
                             promptTypes,
+                            progress,
+                            linkedAbcEntryId,
                         }) => {
                             return {
                                 replacementProgram: replacementProgram.name,
@@ -126,6 +134,8 @@ export const generateNotes = protectedEndpoint
                                 promptTypes: promptTypes
                                     .map(({ promptType }) => promptType?.name)
                                     .filter((name): name is string => !!name),
+                                progress,
+                                linkedAbcEntryId,
                             };
                         },
                     )
@@ -147,6 +157,10 @@ export const generateNotes = protectedEndpoint
                 clientSession.client.lastName,
             );
 
+            const reinforcerNames = clientSession.reinforcers
+                .map(({ reinforcer }) => reinforcer?.name)
+                .filter((name): name is string => !!name);
+
             const sessionData: ClientSession = {
                 ...clientSession,
                 sessionDate: new Date(clientSession.sessionDate),
@@ -161,11 +175,12 @@ export const generateNotes = protectedEndpoint
                     (entry) => ({
                         ...entry,
                         clientResponse: '',
-                        progress: 0,
+                        progress: entry.progress ?? 0,
                     }),
                 ),
                 userInitials,
                 clientInitials,
+                reinforcerNames,
             };
 
             let text = '';
