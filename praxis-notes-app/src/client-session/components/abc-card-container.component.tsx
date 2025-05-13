@@ -31,7 +31,7 @@ export function ABCCardContainer({ clientId }: ABCCardContainerProps) {
     const handleAddEntry = useCallback(() => {
         append({
             antecedentId: '',
-            function: 'atention',
+            function: 'attention',
             behaviorIds: [],
             interventionIds: [],
         });

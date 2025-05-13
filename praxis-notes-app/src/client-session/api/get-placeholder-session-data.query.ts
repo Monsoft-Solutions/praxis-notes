@@ -33,19 +33,19 @@ export const getPlaceholderSessionData = protectedEndpoint
                 abcIdEntries: [
                     {
                         antecedentId: '',
-                        function: 'atention',
+                        function: 'attention',
                         behaviorIds: [],
                         interventionIds: [],
                     },
                     {
                         antecedentId: '',
-                        function: 'atention',
+                        function: 'attention',
                         behaviorIds: [],
                         interventionIds: [],
                     },
                     {
                         antecedentId: '',
-                        function: 'atention',
+                        function: 'attention',
                         behaviorIds: [],
                         interventionIds: [],
                     },

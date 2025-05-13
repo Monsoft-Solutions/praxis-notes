@@ -43,7 +43,7 @@ export function ClientSessionDetailsView() {
             behaviorIds: entry.behaviors.map((b) => b.id),
             interventionIds: entry.interventions.map((i) => i.id),
             // Use specific enum type expected by the form
-            function: 'atention' as const,
+            function: 'attention' as const,
         })),
         replacementProgramEntries: session.replacementProgramEntries.map(
             (entry) => ({

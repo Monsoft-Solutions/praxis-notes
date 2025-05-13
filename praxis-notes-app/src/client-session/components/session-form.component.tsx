@@ -81,7 +81,7 @@ export function SessionForm({
                         : undefined,
                     behaviorIds: [],
                     interventionIds: [],
-                    function: 'atention',
+                    function: 'attention',
                 },
             ],
             replacementProgramEntries: [

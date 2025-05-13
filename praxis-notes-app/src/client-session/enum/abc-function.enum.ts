@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const abcFunctionEnum = z.enum([
-    'atention',
+    'attention',
     'escape',
     'sensory',
     'tangible',
