@@ -36,7 +36,7 @@ export const generateChatResponse = (async ({
     }));
 
     const { data: systemPrompt } = chatSessionSystemPrompt({
-        userName: userBasicData.firstName,
+        userName: userBasicData.firstName ?? '',
         userId: userBasicData.userId,
         userLanguage: userBasicData.language as UserLang,
     });
