@@ -9,6 +9,7 @@ import {
     ListChecks,
     Replace,
     BarChart,
+    Award,
 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@ui/card.ui';
@@ -401,6 +402,39 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                     ) : (
                         <p className="text-muted-foreground text-sm italic">
                             No replacement program entries recorded
+                        </p>
+                    )}
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-floating border">
+                <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                        <div className="bg-primary/10 rounded-full p-1.5">
+                            <Award className="text-primary h-4 w-4" />
+                        </div>
+                        Reinforcers
+                    </CardTitle>
+                </CardHeader>
+
+                <CardContent className="pt-4">
+                    {session.reinforcerNames.length ? (
+                        <div className="flex flex-wrap gap-2">
+                            {session.reinforcerNames.map(
+                                (reinforcer, index) => (
+                                    <Badge
+                                        key={index}
+                                        variant="secondary"
+                                        className="px-3 py-1.5 text-sm font-normal"
+                                    >
+                                        {reinforcer}
+                                    </Badge>
+                                ),
+                            )}
+                        </div>
+                    ) : (
+                        <p className="text-muted-foreground text-sm italic">
+                            No reinforcers recorded
                         </p>
                     )}
                 </CardContent>
