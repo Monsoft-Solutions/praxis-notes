@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { Save, Download } from 'lucide-react';
+import { Save, Download, Check, X } from 'lucide-react';
 
 import { Button } from '@ui/button.ui';
 
@@ -61,6 +61,13 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
 
     const [isSavingNotes, setIsSavingNotes] = useState(false);
 
+    // State for reviewing transformed notes
+    const [transformedNotesPreview, setTransformedNotesPreview] = useState<
+        string | undefined
+    >(undefined);
+    const [isReviewingTransformation, setIsReviewingTransformation] =
+        useState(false);
+
     api.notes.onNotesUpdated.useSubscription(
         {
             sessionId,
@@ -69,11 +76,29 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
         {
             onData: ({ notes, isComplete }) => {
                 setEditorValue(notes);
-
                 setIsGeneratingNotes(!isComplete);
             },
         },
     );
+
+    // Handle accepting the transformation
+    const handleAcceptTransformation = useCallback(() => {
+        if (transformedNotesPreview !== undefined) {
+            setEditorValue(transformedNotesPreview);
+            setHasTranslated(false); // Reset translation state
+            setSpanishValue('');
+        }
+        setTransformedNotesPreview(undefined);
+        setIsReviewingTransformation(false);
+        trackEvent('notes', 'notes_transform_accept');
+    }, [transformedNotesPreview]);
+
+    // Handle canceling the transformation
+    const handleCancelTransformation = useCallback(() => {
+        setTransformedNotesPreview(undefined);
+        setIsReviewingTransformation(false);
+        trackEvent('notes', 'notes_transform_cancel');
+    }, []);
 
     // Handle tab change
     const handleTabChange = useCallback(
@@ -209,12 +234,15 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                 }
 
                 if (result.data.notes) {
-                    setEditorValue(result.data.notes);
+                    setTransformedNotesPreview(result.data.notes);
+                    setIsReviewingTransformation(true);
+                    // We will move the reset of Spanish translation to when the user accepts the changes.
+                    // setEditorValue(result.data.notes);
                 }
 
                 // Reset Spanish translation when we modify the English content
-                setHasTranslated(false);
-                setSpanishValue('');
+                // setHasTranslated(false);
+                // setSpanishValue('');
 
                 toast.success(`Notes transformed successfully`);
                 trackEvent('notes', `notes_transform_${actionType}`);
@@ -278,78 +306,84 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                 <CardTitle className="flex items-center justify-between">
                     <span>Session Notes</span>
                     <div className="flex gap-2">
-                        {!hasNotes && (
-                            <Button
-                                id={generateNotesButtonId}
-                                className="w-36"
-                                onClick={() => {
-                                    void handleGenerate();
-                                }}
-                                variant="secondary"
-                                disabled={isGeneratingNotes}
-                            >
-                                {isGeneratingNotes ? (
-                                    <Spinner className="h-4 w-4" />
-                                ) : (
-                                    'Generate Notes'
+                        {isReviewingTransformation ? (
+                            <>
+                                <Button
+                                    onClick={handleCancelTransformation}
+                                    variant="outline"
+                                    size="icon"
+                                    title="Cancel Transformation"
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    onClick={handleAcceptTransformation}
+                                    variant="default"
+                                    size="icon"
+                                    title="Accept Transformation"
+                                    className="bg-green-500 text-white hover:bg-green-600"
+                                >
+                                    <Check className="h-4 w-4" />
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                {activeTab === 'edit' && hasNotes && (
+                                    <div className="pb-2">
+                                        <NotesActions
+                                            onAction={(
+                                                actionType,
+                                                customInstructions,
+                                            ) => {
+                                                void handleTransformAction(
+                                                    actionType,
+                                                    customInstructions,
+                                                );
+                                            }}
+                                            disabled={
+                                                !editorValue ||
+                                                isTransforming ||
+                                                isGeneratingNotes
+                                            }
+                                        />
+                                    </div>
                                 )}
-                            </Button>
-                        )}
 
-                        {activeTab === 'edit' && hasNotes && (
-                            <div className="pb-2">
-                                <NotesActions
-                                    onAction={(
-                                        actionType,
-                                        customInstructions,
-                                    ) => {
-                                        void handleTransformAction(
-                                            actionType,
-                                            customInstructions,
-                                        );
+                                <Button
+                                    id={downloadNotesButtonId}
+                                    onClick={handleDownload}
+                                    disabled={!editorValue}
+                                    variant="outline"
+                                    size="icon"
+                                    title="Download Notes"
+                                >
+                                    <Download className="h-4 w-4" />
+                                </Button>
+
+                                <Button
+                                    id={saveNotesButtonId}
+                                    onClick={() => {
+                                        void handleSave();
                                     }}
-                                    disabled={
-                                        !editorValue ||
-                                        isTransforming ||
-                                        isGeneratingNotes
-                                    }
-                                />
-                            </div>
+                                    disabled={!editorValue}
+                                    variant="default"
+                                >
+                                    {isSavingNotes ? (
+                                        <Spinner className="h-4 w-4" />
+                                    ) : (
+                                        <>
+                                            <Save className="h-4 w-4" />
+                                        </>
+                                    )}
+                                </Button>
+                            </>
                         )}
-
-                        <Button
-                            id={downloadNotesButtonId}
-                            onClick={handleDownload}
-                            disabled={!editorValue}
-                            variant="outline"
-                            size="icon"
-                            title="Download Notes"
-                        >
-                            <Download className="h-4 w-4" />
-                        </Button>
-
-                        <Button
-                            id={saveNotesButtonId}
-                            onClick={() => {
-                                void handleSave();
-                            }}
-                            disabled={!editorValue}
-                            variant="default"
-                        >
-                            {isSavingNotes ? (
-                                <Spinner className="h-4 w-4" />
-                            ) : (
-                                <>
-                                    <Save className="h-4 w-4" />
-                                </>
-                            )}
-                        </Button>
                     </div>
                 </CardTitle>
             </CardHeader>
 
             <CardContent>
-                {hasNotes || isGeneratingNotes ? (
+                {hasNotes || isGeneratingNotes || isReviewingTransformation ? (
                     <div className="w-full">
                         <div className="mb-4 flex items-center justify-between border-b">
                             <div className="flex">
@@ -358,6 +392,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                                     onClick={() => {
                                         void handleTabChange('edit');
                                     }}
+                                    disabled={isReviewingTransformation}
                                 >
                                     Edit
                                 </button>
@@ -366,6 +401,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                                     onClick={() => {
                                         void handleTabChange('spanish');
                                     }}
+                                    disabled={isReviewingTransformation}
                                 >
                                     Translate
                                 </button>
@@ -376,11 +412,23 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                             <div className="relative">
                                 <Textarea
                                     className="min-h-[500px] font-mono text-sm"
-                                    value={editorValue}
+                                    value={
+                                        isReviewingTransformation &&
+                                        transformedNotesPreview !== undefined
+                                            ? transformedNotesPreview
+                                            : editorValue
+                                    }
                                     onChange={(e) => {
-                                        setEditorValue(e.target.value);
-                                        // Reset Spanish translation when English content changes
-                                        setHasTranslated(false);
+                                        if (isReviewingTransformation) {
+                                            // If reviewing, update the preview
+                                            setTransformedNotesPreview(
+                                                e.target.value,
+                                            );
+                                        } else {
+                                            setEditorValue(e.target.value);
+                                            // Reset Spanish translation when English content changes
+                                            setHasTranslated(false);
+                                        }
                                     }}
                                     placeholder={
                                         !isGeneratingNotes
@@ -419,6 +467,21 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                                 )}
                             </div>
                         )}
+
+                        <Button
+                            id={generateNotesButtonId}
+                            onClick={() => {
+                                void handleGenerate();
+                            }}
+                            className="mt-2 w-36"
+                            disabled={isGeneratingNotes}
+                        >
+                            {isGeneratingNotes ? (
+                                <Spinner className="h-4 w-4" />
+                            ) : (
+                                'Generate Notes'
+                            )}
+                        </Button>
                     </div>
                 ) : (
                     <div className="flex min-h-[500px] flex-col items-center justify-center p-8 text-center">
