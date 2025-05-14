@@ -5,7 +5,7 @@ import { generateNotesPrompt } from './generate-notes-prompt.provider';
 
 import { streamText } from '@src/ai/providers';
 
-import { GenerateNotesInput } from '@src/notes/schema/generate-note.schema';
+import { GenerateNotesInput } from '@src/notes/schema';
 
 // Helper function to generate notes using Anthropic
 export const generateNotes = (async ({
