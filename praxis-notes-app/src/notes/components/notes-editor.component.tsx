@@ -352,10 +352,14 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                                 <Button
                                     id={downloadNotesButtonId}
                                     onClick={handleDownload}
-                                    disabled={!editorValue}
                                     variant="outline"
                                     size="icon"
                                     title="Download Notes"
+                                    disabled={
+                                        !editorValue ||
+                                        isTransforming ||
+                                        isGeneratingNotes
+                                    }
                                 >
                                     <Download className="h-4 w-4" />
                                 </Button>
@@ -365,7 +369,11 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                                     onClick={() => {
                                         void handleSave();
                                     }}
-                                    disabled={!editorValue}
+                                    disabled={
+                                        !editorValue ||
+                                        isTransforming ||
+                                        isGeneratingNotes
+                                    }
                                     variant="default"
                                 >
                                     {isSavingNotes ? (
@@ -467,21 +475,6 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                                 )}
                             </div>
                         )}
-
-                        <Button
-                            id={generateNotesButtonId}
-                            onClick={() => {
-                                void handleGenerate();
-                            }}
-                            className="mt-2 w-36"
-                            disabled={isGeneratingNotes}
-                        >
-                            {isGeneratingNotes ? (
-                                <Spinner className="h-4 w-4" />
-                            ) : (
-                                'Generate Notes'
-                            )}
-                        </Button>
                     </div>
                 ) : (
                     <div className="flex min-h-[500px] flex-col items-center justify-center p-8 text-center">
