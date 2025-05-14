@@ -197,6 +197,9 @@ export const generateNotes = protectedEndpoint
                     },
                 });
 
+            if (generatedNotesError === 'INSUFFICIENT_CREDITS')
+                return Error(generatedNotesError);
+
             if (generatedNotesError) return Error();
 
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
