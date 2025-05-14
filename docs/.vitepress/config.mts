@@ -21,6 +21,10 @@ export default defineConfig({
                 text: 'Session Notes',
                 link: '/clients/session-list',
             },
+            {
+                text: 'Billing',
+                link: '/billing/credits',
+            },
         ],
 
         sidebar: [
@@ -71,6 +75,15 @@ export default defineConfig({
                     },
                 ],
             },
+            {
+                text: 'Billing',
+                items: [
+                    {
+                        text: 'Credits System',
+                        link: '/billing/credits',
+                    },
+                ],
+            },
         ],
 
         socialLinks: [
@@ -95,6 +108,10 @@ export default defineConfig({
                         link: '/es/introduction/what-is-praxis-notes',
                     },
                     { text: 'Clientes', link: '/es/clients/managing-clients' },
+                    {
+                        text: 'Facturación',
+                        link: '/es/billing/credits',
+                    },
                 ],
                 sidebar: [
                     {
@@ -141,6 +158,15 @@ export default defineConfig({
                             {
                                 text: 'Visualización y Edición de Notas',
                                 link: '/es/clients/session-view-edit',
+                            },
+                        ],
+                    },
+                    {
+                        text: 'Facturación',
+                        items: [
+                            {
+                                text: 'Sistema de Créditos',
+                                link: '/es/billing/credits',
                             },
                         ],
                     },
