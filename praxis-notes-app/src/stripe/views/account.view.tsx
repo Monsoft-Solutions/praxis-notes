@@ -1,19 +1,14 @@
 import { ReactElement } from 'react';
 
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@shared/ui/card.ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@shared/ui/card.ui';
 
 import { SubscriptionManagement } from '../components/subscription-management.component';
 import { UserInformation } from '../components/user-information.component';
+import { ViewContainer } from '@shared/ui';
 
 export function AccountView(): ReactElement {
     return (
-        <div className="container mx-auto px-0 py-12">
+        <ViewContainer>
             <div className="mx-auto max-w-4xl">
                 <div className="mb-8">
                     <h1 className="mb-2 text-3xl font-bold">Account</h1>
@@ -26,11 +21,8 @@ export function AccountView(): ReactElement {
                     <Card>
                         <CardHeader>
                             <CardTitle>Account Information</CardTitle>
-                            <CardDescription>
-                                Your personal account details
-                            </CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="pt-4">
                             <UserInformation />
                         </CardContent>
                     </Card>
@@ -38,6 +30,6 @@ export function AccountView(): ReactElement {
                     <SubscriptionManagement />
                 </div>
             </div>
-        </div>
+        </ViewContainer>
     );
 }

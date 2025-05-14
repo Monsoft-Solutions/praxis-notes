@@ -25,7 +25,7 @@ export function UserInformation(): ReactElement {
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <p className="text-muted-foreground text-sm">Language</p>
-                    <p className="text-muted-foreground font-medium">
+                    <p className="font-medium">
                         {langMap(loggedInUser.language as UserLang)}
                     </p>
                 </div>
