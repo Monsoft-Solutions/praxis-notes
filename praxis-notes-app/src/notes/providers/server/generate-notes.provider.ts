@@ -7,8 +7,10 @@ import { streamText } from '@src/ai/providers';
 
 import { GenerateNotesInput } from '@src/notes/schema';
 
+import { consumeUserCredits } from '../../../../bases/credits/providers/server';
+
 // Helper function to generate notes using Anthropic
-export const generateNotes = (async ({
+const _generateNotes = (async ({
     clientData,
     sessionData,
     userBasicData,
@@ -34,3 +36,15 @@ export const generateNotes = (async ({
 
     return Success(textStream);
 }) satisfies Function<GenerateNotesInput, ReadableStreamDefaultReader<string>>;
+
+export const generateNotes = (async (data: GenerateNotesInput) =>
+    await consumeUserCredits({
+        userId: data.userBasicData.userId,
+        bucketType: 'generateNotes',
+        amount: 1,
+
+        callback: async () => await _generateNotes(data),
+    })) satisfies Function<
+    GenerateNotesInput,
+    ReadableStreamDefaultReader<string>
+>;
