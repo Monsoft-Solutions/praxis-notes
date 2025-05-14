@@ -188,11 +188,25 @@ export function SessionForm({
 
             // Handle notes generation if needed and successful
             if (initNotes && success && responseId) {
-                void generateNotes({
+                const { error: generateNotesError } = await generateNotes({
                     sessionId: responseId,
                     save: true,
                 });
-                toast.success('Notes generated');
+
+                if (generateNotesError) {
+                    success = false;
+
+                    if (generateNotesError === 'INSUFFICIENT_CREDITS') {
+                        toast.error('Insufficient credits', {
+                            description:
+                                "you don't have enough credits to generate notes",
+                        });
+                    } else {
+                        toast.error('Failed to generate notes');
+                    }
+                } else {
+                    toast.success('Notes generated');
+                }
             } else if (isEditMode && success) {
                 toast.success('Session updated successfully');
             } else if (success) {

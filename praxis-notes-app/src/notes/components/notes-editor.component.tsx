@@ -66,12 +66,22 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
     const handleGenerate = useCallback(async () => {
         setIsGeneratingNotes(true);
 
-        const generateNotesResult = await generateNotes({ sessionId });
+        const { error: generateNotesError } = await generateNotes({
+            sessionId,
+        });
 
         setIsGeneratingNotes(false);
 
-        if (generateNotesResult.error) {
-            toast.error('Failed to generate notes');
+        if (generateNotesError) {
+            if (generateNotesError === 'INSUFFICIENT_CREDITS') {
+                toast.error('Insufficient credits', {
+                    description:
+                        "you don't have enough credits to generate notes",
+                });
+            } else {
+                toast.error('Failed to generate notes');
+            }
+
             return;
         }
 
