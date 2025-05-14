@@ -17,6 +17,7 @@ export const transformNoteTypeSchema = z.enum([
     'rewriteExpert',
     'createOutline',
     'customInstructions',
+    'regenerate',
 ]);
 
 export type TransformNoteType = z.infer<typeof transformNoteTypeSchema>;

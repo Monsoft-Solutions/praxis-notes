@@ -54,6 +54,8 @@ export const transformNotesPrompt = ({
         ${notes}
         \`\`\`
         `,
+
+        regenerate: `Rewrite these ABA session notes while maintaining all medically necessary information and data. Preserve the narrative flow (beginning→during→end) and objective documentation. \n\n\`\`\`${notes}\`\`\``,
     };
 
     return `${mainPrompt}\n\n${prompts[transformationType]}`;

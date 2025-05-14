@@ -214,6 +214,11 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
     // Handle note transformations
     const handleTransformAction = useCallback(
         async (actionType: string, customInstructions?: string) => {
+            if (actionType === 'regenerate') {
+                void handleGenerate();
+                return;
+            }
+
             if (!editorValue) {
                 toast.error('No notes to transform');
                 return;
@@ -253,7 +258,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                 setIsTransforming(false);
             }
         },
-        [editorValue, transformNotes],
+        [editorValue, transformNotes, handleGenerate],
     );
 
     useEffect(() => {

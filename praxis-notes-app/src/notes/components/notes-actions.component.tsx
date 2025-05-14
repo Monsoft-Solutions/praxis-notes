@@ -18,6 +18,7 @@ import {
     ListChecks,
     ScrollText,
     MessageSquarePlus,
+    RefreshCw,
 } from 'lucide-react';
 import {
     Dialog,
@@ -56,6 +57,11 @@ export function NotesActions({
     };
 
     const improveActions: ActionMenuItem[] = [
+        {
+            id: 'regenerate',
+            icon: <RefreshCw className="h-4 w-4" />,
+            label: 'Re-generate',
+        },
         {
             id: 'improve',
             icon: <Edit className="h-4 w-4" />,
