@@ -1,5 +1,6 @@
 import { Function } from '@errors/types';
-import { Success } from '@errors/utils';
+import { Success, Error } from '@errors/utils';
+import { catchError } from '@errors/utils/catch-error.util';
 
 import { eq } from 'drizzle-orm';
 
@@ -15,10 +16,16 @@ import { getUserCreditsQueryKey } from '../../utils';
 
 // Set user credits
 export const setUserCredits = (async ({ userId, credits }) => {
-    await db
-        .update(userCreditsTable)
-        .set(credits)
-        .where(eq(userCreditsTable.userId, userId));
+    const { error: updateError } = await catchError(
+        db
+            .update(userCreditsTable)
+            .set(credits)
+            .where(eq(userCreditsTable.userId, userId)),
+    );
+
+    if (updateError) {
+        return Error('UPDATE_USER_CREDITS_ERROR');
+    }
 
     // ensure custom conf cache is available
     await serverQueryClient.ensureQueryData({
