@@ -9,6 +9,7 @@ import {
 } from '@shared/ui/card.ui';
 
 import { SubscriptionManagement } from '../components/subscription-management.component';
+import { UserInformation } from '../components/user-information.component';
 
 export function AccountView(): ReactElement {
     return (
@@ -30,11 +31,7 @@ export function AccountView(): ReactElement {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            {/* This would typically include other account settings */}
-                            <p>
-                                This section could include account information
-                                like name, email, etc.
-                            </p>
+                            <UserInformation />
                         </CardContent>
                     </Card>
 
