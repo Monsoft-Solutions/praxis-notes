@@ -8,6 +8,10 @@ import { streamText } from '@src/ai/providers';
 import { GenerateNotesInput } from '@src/notes/schema';
 
 import { consumeUserCredits } from '../../../../bases/credits/providers/server';
+import {
+    AnthropicModel,
+    anthropicModelEnum,
+} from '@src/ai/enums/anthropic-model.enum';
 
 // Helper function to generate notes using Anthropic
 const _generateNotes = (async ({
@@ -41,10 +45,23 @@ export const generateNotes = (async (data: GenerateNotesInput) =>
     await consumeUserCredits({
         userId: data.userBasicData.userId,
         bucketType: 'generateNotes',
-        amount: 1,
-
+        // TODO: get the model from the settings
+        amount: amountOfCreditsBasedOnModel(data.model),
         callback: async () => await _generateNotes(data),
     })) satisfies Function<
     GenerateNotesInput,
     ReadableStreamDefaultReader<string>
 >;
+
+function amountOfCreditsBasedOnModel(model: AnthropicModel) {
+    switch (model) {
+        case anthropicModelEnum.Enum['claude-3-7-sonnet-latest']:
+            return 1;
+        case anthropicModelEnum.Enum['claude-3-5-haiku-latest']:
+            return 0.8;
+        case anthropicModelEnum.Enum['claude-3-haiku-20240307']:
+            return 0.65;
+        default:
+            return 1;
+    }
+}
