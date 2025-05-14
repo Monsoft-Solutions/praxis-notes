@@ -63,4 +63,4 @@ export const setUserCredits = (async ({ userId, credits }) => {
     );
 
     return Success();
-}) satisfies Function<{ userId: string; credits: UserCredits }>;
+}) satisfies Function<{ userId: string; credits: Partial<UserCredits> }>;
