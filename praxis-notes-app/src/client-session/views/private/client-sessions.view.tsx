@@ -30,6 +30,10 @@ export const ClientSessionsView = () => {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
 
+    const { loggedInUser } = Route.useRouteContext();
+
+    const clientName = loggedInUser.name;
+
     const { clientId } = Route.useParams();
 
     const { data: clientSessionsQuery } =
@@ -56,9 +60,6 @@ export const ClientSessionsView = () => {
     const { error } = clientSessionsQuery;
     if (error) return null;
     const { data: clientSessions } = clientSessionsQuery;
-
-    // Get client name from first session or use placeholder
-    const clientName = 'Client';
 
     // Pagination logic
     const totalPages = Math.ceil(clientSessions.length / ITEMS_PER_PAGE);
@@ -106,7 +107,7 @@ export const ClientSessionsView = () => {
         <ViewContainer>
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">
-                    Sessions for {clientName}
+                    {clientName}&apos;s Sessions
                 </h1>
 
                 <Link
