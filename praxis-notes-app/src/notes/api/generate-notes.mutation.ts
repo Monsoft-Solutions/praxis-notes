@@ -195,7 +195,11 @@ export const generateNotes = protectedEndpoint
                         language: clientSession.user.language ?? 'en',
                         userId: clientSession.user.id,
                     },
+                    model: 'claude-3-7-sonnet-latest',
                 });
+
+            if (generatedNotesError === 'INSUFFICIENT_CREDITS')
+                return Error(generatedNotesError);
 
             if (generatedNotesError) return Error();
 
