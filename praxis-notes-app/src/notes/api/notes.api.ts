@@ -5,6 +5,8 @@ import { endpoints } from '@api/providers/server';
 // mutations
 import { generateNotes } from './generate-notes.mutation';
 import { updateNotes } from './update-notes.mutation';
+import { translateNotes } from './translate-notes.mutation';
+import { transformNotes } from './transform-notes.mutation';
 
 // subscriptions
 import { onNotesUpdated } from './notes-updated.subscription';
@@ -15,6 +17,8 @@ export const notes = endpoints({
     // mutations
     generateNotes,
     updateNotes,
+    translateNotes,
+    transformNotes,
 
     // subscriptions
     onNotesUpdated,

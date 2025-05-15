@@ -25,7 +25,7 @@ export const generateSuggestedQuestions = (async ({
     chatSessionId: string;
 }) => {
     const prompt = chatSuggestedQuestionsPrompt({
-        userName: userBasicData.firstName,
+        userName: userBasicData.firstName ?? '',
         userLanguage: userBasicData.language,
     });
 
