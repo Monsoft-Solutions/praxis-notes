@@ -43,6 +43,11 @@ export const translateNotesProvider = (async ({
 
     return Success(textStream);
 }) satisfies Function<
-    { notes: string; userId: string; language: string },
+    {
+        notes: string;
+        userId: string;
+        baseLanguage: string;
+        targetLanguage: string;
+    },
     string
 >;
