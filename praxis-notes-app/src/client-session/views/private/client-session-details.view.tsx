@@ -1,12 +1,14 @@
-import { Link } from '@tanstack/react-router';
-import { ArrowLeft, Pencil } from 'lucide-react';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@ui/button.ui';
 import { Route } from '@routes/_private/_app/clients/$clientId/sessions/$sessionId';
 import { api } from '@api/providers/web';
 import { SessionForm, SessionDetails } from '@src/client-session/components';
-
+import { ConfirmationDialog } from '@shared/ui/confirmation-dialog.ui';
 import { ClientSession } from '@src/client-session/schemas';
 import { ViewContainer } from '@shared/ui';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 function getLinkedAbcEntryIndex(
     linkedAbcEntryId: string | null,
@@ -19,10 +21,27 @@ export function ClientSessionDetailsView() {
     const { sessionId } = Route.useParams();
     const search = Route.useSearch();
     const isEdit = Boolean(search.isEdit);
+    const navigate = useNavigate();
+    const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
     const { data: sessionQuery } = api.clientSession.getClientSession.useQuery({
         sessionId,
     });
+
+    const deleteSessionMutation =
+        api.clientSession.deleteClientSession.useMutation({
+            onSuccess: async () => {
+                toast.success('Session deleted');
+                await navigate({ to: `/clients/${clientId}/sessions` });
+            },
+            onError: () => {
+                toast.error('Failed to delete the session. Please try again.');
+            },
+        });
+
+    const handleDelete = () => {
+        deleteSessionMutation.mutate({ sessionId });
+    };
 
     if (!sessionQuery) return null;
     if (sessionQuery.error) return null;
@@ -162,10 +181,30 @@ export function ClientSessionDetailsView() {
                             Edit
                         </Button>
                     </Link>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                            setDeleteDialogOpen(true);
+                        }}
+                        disabled={deleteSessionMutation.isPending}
+                        className="text-destructive hover:text-destructive"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
                 </div>
             </div>
 
             <SessionDetails session={sessionDetails} sessionId={sessionId} />
+
+            <ConfirmationDialog
+                open={isDeleteDialogOpen}
+                onOpenChange={setDeleteDialogOpen}
+                title="Delete Session"
+                description="Are you sure you want to delete this session? This action cannot be undone."
+                confirmLabel="Delete"
+                onConfirm={handleDelete}
+            />
         </ViewContainer>
     );
 }
