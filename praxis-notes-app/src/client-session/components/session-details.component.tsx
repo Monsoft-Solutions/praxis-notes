@@ -442,7 +442,7 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
 
             <NotesEditor
                 sessionId={sessionId}
-                initialData={session.notes ?? ''}
+                initialData={session.notes ?? undefined}
             />
         </div>
     );
