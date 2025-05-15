@@ -25,7 +25,11 @@ export const getCustomerPortalSession = protectedEndpoint.mutation(
             const returnUrl = `${appUrl}/account`;
 
             const { data: stripeCustomer, error: stripeCustomerError } =
-                await getStripeCustomer({ customerId: user.id });
+                await getStripeCustomer({
+                    customerId: user.id,
+                    email: user.email,
+                    name: `${user.name} ${user.lastName}`,
+                });
 
             if (stripeCustomerError) return Error();
 

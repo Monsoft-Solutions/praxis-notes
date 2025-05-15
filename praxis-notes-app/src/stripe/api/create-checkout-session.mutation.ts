@@ -36,7 +36,11 @@ export const createCheckoutSession = protectedEndpoint
 
                 // get stripe customer. If the customer does not exist, create one
                 const { data: stripeCustomer, error: stripeCustomerError } =
-                    await getStripeCustomer({ customerId: user.id });
+                    await getStripeCustomer({
+                        customerId: user.id,
+                        email: user.email,
+                        name: `${user.name} ${user.lastName}`,
+                    });
 
                 if (stripeCustomerError) return Error();
 

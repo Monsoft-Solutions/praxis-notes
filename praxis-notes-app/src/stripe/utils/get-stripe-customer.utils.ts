@@ -13,7 +13,7 @@ import Stripe from 'stripe';
  * @param userId - The ID of the user to fetch a Stripe customer for.
  * @returns The Stripe customer object.
  */
-export const getStripeCustomer = (async ({ customerId }) => {
+export const getStripeCustomer = (async ({ customerId, email, name }) => {
     const { data: stripe, error: stripeCreateError } = await createStripeSdk();
 
     if (stripeCreateError) return Error();
@@ -33,8 +33,8 @@ export const getStripeCustomer = (async ({ customerId }) => {
     if (customer === undefined) {
         const { data: newCustomer, error: newCustomerCreateError } =
             await createStripeCustomer({
-                email: '',
-                name: '',
+                email,
+                name,
                 metadata: { customerId },
             });
 
@@ -44,4 +44,7 @@ export const getStripeCustomer = (async ({ customerId }) => {
     }
 
     return Success(customer);
-}) satisfies Function<{ customerId: string }, Stripe.Customer>;
+}) satisfies Function<
+    { customerId: string; email: string; name: string },
+    Stripe.Customer
+>;
