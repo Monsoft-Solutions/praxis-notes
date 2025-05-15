@@ -9,11 +9,11 @@ export const transformNotesPrompt = ({
     transformationType: TransformNoteType;
     customInstructions?: string;
 }): string => {
-    const mainPrompt = `You are a credentialed BCBA reviewing ABA session notes. The final notes should always by in third person and objective. It should be written as an story of the session. Your output should contain only the notes, without any additional text or explanations.`;
+    const mainPrompt = `You are a credentialed BCBA reviewing ABA session notes. The final notes should always be in third person and objective. It should be written as a story of the client session, in paragraphs. Your output should contain only the notes, without any additional text or explanations. Preserve the narrative flow (beginning→during→end) and objective documentation.`;
 
     // Get the appropriate prompt from our service
     const prompts: Record<TransformNoteType, string> = {
-        improve: `Improve the following ABA session notes while maintaining insurance compliance and medical necessity documentation. Enhance behavioral terminology, maintain third-person objective language, and ensure proper documentation of protocols, interventions, and client responses. Preserve the narrative flow (beginning→during→end). \n\n\`\`\`${notes}\`\`\``,
+        improve: `Improve the following ABA session notes while maintaining insurance compliance and medical necessity documentation. Enhance behavioral terminology, maintain third-person objective language, and ensure proper documentation of protocols, interventions, and client responses. \n\n\`\`\`${notes}\`\`\``,
 
         shortenIt: `Condense these ABA session notes while preserving all medically necessary elements: client presentation, behavior descriptions, protocol implementation, data collection, and progress toward treatment goals. Maintain narrative structure and third-person objective language. \n\n\`\`\`${notes}\`\`\``,
 
@@ -44,7 +44,7 @@ export const transformNotesPrompt = ({
         createOutline: `Transform these narrative ABA session notes into a structured clinical outline while preserving all medically necessary information. Include sections for: Client Presentation, Session Goals, Behavioral Observations, Protocols Implemented, Client Responses with Data, Progress Toward Treatment Goals, and Recommendations. \n\n\`\`\`${notes}\`\`\``,
 
         customInstructions: `
-        ## Follow this instructions from the user: 
+        ## Follow these instructions from the user: 
         \`\`\`
         ${customInstructions}
         \`\`\`
@@ -55,7 +55,7 @@ export const transformNotesPrompt = ({
         \`\`\`
         `,
 
-        regenerate: `Rewrite these ABA session notes while maintaining all medically necessary information and data. Preserve the narrative flow (beginning→during→end) and objective documentation. \n\n\`\`\`${notes}\`\`\``,
+        regenerate: `Rewrite these ABA session notes while maintaining all medically necessary information and data. \n\n\`\`\`${notes}\`\`\``,
     };
 
     return `${mainPrompt}\n\n${prompts[transformationType]}`;
