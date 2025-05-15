@@ -33,19 +33,29 @@ export function UserAccountDropdown({
     });
 
     useEffect(() => {
-        const getLoggedInUser = async () => {
-            const { data: session } = await authClient.getSession();
+        let mounted = true;
 
-            if (session) {
-                setUserBasicData({
-                    name: session.user.name,
-                    lastName: session.user.lastName ?? '',
-                    email: session.user.email,
-                });
+        const getLoggedInUser = async () => {
+            try {
+                const { data: session } = await authClient.getSession();
+
+                if (mounted && session) {
+                    setUserBasicData({
+                        name: session.user.name,
+                        lastName: session.user.lastName ?? '',
+                        email: session.user.email,
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch user session:', error);
             }
         };
 
         void getLoggedInUser();
+
+        return () => {
+            mounted = false;
+        };
     }, []);
 
     return (
