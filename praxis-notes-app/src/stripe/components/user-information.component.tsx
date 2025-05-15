@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@shared/ui/button.ui';
 import { Input } from '@shared/ui/input.ui';
+import { PasswordInput } from '@shared/ui/password-input.ui';
 import {
     Form,
     FormControl,
@@ -241,8 +242,7 @@ export function UserInformation(): ReactElement {
                                                     Current Password
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                        type="password"
+                                                    <PasswordInput
                                                         placeholder="••••••••"
                                                         {...field}
                                                     />
@@ -260,8 +260,7 @@ export function UserInformation(): ReactElement {
                                                     New Password
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                        type="password"
+                                                    <PasswordInput
                                                         placeholder="••••••••"
                                                         {...field}
                                                     />
@@ -279,8 +278,7 @@ export function UserInformation(): ReactElement {
                                                     Confirm Password
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Input
-                                                        type="password"
+                                                    <PasswordInput
                                                         placeholder="••••••••"
                                                         {...field}
                                                     />
