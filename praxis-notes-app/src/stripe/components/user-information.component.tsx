@@ -1,7 +1,6 @@
 import { ReactElement, useState } from 'react';
 import { Route } from '@routes/_private/_app/route';
 import { langMap } from '@shared/utils/language-code-to-name.util';
-import { UserLang } from '@auth/enum/user-lang.enum';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@shared/ui/button.ui';
@@ -26,19 +25,25 @@ import { Spinner } from '@shared/ui/spinner.ui';
 import { updateUserSchema } from '../schemas';
 
 import { authClient } from '@auth/providers/web/auth-client.provider';
+import { UserLang } from '@auth/enum/user-lang.enum';
 
 export function UserInformation(): ReactElement {
     const { loggedInUser } = Route.useRouteContext();
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [userData, setUserData] = useState({
+        name: loggedInUser.name,
+        lastName: loggedInUser.lastName ?? '',
+        language: loggedInUser.language as 'en' | 'es',
+    });
 
     // Initialize form with current user data
     const form = useForm({
         resolver: zodResolver(updateUserSchema),
         defaultValues: {
-            firstName: loggedInUser.name,
-            lastName: loggedInUser.lastName ?? '',
-            language: loggedInUser.language as 'en' | 'es',
+            firstName: userData.name,
+            lastName: userData.lastName,
+            language: userData.language,
         },
     });
 
@@ -46,7 +51,7 @@ export function UserInformation(): ReactElement {
     const onSubmit = async (data: {
         firstName: string;
         lastName: string;
-        language: 'en' | 'es';
+        language: UserLang;
     }) => {
         try {
             setIsLoading(true);
@@ -60,6 +65,14 @@ export function UserInformation(): ReactElement {
                 toast.error('Failed to update user information');
             } else {
                 toast.success('User information updated successfully');
+
+                // Update the local state with new user data
+                setUserData({
+                    name: data.firstName,
+                    lastName: data.lastName,
+                    language: data.language,
+                });
+
                 setIsEditing(false);
             }
         } catch {
@@ -91,7 +104,7 @@ export function UserInformation(): ReactElement {
                     <div>
                         <p className="text-muted-foreground text-sm">Name</p>
                         <p className="font-medium">
-                            {loggedInUser.name} {loggedInUser.lastName}
+                            {userData.name} {userData.lastName}
                         </p>
                     </div>
 
@@ -107,7 +120,7 @@ export function UserInformation(): ReactElement {
                             Language
                         </p>
                         <p className="font-medium">
-                            {langMap(loggedInUser.language as UserLang)}
+                            {langMap(userData.language)}
                         </p>
                     </div>
                     <div>
