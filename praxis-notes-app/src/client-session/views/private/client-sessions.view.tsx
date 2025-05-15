@@ -244,11 +244,11 @@ export const ClientSessionsView = () => {
                                             }}
                                             className="group"
                                         >
-                                            <div className="bg-card hover:border-primary/50 flex flex-col justify-between rounded-lg border p-5 transition-all hover:shadow-md sm:flex-row sm:items-center">
-                                                <div className="space-y-3">
-                                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                                                        <div className="flex items-center text-lg font-semibold">
-                                                            <Calendar className="text-primary mr-2 inline-block h-5 w-5" />
+                                            <div className="bg-card hover:border-primary/50 flex flex-col justify-between rounded-lg border p-3 transition-all hover:shadow-md sm:flex-row sm:items-center">
+                                                <div className="space-y-2 sm:space-y-3">
+                                                    <div className="flex flex-row items-center justify-between gap-2 sm:flex-row sm:items-center sm:gap-4">
+                                                        <div className="flex items-center text-base font-semibold sm:text-lg">
+                                                            <Calendar className="text-primary mr-1 inline-block h-4 w-4 sm:mr-2 sm:h-5 sm:w-5" />
                                                             {format(
                                                                 sessionDate,
                                                                 'MMMM d, yyyy',
@@ -261,6 +261,7 @@ export const ClientSessionsView = () => {
                                                                     ? 'secondary'
                                                                     : 'default'
                                                             }
+                                                            className="text-xs"
                                                         >
                                                             {session.draft
                                                                 ? 'Draft'
@@ -268,27 +269,27 @@ export const ClientSessionsView = () => {
                                                         </Badge>
                                                     </div>
 
-                                                    <div className="flex flex-col gap-4 sm:flex-row">
-                                                        <div className="text-muted-foreground flex items-center">
-                                                            <Clock className="mr-2 inline-block h-4 w-4" />
+                                                    <div className="flex flex-row justify-between gap-2 sm:flex-row sm:gap-4">
+                                                        <div className="text-muted-foreground flex items-center text-xs sm:text-sm">
+                                                            <Clock className="mr-1 inline-block h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
                                                             {session.startTime}{' '}
                                                             - {session.endTime}
                                                         </div>
 
-                                                        <div className="text-muted-foreground flex items-center">
-                                                            <MapPin className="mr-2 inline-block h-4 w-4" />
+                                                        <div className="text-muted-foreground flex items-center text-xs sm:text-sm">
+                                                            <MapPin className="mr-1 inline-block h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
                                                             {session.location}
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="mt-4 flex items-center sm:mt-0">
+                                                <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center sm:static sm:mt-0 sm:translate-y-0">
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="group-hover:bg-primary/10 group-hover:text-primary ml-auto rounded-full"
+                                                        className="group-hover:bg-primary/10 group-hover:text-primary ml-auto h-8 w-8 rounded-full sm:h-10 sm:w-10"
                                                     >
-                                                        <ChevronRight className="h-5 w-5" />
+                                                        <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                                                     </Button>
                                                 </div>
                                             </div>
