@@ -7,3 +7,5 @@ export const anthropicModelEnum = z.enum([
     'claude-3-opus-latest',
     'claude-3-haiku-20240307',
 ]);
+
+export type AnthropicModel = z.infer<typeof anthropicModelEnum>;
