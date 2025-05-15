@@ -174,7 +174,7 @@ export function UserInformation(): ReactElement {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4 pt-4">
                         <div>
                             <p className="text-muted-foreground text-sm">
                                 Language
@@ -201,11 +201,11 @@ export function UserInformation(): ReactElement {
 
     // Display edit mode
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-4">
+                <CardTitle className="text-2xl font-bold">
                     Edit Personal Information
-                </h3>
+                </CardTitle>
                 <div className="flex space-x-2">
                     <Dialog
                         open={isPasswordDialogOpen}
@@ -315,102 +315,104 @@ export function UserInformation(): ReactElement {
                         Cancel
                     </Button>
                 </div>
-            </div>
+            </CardHeader>
 
-            <Form {...form}>
-                <form
-                    onSubmit={(e) => {
-                        void form.handleSubmit(onSubmit)(e);
-                    }}
-                    className="space-y-4"
-                >
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                            control={form.control}
-                            name="firstName"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="font-medium">
-                                        First Name
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="lastName"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="font-medium">
-                                        Last Name
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                            control={form.control}
-                            name="language"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="font-medium">
-                                        Language
-                                    </FormLabel>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                    >
+            <CardContent>
+                <Form {...form}>
+                    <form
+                        onSubmit={(e) => {
+                            void form.handleSubmit(onSubmit)(e);
+                        }}
+                        className="space-y-4"
+                    >
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="firstName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="font-medium">
+                                            First Name
+                                        </FormLabel>
                                         <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select Language" />
-                                            </SelectTrigger>
+                                            <Input {...field} />
                                         </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="en">
-                                                English
-                                            </SelectItem>
-                                            <SelectItem value="es">
-                                                Spanish
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                        <div className="flex items-end">
-                            <p className="text-muted-foreground text-sm">
-                                Email cannot be changed
-                            </p>
+                            <FormField
+                                control={form.control}
+                                name="lastName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="font-medium">
+                                            Last Name
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
-                    </div>
 
-                    <div className="flex justify-end space-x-2 pt-4">
-                        <Button type="submit" disabled={isLoading}>
-                            {isLoading ? (
-                                <>
-                                    <Spinner className="mr-2" />
-                                    Saving...
-                                </>
-                            ) : (
-                                'Save Changes'
-                            )}
-                        </Button>
-                    </div>
-                </form>
-            </Form>
-        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="language"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel className="font-medium">
+                                            Language
+                                        </FormLabel>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            defaultValue={field.value}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select Language" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="en">
+                                                    English
+                                                </SelectItem>
+                                                <SelectItem value="es">
+                                                    Spanish
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <div className="flex items-end">
+                                <p className="text-muted-foreground text-sm">
+                                    Email cannot be changed
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end space-x-2 pt-4">
+                            <Button type="submit" disabled={isLoading}>
+                                {isLoading ? (
+                                    <>
+                                        <Spinner className="mr-2" />
+                                        Saving...
+                                    </>
+                                ) : (
+                                    'Save Changes'
+                                )}
+                            </Button>
+                        </div>
+                    </form>
+                </Form>
+            </CardContent>
+        </Card>
     );
 }
