@@ -13,8 +13,14 @@ import { Separator } from '@shared/ui/separator.ui';
 
 import { AppSidebar } from '@shared/components/app-sidebar.component';
 import { SupportDropdown } from '@src/contact-center/components';
+import { UserAccountDropdown } from '@src/stripe/components';
+import { Route } from '@routes/__root';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+    const {
+        auth: { logOut },
+    } = Route.useRouteContext();
+
     return (
         <SidebarProvider className="h-full w-full overflow-hidden">
             <AppSidebar />
@@ -46,6 +52,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
                     <div className="ml-auto flex items-center gap-2">
                         <SupportDropdown />
+
+                        <UserAccountDropdown onLogOut={() => void logOut()} />
                     </div>
                 </header>
 
