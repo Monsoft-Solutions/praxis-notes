@@ -2,6 +2,7 @@ import { ReactElement } from 'react';
 
 import { SubscriptionManagement } from '../components/subscription-management.component';
 import { UserInformation } from '../components/user-information.component';
+import { UserCredits } from '../components/user-credits.component';
 import { ViewContainer } from '@shared/ui';
 
 export function AccountView(): ReactElement {
@@ -17,6 +18,8 @@ export function AccountView(): ReactElement {
 
                 <div className="grid gap-8">
                     <UserInformation />
+
+                    <UserCredits />
 
                     <SubscriptionManagement />
                 </div>
