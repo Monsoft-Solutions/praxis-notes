@@ -4,7 +4,7 @@ import { protectedEndpoint } from '@api/providers/server';
 
 import { db } from '@db/providers/server';
 
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 
 import { catchError } from '@errors/utils/catch-error.util';
 
@@ -24,6 +24,7 @@ export const getClientSessions = protectedEndpoint
             const { data: clientSessions, error } = await catchError(
                 db.query.clientSessionTable.findMany({
                     where: (record) => eq(record.clientId, clientId),
+                    orderBy: (record) => [desc(record.sessionDate)],
                 }),
             );
 
