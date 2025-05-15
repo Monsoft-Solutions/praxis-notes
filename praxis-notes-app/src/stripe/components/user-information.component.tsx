@@ -22,15 +22,27 @@ import {
 } from '@shared/ui/select.ui';
 import { toast } from 'sonner';
 import { Spinner } from '@shared/ui/spinner.ui';
-import { updateUserSchema } from '../schemas';
+import { changePasswordSchema, updateUserSchema } from '../schemas';
 
 import { authClient } from '@auth/providers/web/auth-client.provider';
 import { UserLang } from '@auth/enum/user-lang.enum';
+import {
+    DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from '@shared/ui/dialog.ui';
+import { Pencil } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@shared/ui/card.ui';
 
 export function UserInformation(): ReactElement {
     const { loggedInUser } = Route.useRouteContext();
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
     const [userData, setUserData] = useState({
         name: loggedInUser.name,
         lastName: loggedInUser.lastName ?? '',
@@ -44,6 +56,16 @@ export function UserInformation(): ReactElement {
             firstName: userData.name,
             lastName: userData.lastName,
             language: userData.language,
+        },
+    });
+
+    // Initialize password change form
+    const passwordForm = useForm({
+        resolver: zodResolver(changePasswordSchema),
+        defaultValues: {
+            currentPassword: '',
+            newPassword: '',
+            confirmNewPassword: '',
         },
     });
 
@@ -82,59 +104,97 @@ export function UserInformation(): ReactElement {
         }
     };
 
+    // Handle password change submission
+    const onPasswordChange = async (data: {
+        currentPassword: string;
+        newPassword: string;
+        confirmNewPassword: string;
+    }) => {
+        try {
+            setIsChangingPassword(true);
+            const result = await authClient.changePassword({
+                currentPassword: data.currentPassword,
+                newPassword: data.newPassword,
+                revokeOtherSessions: true, // For enhanced security
+            });
+
+            if (result.error) {
+                toast.error(
+                    result.error.message ?? 'Failed to change password',
+                );
+            } else {
+                toast.success('Password changed successfully');
+                passwordForm.reset();
+                setIsPasswordDialogOpen(false); // Close dialog after success
+            }
+        } catch (error) {
+            toast.error('An error occurred while changing your password');
+            console.error(error);
+        } finally {
+            setIsChangingPassword(false);
+        }
+    };
+
     // Display view mode (non-editable)
     if (!isEditing) {
         return (
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium">
-                        Personal Information
-                    </h3>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-4">
+                    <CardTitle className="text-2xl font-bold">
+                        User Information
+                    </CardTitle>
                     <Button
                         variant="outline"
                         onClick={() => {
                             setIsEditing(true);
                         }}
                     >
+                        <Pencil className="mr-2 h-4 w-4" />
                         Edit Information
                     </Button>
-                </div>
+                </CardHeader>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <p className="text-muted-foreground text-sm">Name</p>
-                        <p className="font-medium">
-                            {userData.name} {userData.lastName}
-                        </p>
+                <CardContent>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <p className="text-muted-foreground text-sm">
+                                Name
+                            </p>
+                            <p className="font-medium">
+                                {userData.name} {userData.lastName}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p className="text-muted-foreground text-sm">
+                                Email
+                            </p>
+                            <p className="font-medium">{loggedInUser.email}</p>
+                        </div>
                     </div>
 
-                    <div>
-                        <p className="text-muted-foreground text-sm">Email</p>
-                        <p className="font-medium">{loggedInUser.email}</p>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <p className="text-muted-foreground text-sm">
+                                Language
+                            </p>
+                            <p className="font-medium">
+                                {langMap(userData.language)}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-muted-foreground text-sm">
+                                Member Since
+                            </p>
+                            <p className="font-medium">
+                                {new Date(
+                                    loggedInUser.createdAt,
+                                ).toLocaleDateString()}
+                            </p>
+                        </div>
                     </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <p className="text-muted-foreground text-sm">
-                            Language
-                        </p>
-                        <p className="font-medium">
-                            {langMap(userData.language)}
-                        </p>
-                    </div>
-                    <div>
-                        <p className="text-muted-foreground text-sm">
-                            Member Since
-                        </p>
-                        <p className="font-medium">
-                            {new Date(
-                                loggedInUser.createdAt,
-                            ).toLocaleDateString()}
-                        </p>
-                    </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         );
     }
 
@@ -145,14 +205,118 @@ export function UserInformation(): ReactElement {
                 <h3 className="text-lg font-medium">
                     Edit Personal Information
                 </h3>
-                <Button
-                    variant="outline"
-                    onClick={() => {
-                        setIsEditing(false);
-                    }}
-                >
-                    Cancel
-                </Button>
+                <div className="flex space-x-2">
+                    <Dialog
+                        open={isPasswordDialogOpen}
+                        onOpenChange={setIsPasswordDialogOpen}
+                    >
+                        <DialogTrigger asChild>
+                            <Button variant="secondary">Change Password</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Change Password</DialogTitle>
+                                <DialogDescription>
+                                    Set a new password for your account. Strong
+                                    passwords include a mix of uppercase
+                                    letters, lowercase letters, numbers, and
+                                    special characters.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <Form {...passwordForm}>
+                                <form
+                                    onSubmit={(e) => {
+                                        void passwordForm.handleSubmit(
+                                            onPasswordChange,
+                                        )(e);
+                                    }}
+                                    className="space-y-4 py-4"
+                                >
+                                    <FormField
+                                        control={passwordForm.control}
+                                        name="currentPassword"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    Current Password
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="password"
+                                                        placeholder="••••••••"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={passwordForm.control}
+                                        name="newPassword"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    New Password
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="password"
+                                                        placeholder="••••••••"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={passwordForm.control}
+                                        name="confirmNewPassword"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    Confirm Password
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="password"
+                                                        placeholder="••••••••"
+                                                        {...field}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <div className="flex justify-end pt-4">
+                                        <Button
+                                            type="submit"
+                                            disabled={isChangingPassword}
+                                        >
+                                            {isChangingPassword ? (
+                                                <>
+                                                    <Spinner className="mr-2" />
+                                                    Changing...
+                                                </>
+                                            ) : (
+                                                'Change Password'
+                                            )}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </Form>
+                        </DialogContent>
+                    </Dialog>
+                    <Button
+                        variant="outline"
+                        onClick={() => {
+                            setIsEditing(false);
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                </div>
             </div>
 
             <Form {...form}>

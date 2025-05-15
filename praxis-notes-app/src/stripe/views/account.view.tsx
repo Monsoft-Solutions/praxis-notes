@@ -1,7 +1,5 @@
 import { ReactElement } from 'react';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@shared/ui/card.ui';
-
 import { SubscriptionManagement } from '../components/subscription-management.component';
 import { UserInformation } from '../components/user-information.component';
 import { ViewContainer } from '@shared/ui';
@@ -18,14 +16,7 @@ export function AccountView(): ReactElement {
                 </div>
 
                 <div className="grid gap-8">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Account Information</CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-4">
-                            <UserInformation />
-                        </CardContent>
-                    </Card>
+                    <UserInformation />
 
                     <SubscriptionManagement />
                 </div>
