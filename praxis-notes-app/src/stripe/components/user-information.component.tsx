@@ -76,33 +76,30 @@ export function UserInformation(): ReactElement {
         lastName: string;
         language: UserLang;
     }) => {
-        try {
-            setIsLoading(true);
-            const result = await authClient.updateUser({
+        setIsLoading(true);
+
+        const result = await authClient.updateUser({
+            name: data.firstName,
+            lastName: data.lastName,
+            language: data.language,
+        });
+
+        if (result.error) {
+            toast.error('Failed to update user information');
+        } else {
+            toast.success('User information updated successfully');
+
+            // Update the local state with new user data
+            setUserData({
                 name: data.firstName,
                 lastName: data.lastName,
                 language: data.language,
             });
 
-            if (result.error) {
-                toast.error('Failed to update user information');
-            } else {
-                toast.success('User information updated successfully');
-
-                // Update the local state with new user data
-                setUserData({
-                    name: data.firstName,
-                    lastName: data.lastName,
-                    language: data.language,
-                });
-
-                setIsEditing(false);
-            }
-        } catch {
-            toast.error('An unexpected error occurred');
-        } finally {
-            setIsLoading(false);
+            setIsEditing(false);
         }
+
+        setIsLoading(false);
     };
 
     // Handle password change submission
