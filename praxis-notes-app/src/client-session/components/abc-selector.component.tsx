@@ -167,7 +167,7 @@ export function AbcSelector({
                                 variant="outline"
                                 role="combobox"
                                 className={cn(
-                                    'justify-between',
+                                    'justify-between truncate',
                                     !selectedId && 'text-muted-foreground',
                                 )}
                             >
@@ -214,11 +214,14 @@ export function AbcSelector({
                                                     onSelect(option.value);
                                                     setOpen(false);
                                                 }}
+                                                className="flex items-center"
                                             >
-                                                {option.label}
+                                                <span className="flex-1 truncate">
+                                                    {option.label}
+                                                </span>
                                                 <Check
                                                     className={cn(
-                                                        'ml-auto',
+                                                        'ml-2 flex-shrink-0',
                                                         option.value ===
                                                             selectedId
                                                             ? 'opacity-100'

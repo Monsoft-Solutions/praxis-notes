@@ -7,6 +7,7 @@ import { getPlaceholderSessionData } from './get-placeholder-session-data.query'
 // mutations
 import { createClientSession } from './create-client-session.mutation';
 import { updateClientSession } from './update-client-session.mutation';
+import { deleteClientSession } from './delete-session.mutation';
 // subscriptions
 
 export const clientSession = endpoints({
@@ -17,6 +18,7 @@ export const clientSession = endpoints({
     // mutations
     createClientSession,
     updateClientSession,
+    deleteClientSession,
 
     // subscriptions
 });
