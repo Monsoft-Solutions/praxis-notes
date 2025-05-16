@@ -11,6 +11,10 @@ import { authServer } from '@auth/providers/server';
 export const apiContext = async ({ req }: CreateHTTPContextOptions) => {
     const headers = new Headers();
 
+    if (req.url === '/stripe.webhook') {
+        return { req };
+    }
+
     Object.entries(req.headers).forEach(([key, value]) => {
         headers.append(key, value as string);
     });
