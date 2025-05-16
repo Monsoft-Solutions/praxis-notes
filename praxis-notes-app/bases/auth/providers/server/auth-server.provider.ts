@@ -55,7 +55,7 @@ export const authServer = betterAuth({
             }: GoogleProfile) => {
                 return {
                     email,
-                    firstName: given_name,
+                    name: given_name,
                     lastName: family_name,
                 };
             },
