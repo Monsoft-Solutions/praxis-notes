@@ -38,6 +38,7 @@ import {
 import { ShortInfoMessage } from '@shared/components/short-info-message.component';
 
 import { SocialLogIn } from './social-log-in.component';
+import { PasswordInput } from '@shared/ui/password-input.ui';
 
 // ----------------------------------------------------------------------
 
@@ -148,10 +149,9 @@ export function SignUpForm({
                                         Password
                                     </FormLabel>
                                     <FormControl>
-                                        <Input
+                                        <PasswordInput
                                             placeholder="********"
                                             className="h-11 rounded-md"
-                                            type="password"
                                             {...field}
                                         />
                                     </FormControl>

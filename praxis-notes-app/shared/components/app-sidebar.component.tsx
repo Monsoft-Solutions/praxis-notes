@@ -6,7 +6,9 @@ import {
     Users,
     MessageCircle,
     CreditCard,
-    User,
+    Settings,
+    User2,
+    ChevronsUpDown,
 } from 'lucide-react';
 
 import {
@@ -26,6 +28,14 @@ import {
 import { Route } from '@routes/__root';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@shared/ui/dropdown-menu.ui';
+import { authClient } from '@auth/providers/web/auth-client.provider';
+import { useState, useEffect } from 'react';
 
 type NavItem = {
     title: string;
@@ -45,7 +55,6 @@ type NavSection =
           icon?: React.ReactNode;
       };
 
-// This is sample data.
 const navbarSections: NavSection[] = [
     {
         title: 'Main',
@@ -96,28 +105,33 @@ const navbarSections: NavSection[] = [
         url: '/chat',
         icon: <MessageCircle className="size-4 stroke-2" />,
     },
-    {
-        title: 'Subscription',
-
-        items: [
-            {
-                title: 'Pricing',
-                url: '/pricing',
-                icon: <CreditCard className="size-4 stroke-2" />,
-            },
-
-            {
-                title: 'Account',
-                url: '/account',
-                icon: <User className="size-4 stroke-2" />,
-            },
-        ],
-    },
 ];
 
 const clientItemId: TourStepId = 'client-sidebar-item';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const [userBasicData, setUserBasicData] = useState({
+        name: '',
+        lastName: '',
+        email: '',
+    });
+
+    useEffect(() => {
+        const getLoggedInUser = async () => {
+            const { data: session } = await authClient.getSession();
+
+            if (session) {
+                setUserBasicData({
+                    name: session.user.name,
+                    lastName: session.user.lastName ?? '',
+                    email: session.user.email,
+                });
+            }
+        };
+
+        void getLoggedInUser();
+    }, []);
+
     const {
         auth: { logOut },
     } = Route.useRouteContext();
@@ -184,39 +198,53 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
             <SidebarFooter>
                 <SidebarMenu>
-                    {/* <SidebarMenuItem>
+                    <SidebarMenuItem>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton>
-                                    <Settings /> Settings
-                                    <ChevronUp className="ml-auto" />
+                                    <User2 />
+                                    <div className="flex flex-col">
+                                        <span>
+                                            {userBasicData.name}{' '}
+                                            {userBasicData.lastName}
+                                        </span>
+                                        <span className="text-muted-foreground text-xs">
+                                            {userBasicData.email}
+                                        </span>
+                                    </div>
+                                    <ChevronsUpDown className="ml-auto" />
                                 </SidebarMenuButton>
                             </DropdownMenuTrigger>
-
                             <DropdownMenuContent
                                 side="top"
                                 className="w-[--radix-popper-anchor-width]"
                             >
-                                <DropdownMenuItem
-                                    className="text-destructive"
-                                    onClick={() => {
-                                        void handleDeleteOrganization();
-                                    }}
-                                >
-                                    Delete Account
-                                    <DropdownMenuShortcut className="opacity-100">
-                                        <Trash className="size-4 stroke-2" />
-                                    </DropdownMenuShortcut>
+                                <DropdownMenuItem>
+                                    <SidebarMenuButton asChild>
+                                        <Link to="/account">
+                                            <Settings className="size-4 stroke-2" />
+                                            <span>Account</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <SidebarMenuButton asChild>
+                                        <Link to="/pricing">
+                                            <CreditCard className="size-4 stroke-2" />
+                                            <span>Billing</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <SidebarMenuButton
+                                        onClick={() => void logOut()}
+                                    >
+                                        <Power className="stroke-destructive size-4 stroke-2" />
+                                        Log Out
+                                    </SidebarMenuButton>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    </SidebarMenuItem> */}
-
-                    <SidebarMenuItem>
-                        <SidebarMenuButton onClick={() => void logOut()}>
-                            <Power className="stroke-destructive size-4 stroke-2" />
-                            Log Out
-                        </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>

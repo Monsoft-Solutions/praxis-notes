@@ -28,6 +28,7 @@ import {
 } from '@ui/card.ui';
 
 import { SocialLogIn } from './social-log-in.component';
+import { PasswordInput } from '@shared/ui/password-input.ui';
 
 // ----------------------------------------------------------------------
 
@@ -91,10 +92,9 @@ export function LogInForm({
                                         Password
                                     </FormLabel>
                                     <FormControl>
-                                        <Input
+                                        <PasswordInput
                                             placeholder="********"
                                             className="h-11 rounded-md"
-                                            type="password"
                                             {...field}
                                         />
                                     </FormControl>
