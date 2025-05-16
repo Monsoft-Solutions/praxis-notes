@@ -8,7 +8,7 @@ import { db } from '@db/providers/server';
 
 import { StripeSubscription, StripeSubscriptionStatus } from '../types';
 
-import { createStripeSdk } from '../utils';
+import { createStripeSdk, getStripeCustomer } from '../utils';
 
 import { eq } from 'drizzle-orm';
 
@@ -40,17 +40,16 @@ export const getSubscriptionStatus = protectedEndpoint.query(
             // Find the Stripe customer by email
             const { data: customersList, error: customersListError } =
                 await catchError(
-                    stripe.customers.list({
+                    getStripeCustomer({
+                        customerId: userRecord.id,
                         email: userEmail,
-                        limit: 1,
+                        name: `${userRecord.name} ${userRecord.lastName}`,
                     }),
                 );
 
             if (customersListError) return Error();
 
-            const { data: customers } = customersList;
-
-            const stripeCustomer = customers.at(0);
+            const { data: stripeCustomer } = customersList;
 
             if (stripeCustomer === undefined) {
                 // No customer found with this email
