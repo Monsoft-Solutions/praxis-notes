@@ -105,7 +105,7 @@ Your response should only contain the narrative note, no other text.
     return Success(prompt);
 }) satisfies Function<GenerateNotesPromptInput, string>;
 
-const expandClientData = (clientData: ClientAbaData) => {
+export const expandClientData = (clientData: ClientAbaData) => {
     // Create a map of behavior IDs to names for easy lookup
     const behaviorMap = new Map<string, string>();
     clientData.behaviors.forEach((behavior) => {
@@ -139,7 +139,7 @@ ${clientData.interventions
     return output;
 };
 
-const getAbcReplacementProgramData = (
+export const getAbcReplacementProgramData = (
     abdId: string | null,
     replacementPrograms: ClientSessionReplacementProgramEntry[],
 ) => {
@@ -159,7 +159,7 @@ const getAbcReplacementProgramData = (
     return `### Used Replacement Program:\n ${replacementProgramText(replacementProgram)}`;
 };
 
-const replacementProgramText = (
+export const replacementProgramText = (
     replacementProgram: ClientSessionReplacementProgramEntry,
 ) => {
     let output = `

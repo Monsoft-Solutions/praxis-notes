@@ -1,62 +1,298 @@
 import { TransformNoteType } from '@src/notes/schema';
+import {
+    getAbcReplacementProgramData,
+    replacementProgramText,
+} from './generate-notes-prompt.provider';
+import { ClientSession } from '@src/client-session/schemas';
 
 export const transformNotesPrompt = ({
     notes,
     transformationType,
     customInstructions,
+    sessionData,
 }: {
     notes: string;
     transformationType: TransformNoteType;
     customInstructions?: string;
+    sessionData: ClientSession;
 }): string => {
-    const mainPrompt = `You are a credentialed BCBA reviewing ABA session notes. The final notes should always be in third person and objective. It should be written as a story of the client session, in paragraphs. Your output should contain only the notes, without any additional text or explanations. Preserve the narrative flow (beginning→during→end) and objective documentation.`;
+    // Core prompt components that can be reused
+    const basePrompt = `You are a credentialed BCBA reviewing ABA session notes. The final notes should always be in third person and objective. It should be written as a story of the client session, in paragraphs.`;
 
-    // Get the appropriate prompt from our service
-    const prompts: Record<TransformNoteType, string> = {
-        improve: `Improve the following ABA session notes while maintaining insurance compliance and medical necessity documentation. Enhance behavioral terminology, maintain third-person objective language, and ensure proper documentation of protocols, interventions, and client responses. \n\n\`\`\`${notes}\`\`\``,
+    const outputInstructions = `Your output should contain only the transformed notes, without any additional text or explanations. Preserve the narrative flow (beginning→during→end) and objective documentation.`;
 
-        shortenIt: `Condense these ABA session notes while preserving all medically necessary elements: client presentation, behavior descriptions, protocol implementation, data collection, and progress toward treatment goals. Maintain narrative structure and third-person objective language. \n\n\`\`\`${notes}\`\`\``,
+    const medicalNecessityReminder = `Ensure all documentation maintains insurance compliance and medical necessity standards.`;
 
-        cleanUp: `Reorganize these ABA session notes while maintaining the narrative flow (beginning→during→end). Ensure consistent terminology, proper documentation of medical necessity, and clear connections between behaviors, interventions, and treatment goals. \n\n\`\`\`${notes}\`\`\``,
+    // The transformation directives - more modular and focused
+    const transformationDirectives: Record<
+        TransformNoteType,
+        {
+            directive: string;
+            emphasis: string[]; // Key aspects to emphasize for this transformation
+        }
+    > = {
+        improve: {
+            directive: `Improve these session notes with enhanced behavioral terminology and proper documentation.`,
+            emphasis: [
+                'behavioralTerminology',
+                'objectiveLanguage',
+                'protocolDocumentation',
+            ],
+        },
 
-        makeDescriptive: `Enhance these ABA session notes with more precise behavioral terminology and specific observations. Add relevant ABC (Antecedent-Behavior-Consequence) details where appropriate while maintaining the narrative flow. Include specific metrics and data points about client responses. \n\n\`\`\`${notes}\`\`\``,
+        shortenIt: {
+            directive: `Condense these session notes while preserving all medically necessary elements.`,
+            emphasis: ['conciseness', 'preserveData', 'narrativeFlow'],
+        },
 
-        makeDetailed: `Expand these ABA session notes with detailed behavioral observations, specific protocols implemented, prompt levels used, client response metrics, and measurable progress toward treatment goals. Maintain narrative structure and insurance documentation requirements. \n\n\`\`\`${notes}\`\`\``,
+        cleanUp: {
+            directive: `Reorganize these session notes to improve structure and flow.`,
+            emphasis: [
+                'organization',
+                'consistentTerminology',
+                'narrativeFlow',
+            ],
+        },
 
-        simplify: `Simplify these ABA session notes using clearer language while maintaining all medically necessary information, objective data, and the narrative flow (beginning→during→end). Ensure all interventions remain linked to treatment goals. \n\n\`\`\`${notes}\`\`\``,
+        makeDescriptive: {
+            directive: `Enhance these notes with more precise behavioral terminology and specific ABC observations.`,
+            emphasis: [
+                'behavioralTerminology',
+                'abcDetails',
+                'specificMetrics',
+            ],
+        },
 
-        paraphrase: `Paraphrase these ABA session notes using alternative professional clinical terminology while preserving all behavioral data, intervention descriptions, and progress measurements. Maintain third-person objective language and narrative flow. \n\n\`\`\`${notes}\`\`\``,
+        makeDetailed: {
+            directive: `Expand these notes with detailed behavioral observations and protocol implementations.`,
+            emphasis: [
+                'detailedObservations',
+                'protocolSpecifics',
+                'promptLevels',
+                'responseMetrics',
+            ],
+        },
 
-        summarize: `Provide a concise yet complete summary of these ABA session notes highlighting client presentation, key behaviors addressed, protocols implemented, and progress observed. Maintain the narrative flow and include specific data points. \n\n\`\`\`${notes}\`\`\``,
+        simplify: {
+            directive: `Simplify these notes using clearer language while maintaining all necessary information.`,
+            emphasis: ['simplifiedLanguage', 'preserveData', 'narrativeFlow'],
+        },
 
-        fixMistakes: `Correct any clinical terminology errors, documentation gaps, subjective language, or inconsistencies in these ABA session notes. Ensure protocols are properly documented, medical necessity is established, and narrative flow is maintained. \n\n\`\`\`${notes}\`\`\``,
+        paraphrase: {
+            directive: `Paraphrase these notes using alternative professional clinical terminology.`,
+            emphasis: [
+                'alternativeTerminology',
+                'preserveData',
+                'objectiveLanguage',
+            ],
+        },
 
-        soundFluent: `Revise these ABA session notes to flow more naturally while maintaining professional clinical language, objective documentation, and narrative structure (beginning→during→end). Ensure all interventions remain linked to treatment goals. \n\n\`\`\`${notes}\`\`\``,
+        summarize: {
+            directive: `Provide a concise yet complete summary of these session notes.`,
+            emphasis: ['conciseness', 'keyHighlights', 'specificDataPoints'],
+        },
 
-        makeObjective: `Rewrite these ABA session notes using objective, data-focused language. Replace any subjective statements with behavioral observations and measurable descriptions. Maintain third-person perspective, narrative flow, and documentation of medical necessity. \n\n\`\`\`${notes}\`\`\``,
+        fixMistakes: {
+            directive: `Correct any clinical terminology errors, documentation gaps, or inconsistencies.`,
+            emphasis: [
+                'terminologyCorrection',
+                'completeDocumentation',
+                'consistencyCheck',
+            ],
+        },
 
-        rewriteGeneral: `Rewrite these ABA session notes for interdisciplinary team members who may not specialize in ABA. Maintain all medically necessary information and data while using more accessible terminology. Preserve the narrative flow (beginning→during→end) and objective documentation. \n\n\`\`\`${notes}\`\`\``,
+        soundFluent: {
+            directive: `Revise these notes to flow more naturally while maintaining professional clinical language.`,
+            emphasis: [
+                'naturalFlow',
+                'professionalLanguage',
+                'narrativeStructure',
+            ],
+        },
 
-        rewriteESL: `Rewrite these ABA session notes using simpler language for team members or caregivers with limited English proficiency, while maintaining all essential clinical information, data points, and narrative structure. Preserve connections between behaviors and treatment goals. \n\n\`\`\`${notes}\`\`\``,
+        makeObjective: {
+            directive: `Rewrite these notes using objective, data-focused language.`,
+            emphasis: [
+                'objectiveLanguage',
+                'dataFocus',
+                'measurableDescriptions',
+            ],
+        },
 
-        rewriteExpert: `Rewrite these ABA session notes for BCBA supervision or peer review, using advanced behavioral terminology, precise data measurement language, and references to relevant behavioral principles. Maintain narrative flow while enhancing documentation of medical necessity and protocol adherence. \n\n\`\`\`${notes}\`\`\``,
+        rewriteGeneral: {
+            directive: `Rewrite these notes for interdisciplinary team members who may not specialize in ABA.`,
+            emphasis: [
+                'accessibleTerminology',
+                'preserveData',
+                'narrativeFlow',
+            ],
+        },
 
-        createOutline: `Transform these narrative ABA session notes into a structured clinical outline while preserving all medically necessary information. Include sections for: Client Presentation, Session Goals, Behavioral Observations, Protocols Implemented, Client Responses with Data, Progress Toward Treatment Goals, and Recommendations. \n\n\`\`\`${notes}\`\`\``,
+        rewriteESL: {
+            directive: `Rewrite these notes using simpler language for team members with limited English proficiency.`,
+            emphasis: [
+                'simplifiedLanguage',
+                'essentialInformation',
+                'clearStructure',
+            ],
+        },
 
-        customInstructions: `
-        ## Follow these instructions from the user: 
-        \`\`\`
-        ${customInstructions}
-        \`\`\`
-        Return only the transformed notes without additional text or explanations
-        ## Here are the notes to transform:
-        \`\`\`
-        ${notes}
-        \`\`\`
-        `,
+        rewriteExpert: {
+            directive: `Rewrite these notes for BCBA supervision or peer review using advanced terminology.`,
+            emphasis: [
+                'advancedTerminology',
+                'preciseDataLanguage',
+                'behavioralPrinciples',
+            ],
+        },
 
-        regenerate: `Rewrite these ABA session notes while maintaining all medically necessary information and data. \n\n\`\`\`${notes}\`\`\``,
+        createOutline: {
+            directive: `Transform these narrative notes into a structured clinical outline.`,
+            emphasis: [
+                'structuredFormat',
+                'categorizedInformation',
+                'comprehensiveContent',
+            ],
+        },
+
+        customInstructions: {
+            directive: `Follow these custom instructions: ${customInstructions ?? 'No custom instructions provided'}`,
+            emphasis: ['customDirective'],
+        },
+
+        regenerate: {
+            directive: `Completely rewrite these notes while maintaining all medically necessary information and data.`,
+            emphasis: ['freshPerspective', 'preserveData', 'narrativeFlow'],
+        },
     };
 
-    return `${mainPrompt}\n\n${prompts[transformationType]}`;
+    // Create emphasis guidelines based on the selected transformation
+    const createEmphasisGuidelines = (emphasisPoints: string[]) => {
+        const emphasisGuidelines: Record<string, string> = {
+            behavioralTerminology: `Use precise behavioral terminology appropriate for ABA documentation.`,
+            objectiveLanguage: `Maintain third-person objective language throughout the notes.`,
+            protocolDocumentation: `Clearly document protocols and interventions used during the session.`,
+            conciseness: `Be concise while preserving all essential information.`,
+            preserveData: `Preserve all behavioral data and measurement information.`,
+            narrativeFlow: `Maintain a clear beginning→during→end narrative structure.`,
+            organization: `Organize information logically by session phases and interventions.`,
+            consistentTerminology: `Use consistent terminology throughout the document.`,
+            abcDetails: `Include relevant Antecedent-Behavior-Consequence details.`,
+            specificMetrics: `Include specific metrics and data points about client responses.`,
+            detailedObservations: `Provide detailed behavioral observations.`,
+            protocolSpecifics: `Specify exact protocols implemented during the session.`,
+            promptLevels: `Document prompt levels used during interventions.`,
+            responseMetrics: `Include measurable metrics of client responses.`,
+            simplifiedLanguage: `Use clear, straightforward language without jargon when possible.`,
+            alternativeTerminology: `Use alternative but equivalent professional clinical terminology.`,
+            keyHighlights: `Highlight key session events, behaviors, and progress points.`,
+            specificDataPoints: `Include specific data points and measurements.`,
+            terminologyCorrection: `Correct any clinical terminology errors or misuse.`,
+            completeDocumentation: `Fill in any documentation gaps regarding behaviors or interventions.`,
+            consistencyCheck: `Ensure consistency in reporting throughout the notes.`,
+            naturalFlow: `Create a natural, readable flow while maintaining clinical accuracy.`,
+            professionalLanguage: `Use professional clinical language appropriate for medical documentation.`,
+            narrativeStructure: `Maintain clear beginning, middle, and end structure.`,
+            dataFocus: `Focus on observable, measurable data rather than interpretations.`,
+            measurableDescriptions: `Use measurable descriptions instead of subjective statements.`,
+            accessibleTerminology: `Use terminology accessible to non-ABA professionals.`,
+            essentialInformation: `Maintain all essential clinical information and data points.`,
+            clearStructure: `Use a clear, easy-to-follow structure.`,
+            advancedTerminology: `Incorporate advanced behavioral terminology for expert review.`,
+            preciseDataLanguage: `Use precise language regarding data measurement and analysis.`,
+            behavioralPrinciples: `Reference relevant behavioral principles where appropriate.`,
+            structuredFormat: `Use a structured format with clear sections and headers.`,
+            categorizedInformation: `Categorize information by clinical relevance and type.`,
+            comprehensiveContent: `Include comprehensive content covering all session aspects.`,
+            freshPerspective: `Provide a fresh perspective on the session while maintaining accuracy.`,
+            customDirective: `Follow the custom directives exactly as specified.`,
+        };
+
+        return emphasisPoints
+            .map((point) => emphasisGuidelines[point] || '')
+            .filter(Boolean)
+            .join('\n');
+    };
+
+    // Get details about the specific transformation
+    const selectedTransformation = transformationDirectives[transformationType];
+
+    // If this is a custom instruction, handle it differently
+    if (transformationType === 'customInstructions' && customInstructions) {
+        return `${basePrompt}
+        
+## Follow these instructions from the user: 
+\`\`\`
+${customInstructions}
+\`\`\`
+
+Return only the transformed notes without additional text or explanations.
+
+## Here are the notes to transform:
+\`\`\`
+${notes}
+\`\`\`
+
+## Session Context:
+${formatSessionContext(sessionData)}`;
+    }
+
+    // Build the full prompt with the appropriate transformation
+    const emphasisGuidelines = createEmphasisGuidelines(
+        selectedTransformation.emphasis,
+    );
+
+    return `${basePrompt}
+
+## Transformation Task:
+${selectedTransformation.directive}
+
+## Guidelines for this transformation:
+${emphasisGuidelines}
+${medicalNecessityReminder}
+
+${outputInstructions}
+
+## Original Notes:
+\`\`\`
+${notes}
+\`\`\`
+
+## Session Context:
+${formatSessionContext(sessionData)}`;
 };
+
+// Helper function to format session context in a more structured way
+function formatSessionContext(sessionData: ClientSession): string {
+    const abcEntriesFormatted = sessionData.abcEntries
+        .map((abc, i) => {
+            const linkedPrograms = getAbcReplacementProgramData(
+                abc.id,
+                sessionData.replacementProgramEntries,
+            );
+
+            return `### ABC Entry ${i + 1}
+- **Antecedent/Activity:** ${abc.antecedentName}
+- **Behavior(s):** ${abc.behaviorNames.join(', ')}
+- **Intervention(s):** ${abc.interventionNames.join(', ')}
+${linkedPrograms ? `- **Related Replacement Programs:** ${linkedPrograms}` : ''}`;
+        })
+        .join('\n\n');
+
+    const standalonePrograms = sessionData.replacementProgramEntries
+        .filter((rep) => !rep.linkedAbcEntryId)
+        .map((rep) => replacementProgramText(rep))
+        .join('\n');
+
+    return `
+### ABC Entries
+${abcEntriesFormatted}
+
+${standalonePrograms ? `### Standalone Replacement Programs\n${standalonePrograms}\n` : ''}
+
+### Session Details
+- **Reinforcers Used:** ${sessionData.reinforcerNames.join(', ')}
+- **Overall Session Valuation:** ${sessionData.valuation}
+- **General Observations:** ${sessionData.observations ?? 'None provided'}
+`;
+}

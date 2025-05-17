@@ -241,6 +241,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                     notes: editorValue,
                     transformationType: actionType as TransformationType,
                     ...(customInstructions && { customInstructions }),
+                    sessionId,
                 });
 
                 if ('error' in result && result.error) {
@@ -268,7 +269,7 @@ export function NotesEditor({ sessionId, initialData }: NotesEditorProps) {
                 setIsTransforming(false);
             }
         },
-        [editorValue, transformNotes, handleGenerate],
+        [editorValue, transformNotes, handleGenerate, sessionId],
     );
 
     useEffect(() => {
