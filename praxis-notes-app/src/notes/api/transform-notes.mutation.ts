@@ -9,6 +9,7 @@ import { queryMutationCallback } from '@api/providers/server/query-mutation-call
 import { transformNotesProvider } from '../providers/server/transform-notes.provider';
 import { logger } from '@logger/providers';
 import { transformNoteTypeSchema } from '../schema';
+import { getClientSessionData } from '../providers/server';
 
 // mutation to transform notes based on the specified transformation type
 export const transformNotes = protectedEndpoint
@@ -17,6 +18,7 @@ export const transformNotes = protectedEndpoint
             notes: z.string(),
             transformationType: transformNoteTypeSchema,
             customInstructions: z.string().optional(),
+            sessionId: z.string(),
         }),
     )
     .mutation(
@@ -27,8 +29,20 @@ export const transformNotes = protectedEndpoint
                 },
                 input,
             }) => {
-                const { notes, transformationType, customInstructions } = input;
+                const {
+                    notes,
+                    transformationType,
+                    customInstructions,
+                    sessionId,
+                } = input;
                 const { id } = user;
+
+                const { data: result, error: sessionDataError } =
+                    await getClientSessionData(sessionId);
+
+                if (sessionDataError) return Error('SESSION_DATA_ERROR');
+
+                const { sessionData } = result;
 
                 try {
                     // Call the transformation service using the AI provider
@@ -37,6 +51,7 @@ export const transformNotes = protectedEndpoint
                         userId: id,
                         transformationType,
                         customInstructions,
+                        sessionData,
                     });
 
                     return Success({ notes: transformedNotes.data });

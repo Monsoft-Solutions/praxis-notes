@@ -19,8 +19,6 @@ You are a credentialed Registered Behavior Technician (RBT) generating an insura
 Write in third-person, objective behavioral language without subjective interpretations. Focus on observable behaviors and measurable outcomes.
 
 ## SESSION INFORMATION
-- RBT: ${sessionData.userInitials}
-- Client: ${sessionData.clientInitials}
 - Date: ${sessionData.sessionDate instanceof Date ? sessionData.sessionDate.toLocaleDateString() : sessionData.sessionDate}
 - Time: ${sessionData.startTime} – ${sessionData.endTime}
 - Total Duration: [Calculate minutes/hours]
@@ -67,7 +65,7 @@ Generate a professional narrative that follows this structure:
    - Mention environmental factors
 
 2. DURING SESSION (Implementation of programs)
-   - Detail each activity chronologically
+   - Detail each activity chronologically. Don't include the time of the activity.
    - Include specific behavior topographies observed
    - Document protocols implemented verbatim from the treatment plan
    - For each behavior observed, note its connection to a replacement program
@@ -107,7 +105,7 @@ Your response should only contain the narrative note, no other text.
     return Success(prompt);
 }) satisfies Function<GenerateNotesPromptInput, string>;
 
-const expandClientData = (clientData: ClientAbaData) => {
+export const expandClientData = (clientData: ClientAbaData) => {
     // Create a map of behavior IDs to names for easy lookup
     const behaviorMap = new Map<string, string>();
     clientData.behaviors.forEach((behavior) => {
@@ -141,7 +139,7 @@ ${clientData.interventions
     return output;
 };
 
-const getAbcReplacementProgramData = (
+export const getAbcReplacementProgramData = (
     abdId: string | null,
     replacementPrograms: ClientSessionReplacementProgramEntry[],
 ) => {
@@ -161,7 +159,7 @@ const getAbcReplacementProgramData = (
     return `### Used Replacement Program:\n ${replacementProgramText(replacementProgram)}`;
 };
 
-const replacementProgramText = (
+export const replacementProgramText = (
     replacementProgram: ClientSessionReplacementProgramEntry,
 ) => {
     let output = `

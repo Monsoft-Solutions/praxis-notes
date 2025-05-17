@@ -80,6 +80,7 @@ export const getClientSession = protectedEndpoint
                         antecedent,
                         behaviors: abcEntryBehaviors,
                         interventions: abcEntryInterventions,
+                        function: abcEntryFunction,
                     }) => {
                         if (!antecedent) return null;
 
@@ -113,6 +114,7 @@ export const getClientSession = protectedEndpoint
                             antecedent,
                             behaviors,
                             interventions,
+                            function: abcEntryFunction,
                         };
                     },
                 );

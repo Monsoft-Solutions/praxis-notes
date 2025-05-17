@@ -242,6 +242,7 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                     <TableHead>Antecedent/Activity</TableHead>
                                     <TableHead>Behavior</TableHead>
                                     <TableHead>Intervention</TableHead>
+                                    <TableHead>Function</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -251,6 +252,7 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                             antecedentName,
                                             behaviorNames,
                                             interventionNames,
+                                            function: abcEntryFunction,
                                         },
                                         index,
                                     ) => (
@@ -292,6 +294,9 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                                         ),
                                                     )}
                                                 </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                {abcEntryFunction}
                                             </TableCell>
                                         </TableRow>
                                     ),
