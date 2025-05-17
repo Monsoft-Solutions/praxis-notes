@@ -264,11 +264,13 @@ ${formatSessionContext(sessionData)}`;
 
 // Helper function to format session context in a more structured way
 function formatSessionContext(sessionData: ClientSession): string {
+    // clone once so that consumed entries don't re-appear on subsequent iterations
+    const remainingPrograms = [...sessionData.replacementProgramEntries];
     const abcEntriesFormatted = sessionData.abcEntries
         .map((abc, i) => {
             const linkedPrograms = getAbcReplacementProgramData(
                 abc.id,
-                sessionData.replacementProgramEntries,
+                remainingPrograms,
             );
 
             return `### ABC Entry ${i + 1}
