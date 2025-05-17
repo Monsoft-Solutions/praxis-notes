@@ -55,6 +55,7 @@ function getLinkedAbcText(
 }
 
 export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
+    console.log(session);
     return (
         <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
@@ -242,6 +243,7 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                     <TableHead>Antecedent/Activity</TableHead>
                                     <TableHead>Behavior</TableHead>
                                     <TableHead>Intervention</TableHead>
+                                    <TableHead>Function</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -251,6 +253,7 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                             antecedentName,
                                             behaviorNames,
                                             interventionNames,
+                                            function: abcEntryFunction,
                                         },
                                         index,
                                     ) => (
@@ -292,6 +295,9 @@ export function SessionDetails({ session, sessionId }: SessionDetailsProps) {
                                                         ),
                                                     )}
                                                 </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                {abcEntryFunction}
                                             </TableCell>
                                         </TableRow>
                                     ),

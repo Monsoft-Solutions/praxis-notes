@@ -57,7 +57,13 @@ export const getClientSessionData = async (sessionId: string) => {
     if (!clientSession) return Error('NOT_FOUND');
 
     const abcEntriesNullable = clientSession.abcEntries.map(
-        ({ antecedent, behaviors, interventions, id }) => {
+        ({
+            antecedent,
+            behaviors,
+            interventions,
+            id,
+            function: abcEntryFunction,
+        }) => {
             if (!antecedent) return null;
 
             const antecedentName = antecedent.name;
@@ -87,6 +93,7 @@ export const getClientSessionData = async (sessionId: string) => {
                 behaviorNames,
                 interventionNames,
                 id,
+                function: abcEntryFunction,
             };
         },
     );
