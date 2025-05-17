@@ -1,8 +1,14 @@
 import { Link, useNavigate } from '@tanstack/react-router';
 
 import { Button } from '@ui/button.ui';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@ui/dropdown-menu.ui';
 
-import { ListTodo, Pencil, User } from 'lucide-react';
+import { ListTodo, MoreVertical, Pencil, Plus, User } from 'lucide-react';
 
 import { api } from '@api/providers/web';
 
@@ -79,7 +85,7 @@ export const ClientsView = () => {
                     {clients.map((client, index) => (
                         <div
                             key={client.id}
-                            className="bg-card flex items-center justify-between rounded-lg border p-4"
+                            className="bg-card hover:border-border/80 flex items-center justify-between rounded-lg border p-4 transition-colors"
                         >
                             <Link
                                 to="/clients/$clientId/sessions"
@@ -105,59 +111,80 @@ export const ClientsView = () => {
                                 </div>
                             </Link>
 
-                            <div className="flex space-x-2">
+                            <div className="flex items-center space-x-2">
                                 {client.isDraft ? (
-                                    <>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            asChild
+                                    <Button variant="outline" size="sm" asChild>
+                                        <Link
+                                            to="/clients/new"
+                                            search={{
+                                                fromDraft: client.id,
+                                            }}
                                         >
-                                            <Link
-                                                to="/clients/new"
-                                                search={{
-                                                    fromDraft: client.id,
-                                                }}
-                                            >
-                                                <ListTodo className="mr-1 h-4 w-4" />
-                                                Complete
-                                            </Link>
-                                        </Button>
-                                    </>
+                                            <ListTodo className="mr-1 h-4 w-4" />
+                                            Complete
+                                        </Link>
+                                    </Button>
                                 ) : (
                                     <>
                                         <Button
                                             variant="outline"
                                             size="sm"
+                                            className="bg-primary text-primary-foreground hover:shadow-floating hover:bg-primary/90 hover:text-primary-foreground"
                                             asChild
                                         >
                                             <Link
-                                                to="/clients/$clientId/edit"
+                                                to="/clients/$clientId/sessions/new"
                                                 params={{ clientId: client.id }}
                                             >
-                                                <Pencil className="mr-1 h-4 w-4" />
-                                                Edit
+                                                <Plus className="mr-1 h-4 w-4" />
+                                                New Session
                                             </Link>
                                         </Button>
 
-                                        <Button
-                                            id={
-                                                index === 0
-                                                    ? viewSessionsButtonId
-                                                    : undefined
-                                            }
-                                            variant="ghost"
-                                            size="sm"
-                                            asChild
-                                        >
-                                            <Link
-                                                to="/clients/$clientId/sessions"
-                                                params={{ clientId: client.id }}
-                                                className="hover:text-primary flex items-center space-x-4 transition-colors"
-                                            >
-                                                View Sessions
-                                            </Link>
-                                        </Button>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8"
+                                                >
+                                                    <MoreVertical className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem asChild>
+                                                    <Link
+                                                        to="/clients/$clientId/edit"
+                                                        params={{
+                                                            clientId: client.id,
+                                                        }}
+                                                        className="flex w-full items-center"
+                                                    >
+                                                        <Pencil className="mr-2 h-4 w-4" />
+                                                        Edit Client
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    id={
+                                                        index === 0
+                                                            ? viewSessionsButtonId
+                                                            : undefined
+                                                    }
+                                                    asChild
+                                                >
+                                                    <Link
+                                                        to="/clients/$clientId/sessions"
+                                                        params={{
+                                                            clientId: client.id,
+                                                        }}
+                                                        className="flex w-full items-center"
+                                                    >
+                                                        <ListTodo className="mr-2 h-4 w-4" />
+                                                        View Sessions
+                                                    </Link>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
                                     </>
                                 )}
                             </div>
