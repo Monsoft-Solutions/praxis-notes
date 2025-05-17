@@ -8,6 +8,7 @@ import { getSubscriptionStatus } from './get-subscription-status.query';
 import { getCustomerPortalSession } from './get-customer-portal-session.mutation';
 import { createCheckoutSession } from './create-checkout-session.mutation';
 import { getUserCreditsQuery } from './get-user-credits.query';
+import { stripeWebhook } from './stripe.webhook';
 // subscriptions
 
 export const stripe = endpoints({
@@ -21,4 +22,5 @@ export const stripe = endpoints({
     getCustomerPortalSession,
 
     // subscriptions
+    stripeWebhook,
 });
