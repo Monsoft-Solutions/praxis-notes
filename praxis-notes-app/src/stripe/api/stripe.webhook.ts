@@ -13,6 +13,7 @@ import {
     sendPaymentConfirmationEmail,
     sendSubscriptionStatusEmail,
 } from '../providers';
+import { logger } from '@logger/providers';
 
 // --- Helper function to manage subscription data ---
 async function manageSubscriptionStatusChange(
@@ -264,8 +265,6 @@ export const stripeWebhook = publicEndpoint.input(z.unknown()).mutation(
             });
         }
 
-        console.log(input);
-
         const { data: stripe, error: stripeCreateError } =
             await createStripeSdk();
 
@@ -279,10 +278,9 @@ export const stripeWebhook = publicEndpoint.input(z.unknown()).mutation(
 
         const { data: coreConf } = coreConfWithError;
 
-        const { stripeSecretKey } = coreConf;
+        const { stripeWebhookSecret } = coreConf;
 
         const sig = ctx.headers.get('stripe-signature');
-        const webhookSecret = stripeSecretKey;
 
         if (!input) {
             console.error('Stripe Webhook Error: Raw body not available.');
@@ -292,7 +290,7 @@ export const stripeWebhook = publicEndpoint.input(z.unknown()).mutation(
             });
         }
 
-        if (!sig || !webhookSecret) {
+        if (!sig || !stripeWebhookSecret) {
             console.error('Stripe Webhook Error: Missing signature or secret.');
             throw new TRPCError({
                 code: 'BAD_REQUEST',
@@ -304,24 +302,20 @@ export const stripeWebhook = publicEndpoint.input(z.unknown()).mutation(
 
         try {
             event = stripe.webhooks.constructEvent(
-                JSON.stringify(input),
+                ctx.rawBody,
                 sig,
-                'whsec_fDG4IMcyKOa14v2LjXvtxkL1Aew1jP3a',
+                stripeWebhookSecret,
             );
         } catch (err: unknown) {
             // Use unknown
-            console.error('Stripe Webhook Signature Verification Error:');
-            const _message = 'Unknown signature verification error.';
+            logger.error('Stripe Webhook Signature Verification Error:');
 
-            console.error(JSON.stringify(err, null, 2));
+            logger.error(JSON.stringify(err, null, 2));
 
-            // throw new TRPCError({
-            //     code: 'BAD_REQUEST',
-            //     message: `Webhook Error: ${message}`,
-            // });
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+            });
         }
-
-        event = input as Stripe.Event;
 
         // Handle the event
         try {
