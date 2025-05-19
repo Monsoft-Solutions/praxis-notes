@@ -11,6 +11,9 @@ export const coreConfigData: InferInsertModel<typeof coreConfTable> = {
     randomTemplateDeterministic: true,
     anthropicApiKey: z.string().parse(process.env.MSS_ANTHROPIC_API_KEY),
     stripeSecretKey: z.string().parse(process.env.MSS_STRIPE_SECRET_KEY),
+    stripeWebhookSecret: z
+        .string()
+        .parse(process.env.MSS_STRIPE_WEBHOOK_SECRET),
 
     resendApiKey: z.string().parse(process.env.MSS_RESEND_API_KEY),
     resendAudienceId: z.string().parse(process.env.MSS_RESEND_AUDIENCE_ID),
