@@ -256,10 +256,11 @@ function handleCustomerDeleted(event: Stripe.CustomerDeletedEvent) {
 
 export const stripeWebhook = publicEndpoint.input(z.unknown()).mutation(
     queryMutationCallback(async ({ ctx, input }) => {
-        if (!ctx.req) {
+        if (!ctx.rawBody) {
             throw new TRPCError({
                 code: 'INTERNAL_SERVER_ERROR',
-                message: 'Webhook error: No request object.',
+                message:
+                    'Webhook error: Raw body required to verify webhook signature.',
             });
         }
 
@@ -280,7 +281,7 @@ export const stripeWebhook = publicEndpoint.input(z.unknown()).mutation(
 
         const { stripeSecretKey } = coreConf;
 
-        const sig = ctx.req.headers['stripe-signature'] as string;
+        const sig = ctx.headers.get('stripe-signature');
         const webhookSecret = stripeSecretKey;
 
         if (!input) {
