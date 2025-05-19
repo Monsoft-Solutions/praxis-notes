@@ -47,7 +47,7 @@ const server = express();
 server.use(cors());
 
 server.use(
-    express.json({
+    express.raw({
         verify: (req, res, buf) => {
             // @ts-expect-error - TODO: this is valid express middleware to get the raw body
             req.rawBody = buf.toString(); // or keep as Buffer
