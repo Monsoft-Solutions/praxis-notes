@@ -26,7 +26,7 @@ export const sendMessage = protectedEndpoint
     .mutation(
         queryMutationCallback(
             async ({
-                input: { content, sessionId, model },
+                input: { content, attachments, sessionId, model },
                 ctx: {
                     session: { user },
                 },
@@ -49,6 +49,7 @@ export const sendMessage = protectedEndpoint
                     content,
                     role: 'user',
                     createdAt: now,
+                    attachments,
                 };
 
                 // Insert user message
@@ -71,6 +72,7 @@ export const sendMessage = protectedEndpoint
                     content: '',
                     role: 'assistant',
                     createdAt: Date.now(),
+                    attachments: [],
                 };
 
                 // Emit event for the assistant message

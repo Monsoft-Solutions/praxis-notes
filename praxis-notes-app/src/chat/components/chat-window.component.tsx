@@ -9,6 +9,7 @@ import { api } from '@api/providers/web/api.provider';
 import { apiClientUtils } from '@api/providers/web/api-client-utils.provider';
 import { ScrollArea } from '@shared/ui/scroll-area.ui';
 import { AiGenerationQualitySelector } from '@src/ai/schemas';
+import { File } from '@shared/schemas';
 
 type ChatWindowProps = {
     activeSessionId: string;
@@ -26,16 +27,26 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
 
     const { mutateAsync: sendMessage } = api.chat.sendMessage.useMutation();
 
-    const handleSendMessage = async (message: string) => {
+    const handleSendMessage = async ({
+        message,
+        attachments,
+    }: {
+        message: string;
+        attachments: File[];
+    }) => {
         await sendMessage({
             sessionId: activeSessionId,
             content: message,
             model: selectedModel,
+            attachments,
         });
     };
 
     const handleSuggestedQuestionSelect = async (question: string) => {
-        await handleSendMessage(question);
+        await handleSendMessage({
+            message: question,
+            attachments: [],
+        });
     };
 
     const handleModelChange = (model: AiGenerationQualitySelector) => {
@@ -169,7 +180,10 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
             <CardFooter className="bg-background sticky bottom-0 mt-auto flex flex-col items-stretch gap-2 border-t pt-2">
                 <ChatInputComponent
                     onSend={(message) => {
-                        void handleSendMessage(message);
+                        void handleSendMessage({
+                            message,
+                            attachments: [],
+                        });
                     }}
                     model={selectedModel}
                     onModelChange={handleModelChange}
