@@ -3,6 +3,8 @@ import { Card } from '@ui/card.ui';
 import type { ChatMessage } from '../schemas';
 import ReactMarkdown from 'react-markdown';
 
+import { Media } from '@shared/ui/media.ui';
+
 type ChatMessageProps = {
     message: ChatMessage;
     isLoading?: boolean;
@@ -45,6 +47,12 @@ export function ChatMessageComponent({
                         )}
                     >
                         <ReactMarkdown>{message.content}</ReactMarkdown>
+
+                        {message.attachments.map((attachment, index) => (
+                            <div key={index}>
+                                <Media file={attachment} />
+                            </div>
+                        ))}
                     </div>
                 </Card>
 
