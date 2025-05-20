@@ -8,7 +8,7 @@ import { chatSessionSystemPrompt } from '../provider';
 import { streamText } from '@src/ai/providers';
 import { Message } from 'ai';
 import { UserLang } from '@auth/enum/user-lang.enum';
-import { anthropicModelEnum } from '@src/ai/enums';
+import { AiModelName } from '@src/ai/enums';
 import { AiGenerationQualitySelector } from '@src/ai/schemas';
 
 /**
@@ -83,13 +83,13 @@ export const generateChatResponse = (async ({
     ReadableStreamDefaultReader<string>
 >;
 
-const getModel = (model: AiGenerationQualitySelector) => {
+const getModel = (model: AiGenerationQualitySelector): AiModelName => {
     switch (model) {
         case 'Fast':
-            return anthropicModelEnum.Enum['claude-3-haiku-20240307'];
+            return 'claude-3-haiku-20240307';
         case 'Smart':
-            return anthropicModelEnum.Enum['claude-3-5-haiku-latest'];
+            return 'claude-3-5-haiku-latest';
         case 'Genius':
-            return anthropicModelEnum.Enum['claude-3-7-sonnet-latest'];
+            return 'claude-3-7-sonnet-latest';
     }
 };
