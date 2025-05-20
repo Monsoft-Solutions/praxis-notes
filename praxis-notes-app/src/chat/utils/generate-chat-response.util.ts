@@ -6,7 +6,7 @@ import { ChatMessage, UserBasicDataForChat } from '../schemas';
 import { chatSessionSystemPrompt } from '../provider';
 
 import { streamText } from '@src/ai/providers';
-import { Message } from 'ai';
+import { CoreMessage } from 'ai';
 import { UserLang } from '@auth/enum/user-lang.enum';
 import { AiModelName } from '@src/ai/enums';
 import { AiGenerationQualitySelector } from '@src/ai/schemas';
@@ -42,8 +42,7 @@ export const generateChatResponse = (async ({
     });
 
     // Add system message at the start
-    const systemMessage: Message = {
-        id: 'prompt',
+    const systemMessage: CoreMessage = {
         role: 'system',
         content: systemPrompt,
     };

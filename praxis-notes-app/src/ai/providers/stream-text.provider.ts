@@ -4,7 +4,7 @@ import { Error, Success } from '@errors/utils';
 
 import { getCoreConf } from '@conf/providers/server';
 
-import { streamText as aiSdkStreamText, Message, smoothStream } from 'ai';
+import { streamText as aiSdkStreamText, CoreMessage, smoothStream } from 'ai';
 
 import { getAiSdkModelFromName } from './get-ai-sdk-model-from-name.provider';
 
@@ -34,7 +34,7 @@ export const streamText = (async ({
       }
     | {
           prompt?: undefined;
-          messages: Message[];
+          messages: CoreMessage[];
           modelParams: AiRequest;
       }) => {
     const traceId = uuidv4();
@@ -205,7 +205,7 @@ export const streamText = (async ({
     return Success(reader);
 }) satisfies Function<
     | { prompt: string; messages?: undefined; modelParams: AiRequest }
-    | { prompt?: undefined; messages: Message[]; modelParams: AiRequest },
+    | { prompt?: undefined; messages: CoreMessage[]; modelParams: AiRequest },
     ReadableStreamDefaultReader<string>
 >;
 
