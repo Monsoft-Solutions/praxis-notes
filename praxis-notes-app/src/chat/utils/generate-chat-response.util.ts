@@ -107,5 +107,7 @@ const getModel = (model: AiGenerationQualitySelector): AiModelName => {
             return 'claude-3-5-haiku-latest';
         case 'Genius':
             return 'claude-3-7-sonnet-latest';
+        case 'File':
+            return 'gpt-4o-2024-05-13';
     }
 };
