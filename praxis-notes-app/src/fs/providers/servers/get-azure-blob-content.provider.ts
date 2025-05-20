@@ -25,7 +25,9 @@ export const getAzureBlobContent = (async ({
 
     if (!stream) return Error();
 
-    const { data: content } = await streamToString(stream);
+    const { data: content, error: contentError } = await streamToString(stream);
+
+    if (contentError) return Error();
 
     return Success(content);
 }) satisfies Function<{ blobName: string }, string>;
