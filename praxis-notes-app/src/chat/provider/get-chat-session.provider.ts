@@ -40,10 +40,10 @@ export const getChatSession = (async ({ sessionId }: { sessionId: string }) => {
         rawMessages.map(async ({ attachments: rawAttachments, ...message }) => {
             const attachments = (
                 await Promise.all(
-                    rawAttachments.map(async (attachment) => {
+                    rawAttachments.map(async ({ fileId }) => {
                         const { data: file, error: fileError } =
                             await getFileById({
-                                id: attachment.id,
+                                id: fileId,
                             });
 
                         if (fileError) return null;
