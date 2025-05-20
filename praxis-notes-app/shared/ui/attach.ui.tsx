@@ -15,6 +15,7 @@ export function Attach({
     className,
     disabled,
     setAttachment,
+    ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
     setAttachment: (file: File[]) => void;
 }) {
@@ -63,6 +64,7 @@ export function Attach({
             className={cn('', className)}
             disabled={disabled}
             type="button"
+            {...props}
         >
             {children}
 
