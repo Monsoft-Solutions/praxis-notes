@@ -21,6 +21,8 @@ import { generateChatSessionTitle } from '../utils/generate-chat-session-title.u
 
 import { getChatSession } from '../provider';
 
+import { saveMessageAttachment } from '../provider/save-message-attachment.provider';
+
 export const sendMessage = protectedEndpoint
     .input(createChatMessageSchema)
     .mutation(
@@ -42,9 +44,11 @@ export const sendMessage = protectedEndpoint
                 // current timestamp
                 const now = Date.now();
 
+                const userMessageId = uuidv4();
+
                 // Create the user message
                 const userMessage: ChatMessage = {
-                    id: uuidv4(),
+                    id: userMessageId,
                     sessionId,
                     content,
                     role: 'user',
@@ -59,6 +63,14 @@ export const sendMessage = protectedEndpoint
 
                 if (userMessageError) return Error();
 
+                await Promise.all(
+                    attachments.map((attachment) =>
+                        saveMessageAttachment({
+                            messageId: userMessageId,
+                            file: attachment,
+                        }),
+                    ),
+                );
                 // Emit event for the user message
                 emit({
                     event: 'chatMessageCreated',
