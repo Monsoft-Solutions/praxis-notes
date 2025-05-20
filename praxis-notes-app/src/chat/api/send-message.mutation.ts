@@ -19,6 +19,8 @@ import { ChatMessage, createChatMessageSchema } from '../schemas';
 import { generateChatResponse } from '../utils/generate-chat-response.util';
 import { generateChatSessionTitle } from '../utils/generate-chat-session-title.util';
 
+import { getChatSession } from '../provider';
+
 export const sendMessage = protectedEndpoint
     .input(createChatMessageSchema)
     .mutation(
@@ -30,15 +32,12 @@ export const sendMessage = protectedEndpoint
                 },
             }) => {
                 // Get previous messages for context
-                const { data: previousMessages, error: previousMessagesError } =
-                    await catchError(
-                        db.query.chatMessageTable.findMany({
-                            where: eq(chatMessageTable.sessionId, sessionId),
-                            orderBy: chatMessageTable.createdAt,
-                        }),
-                    );
+                const { data: chatSession, error: chatSessionError } =
+                    await getChatSession({ sessionId });
 
-                if (previousMessagesError) return Error();
+                if (chatSessionError) return Error();
+
+                const { messages: previousMessages } = chatSession;
 
                 // current timestamp
                 const now = Date.now();
