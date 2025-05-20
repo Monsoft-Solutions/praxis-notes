@@ -179,10 +179,10 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
 
             <CardFooter className="bg-background sticky bottom-0 mt-auto flex flex-col items-stretch gap-2 border-t pt-2">
                 <ChatInputComponent
-                    onSend={(message) => {
+                    onSend={({ message, attachments }) => {
                         void handleSendMessage({
                             message,
-                            attachments: [],
+                            attachments,
                         });
                     }}
                     model={selectedModel}

@@ -1,19 +1,44 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useCallback, useState } from 'react';
+
+import { File } from '@shared/schemas';
+
+import { cn } from '@css/utils';
+
+import {
+    Brain,
+    ChevronDown,
+    FastForward,
+    Paperclip,
+    Send,
+    Sparkles,
+    X,
+} from 'lucide-react';
+
 import { Button } from '@ui/button.ui';
 import { Textarea } from '@ui/textarea.ui';
-import { cn } from '@css/utils';
+import { Attach } from '@shared/ui/attach.ui';
+import { Badge } from '@shared/ui/badge.ui';
+import { Thumbnail } from '@shared/ui/thumbnail.ui';
+
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@ui/dropdown-menu.ui';
-import { Brain, ChevronDown, FastForward, Send, Sparkles } from 'lucide-react';
 
 import { AiGenerationQualitySelector } from '@src/ai/schemas';
 
 type ChatInputProps = {
-    onSend: (message: string, model: AiGenerationQualitySelector) => void;
+    onSend: ({
+        message,
+        attachments,
+        model,
+    }: {
+        message: string;
+        attachments: File[];
+        model: AiGenerationQualitySelector;
+    }) => void;
     isLoading?: boolean;
     placeholder?: string;
     model?: AiGenerationQualitySelector;
@@ -29,12 +54,26 @@ export function ChatInputComponent({
 }: ChatInputProps) {
     const [input, setInput] = useState('');
 
+    const [attachments, setAttachments] = useState<File[]>([]);
+
+    const removeAttachment = useCallback((name: string) => {
+        setAttachments((prev) => prev.filter((f) => f.name !== name));
+    }, []);
+
+    const numAttachments = attachments.length;
+
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
         if (input.trim() && !isLoading) {
-            onSend(input, modelSelected);
+            onSend({
+                message: input,
+                attachments,
+                model: modelSelected,
+            });
             setInput('');
+
+            setAttachments([]);
         }
     };
 
@@ -69,7 +108,63 @@ export function ChatInputComponent({
                     />
                 </div>
             </div>
+
             <div className="flex w-full items-center gap-2.5">
+                <div className="flex items-center p-4">
+                    <div className="relative">
+                        <Attach
+                            className="relative overflow-visible"
+                            setAttachment={setAttachments}
+                            disabled={isLoading}
+                        >
+                            <Paperclip className="h-5 w-5" />
+                        </Attach>
+
+                        {numAttachments > 0 && (
+                            <>
+                                <Badge
+                                    variant="secondary"
+                                    className="absolute -right-0.5 -top-0.5 flex size-5 cursor-default items-center justify-center rounded-full px-0 py-0"
+                                >
+                                    {numAttachments > 9 ? '9+' : numAttachments}
+                                </Badge>
+
+                                <Button
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute left-0 top-0 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 p-0"
+                                    onClick={() => {
+                                        setAttachments([]);
+                                    }}
+                                >
+                                    <X className="size-2.5" />
+                                </Button>
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                {attachments.length > 0 && (
+                    <div className="flex gap-2 p-2">
+                        {attachments.map((file, idx) => (
+                            <div key={idx} className="relative">
+                                <Thumbnail file={file} />
+
+                                <Button
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute left-0 top-0 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 p-0"
+                                    onClick={() => {
+                                        removeAttachment(file.name);
+                                    }}
+                                >
+                                    <X className="size-2.5" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
                 <div className="relative flex min-w-0 flex-1 shrink items-center gap-2">
                     {/* <div className="relative shrink-0">
                         <div>
