@@ -3,6 +3,7 @@ import { relations } from 'drizzle-orm';
 import { char, table, bigint, text, sqlEnum, enumType } from '@db/sql';
 
 import { chatSessionTable } from './chat-session.table';
+import { chatMessageAttachmentTable } from './chat-message-attachment.table';
 
 import { chatMessageAuthorEnum } from '../enums';
 
@@ -35,11 +36,14 @@ export const chatMessageTable = table('chat_message', {
 export const chatMessageTableRelations = relations(
     chatMessageTable,
 
-    ({ one }) => ({
+    ({ one, many }) => ({
         // session this message belongs to
         session: one(chatSessionTable, {
             fields: [chatMessageTable.sessionId],
             references: [chatSessionTable.id],
         }),
+
+        // attachments of the message
+        attachments: many(chatMessageAttachmentTable),
     }),
 );
