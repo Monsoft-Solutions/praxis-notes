@@ -24,7 +24,7 @@ export function Attach({
         // if any files are selected
         if (e.target.files) {
             const files = Array.from(e.target.files);
-            const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+            const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB in bytes
 
             // Check if any file exceeds the size limit
             const oversizedFiles = files.filter(
