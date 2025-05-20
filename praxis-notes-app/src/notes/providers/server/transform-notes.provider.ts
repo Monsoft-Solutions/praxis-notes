@@ -34,7 +34,6 @@ export const transformNotesProvider = (async ({
             prompt,
             modelParams: {
                 model: 'claude-3-5-haiku-latest',
-                provider: 'anthropic',
                 activeTools: [],
                 userBasicData: {
                     userId,

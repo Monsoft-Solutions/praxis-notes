@@ -59,7 +59,6 @@ export const generateChatResponse = (async ({
     const { data: textStream, error: textGenerationError } = await streamText({
         messages: [systemMessage, ...messageHistory],
         modelParams: {
-            provider: 'anthropic',
             model: getModel(model),
             activeTools: ['getClientData', 'listAvailableClients', 'think'],
             userBasicData: {

@@ -5,7 +5,8 @@ import { Error, Success } from '@errors/utils';
 import { getCoreConf } from '@conf/providers/server';
 
 import { streamText as aiSdkStreamText, Message, smoothStream } from 'ai';
-import { createAnthropic } from '@ai-sdk/anthropic';
+
+import { getAiSdkModelFromName } from './get-ai-sdk-model-from-name.provider';
 
 import { thinkTool } from '../tools/think.tool';
 import { AiRequest } from '../schemas/ai-request.schema';
@@ -16,6 +17,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Langfuse } from 'langfuse';
 import { logger } from '@logger/providers';
+
+import { getAiProviderNameFromModelName } from './get-ai-provider-name-from-model-name.provider';
 
 let langfuse: Langfuse | undefined;
 
@@ -45,12 +48,7 @@ export const streamText = (async ({
 
     const { data: coreConf } = coreConfWithError;
 
-    const {
-        anthropicApiKey,
-        langfuseSecretKey,
-        langfusePublicKey,
-        langfuseBaseUrl,
-    } = coreConf;
+    const { langfuseSecretKey, langfusePublicKey, langfuseBaseUrl } = coreConf;
 
     if (!langfuse) {
         initLangfuse({
@@ -59,6 +57,16 @@ export const streamText = (async ({
             langfuseBaseUrl,
         });
     }
+
+    const { data: providerName, error: providerNameError } =
+        getAiProviderNameFromModelName({
+            modelName: modelParams.model,
+        });
+
+    if (providerNameError) return Error('INVALID_MODEL_NAME');
+
+    const modelName = modelParams.model;
+
     const trace = langfuse?.trace({
         name: modelParams.callerName,
         id: traceId,
@@ -69,17 +77,11 @@ export const streamText = (async ({
         },
         sessionId: modelParams.chatSessionId,
         userId: modelParams.userBasicData?.userId,
-        tags: [modelParams.model, modelParams.provider, modelParams.callerName],
+        tags: [modelName, providerName, modelParams.callerName],
     });
-
-    const anthropic = createAnthropic({
-        apiKey: anthropicApiKey,
-    });
-
-    const model = modelParams.model;
 
     const generation = trace?.generation({
-        model,
+        model: modelName,
         input: messages && messages.length > 0 ? messages : prompt,
         metadata: {
             activeTools: modelParams.activeTools,
@@ -90,8 +92,14 @@ export const streamText = (async ({
         (message) => message.content.length > 0,
     );
 
+    const { data: model, error: modelError } = await getAiSdkModelFromName({
+        modelName,
+    });
+
+    if (modelError) return Error('INVALID_MODEL_NAME');
+
     const { textStream } = aiSdkStreamText({
-        model: anthropic(model),
+        model,
         prompt,
         messages: cleanMessages,
         tools: {
@@ -131,7 +139,7 @@ export const streamText = (async ({
                         ? step.toolCalls[0].toolName
                         : 'no_tool'
                 }`,
-                model,
+                model: modelName,
                 input: step.request.body,
                 output: step.response.messages,
                 usage: {
