@@ -414,6 +414,13 @@
       "when": 1747745308156,
       "tag": "0058_robust_synch",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1747757372336,
+      "tag": "0059_fresh_sunspot",
+      "breakpoints": true
     }
   ]
 }
