@@ -3,7 +3,7 @@ import { Success, Error } from '@errors/utils';
 
 import { LanguageModelV1 } from 'ai';
 
-import { ModelName } from '../enums';
+import { AiModelName } from '../enums';
 
 import { getAiProviderNameFromModelName } from './get-ai-provider-name-from-model-name.provider';
 
@@ -27,4 +27,4 @@ export const getAiSdkModelFromName = (async ({ modelName }) => {
     const model = provider(modelName);
 
     return Success(model);
-}) satisfies Function<{ modelName: ModelName }, LanguageModelV1>;
+}) satisfies Function<{ modelName: AiModelName }, LanguageModelV1>;

@@ -1,7 +1,7 @@
 import { Function } from '@errors/types';
 import { Success, Error } from '@errors/utils';
 
-import { ModelName, AiProviderName } from '../enums';
+import { AiModelName, AiProviderName } from '../enums';
 
 export const getAiProviderNameFromModelName = (({ modelName }) => {
     switch (modelName) {
@@ -19,4 +19,4 @@ export const getAiProviderNameFromModelName = (({ modelName }) => {
         default:
             return Error('INVALID_MODEL_NAME');
     }
-}) satisfies Function<{ modelName: ModelName }, AiProviderName>;
+}) satisfies Function<{ modelName: AiModelName }, AiProviderName>;
