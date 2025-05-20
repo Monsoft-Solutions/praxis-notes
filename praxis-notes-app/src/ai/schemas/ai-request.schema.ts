@@ -3,14 +3,14 @@ import { z } from 'zod';
 import { availableToolsEnumSchema } from '../enums/agent-tools.enum';
 
 import {
-    aiModelProviderEnum,
+    aiProviderNameEnum,
     anthropicModelEnum,
     openaiModelEnum,
 } from '../enums';
 import { userBasicDataForChatSchema } from '@src/chat/schemas';
 
 export const aiRequestSchema = z.object({
-    provider: aiModelProviderEnum,
+    provider: aiProviderNameEnum,
 
     model: anthropicModelEnum
         .or(openaiModelEnum)
