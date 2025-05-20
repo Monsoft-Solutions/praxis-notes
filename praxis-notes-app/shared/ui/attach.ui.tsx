@@ -62,6 +62,7 @@ export function Attach({
             }}
             className={cn('', className)}
             disabled={disabled}
+            type="button"
         >
             {children}
 
