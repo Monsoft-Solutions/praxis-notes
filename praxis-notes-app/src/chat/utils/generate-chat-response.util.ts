@@ -6,7 +6,7 @@ import { ChatMessage, UserBasicDataForChat } from '../schemas';
 import { chatSessionSystemPrompt } from '../provider';
 
 import { streamText } from '@src/ai/providers';
-import { CoreMessage } from 'ai';
+import { CoreMessage, FilePart } from 'ai';
 import { UserLang } from '@auth/enum/user-lang.enum';
 import { AiModelName } from '@src/ai/enums';
 import { AiGenerationQualitySelector } from '@src/ai/schemas';
@@ -29,11 +29,28 @@ export const generateChatResponse = (async ({
     model: AiGenerationQualitySelector;
 }) => {
     // Prepare the conversation history
-    const messageHistory = messages.map((msg) => ({
-        id: msg.id,
-        role: msg.role,
-        content: msg.content,
-    }));
+    const messageHistory: CoreMessage[] = messages.map((msg) => {
+        const attachmentsParts: FilePart[] = msg.attachments.map(
+            (attachment) => ({
+                type: 'file',
+                mimeType: attachment.type,
+                data: attachment.base64,
+            }),
+        );
+
+        return {
+            id: msg.id,
+            role: msg.role,
+            content: [
+                {
+                    type: 'text',
+                    text: msg.content,
+                },
+
+                ...attachmentsParts,
+            ],
+        };
+    });
 
     const { data: systemPrompt } = chatSessionSystemPrompt({
         userName: userBasicData.firstName ?? '',
