@@ -32,4 +32,11 @@ export const coreConfigData: InferInsertModel<typeof coreConfTable> = {
     langfuseSecretKey: z.string().parse(process.env.MSS_LANGFUSE_SECRET_KEY),
     langfusePublicKey: z.string().parse(process.env.MSS_LANGFUSE_PUBLIC_KEY),
     langfuseBaseUrl: z.string().parse(process.env.MSS_LANGFUSE_BASE_URL),
+
+    azureStorageConnectionString: z
+        .string()
+        .parse(process.env.MSS_AZURE_STORAGE_CONNECTION_STRING),
+    azureStorageContainerName: z
+        .string()
+        .parse(process.env.MSS_AZURE_STORAGE_CONTAINER_NAME),
 };
