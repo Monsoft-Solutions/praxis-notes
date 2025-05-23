@@ -34,8 +34,8 @@ export const createClientTool = tool({
         const { error } = await createClientProvider({
             clientId,
             user: {
-                id: '1',
-                organizationId: '1',
+                id: 'test-user-id',
+                organizationId: 'test-organization-id',
             },
             clientFormData: {
                 firstName,
