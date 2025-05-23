@@ -76,7 +76,16 @@ export const generateChatResponse = (async ({
         messages: [systemMessage, ...messageHistory],
         modelParams: {
             model: getModel(model),
-            activeTools: ['getClientData', 'listAvailableClients', 'think'],
+            activeTools: [
+                'getClientData',
+                'listAvailableClients',
+                'think',
+                'createClient',
+                'listSystemBehaviors',
+                'listReinforcers',
+                'listReplacementPrograms',
+                'listInterventions',
+            ],
             userBasicData: {
                 ...userBasicData,
                 lastName: userBasicData.lastName ?? '',
