@@ -4,19 +4,13 @@ import { Success, Error } from '@errors/utils';
 import { AiModelName, AiProviderName } from '../enums';
 
 export const getAiProviderNameFromModelName = (({ modelName }) => {
-    switch (modelName) {
-        case 'claude-3-7-sonnet-latest':
-        case 'claude-3-5-sonnet-latest':
-        case 'claude-3-5-haiku-latest':
-        case 'claude-3-opus-latest':
-        case 'claude-3-haiku-20240307':
-            return Success('anthropic');
-
-        case 'gpt-4o-2024-05-13':
-        case 'gpt-4o-mini-2024-07-18':
-            return Success('openai');
-
-        default:
-            return Error('INVALID_MODEL_NAME');
+    if (modelName.startsWith('claude-')) {
+        return Success('anthropic');
     }
+
+    if (modelName.startsWith('gpt-')) {
+        return Success('openai');
+    }
+
+    return Error('INVALID_MODEL_NAME');
 }) satisfies Function<{ modelName: AiModelName }, AiProviderName>;

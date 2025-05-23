@@ -7,7 +7,7 @@ import { getSuggestedQuestions } from './get-suggested-questions.query';
 
 // mutations
 import { createChatSession } from './create-chat-session.mutation';
-import { sendMessage } from './send-message.mutation';
+import { sendMessageImproved as sendMessage } from './send-message-improved.mutation';
 
 // subscriptions
 import { onChatMessageCreated } from './chat-message-created.subscription';

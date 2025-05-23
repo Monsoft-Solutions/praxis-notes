@@ -421,6 +421,13 @@
       "when": 1747757372336,
       "tag": "0059_fresh_sunspot",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1748017847351,
+      "tag": "0060_breezy_millenium_guard",
+      "breakpoints": true
     }
   ]
 }
