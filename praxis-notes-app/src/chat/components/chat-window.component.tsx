@@ -223,7 +223,7 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
             <CardContent className="flex-grow overflow-hidden p-0">
                 <ScrollArea
                     ref={scrollAreaRef}
-                    className="h-[calc(100vh-11rem)] md:h-[calc(100vh-12rem)] lg:h-[calc(100vh-10rem)]"
+                    className="h-[calc(100vh-13rem)] md:h-[calc(100vh-14rem)] lg:h-[calc(100vh-10rem)]"
                     onScrollCapture={handleScroll}
                 >
                     <div className="h-32 w-full lg:h-20"></div>

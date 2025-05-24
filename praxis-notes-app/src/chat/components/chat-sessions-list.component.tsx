@@ -133,7 +133,7 @@ export function ChatSessionsList({
             </CardHeader>
             <Separator />
             <CardContent className="flex-1 p-0">
-                <ScrollArea className="h-[60vh] max-h-[60vh] lg:h-[calc(100vh-10rem)] lg:max-h-none">
+                <ScrollArea className="h-[60vh] max-h-[60vh] lg:h-[calc(100vh-12rem)] lg:max-h-none">
                     {filteredSessions.length === 0 ? (
                         <div className="flex h-full flex-col items-center justify-center p-4 text-center">
                             <p className="text-muted-foreground text-sm">
