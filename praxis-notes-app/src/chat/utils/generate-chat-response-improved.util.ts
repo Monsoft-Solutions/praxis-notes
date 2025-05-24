@@ -1,7 +1,10 @@
 import { Function } from '@errors/types';
 import { Success, Error } from '@errors/utils';
 
-import { UserBasicDataForChat } from '../schemas';
+import {
+    UserBasicDataForChat,
+    OptimizedContextSelectionResult,
+} from '../schemas';
 import { chatSessionSystemPrompt, getModel } from '../provider';
 
 import { streamText } from '@src/ai/providers';
@@ -10,7 +13,6 @@ import { UserLang } from '@auth/enum/user-lang.enum';
 import { AiGenerationQualitySelector } from '@src/ai/schemas';
 
 import { logger } from '@logger/providers';
-import { EnhancedContextSelectionResult } from './smart-context-manager-with-summaries.util';
 
 /**
  * Generate AI response with smart context management
@@ -22,7 +24,7 @@ export const generateChatResponseImproved = (async ({
     chatSessionId,
     model,
 }: {
-    contextResult: EnhancedContextSelectionResult;
+    contextResult: OptimizedContextSelectionResult;
     userBasicData: UserBasicDataForChat;
     chatSessionId: string;
     model: AiGenerationQualitySelector;
@@ -114,7 +116,7 @@ export const generateChatResponseImproved = (async ({
     return Success(textStream);
 }) satisfies Function<
     {
-        contextResult: EnhancedContextSelectionResult;
+        contextResult: OptimizedContextSelectionResult;
         userBasicData: UserBasicDataForChat;
         chatSessionId: string;
         model: AiGenerationQualitySelector;

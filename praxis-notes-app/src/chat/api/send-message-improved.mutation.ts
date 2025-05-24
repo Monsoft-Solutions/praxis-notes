@@ -2,33 +2,19 @@ import { Error, Success } from '@errors/utils';
 
 import { protectedEndpoint } from '@api/providers/server';
 
-import { db } from '@db/providers/server';
-
-import { eq } from 'drizzle-orm';
-
-import { catchError } from '@errors/utils/catch-error.util';
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
 
 import { emit } from '@events/providers';
 
 import { v4 as uuidv4 } from 'uuid';
 
-import { chatSessionTable, chatMessageTable } from '../db';
-
-import { ChatMessage, createChatMessageSchema } from '../schemas';
-import { generateChatResponseImproved } from '../utils/generate-chat-response-improved.util';
-import { generateChatSessionTitle } from '../utils/generate-chat-session-title.util';
+import { createChatMessageSchema } from '../schemas';
 
 import { getChatSessionWithOptimalContext } from '../provider/get-chat-session-with-optimal-context.provider';
+import { createMessageWithMetadata } from '../provider/create-message-with-metadata.provider';
+import { generateAiResponse } from '../provider/generate-ai-response.provider';
+import { finalizeChatSession } from '../provider/finalize-chat-session.provider';
 
-import { saveMessageAttachment } from '../provider/save-message-attachment.provider';
-import { streamMessageUpdate } from '../utils/batch-update-manager.util';
-import {
-    countTokens,
-    calculateMessageImportance,
-    EnhancedContextSelectionResult,
-    autoSummarizeIfNeeded,
-} from '../utils';
 import { selectOptimalContextOptimized } from '../utils/smart-context-manager-optimized.util';
 import { getModel } from '../provider';
 import { logger } from '@logger/providers';
@@ -44,6 +30,7 @@ export const sendMessageImproved = protectedEndpoint
                 },
             }) => {
                 // Get previous messages with optimal context loading (only uncovered messages + summaries)
+                // This preserves the contextMetadata that was already calculated
                 const { data: chatSession, error: chatSessionError } =
                     await getChatSessionWithOptimalContext({
                         sessionId,
@@ -75,91 +62,50 @@ export const sendMessageImproved = protectedEndpoint
                     optimizationUsed: contextMetadata.optimizationUsed,
                 });
 
-                // current timestamp
-                const now = Date.now();
-
-                const userMessageId = uuidv4();
-
-                // Calculate metadata for user message
-                const { data: userMessageTokens } = countTokens({
-                    text: content,
-                });
-
-                // Create the user message with metadata
-                const userMessage: ChatMessage = {
-                    id: userMessageId,
-                    sessionId,
-                    content,
-                    role: 'user',
-                    createdAt: now,
-                    attachments,
-                };
-
-                // Calculate importance score for the user message
-                const { data: userImportanceResult } =
-                    calculateMessageImportance({
-                        message: userMessage,
-                        allMessages: [...previousMessages, userMessage],
+                // Create user message with metadata
+                const { data: userMessageResult, error: userMessageError } =
+                    await createMessageWithMetadata({
+                        content,
+                        attachments,
+                        sessionId,
+                        role: 'user',
+                        allMessages: previousMessages,
                     });
-
-                // Insert user message with metadata
-                const { error: userMessageError } = await catchError(
-                    db.insert(chatMessageTable).values({
-                        ...userMessage,
-                        tokenCount: userMessageTokens,
-                        importanceScore: userImportanceResult.score,
-                    }),
-                );
 
                 if (userMessageError) return Error();
 
-                // Save attachments in parallel with message insertion
-                await Promise.all(
-                    attachments.map((attachment) =>
-                        saveMessageAttachment({
-                            messageId: userMessageId,
-                            file: attachment,
-                        }),
-                    ),
-                );
+                const {
+                    message: userMessage,
+                    tokenCount: userTokenCount,
+                    importanceScore: userImportanceScore,
+                } = userMessageResult;
 
-                // Emit event for the user message
-                emit({
-                    event: 'chatMessageCreated',
-                    payload: userMessage,
-                });
-
-                // Create the assistant message
+                // Create assistant message placeholder
                 const assistantMessageId = uuidv4();
-                const assistantMessage: ChatMessage = {
-                    id: assistantMessageId,
-                    sessionId,
+                const {
+                    data: assistantMessageResult,
+                    error: assistantMessageError,
+                } = await createMessageWithMetadata({
                     content: '',
-                    role: 'assistant',
-                    createdAt: Date.now(),
                     attachments: [],
-                };
-
-                // Insert assistant message with initial metadata
-                const { error: assistantMessageError } = await catchError(
-                    db.insert(chatMessageTable).values({
-                        ...assistantMessage,
-                        tokenCount: 0, // Will be updated as content streams
-                        importanceScore: 50, // Default score, will be updated after completion
-                    }),
-                );
+                    sessionId,
+                    role: 'assistant',
+                    allMessages: [...previousMessages, userMessage],
+                    messageId: assistantMessageId,
+                });
 
                 if (assistantMessageError) return Error();
 
                 // Emit event for the assistant message
                 emit({
                     event: 'chatMessageCreated',
-                    payload: assistantMessage,
+                    payload: assistantMessageResult.message,
                 });
 
                 const allMessages = [...previousMessages, userMessage];
 
                 // Use optimized context selection with pre-filtered messages and summaries
+                // This reuses the existing contextMetadata instead of regenerating it
                 const aiModelName = getModel(model);
                 const { data: contextResult, error: contextError } =
                     selectOptimalContextOptimized({
@@ -197,10 +143,9 @@ export const sendMessageImproved = protectedEndpoint
                 });
 
                 // Generate AI response using the optimized context
-                const { data: responseStream, error: aiResponseError } =
-                    await generateChatResponseImproved({
-                        contextResult:
-                            contextResult as EnhancedContextSelectionResult,
+                const { data: responseResult, error: aiResponseError } =
+                    await generateAiResponse({
+                        contextResult,
                         userBasicData: {
                             firstName: user.name,
                             lastName: user.lastName ?? '',
@@ -209,147 +154,38 @@ export const sendMessageImproved = protectedEndpoint
                         },
                         chatSessionId: sessionId,
                         model,
+                        assistantMessageId,
+                        allMessages,
                     });
 
                 if (aiResponseError) return Error();
 
-                let fullResponseContent = '';
+                const {
+                    tokenCount: assistantTokenCount,
+                    importanceScore: assistantImportanceScore,
+                } = responseResult;
 
-                // Process streaming response with batched updates
-                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-                while (true) {
-                    const { done, value: textDelta } =
-                        await responseStream.read();
-
-                    if (done) break;
-
-                    fullResponseContent += textDelta;
-
-                    // Use batched update for streaming
-                    const { error: streamError } = await streamMessageUpdate({
-                        messageId: assistantMessageId,
-                        sessionId,
-                        content: textDelta,
-                        isComplete: false,
-                    });
-
-                    if (streamError) {
-                        logger.error('Stream update failed', {
-                            sessionId,
-                            messageId: assistantMessageId,
-                            error: streamError,
-                        });
-                        return Error();
-                    }
-                }
-
-                // Complete the stream and perform final updates
-                const { error: finalStreamError } = await streamMessageUpdate({
-                    messageId: assistantMessageId,
+                // Finalize session with title generation and auto-summarization
+                const { error: finalizeError } = await finalizeChatSession({
                     sessionId,
-                    content: '',
-                    isComplete: true,
-                });
-
-                if (finalStreamError) {
-                    logger.error('Final stream completion failed', {
-                        sessionId,
-                        messageId: assistantMessageId,
-                        error: finalStreamError,
-                    });
-                    return Error();
-                }
-
-                // Update assistant message metadata after completion
-                const { data: assistantTokens } = countTokens({
-                    text: fullResponseContent,
-                });
-
-                const completedAssistantMessage: ChatMessage = {
-                    ...assistantMessage,
-                    content: fullResponseContent,
-                };
-
-                const { data: assistantImportanceResult } =
-                    calculateMessageImportance({
-                        message: completedAssistantMessage,
-                        allMessages: [
-                            ...allMessages,
-                            completedAssistantMessage,
-                        ],
-                    });
-
-                // Update assistant message with final metadata
-                await catchError(
-                    db
-                        .update(chatMessageTable)
-                        .set({
-                            tokenCount: assistantTokens,
-                            importanceScore: assistantImportanceResult.score,
-                        })
-                        .where(eq(chatMessageTable.id, assistantMessageId)),
-                );
-
-                let title: string | undefined = undefined;
-
-                // Generate title for new conversations
-                if (previousMessages.length === 0) {
-                    const { data: generatedTitle, error: generatedTitleError } =
-                        await generateChatSessionTitle({
-                            firstMessage: content,
-                            userBasicData: {
-                                firstName: user.name,
-                                lastName: user.lastName ?? '',
-                                language: user.language ?? 'en',
-                                userId: user.id,
-                            },
-                            chatSessionId: sessionId,
-                        });
-
-                    if (generatedTitleError) return Error();
-
-                    title = generatedTitle;
-
-                    emit({
-                        event: 'chatSessionTitleUpdated',
-                        payload: {
-                            id: sessionId,
-                            title,
-                        },
-                    });
-                }
-
-                // Update session's updatedAt timestamp
-                await catchError(
-                    db
-                        .update(chatSessionTable)
-                        .set({ updatedAt: Date.now(), title })
-                        .where(eq(chatSessionTable.id, sessionId)),
-                );
-
-                // Log completion metrics with optimization details
-                logger.info('Chat message completed with optimization', {
-                    sessionId,
-                    userMessageTokens,
-                    assistantMessageTokens: assistantTokens,
-                    userImportanceScore: userImportanceResult.score,
-                    assistantImportanceScore: assistantImportanceResult.score,
-                    responseLength: fullResponseContent.length,
-                    optimizationUsed: contextResult.optimizationUsed,
-                    tokensSavedBySummaries:
-                        contextResult.tokensSavedBySummaries,
-                    messagesCoveredBySummaries:
-                        contextMetadata.messagesCoveredBySummaries,
-                });
-
-                void autoSummarizeIfNeeded({
-                    sessionId,
-                    contextResult:
-                        contextResult as EnhancedContextSelectionResult,
+                    isFirstMessage: previousMessages.length === 0,
+                    firstMessageContent: content,
                     userBasicData: {
+                        firstName: user.name,
+                        lastName: user.lastName ?? '',
+                        language: user.language ?? 'en',
                         userId: user.id,
                     },
+                    contextResult,
+                    messageMetrics: {
+                        userTokenCount,
+                        assistantTokenCount,
+                        userImportanceScore,
+                        assistantImportanceScore,
+                    },
                 });
+
+                if (finalizeError) return Error();
 
                 return Success();
             },

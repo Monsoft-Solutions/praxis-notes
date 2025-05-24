@@ -1,55 +1,16 @@
 import { Function } from '@errors/types';
 import { Success, Error } from '@errors/utils';
-import { ChatMessage } from '../schemas';
+import {
+    ChatMessage,
+    MessageWithMetadata,
+    SummaryWithMetadata,
+    ContextItemWithMetadata,
+    OptimizedContextSelectionResult,
+} from '../schemas';
 import { AiModelName } from '@src/ai/enums';
 import { countTokens, getRecommendedContextLimit } from './token-counter.util';
-import {
-    calculateMessageImportance,
-    MessageImportanceResult,
-} from './message-importance-scorer.util';
+import { calculateMessageImportance } from './message-importance-scorer.util';
 import { ConversationSummary } from './conversation-summarizer.util';
-
-export type MessageWithMetadata = ChatMessage & {
-    tokenCount: number;
-    importanceScore: number;
-    importanceFactors: MessageImportanceResult['factors'];
-};
-
-export type SummaryWithMetadata = ConversationSummary & {
-    tokenCount: number;
-    type: 'summary';
-    // Convert to message-like structure for unified processing
-    content: string;
-    role: 'system';
-    createdAt: number;
-    id: string;
-    sessionId: string;
-    attachments: never[];
-    importanceScore: number;
-    importanceFactors: MessageImportanceResult['factors'];
-};
-
-export type ContextItemWithMetadata = MessageWithMetadata | SummaryWithMetadata;
-
-export type OptimizedContextSelectionResult = {
-    selectedItems: ContextItemWithMetadata[];
-    selectedMessages: MessageWithMetadata[];
-    selectedSummaries: SummaryWithMetadata[];
-    totalTokens: number;
-    totalMessages: number;
-    totalSummaries: number;
-    droppedMessages: number;
-    contextUtilization: number;
-    averageImportanceScore: number;
-    tokensSavedBySummaries: number;
-    selectionStrategy:
-        | 'all'
-        | 'importance-based-optimized'
-        | 'sliding-window-optimized'
-        | 'summaries-only'
-        | 'emergency-truncation';
-    optimizationUsed: boolean;
-};
 
 /**
  * Optimized context selection that works with pre-filtered messages and summaries
@@ -158,19 +119,6 @@ export const selectOptimalContextOptimized = (({
             ...summariesWithMetadata,
             ...messagesWithMetadata,
         ].sort((a, b) => a.createdAt - b.createdAt);
-
-        if (latestSummary) {
-            messagesWithMetadata.unshift({
-                ...latestSummary,
-                content: latestSummary.summary,
-                role: 'assistant',
-                createdAt: latestSummary.fromTimestamp,
-                id: latestSummary.id,
-                sessionId: latestSummary.sessionId,
-                tokenCount: latestSummary.summaryTokenCount,
-                importanceScore: 100,
-            });
-        }
 
         return Success({
             selectedItems: allItems,
@@ -550,7 +498,6 @@ function emergencyTruncationOptimized({
 
         if (mostRecent.tokenCount <= remainingTokens) {
             selectedMessages = [mostRecent];
-            currentTokens += mostRecent.tokenCount;
         } else {
             // Truncate the most recent message
             const maxChars = remainingTokens * 4;
@@ -560,14 +507,13 @@ function emergencyTruncationOptimized({
                 text: truncatedContent,
             });
 
-            const truncatedMessage = {
-                ...mostRecent,
-                content: truncatedContent,
-                tokenCount: truncatedTokens,
-            };
-
-            selectedMessages = [truncatedMessage];
-            currentTokens += truncatedTokens;
+            selectedMessages = [
+                {
+                    ...mostRecent,
+                    content: truncatedContent,
+                    tokenCount: truncatedTokens,
+                },
+            ];
         }
     }
 
@@ -575,6 +521,10 @@ function emergencyTruncationOptimized({
         ...selectedItems,
         ...selectedMessages,
     ].sort((a, b) => a.createdAt - b.createdAt);
+
+    const totalTokens =
+        currentTokens +
+        selectedMessages.reduce((sum, m) => sum + m.tokenCount, 0);
 
     const selectedSummaries = selectedItems.filter(
         (item): item is SummaryWithMetadata => 'type' in item,
@@ -584,25 +534,26 @@ function emergencyTruncationOptimized({
         selectedItems: allItems,
         selectedMessages,
         selectedSummaries,
-        totalTokens: currentTokens,
+        totalTokens,
         totalMessages: selectedMessages.length,
         totalSummaries: selectedSummaries.length,
         droppedMessages: messages.length - selectedMessages.length,
-        contextUtilization: (currentTokens / tokenLimit) * 100,
+        contextUtilization: (totalTokens / tokenLimit) * 100,
         averageImportanceScore: calculateAverageImportance(allItems),
         tokensSavedBySummaries,
     };
 }
 
 /**
- * Calculate average importance score for context items
+ * Calculate average importance score for a list of context items
  */
 function calculateAverageImportance(items: ContextItemWithMetadata[]): number {
     if (items.length === 0) return 0;
 
-    const totalScore = items.reduce(
+    const totalImportance = items.reduce(
         (sum, item) => sum + item.importanceScore,
         0,
     );
-    return Math.round((totalScore / items.length) * 100) / 100;
+
+    return Math.round((totalImportance / items.length) * 100) / 100;
 }

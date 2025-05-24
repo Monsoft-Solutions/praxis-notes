@@ -5,14 +5,13 @@ import { catchError } from '@errors/utils/catch-error.util';
 import { db } from '@db/providers/server';
 import { v4 as uuidv4 } from 'uuid';
 
-import { ChatMessage } from '../schemas';
+import { ChatMessage, OptimizedContextSelectionResult } from '../schemas';
 import { conversationSummaryTable } from '../db';
 import { generateText } from '@src/ai/providers';
 import { countTokens } from './token-counter.util';
 import { logger } from '@logger/providers';
 import { anthropicModelEnum } from '@src/ai/enums';
 import { CoreMessage } from 'ai';
-import { EnhancedContextSelectionResult } from './smart-context-manager-with-summaries.util';
 
 export type ConversationSummary = {
     id: string;
@@ -295,7 +294,7 @@ export const autoSummarizeIfNeeded = (async ({
     },
 }: {
     sessionId: string;
-    contextResult: EnhancedContextSelectionResult;
+    contextResult: OptimizedContextSelectionResult;
     userBasicData: {
         userId: string;
         firstName?: string;
@@ -395,7 +394,7 @@ export const autoSummarizeIfNeeded = (async ({
 }) satisfies Function<
     {
         sessionId: string;
-        contextResult: EnhancedContextSelectionResult;
+        contextResult: OptimizedContextSelectionResult;
         userBasicData: {
             userId: string;
             firstName?: string;
