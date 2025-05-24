@@ -10,12 +10,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { createChatMessageSchema } from '../schemas';
 
-import { getChatSessionWithOptimalContext } from '../provider/get-chat-session-with-optimal-context.provider';
+import {
+    getChatSessionWithOptimalContext,
+    getChatSessionWithContextSelected,
+} from '../provider/get-chat-session-with-optimal-context.provider';
 import { createMessageWithMetadata } from '../provider/create-message-with-metadata.provider';
 import { generateAiResponse } from '../provider/generate-ai-response.provider';
 import { finalizeChatSession } from '../provider/finalize-chat-session.provider';
 
-import { selectOptimalContextOptimized } from '../utils/smart-context-manager-optimized.util';
 import { getModel } from '../provider';
 import { logger } from '@logger/providers';
 
@@ -39,11 +41,8 @@ export const sendMessageImproved = protectedEndpoint
 
                 if (chatSessionError) return Error();
 
-                const {
-                    messages: previousMessages,
-                    contextMetadata,
-                    summaries,
-                } = chatSession;
+                const { messages: previousMessages, contextMetadata } =
+                    chatSession;
 
                 // Enhanced logging for optimization tracking
                 logger.info('Chat session optimal context loaded', {
@@ -104,28 +103,30 @@ export const sendMessageImproved = protectedEndpoint
 
                 const allMessages = [...previousMessages, userMessage];
 
-                // Use optimized context selection with pre-filtered messages and summaries
-                // This reuses the existing contextMetadata instead of regenerating it
+                // Use the combined function to get optimal context selection
+                // This replaces the separate selectOptimalContextOptimized call
                 const aiModelName = getModel(model);
-                const { data: contextResult, error: contextError } =
-                    selectOptimalContextOptimized({
-                        messages: allMessages,
-                        summaries,
+                const { data: sessionWithContext, error: contextError } =
+                    await getChatSessionWithContextSelected({
+                        sessionId,
                         model: aiModelName,
                         forceIncludeRecent: 3,
-                        tokensSavedBySummaries:
-                            contextMetadata.tokensSavedBySummaries,
+                        allMessages,
                     });
 
-                if (contextError) {
-                    logger.error('Failed to select optimal context', {
-                        sessionId,
-                        messagesCount: allMessages.length,
-                        summariesCount: summaries.length,
-                        error: contextError,
-                    });
+                if (contextError || !sessionWithContext.contextResult) {
+                    logger.error(
+                        'Failed to get session with context selected',
+                        {
+                            sessionId,
+                            messagesCount: allMessages.length,
+                            error: contextError,
+                        },
+                    );
                     return Error('CONTEXT_SELECTION_FAILED');
                 }
+
+                const contextResult = sessionWithContext.contextResult;
 
                 // Log optimized context usage metrics for monitoring
                 logger.info('Optimized chat context selected', {

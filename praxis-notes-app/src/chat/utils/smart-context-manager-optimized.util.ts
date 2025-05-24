@@ -120,6 +120,19 @@ export const selectOptimalContextOptimized = (({
             ...messagesWithMetadata,
         ].sort((a, b) => a.createdAt - b.createdAt);
 
+        if (latestSummary) {
+            const summaryMessagePrompt =
+                '## Summary of conversation so far:\n\n';
+            messagesWithMetadata.unshift({
+                ...latestSummary,
+                content: summaryMessagePrompt + latestSummary.summary,
+                role: 'assistant',
+                createdAt: latestSummary.fromTimestamp,
+                tokenCount: latestSummary.summaryTokenCount,
+                importanceScore: 100,
+            });
+        }
+
         return Success({
             selectedItems: allItems,
             selectedMessages: messagesWithMetadata,

@@ -23,6 +23,10 @@ import {
 } from '../utils/token-counter.util';
 import { calculateMessageImportance } from '../utils/message-importance-scorer.util';
 
+// Add import for OptimizedContextSelectionResult
+import { OptimizedContextSelectionResult } from '../schemas';
+import { selectOptimalContextOptimized } from '../utils/smart-context-manager-optimized.util';
+
 export type OptimalContextMetadata = {
     totalMessages: number;
     totalTokens: number;
@@ -43,6 +47,7 @@ export type OptimalContextMetadata = {
 export type ChatSessionWithOptimalContext = ChatSession & {
     contextMetadata: OptimalContextMetadata;
     summaries: ConversationSummary[];
+    contextResult?: OptimizedContextSelectionResult;
 };
 
 /**
@@ -92,19 +97,19 @@ export const getChatSessionWithOptimalContext = (async ({
         await catchError(
             db.query.chatSessionTable.findFirst({
                 where: eq(chatSessionTable.id, sessionId),
-                with: {
-                    messages: {
-                        where: and(
-                            isNotNull(chatMessageTable.content),
-                            ne(chatMessageTable.content, ''),
-                        ),
-                        orderBy: asc(chatMessageTable.createdAt),
-                        limit: previewMode ? maxPreviewMessages : undefined,
-                        with: {
-                            attachments: true,
-                        },
-                    },
-                },
+                // with: {
+                //     messages: {
+                //         where: and(
+                //             isNotNull(chatMessageTable.content),
+                //             ne(chatMessageTable.content, ''),
+                //         ),
+                //         orderBy: asc(chatMessageTable.createdAt),
+                //         limit: previewMode ? maxPreviewMessages : undefined,
+                //         with: {
+                //             attachments: true,
+                //         },
+                //     },
+                // },
             }),
         );
 
@@ -217,6 +222,64 @@ export const getChatSessionWithOptimalContext = (async ({
         previewMode?: boolean;
         maxPreviewMessages?: number;
         forceLoadAllMessages?: boolean;
+    },
+    ChatSessionWithOptimalContext
+>;
+
+/**
+ * Enhanced version that combines session loading with optimal context selection
+ * This eliminates the need for separate getChatSessionWithOptimalContext + selectOptimalContextOptimized calls
+ */
+export const getChatSessionWithContextSelected = (async ({
+    sessionId,
+    model = 'claude-3-5-haiku-latest',
+    forceIncludeRecent = 3,
+    allMessages = [],
+}: {
+    sessionId: string;
+    model?: AiModelName;
+    forceIncludeRecent?: number;
+    allMessages?: ChatMessage[]; // Pass existing messages if available to avoid extra DB calls
+}) => {
+    // First, get the optimal context (messages + summaries)
+    const { data: chatSession, error: chatSessionError } =
+        await getChatSessionWithOptimalContext({
+            sessionId,
+            model,
+            calculateMetadata: true,
+        });
+
+    if (chatSessionError) return Error();
+
+    const { messages, summaries, contextMetadata } = chatSession;
+
+    // Use the messages passed in (which includes the new user message) or the loaded ones
+    const messagesToProcess = allMessages.length > 0 ? allMessages : messages;
+
+    const { data: contextResult, error: contextError } =
+        selectOptimalContextOptimized({
+            messages: messagesToProcess,
+            summaries,
+            model,
+            forceIncludeRecent,
+            tokensSavedBySummaries: contextMetadata.tokensSavedBySummaries,
+        });
+
+    if (contextError) return Error();
+
+    const enhancedChatSession: ChatSessionWithOptimalContext = {
+        ...chatSession,
+        messages: messagesToProcess,
+        contextResult,
+    };
+
+    return Success(enhancedChatSession);
+}) satisfies Function<
+    {
+        sessionId: string;
+        model?: AiModelName;
+        forceIncludeRecent?: number;
+        allMessages?: ChatMessage[];
     },
     ChatSessionWithOptimalContext
 >;
