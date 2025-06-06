@@ -3,12 +3,11 @@ import { Function } from '@errors/types';
 import { Success, Error } from '@errors/utils';
 
 import { ChatMessage, UserBasicDataForChat } from '../schemas';
-import { chatSessionSystemPrompt } from '../provider';
+import { chatSessionSystemPrompt, getModel } from '../provider';
 
 import { streamText } from '@src/ai/providers';
 import { CoreMessage, FilePart } from 'ai';
 import { UserLang } from '@auth/enum/user-lang.enum';
-import { AiModelName } from '@src/ai/enums';
 import { AiGenerationQualitySelector } from '@src/ai/schemas';
 
 /**
@@ -76,7 +75,16 @@ export const generateChatResponse = (async ({
         messages: [systemMessage, ...messageHistory],
         modelParams: {
             model: getModel(model),
-            activeTools: ['getClientData', 'listAvailableClients', 'think'],
+            activeTools: [
+                'getClientData',
+                'listAvailableClients',
+                'think',
+                'createClient',
+                'listSystemBehaviors',
+                'listReinforcers',
+                'listReplacementPrograms',
+                'listInterventions',
+            ],
             userBasicData: {
                 ...userBasicData,
                 lastName: userBasicData.lastName ?? '',
@@ -98,14 +106,3 @@ export const generateChatResponse = (async ({
     },
     ReadableStreamDefaultReader<string>
 >;
-
-const getModel = (model: AiGenerationQualitySelector): AiModelName => {
-    switch (model) {
-        case 'Fast':
-            return 'claude-3-haiku-20240307';
-        case 'Smart':
-            return 'claude-3-5-haiku-latest';
-        case 'Genius':
-            return 'claude-3-7-sonnet-latest';
-    }
-};

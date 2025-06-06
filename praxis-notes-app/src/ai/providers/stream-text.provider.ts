@@ -19,6 +19,11 @@ import { Langfuse } from 'langfuse';
 import { logger } from '@logger/providers';
 
 import { getAiProviderNameFromModelName } from './get-ai-provider-name-from-model-name.provider';
+import { createClientTool } from '../tools/create-client.tool';
+import { listInterventionsTool } from '../tools/list-interventions.tool';
+import { listSystemBehaviorsTool } from '../tools/list-system-behaviors.tool';
+import { listReinforcersTool } from '../tools/list-reinforcers.tool';
+import { listReplacementProgramsTool } from '../tools/list-replacement-programs.tool';
 
 let langfuse: Langfuse | undefined;
 
@@ -106,15 +111,20 @@ export const streamText = (async ({
             think: thinkTool,
             getClientData: getClientDataTool,
             listAvailableClients: listAvailableClientsTool,
+            createClient: createClientTool,
+            listSystemBehaviors: listSystemBehaviorsTool,
+            listReinforcers: listReinforcersTool,
+            listReplacementPrograms: listReplacementProgramsTool,
+            listInterventions: listInterventionsTool,
         },
         experimental_activeTools: modelParams.activeTools,
-        maxSteps: 10,
+        maxSteps: 25,
         maxRetries: 3,
 
         experimental_transform: smoothStream(),
 
         onStepFinish: (step) => {
-            if (step.finishReason === 'stop') {
+            if (step.finishReason === 'stop' || step.toolCalls.length === 0) {
                 return;
             }
 
@@ -131,26 +141,6 @@ export const streamText = (async ({
                 },
                 input: step.request.body,
                 output: step.response.messages,
-            });
-
-            trace?.generation({
-                name: `inner_step_call_${
-                    step.toolCalls.length
-                        ? step.toolCalls[0].toolName
-                        : 'no_tool'
-                }`,
-                model: modelName,
-                input: step.request.body,
-                output: step.response.messages,
-                usage: {
-                    input: step.usage.promptTokens,
-                    output: step.usage.completionTokens,
-                    total: step.usage.totalTokens,
-                },
-                metadata: {
-                    stepType: step.stepType,
-                    finishReason: step.finishReason,
-                },
             });
         },
         onFinish: async (result) => {

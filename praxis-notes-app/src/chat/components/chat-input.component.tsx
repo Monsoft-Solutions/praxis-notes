@@ -8,6 +8,7 @@ import {
     Brain,
     ChevronDown,
     FastForward,
+    FileText,
     Paperclip,
     Send,
     Sparkles,
@@ -234,6 +235,9 @@ export function ChatInputComponent({
                                         {modelSelected === 'Genius' && (
                                             <Brain className="text-primary size-4" />
                                         )}
+                                        {modelSelected === 'File' && (
+                                            <FileText className="text-primary size-4" />
+                                        )}
                                         {modelSelected}
                                     </div>
                                 </div>
@@ -264,6 +268,14 @@ export function ChatInputComponent({
                             >
                                 <Brain className="text-primary size-4" />
                                 Genius
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => {
+                                    handleModelChange('File');
+                                }}
+                            >
+                                <FileText className="text-primary size-4" />
+                                File
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

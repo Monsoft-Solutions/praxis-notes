@@ -31,7 +31,7 @@ export function ChatMessageComponent({
             >
                 <Card
                     className={cn(
-                        'max-w-[85%] overflow-hidden shadow-sm sm:max-w-[80%] md:max-w-[75%]',
+                        'overflow-hidden p-4 shadow-sm',
                         isUserMessage
                             ? 'bg-primary rounded-2xl rounded-tr-sm text-white'
                             : 'bg-muted border-muted rounded-2xl rounded-tl-sm dark:text-slate-100',
@@ -39,10 +39,10 @@ export function ChatMessageComponent({
                 >
                     <div
                         className={cn(
-                            'px-3 py-2 sm:px-4 sm:py-3',
+                            'p-0',
                             isUserMessage
                                 ? 'prose prose-sm text-white'
-                                : 'prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:p-2 prose-pre:bg-black/10 dark:prose-pre:bg-white/10',
+                                : 'prose prose-sm dark:prose-invert prose-p:leading-relaxed prose-pre:bg-black/10 dark:prose-pre:bg-white/10',
                             isLoading && 'animate-pulse opacity-70',
                         )}
                     >
