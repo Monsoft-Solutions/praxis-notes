@@ -13,4 +13,5 @@ export const availableToolsEnumSchema = z.enum([
     'createBehavior',
     'createIntervention',
     'createReplacementProgram',
+    'createReinforcer',
 ]);

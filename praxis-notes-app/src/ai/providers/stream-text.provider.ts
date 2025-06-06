@@ -28,6 +28,7 @@ import { createReplacementProgramTool } from '../tools/create-replacement-progra
 import { createAntecedentTool } from '../tools/create-antecedent.tool';
 import { createInterventionTool } from '../tools/create-intervention.tool';
 import { createBehaviorTool } from '../tools/create-behavior.tool';
+import { createReinforcerTool } from '../tools/create-reinforcer.tool';
 
 let langfuse: Langfuse | undefined;
 
@@ -124,6 +125,7 @@ export const streamText = (async ({
             createBehavior: createBehaviorTool,
             createIntervention: createInterventionTool,
             createReplacementProgram: createReplacementProgramTool,
+            createReinforcer: createReinforcerTool,
         },
         experimental_activeTools: modelParams.activeTools,
         maxSteps: 25,

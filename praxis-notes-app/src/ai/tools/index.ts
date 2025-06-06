@@ -11,3 +11,4 @@ export * from './create-antecedent.tool';
 export * from './create-behavior.tool';
 export * from './create-intervention.tool';
 export * from './create-replacement-program.tool';
+export * from './create-reinforcer.tool';
