@@ -7,3 +7,7 @@ export * from './list-system-behaviors.tool';
 export * from './list-reinforcers.tool';
 export * from './list-replacement-programs.tool';
 export * from './list-interventions.tool';
+export * from './create-antecedent.tool';
+export * from './create-behavior.tool';
+export * from './create-intervention.tool';
+export * from './create-replacement-program.tool';

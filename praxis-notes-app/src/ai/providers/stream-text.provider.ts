@@ -24,6 +24,10 @@ import { listInterventionsTool } from '../tools/list-interventions.tool';
 import { listSystemBehaviorsTool } from '../tools/list-system-behaviors.tool';
 import { listReinforcersTool } from '../tools/list-reinforcers.tool';
 import { listReplacementProgramsTool } from '../tools/list-replacement-programs.tool';
+import { createReplacementProgramTool } from '../tools/create-replacement-program.tool';
+import { createAntecedentTool } from '../tools/create-antecedent.tool';
+import { createInterventionTool } from '../tools/create-intervention.tool';
+import { createBehaviorTool } from '../tools/create-behavior.tool';
 
 let langfuse: Langfuse | undefined;
 
@@ -116,6 +120,10 @@ export const streamText = (async ({
             listReinforcers: listReinforcersTool,
             listReplacementPrograms: listReplacementProgramsTool,
             listInterventions: listInterventionsTool,
+            createAntecedent: createAntecedentTool,
+            createBehavior: createBehaviorTool,
+            createIntervention: createInterventionTool,
+            createReplacementProgram: createReplacementProgramTool,
         },
         experimental_activeTools: modelParams.activeTools,
         maxSteps: 25,
