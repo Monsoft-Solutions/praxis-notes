@@ -67,10 +67,15 @@ export const generateChatResponseImproved = (async ({
         },
     );
 
+    if (!userBasicData.organizationId) {
+        throw Error('ORGANIZATION_ID_NOT_FOUND');
+    }
+
     const { data: systemPrompt } = chatSessionSystemPrompt({
         userName: userBasicData.firstName ?? '',
         userId: userBasicData.userId,
         userLanguage: userBasicData.language as UserLang,
+        organizationId: userBasicData.organizationId,
     });
 
     // Add system message at the start

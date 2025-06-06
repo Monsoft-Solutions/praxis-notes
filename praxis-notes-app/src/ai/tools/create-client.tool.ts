@@ -1,8 +1,8 @@
 import { tool } from 'ai';
-import { clientFormDataSchema } from '@src/client/schemas';
 
 import { v4 as uuidv4 } from 'uuid';
 import { createClient as createClientProvider } from '@src/client/providers/server';
+import { createClientToolParamsSchema } from '../schemas';
 
 /**
  * Get client ABA data for the client id
@@ -14,9 +14,9 @@ import { createClient as createClientProvider } from '@src/client/providers/serv
  * @returns The client data for the client id
  */
 export const createClientTool = tool({
-    parameters: clientFormDataSchema,
+    parameters: createClientToolParamsSchema,
     description:
-        'Get the ABA related data for a client. This includes: behaviors, replacement programs, interventions, and other ABA related data.',
+        'Create a new client. This includes: first name, last name, gender, behaviors, replacement programs, interventions, and other ABA related data.',
     execute: async (input) => {
         const {
             firstName,
@@ -25,6 +25,8 @@ export const createClientTool = tool({
             behaviors,
             replacementPrograms,
             interventions,
+            userId,
+            organizationId,
         } = input;
 
         console.log('Creating client', input);
@@ -34,8 +36,8 @@ export const createClientTool = tool({
         const { error } = await createClientProvider({
             clientId,
             user: {
-                id: 'test-user-id',
-                organizationId: 'test-organization-id',
+                id: userId,
+                organizationId: organizationId,
             },
             clientFormData: {
                 firstName,

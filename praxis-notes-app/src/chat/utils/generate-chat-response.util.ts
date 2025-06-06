@@ -55,6 +55,7 @@ export const generateChatResponse = (async ({
         userName: userBasicData.firstName ?? '',
         userId: userBasicData.userId,
         userLanguage: userBasicData.language as UserLang,
+        organizationId: userBasicData.organizationId ?? '',
     });
 
     // Add system message at the start

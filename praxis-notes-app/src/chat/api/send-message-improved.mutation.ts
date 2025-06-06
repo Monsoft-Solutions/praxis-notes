@@ -152,6 +152,7 @@ export const sendMessageImproved = protectedEndpoint
                             lastName: user.lastName ?? '',
                             language: user.language ?? 'en',
                             userId: user.id,
+                            organizationId: user.organizationId,
                         },
                         chatSessionId: sessionId,
                         model,
@@ -176,6 +177,7 @@ export const sendMessageImproved = protectedEndpoint
                         lastName: user.lastName ?? '',
                         language: user.language ?? 'en',
                         userId: user.id,
+                        organizationId: user.organizationId,
                     },
                     contextResult,
                     messageMetrics: {
