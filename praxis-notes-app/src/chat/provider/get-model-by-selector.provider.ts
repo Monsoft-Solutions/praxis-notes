@@ -8,7 +8,7 @@ export const getModel = (model: AiGenerationQualitySelector): AiModelName => {
         case 'Smart':
             return 'claude-3-5-haiku-latest';
         case 'Genius':
-            return 'claude-sonnet-4-0';
+            return 'claude-sonnet-4-20250514';
         case 'File':
             return 'gpt-4o-2024-05-13';
     }

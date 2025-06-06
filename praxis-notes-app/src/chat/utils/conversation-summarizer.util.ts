@@ -137,7 +137,7 @@ Create a structured summary following the format specified in the system instruc
     const { data: summaryText, error: summaryError } = await generateText({
         messages: [systemMessage, userMessage],
         modelParams: {
-            model: anthropicModelEnum.Enum['claude-sonnet-4-0'], // Use efficient model for summarization
+            model: anthropicModelEnum.Enum['claude-sonnet-4-20250514'], // Use efficient model for summarization
             activeTools: ['think'],
             userBasicData,
             callerName: 'summarizeConversationChunk',

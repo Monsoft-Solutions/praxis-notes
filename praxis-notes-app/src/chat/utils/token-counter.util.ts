@@ -4,8 +4,8 @@ import { AiModelName } from '@src/ai/enums';
 
 // Model-specific token limits (actual limits)
 const MODEL_TOKEN_LIMITS: Record<AiModelName, number> = {
-    'claude-sonnet-4-0': 200000,
-    'claude-opus-4-0': 200000,
+    'claude-sonnet-4-20250514': 200000,
+    'claude-opus-4-20250514': 200000,
     'claude-3-7-sonnet-latest': 200000,
     'claude-3-5-sonnet-latest': 200000,
     'claude-3-5-haiku-latest': 200000,
@@ -17,8 +17,8 @@ const MODEL_TOKEN_LIMITS: Record<AiModelName, number> = {
 
 // Recommended usage (80% of limit for safety)
 const RECOMMENDED_USAGE_LIMITS: Record<AiModelName, number> = {
-    'claude-sonnet-4-0': 160000,
-    'claude-opus-4-0': 160000,
+    'claude-sonnet-4-20250514': 160000,
+    'claude-opus-4-20250514': 160000,
     'claude-3-7-sonnet-latest': 160000,
     'claude-3-5-sonnet-latest': 160000,
     'claude-3-5-haiku-latest': 160000,
