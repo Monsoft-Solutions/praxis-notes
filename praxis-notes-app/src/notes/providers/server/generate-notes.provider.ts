@@ -28,7 +28,7 @@ const _generateNotes = (async ({
     const { data: textStream, error: textGenerationError } = await streamText({
         prompt,
         modelParams: {
-            model: 'claude-3-7-sonnet-latest',
+            model: 'claude-sonnet-4-20250514',
             provider: 'anthropic',
             activeTools: ['think'],
             userBasicData,
