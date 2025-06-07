@@ -106,6 +106,11 @@ export const generateChatResponseImproved = (async ({
                 'listReinforcers',
                 'listReplacementPrograms',
                 'listInterventions',
+                'createAntecedent',
+                'createBehavior',
+                'createIntervention',
+                'createReplacementProgram',
+                'createReinforcer',
             ],
             userBasicData: {
                 ...userBasicData,

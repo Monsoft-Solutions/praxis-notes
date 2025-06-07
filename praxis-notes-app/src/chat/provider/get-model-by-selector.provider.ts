@@ -4,9 +4,9 @@ import { AiGenerationQualitySelector } from '@src/ai/schemas/ai-generation-quali
 export const getModel = (model: AiGenerationQualitySelector): AiModelName => {
     switch (model) {
         case 'Fast':
-            return 'claude-3-haiku-20240307';
-        case 'Smart':
             return 'claude-3-5-haiku-latest';
+        case 'Smart':
+            return 'claude-3-5-sonnet-latest';
         case 'Genius':
             return 'claude-sonnet-4-20250514';
         case 'File':
