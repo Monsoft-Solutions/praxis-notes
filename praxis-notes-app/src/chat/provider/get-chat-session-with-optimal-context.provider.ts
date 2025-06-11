@@ -4,7 +4,7 @@ import { catchError } from '@errors/utils/catch-error.util';
 
 import { db } from '@db/providers/server';
 
-import { eq, asc, gt, and, ne, isNotNull } from 'drizzle-orm';
+import { eq, asc, gt, and, ne, isNotNull, count } from 'drizzle-orm';
 
 import { chatSessionTable, chatMessageTable } from '../db';
 import {
@@ -22,6 +22,9 @@ import {
     getRecommendedContextLimit,
 } from '../utils/token-counter.util';
 import { calculateMessageImportance } from '../utils/message-importance-scorer.util';
+
+// File schema for typed attachments
+import type { File } from '@shared/schemas';
 
 // Add import for OptimizedContextSelectionResult
 import { OptimizedContextSelectionResult } from '../schemas';
@@ -69,6 +72,7 @@ export const getChatSessionWithOptimalContext = (async ({
     maxPreviewMessages?: number;
     forceLoadAllMessages?: boolean;
 }) => {
+    const startTime = performance.now();
     // Load session summaries first
     const { data: summaries, error: summariesError } =
         await getSessionSummaries({
@@ -134,42 +138,58 @@ export const getChatSessionWithOptimalContext = (async ({
 
     if (messagesError) return Error();
 
-    // Load attachments for messages
-    const messages = await Promise.all(
-        rawMessages.map(async ({ attachments: rawAttachments, ...message }) => {
-            const attachments = (
-                await Promise.all(
-                    rawAttachments.map(async ({ fileId }) => {
-                        const { data: file, error: fileError } =
-                            await getFileById({
-                                id: fileId,
-                            });
+    // ------------------------------------------------------------
+    // Batch-fetch attachments (drastically reduces DB round-trips)
+    // ------------------------------------------------------------
+    // 1️⃣ collect every unique fileId referenced in this slice of messages
+    const uniqueFileIds = new Set<string>();
+    rawMessages.forEach(({ attachments }) => {
+        attachments.forEach(({ fileId }) => uniqueFileIds.add(fileId));
+    });
 
-                        if (fileError) return null;
-
-                        return file;
-                    }),
-                )
-            ).filter((item) => item !== null);
-
-            return {
-                ...message,
-                attachments,
-            };
+    // 2️⃣ fetch each file concurrently *once*
+    const fileResults = await Promise.all(
+        Array.from(uniqueFileIds).map(async (fileId) => {
+            const { data: file } = await getFileById({ id: fileId });
+            return { fileId, file } as const;
         }),
     );
 
-    // Calculate how many messages were covered by summaries
-    const { data: totalMessageCount, error: countError } = await catchError(
-        db.query.chatMessageTable.findMany({
-            where: eq(chatMessageTable.sessionId, sessionId),
-            columns: { id: true },
+    // 3️⃣ create a fast lookup map <fileId, File>
+    const fileMap = new Map<string, File>();
+    fileResults.forEach(({ fileId, file }) => {
+        if (file) fileMap.set(fileId, file);
+    });
+
+    // 4️⃣ hydrate messages with their full attachments in-memory (no extra I/O)
+    const messages = rawMessages.map(
+        ({ attachments: rawAttachments, ...message }) => ({
+            ...message,
+            attachments: rawAttachments
+                .map(({ fileId }) => fileMap.get(fileId))
+                .filter((item): item is File => item !== undefined),
         }),
     );
 
-    const messagesCoveredBySummaries = countError
-        ? 0
-        : Math.max(0, totalMessageCount.length - messages.length);
+    // Calculate how many messages were covered by summaries (only if metadata requested)
+    let messagesCoveredBySummaries = 0;
+
+    if (calculateMetadata) {
+        const { data: totalMessagesRows, error: countError } = await catchError(
+            db
+                .select({ count: count() })
+                .from(chatMessageTable)
+                .where(eq(chatMessageTable.sessionId, sessionId)),
+        );
+
+        const totalMessages = countError
+            ? 0
+            : (totalMessagesRows.at(0)?.count ?? 0);
+        messagesCoveredBySummaries = Math.max(
+            0,
+            totalMessages - messages.length,
+        );
+    }
 
     // Calculate tokens saved by summaries
     const tokensSavedBySummaries = summaries.reduce(
@@ -213,6 +233,11 @@ export const getChatSessionWithOptimalContext = (async ({
         contextMetadata,
     };
 
+    const endTime = performance.now();
+    console.log(
+        `Time taken to get context: ${endTime - startTime} milliseconds`,
+    );
+
     return Success(chatSession);
 }) satisfies Function<
     {
@@ -235,19 +260,24 @@ export const getChatSessionWithContextSelected = (async ({
     model = 'claude-3-5-haiku-latest',
     forceIncludeRecent = 3,
     allMessages = [],
+    preloadedSession,
 }: {
     sessionId: string;
     model?: AiModelName;
     forceIncludeRecent?: number;
     allMessages?: ChatMessage[]; // Pass existing messages if available to avoid extra DB calls
+    preloadedSession?: ChatSessionWithOptimalContext; // NEW: accept an already-loaded session to skip I/O
 }) => {
-    // First, get the optimal context (messages + summaries)
-    const { data: chatSession, error: chatSessionError } =
-        await getChatSessionWithOptimalContext({
-            sessionId,
-            model,
-            calculateMetadata: true,
-        });
+    // If a session is already provided, use it. Otherwise, load it from the DB.
+    const chatSessionResult = preloadedSession
+        ? Success(preloadedSession)
+        : await getChatSessionWithOptimalContext({
+              sessionId,
+              model,
+              calculateMetadata: true,
+          });
+
+    const { data: chatSession, error: chatSessionError } = chatSessionResult;
 
     if (chatSessionError) return Error();
 
@@ -280,6 +310,7 @@ export const getChatSessionWithContextSelected = (async ({
         model?: AiModelName;
         forceIncludeRecent?: number;
         allMessages?: ChatMessage[];
+        preloadedSession?: ChatSessionWithOptimalContext;
     },
     ChatSessionWithOptimalContext
 >;
@@ -327,28 +358,32 @@ async function getFallbackSession({
 
     const { messages: rawMessages } = rawChatSession;
 
-    // Load attachments for messages
-    const messages = await Promise.all(
-        rawMessages.map(async ({ attachments: rawAttachments, ...message }) => {
-            const attachments = (
-                await Promise.all(
-                    rawAttachments.map(async ({ fileId }) => {
-                        const { data: file, error: fileError } =
-                            await getFileById({
-                                id: fileId,
-                            });
+    // ------------------------------------------------------------
+    // Batch-fetch attachments for fallback mode
+    // ------------------------------------------------------------
+    const uniqueFallbackFileIds = new Set<string>();
+    rawMessages.forEach(({ attachments }) => {
+        attachments.forEach(({ fileId }) => uniqueFallbackFileIds.add(fileId));
+    });
 
-                        if (fileError) return null;
+    const fallbackFileResults = await Promise.all(
+        Array.from(uniqueFallbackFileIds).map(async (fileId) => {
+            const { data: file } = await getFileById({ id: fileId });
+            return { fileId, file } as const;
+        }),
+    );
 
-                        return file;
-                    }),
-                )
-            ).filter((item) => item !== null);
+    const fallbackFileMap = new Map<string, File>();
+    fallbackFileResults.forEach(({ fileId, file }) => {
+        if (file) fallbackFileMap.set(fileId, file);
+    });
 
-            return {
-                ...message,
-                attachments,
-            };
+    const messages = rawMessages.map(
+        ({ attachments: rawAttachments, ...message }) => ({
+            ...message,
+            attachments: rawAttachments
+                .map(({ fileId }) => fallbackFileMap.get(fileId))
+                .filter((item): item is File => item !== undefined),
         }),
     );
 

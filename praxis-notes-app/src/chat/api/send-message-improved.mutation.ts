@@ -112,6 +112,7 @@ export const sendMessageImproved = protectedEndpoint
                         model: aiModelName,
                         forceIncludeRecent: 3,
                         allMessages,
+                        preloadedSession: chatSession,
                     });
 
                 if (contextError || !sessionWithContext.contextResult) {

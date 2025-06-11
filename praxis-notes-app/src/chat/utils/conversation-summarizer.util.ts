@@ -290,7 +290,7 @@ export const autoSummarizeIfNeeded = (async ({
     thresholds = {
         minMessagesToSummarize: 20,
         keepRecentMessages: 10,
-        maxTokensBeforeSummarization: 30000,
+        maxTokensBeforeSummarization: 15000,
     },
 }: {
     sessionId: string;
