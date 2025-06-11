@@ -13,7 +13,6 @@ import { generateChatSessionTitle } from '../utils/generate-chat-session-title.u
 import { autoSummarizeIfNeeded } from '../utils';
 
 import { emit } from '@events/providers';
-import { logger } from '@logger/providers';
 
 export type FinalizeSessionInput = {
     sessionId: string;
@@ -43,7 +42,6 @@ export const finalizeChatSession = async ({
     firstMessageContent,
     userBasicData,
     contextResult,
-    messageMetrics,
 }: FinalizeSessionInput) => {
     let title: string | undefined = undefined;
 
@@ -79,18 +77,6 @@ export const finalizeChatSession = async ({
             })
             .where(eq(chatSessionTable.id, sessionId)),
     );
-
-    // Log completion metrics with optimization details
-    logger.info('Chat message completed with optimization', {
-        sessionId,
-        userMessageTokens: messageMetrics.userTokenCount,
-        assistantMessageTokens: messageMetrics.assistantTokenCount,
-        userImportanceScore: messageMetrics.userImportanceScore,
-        assistantImportanceScore: messageMetrics.assistantImportanceScore,
-        optimizationUsed: contextResult.optimizationUsed,
-        tokensSavedBySummaries: contextResult.tokensSavedBySummaries,
-        selectionStrategy: contextResult.selectionStrategy,
-    });
 
     // Trigger auto-summarization if needed (fire and forget)
     void autoSummarizeIfNeeded({
