@@ -2,17 +2,10 @@ import { Error, Success } from '@errors/utils';
 
 import { protectedEndpoint } from '@api/providers/server';
 
-import { db } from '@db/providers/server';
-
-import { catchError } from '@errors/utils/catch-error.util';
-
-import { v4 as uuidv4 } from 'uuid';
-
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
 
-import { interventionTable } from '@db/db.tables';
-
 import { z } from 'zod';
+import { createInterventionProvider } from '@src/intervention/providers';
 
 // mutation to create a template
 export const createIntervention = protectedEndpoint
@@ -32,26 +25,15 @@ export const createIntervention = protectedEndpoint
             }) => {
                 const { name, description } = input;
 
-                const interventionId = uuidv4();
+                const result = await createInterventionProvider({
+                    name,
+                    description,
+                    organizationId: user.organizationId,
+                });
 
-                const { error } = await catchError(
-                    db.insert(interventionTable).values({
-                        id: interventionId,
-                        organizationId: user.organizationId,
+                if (result.error) return Error(result.error);
 
-                        name,
-                        description,
-                    }),
-                );
-
-                // if insertion failed, return the error
-                if (error) {
-                    if (error === 'DUPLICATE_ENTRY') return Error('DUPLICATE');
-
-                    return Error();
-                }
-
-                return Success({ id: interventionId });
+                return Success({ id: result.data.id });
             },
         ),
     );
