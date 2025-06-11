@@ -12,8 +12,6 @@ import { CoreMessage, FilePart } from 'ai';
 import { UserLang } from '@auth/enum/user-lang.enum';
 import { AiGenerationQualitySelector } from '@src/ai/schemas';
 
-import { logger } from '@logger/providers';
-
 /**
  * Generate AI response with smart context management
  * Uses importance-based message selection to stay within token limits
@@ -30,17 +28,6 @@ export const generateChatResponseImproved = (async ({
     model: AiGenerationQualitySelector;
 }) => {
     const aiModelName = getModel(model);
-
-    // Log context usage metrics for monitoring
-    logger.info('Chat context selected', {
-        sessionId: chatSessionId,
-        strategy: contextResult.selectionStrategy,
-        totalMessages: contextResult.totalMessages,
-        droppedMessages: contextResult.droppedMessages,
-        totalTokens: contextResult.totalTokens,
-        contextUtilization: `${contextResult.contextUtilization.toFixed(1)}%`,
-        avgImportanceScore: contextResult.averageImportanceScore,
-    });
 
     // Prepare the conversation history from selected messages
     const messageHistory: CoreMessage[] = contextResult.selectedMessages.map(

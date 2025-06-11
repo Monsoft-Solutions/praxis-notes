@@ -41,25 +41,7 @@ export const sendMessageImproved = protectedEndpoint
 
                 if (chatSessionError) return Error();
 
-                const { messages: previousMessages, contextMetadata } =
-                    chatSession;
-
-                // Enhanced logging for optimization tracking
-                logger.info('Chat session optimal context loaded', {
-                    sessionId,
-                    totalMessages: contextMetadata.totalMessages,
-                    totalSummaries: contextMetadata.totalSummaries,
-                    totalTokens: contextMetadata.totalTokens,
-                    contextUtilization: `${contextMetadata.contextUtilization.toFixed(1)}%`,
-                    hasLongConversation: contextMetadata.hasLongConversation,
-                    recommendsSummarization:
-                        contextMetadata.recommendsSummarization,
-                    messagesCoveredBySummaries:
-                        contextMetadata.messagesCoveredBySummaries,
-                    tokensSavedBySummaries:
-                        contextMetadata.tokensSavedBySummaries,
-                    optimizationUsed: contextMetadata.optimizationUsed,
-                });
+                const { messages: previousMessages } = chatSession;
 
                 // Create user message with metadata
                 const { data: userMessageResult, error: userMessageError } =
@@ -128,21 +110,6 @@ export const sendMessageImproved = protectedEndpoint
                 }
 
                 const contextResult = sessionWithContext.contextResult;
-
-                // Log optimized context usage metrics for monitoring
-                logger.info('Optimized chat context selected', {
-                    sessionId,
-                    strategy: contextResult.selectionStrategy,
-                    totalMessages: contextResult.totalMessages,
-                    totalSummaries: contextResult.totalSummaries,
-                    droppedMessages: contextResult.droppedMessages,
-                    totalTokens: contextResult.totalTokens,
-                    contextUtilization: `${contextResult.contextUtilization.toFixed(1)}%`,
-                    avgImportanceScore: contextResult.averageImportanceScore,
-                    tokensSavedBySummaries:
-                        contextResult.tokensSavedBySummaries,
-                    optimizationUsed: contextResult.optimizationUsed,
-                });
 
                 // Generate AI response using the optimized context
                 const { data: responseResult, error: aiResponseError } =
