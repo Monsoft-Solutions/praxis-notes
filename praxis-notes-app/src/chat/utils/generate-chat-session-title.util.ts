@@ -4,7 +4,7 @@ import { Success, Error } from '@errors/utils';
 
 import { generateText } from '@src/ai/providers';
 
-import { Message } from 'ai';
+import { CoreMessage } from 'ai';
 import { UserBasicDataForChat } from '../schemas';
 
 const prompt = `
@@ -46,15 +46,13 @@ export const generateChatSessionTitle = (async ({
     userBasicData: UserBasicDataForChat;
     chatSessionId: string;
 }) => {
-    const messages: Message[] = [
+    const messages: CoreMessage[] = [
         {
-            id: 'prompt',
             role: 'system',
             content: prompt,
         },
 
         {
-            id: 'user',
             role: 'user',
             content: firstMessage,
         },
@@ -64,7 +62,6 @@ export const generateChatSessionTitle = (async ({
         messages,
         modelParams: {
             model: 'claude-3-haiku-20240307',
-            provider: 'anthropic',
             activeTools: [],
             callerName: 'generateChatSessionTitle',
             userBasicData: {

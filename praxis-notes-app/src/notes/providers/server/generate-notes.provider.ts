@@ -29,7 +29,6 @@ const _generateNotes = (async ({
         prompt,
         modelParams: {
             model: 'claude-sonnet-4-20250514',
-            provider: 'anthropic',
             activeTools: ['think'],
             userBasicData,
             callerName: 'generateNotes',

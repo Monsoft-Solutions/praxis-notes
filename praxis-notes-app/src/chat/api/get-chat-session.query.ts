@@ -4,14 +4,9 @@ import { protectedEndpoint } from '@api/providers/server';
 
 import { z } from 'zod';
 
-import { db } from '@db/providers/server';
-
-import { eq, asc } from 'drizzle-orm';
-
-import { catchError } from '@errors/utils/catch-error.util';
 import { queryMutationCallback } from '@api/providers/server/query-mutation-callback.provider';
 
-import { chatSessionTable, chatMessageTable } from '../db';
+import { getChatSession as getChatSessionProvider } from '../provider';
 
 export const getChatSession = protectedEndpoint
     .input(
@@ -22,21 +17,11 @@ export const getChatSession = protectedEndpoint
     .query(
         queryMutationCallback(async ({ input: { sessionId } }) => {
             // get the session
-            const { data: session, error: sessionError } = await catchError(
-                db.query.chatSessionTable.findFirst({
-                    where: eq(chatSessionTable.id, sessionId),
-                    with: {
-                        messages: {
-                            orderBy: asc(chatMessageTable.createdAt),
-                        },
-                    },
-                }),
-            );
+            const { data: chatSession, error: chatSessionError } =
+                await getChatSessionProvider({ sessionId });
 
-            if (sessionError) return Error();
+            if (chatSessionError) return Error();
 
-            if (!session) return Error();
-
-            return Success(session);
+            return Success(chatSession);
         }),
     );

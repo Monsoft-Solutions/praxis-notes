@@ -34,7 +34,6 @@ export const generateSuggestedQuestions = (async ({
         await generateObject({
             prompt,
             modelParams: {
-                provider: 'anthropic',
                 model: 'claude-3-haiku-20240307',
                 activeTools: [],
                 userBasicData,

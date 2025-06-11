@@ -8,7 +8,6 @@ import {
     generateObject as aiSdkGenerateObject,
     GenerateObjectResult,
 } from 'ai';
-import { createAnthropic } from '@ai-sdk/anthropic';
 
 import { AiRequest } from '../schemas/ai-request.schema';
 
@@ -17,6 +16,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Langfuse } from 'langfuse';
 import { ZodSchema } from 'zod';
 import { catchError } from '@errors/utils/catch-error.util';
+import { getAiProviderNameFromModelName } from './get-ai-provider-name-from-model-name.provider';
+import { getAiSdkModelFromName } from './get-ai-sdk-model-from-name.provider';
 
 let langfuse: Langfuse | undefined;
 
@@ -39,12 +40,7 @@ export const generateObject = (async ({
 
     const { data: coreConf } = coreConfWithError;
 
-    const {
-        anthropicApiKey,
-        langfuseSecretKey,
-        langfusePublicKey,
-        langfuseBaseUrl,
-    } = coreConf;
+    const { langfuseSecretKey, langfusePublicKey, langfuseBaseUrl } = coreConf;
 
     if (!langfuse) {
         initLangfuse({
@@ -56,6 +52,13 @@ export const generateObject = (async ({
 
     const traceId = uuidv4();
 
+    const { data: providerName, error: providerNameError } =
+        getAiProviderNameFromModelName({
+            modelName: modelParams.model,
+        });
+
+    if (providerNameError) return Error('INVALID_MODEL_NAME');
+
     const trace = langfuse?.trace({
         name: modelParams.callerName,
         id: traceId,
@@ -64,30 +67,28 @@ export const generateObject = (async ({
         },
         sessionId: modelParams.chatSessionId ?? traceId,
         userId: modelParams.userBasicData?.userId,
-        tags: [modelParams.model, modelParams.provider, modelParams.callerName],
+        tags: [modelParams.model, providerName, modelParams.callerName],
     });
 
-    if (modelParams.provider !== 'anthropic') {
-        return Error('PROVIDER_NOT_SUPPORTED');
-    }
-
-    const anthropic = createAnthropic({
-        apiKey: anthropicApiKey,
-    });
-
-    const model = modelParams.model;
+    const modelName = modelParams.model;
 
     const generation = trace?.generation({
-        model,
+        model: modelName,
         input: prompt,
         metadata: {
             userBasicData: modelParams.userBasicData,
         },
     });
 
+    const { data: model, error: modelError } = await getAiSdkModelFromName({
+        modelName,
+    });
+
+    if (modelError) return Error('INVALID_MODEL_NAME');
+
     const { data: result, error } = await catchError(
         aiSdkGenerateObject({
-            model: anthropic(model),
+            model,
             prompt,
             schema: outputSchema,
         }),

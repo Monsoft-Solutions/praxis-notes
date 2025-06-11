@@ -4,8 +4,9 @@ import { Error, Success } from '@errors/utils';
 
 import { getCoreConf } from '@conf/providers/server';
 
-import { streamText as aiSdkStreamText, Message, smoothStream } from 'ai';
-import { createAnthropic } from '@ai-sdk/anthropic';
+import { streamText as aiSdkStreamText, CoreMessage, smoothStream } from 'ai';
+
+import { getAiSdkModelFromName } from './get-ai-sdk-model-from-name.provider';
 
 import { thinkTool } from '../tools/think.tool';
 import { AiRequest } from '../schemas/ai-request.schema';
@@ -16,6 +17,18 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Langfuse } from 'langfuse';
 import { logger } from '@logger/providers';
+
+import { getAiProviderNameFromModelName } from './get-ai-provider-name-from-model-name.provider';
+import { createClientTool } from '../tools/create-client.tool';
+import { listInterventionsTool } from '../tools/list-interventions.tool';
+import { listSystemBehaviorsTool } from '../tools/list-system-behaviors.tool';
+import { listReinforcersTool } from '../tools/list-reinforcers.tool';
+import { listReplacementProgramsTool } from '../tools/list-replacement-programs.tool';
+import { createReplacementProgramTool } from '../tools/create-replacement-program.tool';
+import { createAntecedentTool } from '../tools/create-antecedent.tool';
+import { createInterventionTool } from '../tools/create-intervention.tool';
+import { createBehaviorTool } from '../tools/create-behavior.tool';
+import { createReinforcerTool } from '../tools/create-reinforcer.tool';
 
 let langfuse: Langfuse | undefined;
 
@@ -31,7 +44,7 @@ export const streamText = (async ({
       }
     | {
           prompt?: undefined;
-          messages: Message[];
+          messages: CoreMessage[];
           modelParams: AiRequest;
       }) => {
     const traceId = uuidv4();
@@ -45,12 +58,7 @@ export const streamText = (async ({
 
     const { data: coreConf } = coreConfWithError;
 
-    const {
-        anthropicApiKey,
-        langfuseSecretKey,
-        langfusePublicKey,
-        langfuseBaseUrl,
-    } = coreConf;
+    const { langfuseSecretKey, langfusePublicKey, langfuseBaseUrl } = coreConf;
 
     if (!langfuse) {
         initLangfuse({
@@ -59,6 +67,16 @@ export const streamText = (async ({
             langfuseBaseUrl,
         });
     }
+
+    const { data: providerName, error: providerNameError } =
+        getAiProviderNameFromModelName({
+            modelName: modelParams.model,
+        });
+
+    if (providerNameError) return Error('INVALID_MODEL_NAME');
+
+    const modelName = modelParams.model;
+
     const trace = langfuse?.trace({
         name: modelParams.callerName,
         id: traceId,
@@ -69,17 +87,11 @@ export const streamText = (async ({
         },
         sessionId: modelParams.chatSessionId,
         userId: modelParams.userBasicData?.userId,
-        tags: [modelParams.model, modelParams.provider, modelParams.callerName],
+        tags: [modelName, providerName, modelParams.callerName],
     });
-
-    const anthropic = createAnthropic({
-        apiKey: anthropicApiKey,
-    });
-
-    const model = modelParams.model;
 
     const generation = trace?.generation({
-        model,
+        model: modelName,
         input: messages && messages.length > 0 ? messages : prompt,
         metadata: {
             activeTools: modelParams.activeTools,
@@ -90,23 +102,39 @@ export const streamText = (async ({
         (message) => message.content.length > 0,
     );
 
+    const { data: model, error: modelError } = await getAiSdkModelFromName({
+        modelName,
+    });
+
+    if (modelError) return Error('INVALID_MODEL_NAME');
+
     const { textStream } = aiSdkStreamText({
-        model: anthropic(model),
+        model,
         prompt,
         messages: cleanMessages,
         tools: {
             think: thinkTool,
             getClientData: getClientDataTool,
             listAvailableClients: listAvailableClientsTool,
+            createClient: createClientTool,
+            listSystemBehaviors: listSystemBehaviorsTool,
+            listReinforcers: listReinforcersTool,
+            listReplacementPrograms: listReplacementProgramsTool,
+            listInterventions: listInterventionsTool,
+            createAntecedent: createAntecedentTool,
+            createBehavior: createBehaviorTool,
+            createIntervention: createInterventionTool,
+            createReplacementProgram: createReplacementProgramTool,
+            createReinforcer: createReinforcerTool,
         },
         experimental_activeTools: modelParams.activeTools,
-        maxSteps: 10,
+        maxSteps: 25,
         maxRetries: 3,
 
         experimental_transform: smoothStream(),
 
         onStepFinish: (step) => {
-            if (step.finishReason === 'stop') {
+            if (step.finishReason === 'stop' || step.toolCalls.length === 0) {
                 return;
             }
 
@@ -123,26 +151,6 @@ export const streamText = (async ({
                 },
                 input: step.request.body,
                 output: step.response.messages,
-            });
-
-            trace?.generation({
-                name: `inner_step_call_${
-                    step.toolCalls.length
-                        ? step.toolCalls[0].toolName
-                        : 'no_tool'
-                }`,
-                model,
-                input: step.request.body,
-                output: step.response.messages,
-                usage: {
-                    input: step.usage.promptTokens,
-                    output: step.usage.completionTokens,
-                    total: step.usage.totalTokens,
-                },
-                metadata: {
-                    stepType: step.stepType,
-                    finishReason: step.finishReason,
-                },
             });
         },
         onFinish: async (result) => {
@@ -197,7 +205,7 @@ export const streamText = (async ({
     return Success(reader);
 }) satisfies Function<
     | { prompt: string; messages?: undefined; modelParams: AiRequest }
-    | { prompt?: undefined; messages: Message[]; modelParams: AiRequest },
+    | { prompt?: undefined; messages: CoreMessage[]; modelParams: AiRequest },
     ReadableStreamDefaultReader<string>
 >;
 

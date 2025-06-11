@@ -10,7 +10,6 @@ import { GenerateNotesPromptInput } from '../../schema';
  * @returns A formatted prompt string
  */
 export const generateNotesPrompt = (({
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     clientData,
     sessionData,
 }: GenerateNotesPromptInput) => {

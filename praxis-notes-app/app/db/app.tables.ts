@@ -10,3 +10,4 @@ export * from '../../src/client-session/db';
 export * from '../../src/contact-center/db';
 export * from '../../src/chat/db';
 export * from '../../src/reinforcer/db';
+export * from '../../src/fs/db';
