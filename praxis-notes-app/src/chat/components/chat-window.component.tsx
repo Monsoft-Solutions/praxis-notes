@@ -30,7 +30,8 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
 
     const { setData: setSession } = apiClientUtils.chat.getChatSession;
 
-    const { mutateAsync: sendMessage } = api.chat.sendMessage.useMutation();
+    const { mutateAsync: sendMessage, isPending: isSendingMessage } =
+        api.chat.sendMessage.useMutation();
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -176,6 +177,17 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
         return sessionQuery.data;
     }, [sessionQuery]);
 
+    // Function to determine if a message is loading
+    const isMessageLoading = (
+        messageId: string,
+        role: string,
+        content: string,
+    ) => {
+        // Show loading ONLY for assistant messages that have empty content (before streaming starts)
+        // Once streaming begins (content is not empty), hide the loading indicator
+        return role === 'assistant' && content === '';
+    };
+
     // Smart auto-scroll effect - only scroll on new messages and when appropriate
     useEffect(() => {
         if (!session?.messages) return;
@@ -232,6 +244,11 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
                             <ChatMessageComponent
                                 key={message.id}
                                 message={message}
+                                isLoading={isMessageLoading(
+                                    message.id,
+                                    message.role,
+                                    message.content,
+                                )}
                             />
                         ))}
                         <div ref={messagesEndRef} />
@@ -261,6 +278,7 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
                             attachments,
                         });
                     }}
+                    isLoading={isSendingMessage}
                     model={selectedModel}
                     onModelChange={handleModelChange}
                     placeholder="Type a message..."

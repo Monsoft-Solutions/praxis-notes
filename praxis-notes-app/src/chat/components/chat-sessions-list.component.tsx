@@ -38,8 +38,6 @@ export function ChatSessionsList({
 
         {
             onData: (newSession) => {
-                console.log(newSession);
-
                 if (!chatSessionsQuery || chatSessionsQuery.error) return;
 
                 setChatSessions(undefined, (prevChatSessionsQuery) => {
