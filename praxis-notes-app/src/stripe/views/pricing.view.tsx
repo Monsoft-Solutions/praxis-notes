@@ -184,31 +184,33 @@ export function PricingView(): ReactElement {
                                             /{billingInterval}
                                         </span>
                                     </div>
-                                    <ul className="space-y-2">
-                                        {price.metadata.features
-                                            .split('|')
-                                            .map((feature, index) => (
-                                                <li
-                                                    key={index}
-                                                    className="flex items-center"
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="2"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        className="mr-2 h-5 w-5 text-green-500"
-                                                        aria-hidden="true"
+                                    {price.metadata.features && (
+                                        <ul className="space-y-2">
+                                            {price.metadata.features
+                                                .split('|')
+                                                .map((feature, index) => (
+                                                    <li
+                                                        key={index}
+                                                        className="flex items-center"
                                                     >
-                                                        <path d="M20 6L9 17l-5-5" />
-                                                    </svg>
-                                                    {feature}
-                                                </li>
-                                            ))}
-                                    </ul>
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            strokeWidth="2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            className="mr-2 h-5 w-5 text-green-500"
+                                                            aria-hidden="true"
+                                                        >
+                                                            <path d="M20 6L9 17l-5-5" />
+                                                        </svg>
+                                                        {feature}
+                                                    </li>
+                                                ))}
+                                        </ul>
+                                    )}
                                 </CardContent>
                                 <CardFooter>
                                     <CheckoutButton

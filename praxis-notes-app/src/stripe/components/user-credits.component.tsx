@@ -3,7 +3,7 @@
 import { ReactElement } from 'react';
 import { Progress } from '../../../shared/ui/progress.ui';
 import { api } from '@api/providers/web';
-import { userCreditsMax } from '../../../bases/credits/user/constants/user-credits-max.constant';
+import { planCreditsMax } from '../constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@shared/ui/card.ui';
 import { CreditCard } from 'lucide-react';
 import { cn } from '@css/utils';
@@ -11,6 +11,8 @@ import { cn } from '@css/utils';
 export function UserCredits(): ReactElement {
     const { data: userCreditsQuery } =
         api.stripe.getUserCreditsQuery.useQuery();
+    const { data: subscriptionQuery } =
+        api.stripe.getSubscriptionStatus.useQuery();
 
     if (!userCreditsQuery) {
         return (
@@ -52,13 +54,32 @@ export function UserCredits(): ReactElement {
         );
     }
 
+    // Get the maximum credits based on subscription
+    const getMaxCredits = () => {
+        // Check if subscription query is successful and has data with priceId
+        if (
+            !subscriptionQuery ||
+            subscriptionQuery.error ||
+            !subscriptionQuery.data?.priceId
+        ) {
+            return planCreditsMax.default.generateNotes;
+        }
+
+        const priceId = subscriptionQuery.data.priceId;
+        return (
+            planCreditsMax[priceId].generateNotes ||
+            planCreditsMax.default.generateNotes
+        );
+    };
+
     // Get the first credit type (assuming generateNotes is the main one we care about)
     const creditType = 'generateNotes';
-    const usedCredits = userCreditsMax[creditType] - (credits[creditType] || 0);
-    const totalCredits = userCreditsMax[creditType];
+    const totalCredits = getMaxCredits();
+    const currentCredits = credits[creditType] || 0;
+    const usedCredits = totalCredits - currentCredits;
     const percentUsed = (usedCredits / totalCredits) * 100;
     const percentRemaining = 100 - percentUsed;
-    const remaining = totalCredits - usedCredits;
+    const remaining = currentCredits;
 
     // Determine the color based on remaining credits percentage
     const getColorClass = () => {
