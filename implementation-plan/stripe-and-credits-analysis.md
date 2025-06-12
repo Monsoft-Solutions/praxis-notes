@@ -414,7 +414,7 @@ export function UserCredits(): ReactElement {
 ## Timeline Estimate
 
 - Phase 1 (Database): ✅ COMPLETED
-- Phase 2 (Credits System): 3-4 days
+- Phase 2 (Credits System): ✅ COMPLETED
 - Phase 3 (Webhook): 2-3 days
 - Phase 4 (API): 2-3 days
 - Phase 5 (Frontend): 2-3 days
@@ -450,6 +450,41 @@ All tables follow the project's standards:
 - Exported in the main db.tables file
 
 Migration generated: `0062_loud_living_tribunal.sql`
+
+### Phase 2: Update Credits System ✅
+
+Completed the credits system updates:
+
+**Created Constants:**
+
+- `plan-credits-max.constant.ts` - Defines credit limits for each subscription plan:
+    - Individual plans: 30 credits
+    - Pro plans: 60 credits
+    - Team plans: 200 credits
+    - Free tier: 10 credits
+
+**Created Provider Functions:**
+
+1. `assign-subscription-credits.provider.ts`
+
+    - Assigns credits to users based on their Stripe price ID
+    - Handles both new subscriptions and renewals
+    - Queries `stripe_subscription_credits` table for credit amounts
+    - Updates user credits appropriately
+    - Logs all transactions to `user_credit_transactions` table
+
+2. `get-or-create-stripe-customer-record.provider.ts`
+
+    - Retrieves user ID from Stripe customer metadata
+    - Validates user exists in database
+    - Essential for webhook processing
+
+3. `upsert-stripe-subscription.provider.ts`
+    - Creates or updates subscription records in database
+    - Maps Stripe statuses to our enum values
+    - Handles all subscription state changes
+
+All functions follow the project's error handling patterns and type safety requirements.
 
 ## Risk Mitigation
 
