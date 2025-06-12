@@ -17,7 +17,6 @@ export const interventionSeed = async () => {
                 });
 
             if (existingIntervention) {
-                console.log(`intervention ${name} already exist`);
                 return;
             }
 
