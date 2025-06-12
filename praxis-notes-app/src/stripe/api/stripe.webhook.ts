@@ -12,6 +12,8 @@ import { getCoreConf } from '@conf/providers/server';
 import {
     sendPaymentConfirmationEmail,
     sendSubscriptionStatusEmail,
+    assignSubscriptionCredits,
+    getOrCreateStripeCustomerRecord,
 } from '../providers';
 import { logger } from '@logger/providers';
 
@@ -79,6 +81,45 @@ async function manageSubscriptionStatusChange(
     console.log(
         `Webhook Handled: Subscription ${createAction ? 'created/updated' : 'updated/deleted'}: ${subscription.id}`,
     );
+
+    // After retrieving subscription details, assign credits
+
+    // 1. Get or create stripe customer record to get the user ID
+    const userIdResult = await getOrCreateStripeCustomerRecord({
+        stripeCustomerId: customerId,
+    });
+
+    if (userIdResult.error) {
+        console.error(
+            'Webhook Error: Failed to get user ID from customer:',
+            customerId,
+            userIdResult.error,
+        );
+        // Continue with email but log the error
+    } else {
+        const { userId } = userIdResult.data;
+
+        // 2. Assign credits if new subscription or active renewal
+        if (createAction || subscription.status === 'active') {
+            const creditResult = await assignSubscriptionCredits({
+                userId,
+                stripePriceId: subscriptionItem.price.id,
+                isNewSubscription: createAction,
+            });
+
+            if (creditResult.error) {
+                logger.error('Failed to assign credits:', {
+                    userId,
+                    stripePriceId: subscriptionItem.price.id,
+                    error: creditResult.error,
+                });
+            } else {
+                console.log(
+                    `Credits assigned successfully for user ${userId} with price ${subscriptionItem.price.id}`,
+                );
+            }
+        }
+    }
 
     // Send appropriate email based on the subscription status change
     try {
@@ -354,18 +395,19 @@ export const stripeWebhook = publicEndpoint.input(z.unknown()).mutation(
                         );
                     }
                     break;
-                // case 'invoice.paid':
-                //     // Used for recurring payments. Update subscription details.
-                //     if (event.data.object.subscription) {
-                //         await manageSubscriptionStatusChange(
-                //             event.data.object.subscription as string,
-                //             event.data.object.customer as string,
-                //             false, // Not a creation event
-                //         );
-                //     }
-                //     // Send payment confirmation email
-                //     await handleInvoicePaymentSucceeded(event);
-                //     break;
+                case 'invoice.paid': {
+                    // Used for recurring payments. Update subscription details.
+                    const paidInvoice = event.data.object;
+                    // For now, log invoice.paid events
+                    // Subscription renewals are handled by customer.subscription.updated
+                    console.log(
+                        'Invoice paid:',
+                        paidInvoice.id,
+                        'Billing reason:',
+                        paidInvoice.billing_reason,
+                    );
+                    break;
+                }
                 case 'payment_intent.succeeded':
                     // Handle successful one-time payments if using Payment Intents directly
                     // Log payment in stripePaymentTable if needed
