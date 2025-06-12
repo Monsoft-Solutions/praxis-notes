@@ -6,7 +6,7 @@
   "scripts": {
     "prepare": "husky",
     "check": "turbo run check",
-    "pre-commit": "git stash -q --keep-index && (npm run check || (git stash pop -q && exit 1)) && git stash pop -q",
+    "pre-commit": "git stash -q -k -u && (npm run check || (git stash pop -q && exit 1)) && git stash pop -q",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"

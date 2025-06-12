@@ -595,7 +595,7 @@ export const updateClientSession = protectedEndpoint
                                     ? newAbcIds[linkedAbcEntryIndex]
                                     : null;
 
-                            const result = await tx
+                            await tx
                                 .insert(
                                     clientSessionReplacementProgramEntryTable,
                                 )
@@ -613,8 +613,6 @@ export const updateClientSession = protectedEndpoint
                                     console.error(error);
                                     throw error;
                                 });
-
-                            console.log(result);
 
                             for (const promptTypeId of promptTypesIds) {
                                 await tx

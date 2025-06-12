@@ -5,6 +5,7 @@ import { generateText } from '@src/ai/providers';
 
 import { transformNotesPrompt } from './transform-notes-prompt.provider';
 import { TransformNoteType } from '@src/notes/schema';
+import { ClientSession } from '@src/client-session/schemas';
 
 // Helper function to transform notes using Anthropic
 export const transformNotesProvider = (async ({
@@ -12,17 +13,20 @@ export const transformNotesProvider = (async ({
     userId,
     transformationType,
     customInstructions,
+    sessionData,
 }: {
     notes: string;
     userId: string;
     transformationType: TransformNoteType;
     customInstructions?: string;
+    sessionData: ClientSession;
 }) => {
     // Use the prompt from our dedicated module
     const prompt = transformNotesPrompt({
         notes,
         transformationType,
         customInstructions,
+        sessionData,
     });
 
     const { data: textStream, error: textGenerationError } = await generateText(
@@ -30,7 +34,6 @@ export const transformNotesProvider = (async ({
             prompt,
             modelParams: {
                 model: 'claude-3-5-haiku-latest',
-                provider: 'anthropic',
                 activeTools: [],
                 userBasicData: {
                     userId,
@@ -49,6 +52,7 @@ export const transformNotesProvider = (async ({
         userId: string;
         transformationType: TransformNoteType;
         customInstructions?: string;
+        sessionData: ClientSession;
     },
     string
 >;

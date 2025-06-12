@@ -2,7 +2,7 @@ import { Function } from '@errors/types';
 
 import { Error, Success } from '@errors/utils';
 
-import { Message } from 'ai';
+import { CoreMessage } from 'ai';
 
 import { streamText } from './stream-text.provider';
 import { AiRequest } from '../schemas/ai-request.schema';
@@ -18,7 +18,7 @@ export const generateText = (async ({
       }
     | {
           prompt?: undefined;
-          messages: Message[];
+          messages: CoreMessage[];
       }
 ) & {
     modelParams: AiRequest;

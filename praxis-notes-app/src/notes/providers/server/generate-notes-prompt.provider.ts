@@ -13,168 +13,179 @@ export const generateNotesPrompt = (({
     clientData,
     sessionData,
 }: GenerateNotesPromptInput) => {
-    const prompt = `
-You are a credentialed Registered Behavior Technician (RBT) generating an insurance-ready session note for CPT code 97153 (one-on-one adaptive behavior treatment by protocol).
+    const prompt = `<system_context>
+You are a credentialed Registered Behavior Technician (RBT) generating professional, insurance-compliant session notes for CPT code 97153 (one-on-one adaptive behavior treatment by protocol).
+</system_context>
 
-Write in third-person, objective behavioral language without subjective interpretations. Focus on observable behaviors and measurable outcomes.
+<writing_requirements>
+- Use third-person perspective throughout (refer to "the client" and "the RBT")
+- Write in objective, behavioral language focusing on observable behaviors
+- Avoid subjective interpretations or emotional language
+- Include specific, measurable outcomes and data points
+- Do not mention arrival or departure unless clinically relevant
+- Create a flowing narrative without section headers or bullet points
+</writing_requirements>
 
-## SESSION INFORMATION
-- RBT: ${sessionData.userInitials}
-- Client: ${sessionData.clientInitials}
-- Date: ${sessionData.sessionDate instanceof Date ? sessionData.sessionDate.toLocaleDateString() : sessionData.sessionDate}
-- Time: ${sessionData.startTime} – ${sessionData.endTime}
-- Total Duration: [Calculate minutes/hours]
-- Units of Service: [Calculate 15-minute units]
-- Location: ${sessionData.location}
-- Participants: ${sessionData.presentParticipants.join(', ') || 'None'}
-- Environmental changes: ${sessionData.environmentalChanges.join(', ') || 'None'}
+<session_data>
+<date>${sessionData.sessionDate instanceof Date ? sessionData.sessionDate.toLocaleDateString() : sessionData.sessionDate}</date>
+<time_range>${sessionData.startTime} – ${sessionData.endTime}</time_range>
+<location>${sessionData.location}</location>
+<participants>${sessionData.presentParticipants.join(', ') || 'None'}</participants>
+<environmental_factors>${sessionData.environmentalChanges.join(', ') || 'None noted'}</environmental_factors>
+</session_data>
 
-## CLIENT PRESENTATION
-[Include brief description of client's initial presentation/status at beginning of session]
-
-## SESSION ACTIVITIES
+<abc_data>
 ${sessionData.abcEntries
     .map(
-        (abc, i) => `
-### ABC #${i + 1}
-- Antecedent/Activity: ${abc.antecedentName}
-- Behaviour(s): ${abc.behaviorNames.join(', ')}
-- Intervention(s): ${abc.interventionNames.join(', ')}
-${getAbcReplacementProgramData(abc.id, sessionData.replacementProgramEntries)}`,
+        (abc, i) => `<abc_entry number="${i + 1}">
+<antecedent>${abc.antecedentName}</antecedent>
+<behaviors>${abc.behaviorNames.join(', ')}</behaviors>
+<interventions>${abc.interventionNames.join(', ')}</interventions>
+<replacement_programs>${getAbcReplacementProgramData(abc.id, sessionData.replacementProgramEntries)}</replacement_programs>
+</abc_entry>`,
     )
     .join('\n')}
+</abc_data>
 
-## REPLACEMENT PROGRAMS ADDRESSED (that don't belong to any ABC)
+<standalone_replacement_programs>
 ${sessionData.replacementProgramEntries
     .filter((rep) => !rep.linkedAbcEntryId)
     .map((rep) => replacementProgramText(rep))
     .join('\n')}
+</standalone_replacement_programs>
 
-## REINFORCERS USED
-${sessionData.reinforcerNames.join(', ')}
+<reinforcement_data>
+<reinforcers_used>${sessionData.reinforcerNames.join(', ')}</reinforcers_used>
+<session_valuation>${sessionData.valuation}</session_valuation>
+<general_observations>${sessionData.observations ?? 'None'}</general_observations>
+</reinforcement_data>
 
-Overall session valuation: ${sessionData.valuation}
-General observations: ${sessionData.observations ?? 'None'}
-
-CLIENT CONTEXT (for linking behaviours ↔ programs ↔ interventions)
+<client_context>
 ${expandClientData(clientData)}
+</client_context>
 
-NARRATIVE STRUCTURE GUIDELINES
-Generate a professional narrative that follows this structure:
-1. BEGINNING OF SESSION (Client presentation, setting, initial assessment)
-   - Describe client's presentation upon arrival
-   - Outline session goals tied to treatment plan
-   - Mention environmental factors
+<narrative_structure>
+Your note must follow this exact chronological flow:
 
-2. DURING SESSION (Implementation of programs)
-   - Detail each activity chronologically
-   - Include specific behavior topographies observed
-   - Document protocols implemented verbatim from the treatment plan
-   - For each behavior observed, note its connection to a replacement program
-   - The replacement program should be linked to the behavior in the client context section. This means that the story should mention that the RBT implemented the replacement program for the behavior(s) observed.
-   - Include data on client responses (frequency, duration, intensity)
-   - Document prompting levels and client performance metrics
+1. SESSION INITIATION
+   - Client's presentation and behavioral state at session start
+   - Environmental setup and relevant contextual factors
+   - Brief mention of session goals aligned with treatment plan
 
-3. END OF SESSION (Progress summary and recommendations)
-   - Summarize overall response to interventions
-   - Document progress toward specific treatment goals with metrics
-   - Include any parent/caregiver communication
-   - Briefly outline plan for next session
+2. INTERVENTION IMPLEMENTATION
+   - Describe each activity in chronological order
+   - For each observed behavior:
+     * Specify the exact topography (what it looked like)
+     * Note frequency, duration, or intensity as applicable
+     * Document which replacement program was implemented
+     * Include prompting levels used (full physical, partial physical, model, verbal, gestural, independent)
+     * Report client's response and performance data (e.g., "3 out of 5 trials correct")
+   - Connect each intervention to specific treatment goals
+   - Include objective metrics throughout
 
-CRITICAL DOCUMENTATION STANDARDS
-1. Demonstrate protocol adherence without modifications (per CPT 97153 requirements)
-2. Clearly document medical necessity by connecting each intervention to specific goals
-3. Include objective measurements of client responses (trials, percentages, frequency)
-4. Use professional terminology and avoid subjective language
-5. Format as flowing narrative text without bullets, sections, or headers
-6. Apply third-person perspective consistently (client, RBT)
-7. Document any collaboration with BCBA or other professionals
-8. Include specific metrics showing progress toward treatment plan goals
+3. SESSION CONCLUSION
+   - Summarize client's overall response to interventions
+   - Document specific progress toward treatment goals with data
+   - Include any parent/caregiver collaboration or communication
+   - Note recommendations for next session based on today's performance
+</narrative_structure>
 
-Return ONLY the completed narrative note with no additional text.
+<compliance_requirements>
+CRITICAL: Your note MUST demonstrate:
+1. Medical necessity through clear goal-intervention connections
+2. Strict adherence to prescribed protocols (no modifications)
+3. Objective measurement of behaviors and outcomes
+4. Professional terminology consistent with ABA practice
+5. Sufficient detail for insurance reimbursement
+6. Clear documentation of progress toward authorized treatment goals
+</compliance_requirements>
 
-FINAL VERIFICATION CHECKLIST
-- Does the note clearly demonstrate medical necessity?
-- Does the note document adherence to established protocols?
-- Does the note include specific data points/metrics?
-- Does the note avoid subjective language?
-- Does the note follow the narrative flow (before→during→after)?
-- Does the note adequately link interventions to treatment goals?
+<formatting_instructions>
+Generate a single, cohesive narrative paragraph or series of connected paragraphs. Do not use:
+- Headers or subheadings
+- Bullet points or numbered lists
+- First-person language
+- Informal language or abbreviations
+- Subjective descriptions of mood or internal states
+</formatting_instructions>
 
-Your response should only contain the narrative note, no other text.
-`;
+<output_instruction>
+Generate ONLY the completed session note narrative. Do not include any introductory text, explanations, or closing remarks. Begin directly with the session narrative and end when the narrative is complete.
+</output_instruction>`;
 
     return Success(prompt);
 }) satisfies Function<GenerateNotesPromptInput, string>;
 
-const expandClientData = (clientData: ClientAbaData) => {
+export const expandClientData = (clientData: ClientAbaData) => {
     // Create a map of behavior IDs to names for easy lookup
     const behaviorMap = new Map<string, string>();
     clientData.behaviors.forEach((behavior) => {
         behaviorMap.set(behavior.behaviorId, behavior.name);
     });
 
-    const output = `
-### Replacement Programs:
+    const output = `<replacement_programs>
 ${clientData.replacementPrograms
     .map((program) => {
         const relatedBehaviors = program.behaviorIds
             .map((id) => behaviorMap.get(id))
             .filter(Boolean);
 
-        return `- ${program.name}${relatedBehaviors.length > 0 ? ` \n #### For behaviors: \n ${relatedBehaviors.join(', ')})` : ''}`;
+        return `<program>
+<name>${program.name}</name>
+${relatedBehaviors.length > 0 ? `<target_behaviors>${relatedBehaviors.join(', ')}</target_behaviors>` : ''}
+</program>`;
     })
     .join('\n')}
+</replacement_programs>
 
-###     Interventions:
+<available_interventions>
 ${clientData.interventions
     .map((intervention) => {
         const relatedBehaviors = intervention.behaviors
             .map((id) => behaviorMap.get(id))
             .filter(Boolean);
 
-        return `- ${intervention.name}${relatedBehaviors.length > 0 ? ` \n #### For behaviors: \n ${relatedBehaviors.join(', ')})` : ''}`;
+        return `<intervention>
+<name>${intervention.name}</name>
+${relatedBehaviors.length > 0 ? `<target_behaviors>${relatedBehaviors.join(', ')}</target_behaviors>` : ''}
+</intervention>`;
     })
     .join('\n')}
-    `;
+</available_interventions>`;
 
     return output;
 };
 
-const getAbcReplacementProgramData = (
+export const getAbcReplacementProgramData = (
     abdId: string | null,
     replacementPrograms: ClientSessionReplacementProgramEntry[],
 ) => {
     if (!abdId) return '';
 
-    const replacementProgram = replacementPrograms.find(
-        (program) => program.linkedAbcEntryId === abdId,
-    );
-
-    if (!replacementProgram) return '';
+    const replacementProgram = replacementPrograms
+        .filter((program) => program.linkedAbcEntryId === abdId)
+        .map((program) => replacementProgramText(program));
 
     // remove the found replacement program from the array
     replacementPrograms = replacementPrograms.filter(
         (program) => program.linkedAbcEntryId !== abdId,
     );
 
-    return `### Used Replacement Program:\n ${replacementProgramText(replacementProgram)}`;
+    return replacementProgram.join('\n');
 };
 
-const replacementProgramText = (
+export const replacementProgramText = (
     replacementProgram: ClientSessionReplacementProgramEntry,
 ) => {
-    let output = `
-- Program Name: ${replacementProgram.replacementProgram}
-`;
+    let output = `<replacement_program_entry>
+<program_name>${replacementProgram.replacementProgram}</program_name>`;
 
     if (
         replacementProgram.teachingProcedure &&
         replacementProgram.teachingProcedure.length > 0
     ) {
         output += `
-- Teaching Procedure: ${replacementProgram.teachingProcedure}
-`;
+<teaching_procedure>${replacementProgram.teachingProcedure}</teaching_procedure>`;
     }
 
     if (
@@ -182,14 +193,12 @@ const replacementProgramText = (
         replacementProgram.promptingProcedure.length > 0
     ) {
         output += `
-- Prompting Procedure: ${replacementProgram.promptingProcedure}
-`;
+<prompting_procedure>${replacementProgram.promptingProcedure}</prompting_procedure>`;
     }
 
     if (replacementProgram.promptTypes.length > 0) {
         output += `
-- Prompt Types: ${replacementProgram.promptTypes.join(', ')}
-`;
+<prompt_types>${replacementProgram.promptTypes.join(', ')}</prompt_types>`;
     }
 
     if (
@@ -197,15 +206,16 @@ const replacementProgramText = (
         replacementProgram.clientResponse.length > 0
     ) {
         output += `
-- Client Response: ${replacementProgram.clientResponse}
-`;
+<client_response>${replacementProgram.clientResponse}</client_response>`;
     }
 
-    if (replacementProgram.progress != null) {
+    if (replacementProgram.progress) {
         output += `
-- Progress: ${replacementProgram.progress}
-`;
+<progress_indicator>${replacementProgram.progress}</progress_indicator>`;
     }
+
+    output += `
+</replacement_program_entry>`;
 
     return output;
 };
