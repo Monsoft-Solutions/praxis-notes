@@ -1,4 +1,4 @@
-import { betterAuth } from 'better-auth';
+import { betterAuth, User } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { organization } from 'better-auth/plugins';
 
@@ -88,13 +88,19 @@ export const authServer = betterAuth({
     databaseHooks: {
         user: {
             create: {
-                async after(user): Promise<void> {
+                async after(user: User): Promise<void> {
                     try {
+                        // Try to get lastName from user, fallback to empty string if not present
+                        const lastName =
+                            (user as unknown as { lastName: string })
+                                .lastName || '';
+                        const userFullName = `${user.name} ${lastName}`;
+
                         // Add user to Resend audience
                         const resendResult = await addToAudienceResend({
                             email: user.email,
                             firstName: user.name || 'User',
-                            lastName: '', // User object doesn't have lastName in base schema, but may have it from additionalFields
+                            lastName,
                         });
 
                         if (resendResult.error !== null) {
@@ -117,7 +123,7 @@ export const authServer = betterAuth({
                         const mailerLiteResult =
                             await addSubscriberToWelcomeCampaign({
                                 email: user.email,
-                                name: user.name || 'User',
+                                name: userFullName,
                                 language: 'en', // You can modify this based on user preference if available
                             });
 
