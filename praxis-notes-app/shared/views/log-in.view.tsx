@@ -86,7 +86,13 @@ export function LogInView(): ReactElement {
 
                 {/* Logo - fixed position at top */}
                 <div className="relative z-20 p-2 sm:absolute sm:left-8 sm:top-8">
-                    <div className="w-24 transform transition-transform duration-300 hover:scale-105 sm:w-40">
+                    <div
+                        className="w-24 transform animate-bounce transition-transform duration-300 hover:scale-105 sm:w-40"
+                        style={{
+                            animationDelay: '0.5s',
+                            animationDuration: '6s',
+                        }}
+                    >
                         <img
                             src="/images/praxis-notes-logo-main.png"
                             alt="Praxis Notes Logo"
@@ -98,9 +104,9 @@ export function LogInView(): ReactElement {
                 {/* Main content - flex grow to push footer down */}
                 <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12">
                     {/* Content wrapper with max width */}
-                    <div className="w-full max-w-md">
+                    <div className="w-full max-w-5xl">
                         {/* Welcome message */}
-                        <div className="mb-4 text-center sm:mb-8">
+                        <div className="mb-6 text-center sm:mb-8">
                             <h1
                                 className="font-quicksand mb-2 -rotate-1 transform text-2xl font-bold text-gray-800 sm:mb-4 sm:text-4xl"
                                 style={{
@@ -110,7 +116,7 @@ export function LogInView(): ReactElement {
                                 Welcome Back!
                             </h1>
                             <div
-                                className="relative rotate-1 transform rounded-2xl border-2 border-blue-200 bg-white p-3 shadow-xl sm:border-4 sm:p-6"
+                                className="relative mx-auto max-w-2xl rotate-1 transform rounded-2xl border-2 border-blue-200 bg-white p-3 shadow-xl sm:border-4 sm:p-6"
                                 style={{
                                     borderStyle: 'dashed',
                                     borderRadius: '25px 30px 20px 35px',
@@ -129,59 +135,164 @@ export function LogInView(): ReactElement {
                             </div>
                         </div>
 
-                        {/* Login form container */}
-                        <div
-                            className="relative -rotate-1 transform rounded-3xl border-2 border-purple-200 bg-white p-4 shadow-2xl sm:border-4 sm:p-8"
-                            style={{
-                                borderStyle: 'solid',
-                                borderRadius: '30px 25px 35px 20px',
-                                background:
-                                    'linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%)',
-                            }}
-                        >
-                            {/* Decorative elements - smaller on mobile */}
-                            <div className="sm:border-3 absolute -top-2 left-1/2 h-6 w-6 -translate-x-1/2 transform rounded-full border-2 border-white bg-blue-400 sm:-top-3 sm:h-8 sm:w-8"></div>
-                            <div className="absolute right-2 top-2 h-2 w-2 rounded-full bg-yellow-400 sm:right-4 sm:top-4 sm:h-3 sm:w-3"></div>
-                            <div className="absolute bottom-2 left-2 h-3 w-3 rounded-full bg-green-400 sm:bottom-4 sm:left-4 sm:h-4 sm:w-4"></div>
-                            <div className="absolute -left-1 top-1/2 h-4 w-4 rounded-full border-2 border-white bg-orange-400 sm:-left-2 sm:h-5 sm:w-5"></div>
-
-                            {/* Form header */}
-                            <div className="mb-4 text-center sm:mb-6">
-                                <h2 className="font-quicksand rotate-1 transform text-xl font-bold text-gray-800 sm:text-2xl">
-                                    Let&apos;s Get Started!
-                                </h2>
-                                <div className="mx-auto mt-2 h-1 w-16 rounded-full bg-gradient-to-r from-blue-400 via-purple-400 to-orange-400 sm:w-20"></div>
-                            </div>
-
-                            <LogInForm
-                                form={form}
-                                onSubmit={(credentials) => {
-                                    void logIn(credentials);
-                                }}
-                            />
-
-                            {/* Motivational message */}
-                            <div className="mt-4 text-center sm:mt-6">
+                        {/* Main content grid */}
+                        <div className="grid items-start gap-6 md:grid-cols-2 md:gap-8">
+                            {/* Left side - Login form */}
+                            <div className="order-1 md:order-1">
                                 <div
-                                    className="rounded-2xl border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 p-3 sm:p-4"
+                                    className="relative -rotate-1 transform rounded-3xl border-2 border-purple-200 bg-white p-4 shadow-2xl sm:border-4 sm:p-8"
                                     style={{
-                                        borderStyle: 'dashed',
-                                        borderRadius: '15px 20px 15px 25px',
+                                        borderStyle: 'solid',
+                                        borderRadius: '30px 25px 35px 20px',
+                                        background:
+                                            'linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%)',
                                     }}
                                 >
-                                    <p className="font-nunito text-xs italic text-gray-700 sm:text-sm">
-                                        &quot;Every child deserves a champion -
-                                        an adult who will never give up on
-                                        them.&quot;
-                                    </p>
+                                    {/* Decorative elements - smaller on mobile */}
+                                    <div className="sm:border-3 absolute -top-2 left-1/2 h-6 w-6 -translate-x-1/2 transform rounded-full border-2 border-white bg-blue-400 sm:-top-3 sm:h-8 sm:w-8"></div>
+                                    <div className="absolute right-2 top-2 h-2 w-2 rounded-full bg-yellow-400 sm:right-4 sm:top-4 sm:h-3 sm:w-3"></div>
+                                    <div className="absolute bottom-2 left-2 h-3 w-3 rounded-full bg-green-400 sm:bottom-4 sm:left-4 sm:h-4 sm:w-4"></div>
+                                    <div className="absolute -left-1 top-1/2 h-4 w-4 rounded-full border-2 border-white bg-orange-400 sm:-left-2 sm:h-5 sm:w-5"></div>
+
+                                    {/* Form header */}
+                                    <div className="mb-4 text-center sm:mb-6">
+                                        <h2 className="font-quicksand rotate-1 transform text-xl font-bold text-gray-800 sm:text-2xl">
+                                            Let&apos;s Get Started!
+                                        </h2>
+                                        <div className="mx-auto mt-2 h-1 w-16 rounded-full bg-gradient-to-r from-blue-400 via-purple-400 to-orange-400 sm:w-20"></div>
+                                    </div>
+
+                                    <LogInForm
+                                        form={form}
+                                        onSubmit={(credentials) => {
+                                            void logIn(credentials);
+                                        }}
+                                    />
+
+                                    {/* Motivational message */}
+                                    <div className="mt-4 text-center sm:mt-6">
+                                        <div
+                                            className="rounded-2xl border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 p-3 sm:p-4"
+                                            style={{
+                                                borderStyle: 'dashed',
+                                                borderRadius:
+                                                    '15px 20px 15px 25px',
+                                            }}
+                                        >
+                                            <p className="font-nunito text-xs italic text-gray-700 sm:text-sm">
+                                                &quot;Every child deserves a
+                                                champion - an adult who will
+                                                never give up on them.&quot;
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right side - Why Choose Praxis Notes section */}
+                            <div className="order-2 md:order-2">
+                                <div
+                                    className="relative rotate-1 transform rounded-3xl border-2 border-purple-200 bg-gradient-to-br from-blue-50 to-purple-50 p-4 shadow-lg sm:border-4 sm:p-6"
+                                    style={{
+                                        borderStyle: 'dashed',
+                                        borderRadius: '35px 20px 30px 25px',
+                                    }}
+                                >
+                                    {/* Decorative elements */}
+                                    <div className="absolute -top-1 left-6 h-3 w-3 rounded-full border border-white bg-yellow-400 sm:-top-2 sm:left-8 sm:h-4 sm:w-4 sm:border-2"></div>
+                                    <div className="absolute -right-1 top-4 h-2 w-2 rounded-full bg-green-400 sm:-right-2 sm:h-3 sm:w-3"></div>
+                                    <div className="absolute -left-1 bottom-6 h-3 w-3 rounded-full border border-white bg-orange-400 sm:-left-2 sm:h-4 sm:w-4 sm:border-2"></div>
+
+                                    <h3 className="font-quicksand mb-4 -rotate-1 transform text-center text-lg font-bold text-gray-800 sm:mb-6 sm:text-2xl">
+                                        Why Choose Praxis Notes?
+                                    </h3>
+
+                                    <div className="space-y-3 sm:space-y-4">
+                                        {[
+                                            {
+                                                title: 'Save Hours Weekly',
+                                                description:
+                                                    'Generate detailed, insurance-ready session notes in seconds',
+                                                color: 'blue',
+                                                emoji: '⏰',
+                                            },
+                                            {
+                                                title: 'HIPAA Compliant',
+                                                description:
+                                                    'Your client data is secure and protected',
+                                                color: 'green',
+                                                emoji: '🔒',
+                                            },
+                                            {
+                                                title: 'Smart AI Technology',
+                                                description:
+                                                    'AI understands ABA terminology and best practices',
+                                                color: 'purple',
+                                                emoji: '🧠',
+                                            },
+                                            {
+                                                title: 'Track Progress',
+                                                description:
+                                                    'Monitor client goals and celebrate achievements',
+                                                color: 'orange',
+                                                emoji: '📈',
+                                            },
+                                        ].map((feature, index) => (
+                                            <div
+                                                key={index}
+                                                className={`rounded-xl border-2 bg-white p-3 border-${feature.color}-200 transform ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'} sm:border-3 shadow-sm sm:p-4`}
+                                                style={{
+                                                    borderStyle: 'solid',
+                                                    borderRadius:
+                                                        '20px 15px 25px 18px',
+                                                }}
+                                            >
+                                                <div className="flex items-start space-x-3">
+                                                    <div className="text-lg sm:text-xl">
+                                                        {feature.emoji}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h4 className="font-quicksand text-sm font-semibold text-gray-800 sm:text-base">
+                                                            {feature.title}
+                                                        </h4>
+                                                        <p className="font-nunito mt-1 text-xs text-gray-600 sm:text-sm">
+                                                            {
+                                                                feature.description
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {/* Social proof */}
+                                    <div className="mt-4 sm:mt-6">
+                                        <div
+                                            className="rotate-1 transform rounded-xl border-2 border-yellow-300 bg-gradient-to-r from-yellow-100 to-orange-100 p-3 sm:p-4"
+                                            style={{
+                                                borderStyle: 'dotted',
+                                                borderRadius:
+                                                    '25px 15px 20px 30px',
+                                            }}
+                                        >
+                                            <p className="font-nunito text-center text-sm text-gray-700">
+                                                <span className="font-quicksand font-bold text-orange-600">
+                                                    1000+
+                                                </span>{' '}
+                                                RBTs and BCBAs already saving
+                                                time with our platform
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Fun fact about ABA */}
-                        <div className="mt-4 text-center sm:mt-8">
+                        <div className="mt-6 text-center sm:mt-8">
                             <div
-                                className="sm:border-3 rotate-1 transform rounded-2xl border-2 border-yellow-300 bg-gradient-to-r from-yellow-100 to-orange-100 p-3 sm:p-4"
+                                className="sm:border-3 mx-auto max-w-2xl rotate-1 transform rounded-2xl border-2 border-yellow-300 bg-gradient-to-r from-yellow-100 to-orange-100 p-3 sm:p-4"
                                 style={{
                                     borderStyle: 'dotted',
                                     borderRadius: '20px 15px 25px 18px',
