@@ -19,6 +19,7 @@ import { GoogleProfile } from '@auth/types';
 // Import email utilities
 import { addToAudienceResend } from '@email/utils/resend-add-to-audience.util';
 import { addSubscriberToWelcomeCampaign } from '@email/utils/mailer-lite.util';
+import { logger } from '@logger/providers';
 
 export const authServer = betterAuth({
     basePath: authPath,
@@ -95,6 +96,13 @@ export const authServer = betterAuth({
                             (user as unknown as { lastName: string })
                                 .lastName || '';
                         const userFullName = `${user.name} ${lastName}`;
+
+                        logger.info(`User created: ${user.email}`, {
+                            userId: user.id,
+                            email: user.email,
+                            firstName: user.name,
+                            lastName,
+                        });
 
                         // Add user to Resend audience
                         const resendResult = await addToAudienceResend({
