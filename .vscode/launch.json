@@ -47,8 +47,8 @@
     ],
     "compounds": [
         {
-            "name": "🔥 Debug Server + Watch Files",
-            "configurations": ["🚀 Debug Server (Local)"],
+            "name": "🔥 Debug App",
+            "configurations": ["📦 Debug via NPM Script"],
             "stopAll": true
         }
     ]
