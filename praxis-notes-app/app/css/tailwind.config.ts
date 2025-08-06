@@ -25,6 +25,8 @@ const config: Config = {
         extend: {
             fontFamily: {
                 sans: ['Inter Variable', ...fontFamily.sans],
+                nunito: ['Nunito', 'sans-serif'],
+                quicksand: ['Quicksand', 'sans-serif'],
             },
 
             colors: {
