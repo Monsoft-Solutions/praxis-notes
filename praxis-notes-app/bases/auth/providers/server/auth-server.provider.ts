@@ -97,11 +97,16 @@ export const authServer = betterAuth({
                                 .lastName || '';
                         const userFullName = `${user.name} ${lastName}`;
 
+                        const userLanguage =
+                            (user as unknown as { language: string })
+                                .language || 'en';
+
                         logger.info(`User created: ${user.email}`, {
                             userId: user.id,
                             email: user.email,
                             firstName: user.name,
                             lastName,
+                            language: userLanguage,
                         });
 
                         // Add user to Resend audience
@@ -132,7 +137,7 @@ export const authServer = betterAuth({
                             await addSubscriberToWelcomeCampaign({
                                 email: user.email,
                                 name: userFullName,
-                                language: 'en', // You can modify this based on user preference if available
+                                language: userLanguage,
                             });
 
                         if (mailerLiteResult.error !== null) {
