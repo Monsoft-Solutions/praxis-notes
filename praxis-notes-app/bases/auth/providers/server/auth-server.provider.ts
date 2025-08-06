@@ -16,6 +16,10 @@ import { sendVerificationEmail as sendVerificationEmailUtil } from './send-verif
 
 import { GoogleProfile } from '@auth/types';
 
+// Import email utilities
+import { addToAudienceResend } from '@email/utils/resend-add-to-audience.util';
+import { addSubscriberToWelcomeCampaign } from '@email/utils/mailer-lite.util';
+
 export const authServer = betterAuth({
     basePath: authPath,
 
@@ -77,6 +81,67 @@ export const authServer = betterAuth({
                 firstName: name,
                 url,
             });
+        },
+    },
+
+    // Database hooks to add users to email marketing platforms
+    databaseHooks: {
+        user: {
+            create: {
+                async after(user): Promise<void> {
+                    try {
+                        // Add user to Resend audience
+                        const resendResult = await addToAudienceResend({
+                            email: user.email,
+                            firstName: user.name || 'User',
+                            lastName: '', // User object doesn't have lastName in base schema, but may have it from additionalFields
+                        });
+
+                        if (resendResult.error !== null) {
+                            console.error(
+                                'Failed to add user to Resend audience:',
+                                {
+                                    userId: user.id,
+                                    email: user.email,
+                                    error: resendResult.error,
+                                },
+                            );
+                        } else {
+                            console.log(
+                                'Successfully added user to Resend audience:',
+                                user.email,
+                            );
+                        }
+
+                        // Add user to MailerLite welcome campaign
+                        const mailerLiteResult =
+                            await addSubscriberToWelcomeCampaign({
+                                email: user.email,
+                                name: user.name || 'User',
+                                language: 'en', // You can modify this based on user preference if available
+                            });
+
+                        if (mailerLiteResult.error !== null) {
+                            console.error('Failed to add user to MailerLite:', {
+                                userId: user.id,
+                                email: user.email,
+                                error: mailerLiteResult.error,
+                            });
+                        } else {
+                            console.log(
+                                'Successfully added user to MailerLite campaign:',
+                                user.email,
+                            );
+                        }
+                    } catch (error) {
+                        console.error('Error in user creation hook:', {
+                            userId: user.id,
+                            email: user.email,
+                            error,
+                        });
+                    }
+                },
+            },
         },
     },
 });
