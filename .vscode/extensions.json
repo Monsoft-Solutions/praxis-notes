@@ -1,0 +1,31 @@
+{
+    "recommendations": [
+        // Essential debugging and development
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-eslint",
+
+        // Database and debugging helpers
+        "ms-vscode.vscode-json",
+        "formulahendry.auto-rename-tag",
+
+        // Environment and productivity
+        "christian-kohler.path-intellisense",
+        "ms-vscode.vscode-npm-script",
+        "usernamehw.errorlens",
+
+        // Git and version control
+        "donjayamanne.githistory",
+        "eamodio.gitlens",
+
+        // Additional productivity tools
+        "ms-vscode.vscode-todo-highlight",
+        "gruntfuggly.todo-tree",
+        "streetsidesoftware.code-spell-checker"
+    ],
+    "unwantedRecommendations": [
+        "ms-vscode.vscode-typescript",
+        "hookyqr.beautify"
+    ]
+}
