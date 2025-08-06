@@ -5,6 +5,7 @@ import { Success, Error } from '@errors/utils';
 
 import { getCoreConf } from '@conf/providers/server';
 import { catchError } from '@errors/utils/catch-error.util';
+import { logger } from '@logger/providers';
 
 export const addToAudienceResend = (async (props: {
     audienceId?: string;
@@ -36,6 +37,12 @@ export const addToAudienceResend = (async (props: {
     );
 
     if (contactError) return Error();
+
+    logger.info(`User added to Resend audience: ${props.email}`, {
+        email: props.email,
+        firstName: props.firstName,
+        lastName: props.lastName,
+    });
 
     return Success();
 }) satisfies Function<{

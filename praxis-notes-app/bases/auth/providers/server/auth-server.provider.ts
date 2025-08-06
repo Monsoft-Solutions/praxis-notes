@@ -1,4 +1,4 @@
-import { betterAuth } from 'better-auth';
+import { betterAuth, User } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { organization } from 'better-auth/plugins';
 
@@ -15,6 +15,11 @@ import bcrypt from 'bcryptjs';
 import { sendVerificationEmail as sendVerificationEmailUtil } from './send-verification-email.provider';
 
 import { GoogleProfile } from '@auth/types';
+
+// Import email utilities
+import { addToAudienceResend } from '@email/utils/resend-add-to-audience.util';
+import { addSubscriberToWelcomeCampaign } from '@email/utils/mailer-lite.util';
+import { logger } from '@logger/providers';
 
 export const authServer = betterAuth({
     basePath: authPath,
@@ -77,6 +82,85 @@ export const authServer = betterAuth({
                 firstName: name,
                 url,
             });
+        },
+    },
+
+    // Database hooks to add users to email marketing platforms
+    databaseHooks: {
+        user: {
+            create: {
+                async after(user: User): Promise<void> {
+                    try {
+                        // Try to get lastName from user, fallback to empty string if not present
+                        const lastName =
+                            (user as unknown as { lastName: string })
+                                .lastName || '';
+                        const userFullName = `${user.name} ${lastName}`;
+
+                        const userLanguage =
+                            (user as unknown as { language: string })
+                                .language || 'en';
+
+                        logger.info(`User created: ${user.email}`, {
+                            userId: user.id,
+                            email: user.email,
+                            firstName: user.name,
+                            lastName,
+                            language: userLanguage,
+                        });
+
+                        // Add user to Resend audience
+                        const resendResult = await addToAudienceResend({
+                            email: user.email,
+                            firstName: user.name || 'User',
+                            lastName,
+                        });
+
+                        if (resendResult.error !== null) {
+                            console.error(
+                                'Failed to add user to Resend audience:',
+                                {
+                                    userId: user.id,
+                                    email: user.email,
+                                    error: resendResult.error,
+                                },
+                            );
+                        } else {
+                            console.log(
+                                'Successfully added user to Resend audience:',
+                                user.email,
+                            );
+                        }
+
+                        // Add user to MailerLite welcome campaign
+                        const mailerLiteResult =
+                            await addSubscriberToWelcomeCampaign({
+                                email: user.email,
+                                name: userFullName,
+                                language: userLanguage,
+                            });
+
+                        if (mailerLiteResult.error !== null) {
+                            console.error('Failed to add user to MailerLite:', {
+                                userId: user.id,
+                                email: user.email,
+                                error: mailerLiteResult.error,
+                            });
+                        } else {
+                            console.log(
+                                'Successfully added user to MailerLite campaign:',
+                                user.email,
+                            );
+                        }
+                    } catch (error) {
+                        console.error('Error in user creation hook:', {
+                            userId: user.id,
+                            email: user.email,
+                            error,
+                        });
+                    }
+                },
+            },
         },
     },
 });
