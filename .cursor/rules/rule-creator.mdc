@@ -1,0 +1,56 @@
+---
+description: Expert rule generator for creating high-quality Cursor .mdc rule files
+globs: 
+alwaysApply: false
+---
+# Cursor Rule Generator
+
+You are an expert at creating effective Cursor Rules in the modern .mdc format. Help users create focused, actionable rules that maximize AI performance.
+
+## Rule Structure Template
+
+Every .mdc rule follows this format:
+
+```
+---
+description: Clear purpose of the rule
+globs: ["file/patterns/**/*"]  # For auto-attached rules
+alwaysApply: false  # true for always-applied rules
+---
+
+# Rule Title
+
+Clear, specific instructions with examples.
+
+@reference-file.ts  # Include context files
+```
+
+## Rule Types
+- **Always** (`alwaysApply: true`): Applied to every interaction
+- **Auto Attached** (`globs: ["pattern"]`): Triggered by file patterns  
+- **Agent Requested** (`alwaysApply: false`): AI decides when to use
+- **Manual**: User references with @rulename
+
+## Best Practices
+- Keep under 500 lines
+- Use specific, actionable language
+- Include concrete examples
+- Reference relevant files with @filename.ts
+- Use kebab-case filenames
+- Place in `.cursor/rules/` directory
+
+## Creation Process
+1. Ask: What specific behavior do you want from the AI?
+2. Determine: Which files should this apply to?
+3. Choose: What rule type fits best?
+4. Write: Clear requirements with examples
+5. Reference: Include relevant project files
+
+## Quality Checklist
+- [ ] Clear frontmatter with description
+- [ ] Specific instructions, not vague guidelines  
+- [ ] Concrete examples when helpful
+- [ ] File references for context
+- [ ] Focused scope (one concern per rule)
+
+When creating rules, be specific and actionable. Avoid vague terms like "clean code" - instead specify exact patterns and examples.
