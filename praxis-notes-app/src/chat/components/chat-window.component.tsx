@@ -229,12 +229,7 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
     const { messages } = session;
 
     return (
-        <div
-            className="relative flex min-h-[calc(100vh-8.5rem)] flex-col rounded-3xl border-2 border-green-200 bg-white md:max-h-[calc(100vh-19rem)] lg:max-h-[calc(100vh-8.5rem)]"
-            style={{
-                borderRadius: '25px 30px 20px 35px',
-            }}
-        >
+        <div className="relative flex h-full min-h-0 flex-col rounded-none border-2 border-green-200 bg-white lg:[border-radius:25px_30px_20px_35px]">
             {/* Thumb tack - triangle style for variety */}
             <div className="absolute -top-2 right-8">
                 <div className="h-0 w-0 border-b-[8px] border-l-[6px] border-r-[6px] border-b-orange-400 border-l-transparent border-r-transparent"></div>
@@ -244,7 +239,7 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
             <div
                 ref={scrollAreaRef}
                 onScroll={handleScroll}
-                className="flex-1 overflow-y-auto p-4 pt-28"
+                className="min-h-0 flex-1 overflow-y-auto p-4 pb-36 pt-28 lg:pb-4"
             >
                 {/* Top spacing */}
                 <div className="h-8 w-full lg:h-4"></div>
@@ -285,7 +280,7 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
 
             {/* Chat input area */}
             <div
-                className="mt-auto rounded-b-3xl border-t border-orange-200 bg-white/50 p-4 backdrop-blur-sm"
+                className="absolute inset-x-0 bottom-0 z-20 border-t border-orange-200 bg-white/90 p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur-sm lg:static lg:z-auto lg:rounded-b-3xl lg:bg-white/50 lg:p-4 lg:pb-4"
                 style={{
                     borderBottomLeftRadius: '20px',
                     borderBottomRightRadius: '35px',
