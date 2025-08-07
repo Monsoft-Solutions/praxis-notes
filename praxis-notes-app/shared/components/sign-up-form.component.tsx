@@ -244,7 +244,7 @@ export function SignUpForm({
                                             '1px 1px 2px rgba(0,0,0,0.2)',
                                     }}
                                 >
-                                    Create Account! ✨
+                                    Create Account!
                                 </Button>
                             </div>
                         </div>
@@ -284,7 +284,7 @@ export function SignUpForm({
                                     variant="link"
                                     className="font-quicksand px-1 font-semibold text-blue-600 underline decoration-blue-300 decoration-wavy hover:text-blue-700"
                                 >
-                                    Log In! 🚀
+                                    Log In!
                                 </Button>
                             </Link>
                         </ShortInfoMessage>

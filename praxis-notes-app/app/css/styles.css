@@ -54,7 +54,7 @@
         --chart-9: 285, 52%, 45%;
         --chart-10: 60, 60%, 50%;
 
-        --sidebar-background: 0 0% 98%;
+        --sidebar-background: 231 31% 91%;
         --sidebar-foreground: 240 5.3% 26.1%;
         --sidebar-primary: 240 5.9% 10%;
         --sidebar-primary-foreground: 0 0% 98%;
@@ -148,6 +148,185 @@
             transform: translateY(-1rem);
             max-height: 0;
         }
+    }
+
+    /* Hand-drawn design system utilities - Updated to match guidelines */
+    .hand-drawn-card {
+        @apply relative rounded-3xl border-2 bg-white p-6 shadow-lg;
+        border-style: solid; /* Changed from dashed to solid for professional look */
+        border-radius: 25px 30px 20px 35px; /* Irregular but consistent with guidelines */
+        /* Removed rotation - cards should not rotate */
+    }
+
+    .hand-drawn-main-container {
+        @apply relative rounded-3xl border-2 bg-white p-8 shadow-xl;
+        border-style: solid;
+        /* No rotation for functional containers */
+    }
+
+    .hand-drawn-form-field {
+        @apply relative rounded-xl border-2 bg-white;
+        border-radius: 12px 14px 12px 16px; /* Irregular radius */
+        /* Removed rotation - functional elements should never rotate */
+    }
+
+    .hand-drawn-button {
+        @apply relative rounded-xl shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg;
+        border-radius: 12px 14px 12px 16px; /* Irregular radius */
+        /* Removed rotation - buttons are functional elements */
+    }
+
+    /* Thumb tack components for cards */
+    .thumb-tack-round {
+        @apply absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 transform;
+    }
+
+    .thumb-tack-round::before {
+        @apply absolute inset-0 rounded-full shadow-sm;
+        content: '';
+        background: currentColor;
+    }
+
+    .thumb-tack-round::after {
+        @apply absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white;
+        content: '';
+    }
+
+    .thumb-tack-square {
+        @apply absolute -top-1.5 right-8 h-3 w-3 rotate-45 transform shadow-sm;
+        background: currentColor;
+    }
+
+    .thumb-tack-triangle {
+        @apply absolute -top-2 left-8;
+    }
+
+    .thumb-tack-triangle::before {
+        content: '';
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-bottom: 8px solid currentColor;
+    }
+
+    /* Decorative background elements - very subtle */
+    .hand-drawn-decorative-circle {
+        @apply rounded-full border-2 opacity-30;
+        border-radius: 60% 40% 65% 35%;
+    }
+
+    .hand-drawn-decorative-square {
+        @apply border-2 opacity-40;
+        border-radius: 15% 85% 20% 80%;
+    }
+}
+
+@layer utilities {
+    /* Text shadow utilities for hand-drawn design */
+    .text-shadow-sm {
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .text-shadow-md {
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .text-shadow-lg {
+        text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Irregular border radius utilities - following guidelines */
+    .border-radius-irregular-sm {
+        border-radius: 8px 10px 9px 11px;
+    }
+
+    .border-radius-irregular {
+        border-radius: 12px 14px 12px 16px;
+    }
+
+    .border-radius-irregular-lg {
+        border-radius: 20px 24px 18px 26px;
+    }
+
+    .border-radius-irregular-xl {
+        border-radius: 25px 30px 20px 35px;
+    }
+
+    /* Very subtle rotation utilities - only for decorative elements */
+    .rotate-decorative-left {
+        transform: rotate(-0.1deg);
+    }
+
+    .rotate-decorative-right {
+        transform: rotate(0.1deg);
+    }
+
+    .rotate-decorative-left-subtle {
+        transform: rotate(-0.2deg);
+    }
+
+    .rotate-decorative-right-subtle {
+        transform: rotate(0.2deg);
+    }
+
+    /* Background gradients for main containers */
+    .bg-gradient-aba-main {
+        background: linear-gradient(
+            135deg,
+            #dbeafe 0%,
+            #fef3c7 50%,
+            #fed7aa 100%
+        );
+    }
+
+    .bg-gradient-aba-secondary {
+        background: linear-gradient(
+            135deg,
+            #f3e8ff 0%,
+            #dcfce7 50%,
+            #fde68a 100%
+        );
+    }
+
+    /* Border styles - dashed only for decorative accents */
+    .border-decorative-dashed {
+        border-style: dashed;
+        border-width: 1px;
+    }
+
+    .border-decorative-dotted {
+        border-style: dotted;
+        border-width: 1px;
+    }
+
+    /* Removed excessive floating animations - keeping simple hover effects only */
+    .hover-lift {
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Typography utilities for hand-drawn design */
+    .text-hand-drawn-title {
+        @apply font-quicksand text-shadow-sm font-bold;
+    }
+
+    .text-hand-drawn-body {
+        @apply font-nunito;
+    }
+
+    .text-hand-drawn-interactive {
+        @apply font-quicksand font-semibold;
     }
 }
 

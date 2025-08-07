@@ -1,12 +1,6 @@
 import React, { useRef } from 'react';
 import { LifeBuoy, Mail, HelpCircle, Lightbulb, Bug } from 'lucide-react';
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardContent,
-    CardFooter,
-} from '@ui/card.ui';
+import { CardTitle } from '@ui/card.ui';
 import { Button } from '@ui/button.ui';
 import { FeedbackDialog } from '@src/contact-center/components/feedback-dialog.component';
 
@@ -24,11 +18,18 @@ const SupportOption: React.FC<SupportOptionProps> = ({
     onClick,
 }) => {
     const content = (
-        <div className="flex flex-col items-center justify-center gap-2 p-3">
-            <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
+        <div className="flex flex-col items-center justify-center gap-3 p-4 transition-all hover:scale-105">
+            <div
+                className="flex h-14 w-14 items-center justify-center border-2 border-green-200 bg-green-100 shadow-sm"
+                style={{
+                    borderRadius: '12px 16px 10px 18px',
+                }}
+            >
                 {icon}
             </div>
-            <span className="text-sm font-medium">{label}</span>
+            <span className="font-quicksand text-center text-sm font-medium text-gray-700">
+                {label}
+            </span>
         </div>
     );
 
@@ -36,12 +37,15 @@ const SupportOption: React.FC<SupportOptionProps> = ({
         return (
             <a
                 href={href}
-                className="hover:bg-muted/50 flex flex-col items-center rounded-md transition-colors"
+                className="block rounded-xl border border-green-200 transition-all hover:-translate-y-1 hover:bg-green-50 hover:shadow-md"
                 onClick={onClick}
                 target={href.startsWith('http') ? '_blank' : undefined}
                 rel={
                     href.startsWith('http') ? 'noopener noreferrer' : undefined
                 }
+                style={{
+                    borderRadius: '14px 18px 12px 20px',
+                }}
             >
                 {content}
             </a>
@@ -51,8 +55,11 @@ const SupportOption: React.FC<SupportOptionProps> = ({
     return (
         <Button
             variant="ghost"
-            className="hover:bg-muted/50 flex h-auto flex-col items-center rounded-md p-0 transition-colors"
+            className="h-auto rounded-xl border border-green-200 p-0 transition-all hover:-translate-y-1 hover:bg-green-50 hover:shadow-md"
             onClick={onClick}
+            style={{
+                borderRadius: '14px 18px 12px 20px',
+            }}
         >
             {content}
         </Button>
@@ -64,44 +71,63 @@ export const SupportCard: React.FC = () => {
     const bugButtonRef = useRef<HTMLButtonElement>(null);
 
     return (
-        <Card className="w-full">
-            <CardHeader className="pb-6">
-                <CardTitle>
-                    <div className="flex items-start justify-start gap-2">
-                        <LifeBuoy className="text-primary size-5" />
-                        <span>Do you need help?</span>
+        <div
+            className="relative w-full rounded-3xl border-2 border-green-200 bg-white p-6 shadow-lg"
+            style={{
+                borderRadius: '28px 32px 24px 36px',
+            }}
+        >
+            {/* Thumb tack - square style */}
+            <div className="absolute -top-1.5 right-8 h-3 w-3 rotate-45 transform bg-green-400 shadow-sm"></div>
+
+            {/* Card header */}
+            <div className="pb-6 pt-2">
+                <CardTitle className="font-quicksand font-bold text-gray-800">
+                    <div className="flex items-start justify-start gap-3">
+                        <div
+                            className="flex h-8 w-8 items-center justify-center border border-green-300 bg-green-100"
+                            style={{
+                                borderRadius: '6px 8px 5px 9px',
+                            }}
+                        >
+                            <LifeBuoy className="h-5 w-5 text-green-600" />
+                        </div>
+                        <span className="text-lg">Do you need help?</span>
                     </div>
                 </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            </div>
+
+            {/* Card content */}
+            <div className="pb-6">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <SupportOption
-                        icon={<Mail className="text-primary size-6" />}
-                        label="E-mail"
+                        icon={<Mail className="h-7 w-7 text-green-600" />}
+                        label="E-mail Support"
                         href="mailto:support@praxisnotes.com"
                     />
                     <SupportOption
-                        icon={<HelpCircle className="text-primary size-6" />}
-                        label="Guides"
+                        icon={<HelpCircle className="h-7 w-7 text-green-600" />}
+                        label="Help Guides"
                         href="https://docs.praxisnotes.com"
                     />
                     <SupportOption
-                        icon={<Lightbulb className="text-primary size-6" />}
+                        icon={<Lightbulb className="h-7 w-7 text-green-600" />}
                         label="Suggestions"
                         onClick={() => {
                             suggestionButtonRef.current?.click();
                         }}
                     />
                     <SupportOption
-                        icon={<Bug className="text-primary size-6" />}
+                        icon={<Bug className="h-7 w-7 text-green-600" />}
                         label="Report Bug"
                         onClick={() => {
                             bugButtonRef.current?.click();
                         }}
                     />
                 </div>
-            </CardContent>
+            </div>
 
+            {/* Hidden dialog triggers */}
             <FeedbackDialog
                 initialType="suggestion"
                 trigger={
@@ -124,16 +150,30 @@ export const SupportCard: React.FC = () => {
                 }
             />
 
-            <CardFooter>
-                <div className="flex items-center rounded-lg border p-4">
-                    <HelpCircle className="text-primary mr-3 h-5 w-5" />
-                    <p className="text-muted-foreground text-sm">
+            {/* Card footer */}
+            <div>
+                <div
+                    className="flex items-start rounded-lg border-2 border-green-200 bg-gradient-to-r from-green-50 to-green-100 p-4 shadow-sm"
+                    style={{
+                        borderRadius: '12px 16px 10px 18px',
+                        borderStyle: 'dashed',
+                    }}
+                >
+                    <div
+                        className="mr-3 flex h-8 w-8 flex-shrink-0 items-center justify-center border border-green-300 bg-green-200"
+                        style={{
+                            borderRadius: '6px 8px 5px 9px',
+                        }}
+                    >
+                        <HelpCircle className="h-4 w-4 text-green-700" />
+                    </div>
+                    <p className="font-nunito text-sm leading-relaxed text-gray-700">
                         Need assistance? We&apos;re here to help! We also
                         welcome your feedback on new features and bug reports to
                         improve your experience.
                     </p>
                 </div>
-            </CardFooter>
-        </Card>
+            </div>
+        </div>
     );
 };
