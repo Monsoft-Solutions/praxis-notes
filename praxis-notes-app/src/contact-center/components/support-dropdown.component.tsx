@@ -41,7 +41,14 @@ export function SupportDropdown({
         <div className={className} {...props}>
             <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
-                    <Button variant={variant} size={size} className="w-9 p-0">
+                    <Button
+                        variant={variant}
+                        size={size}
+                        className="hand-drawn-button w-9 border-2 border-green-200 bg-green-50 p-0 text-green-600 hover:bg-green-100"
+                        style={{
+                            borderRadius: '12px 14px 12px 16px',
+                        }}
+                    >
                         <LifeBuoy className="size-[1.2rem]" />
                         <span className="sr-only">Open support menu</span>
                     </Button>
@@ -49,113 +56,170 @@ export function SupportDropdown({
 
                 <DropdownMenuContent
                     align={align}
-                    className="max-h-[90vh] w-screen overflow-y-auto p-4 md:max-h-[calc(100vh-4rem)] md:w-auto md:max-w-3xl"
+                    className="relative max-h-[90vh] w-screen overflow-y-auto border-2 border-green-200 bg-white p-4 shadow-lg md:max-h-[calc(100vh-4rem)] md:w-auto md:max-w-3xl"
+                    style={{
+                        borderRadius: '25px 30px 20px 35px',
+                    }}
                 >
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                        {/* Feedback & Suggestion Section */}
-                        <div className="col-span-1 flex flex-col">
-                            <DropdownMenuLabel className="flex items-center gap-2 px-0 text-sm font-semibold">
-                                <Lightbulb className="size-4" /> FEEDBACK &
-                                SUGGESTIONS
-                            </DropdownMenuLabel>
-                            <p className="text-muted-foreground mt-2 text-xs">
-                                Any suggestions for improving PraxisNotes? We
-                                would be happy to hear from you. Fine-tuning our
-                                platform will make your work easier.
-                            </p>
-                            <div className="mt-4 flex flex-col gap-2">
-                                <FeedbackDialog
-                                    initialType="suggestion"
-                                    trigger={
-                                        <Button size="sm" className="w-full">
-                                            <Lightbulb className="mr-2 size-3.5" />{' '}
-                                            Share a suggestion
-                                        </Button>
-                                    }
-                                />
-                                <FeedbackDialog
-                                    initialType="bug"
-                                    trigger={
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="w-full"
-                                        >
-                                            <Bug className="mr-2 size-3.5" />{' '}
-                                            Report a bug
-                                        </Button>
-                                    }
-                                />
+                    {/* Thumb tack for dropdown */}
+                    <div className="absolute -top-2 right-8 h-3 w-3 rotate-45 transform bg-green-400 shadow-sm"></div>
+
+                    <div className="pt-2">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            {/* Feedback & Suggestion Section */}
+                            <div
+                                className="col-span-1 flex flex-col border-2 border-yellow-200 bg-yellow-50 p-4"
+                                style={{
+                                    borderRadius: '20px 25px 18px 28px',
+                                }}
+                            >
+                                <DropdownMenuLabel className="flex items-center gap-2 px-0 text-sm font-semibold text-yellow-800">
+                                    <Lightbulb className="size-4 text-yellow-600" />{' '}
+                                    FEEDBACK & SUGGESTIONS
+                                </DropdownMenuLabel>
+                                <p className="text-hand-drawn-body mt-2 text-xs text-yellow-700">
+                                    Any suggestions for improving PraxisNotes?
+                                    We would be happy to hear from you.
+                                    Fine-tuning our platform will make your work
+                                    easier.
+                                </p>
+                                <div className="mt-4 flex flex-col gap-2">
+                                    <FeedbackDialog
+                                        initialType="suggestion"
+                                        trigger={
+                                            <Button
+                                                size="sm"
+                                                className="hand-drawn-button w-full border-2 border-yellow-300 bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                                                style={{
+                                                    borderRadius:
+                                                        '12px 15px 10px 18px',
+                                                }}
+                                            >
+                                                <Lightbulb className="mr-2 size-3.5" />{' '}
+                                                Share a suggestion
+                                            </Button>
+                                        }
+                                    />
+                                    <FeedbackDialog
+                                        initialType="bug"
+                                        trigger={
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="hand-drawn-button w-full border-2 border-red-300 bg-red-50 text-red-800 hover:bg-red-100"
+                                                style={{
+                                                    borderRadius:
+                                                        '10px 18px 15px 12px',
+                                                }}
+                                            >
+                                                <Bug className="mr-2 size-3.5" />{' '}
+                                                Report a bug
+                                            </Button>
+                                        }
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        <Separator className="md:hidden" />
+                            <Separator className="border-green-200 md:hidden" />
 
-                        {/* Support Center Section */}
-                        <div className="col-span-1 flex flex-col">
-                            <DropdownMenuLabel className="flex items-center gap-2 px-0 text-sm font-semibold">
-                                <LifeBuoy className="size-4" /> SUPPORT CENTER
-                            </DropdownMenuLabel>
-                            <p className="text-muted-foreground mt-2 text-xs">
-                                If you have any questions, please contact us at
-                                your earliest convenience.
-                            </p>
-                            <DropdownMenuGroup className="mt-2">
-                                <DropdownMenuItem
-                                    asChild
-                                    className="cursor-pointer text-xs"
-                                >
-                                    <a href="tel:+13057974357">
-                                        <Phone className="mr-2 size-3.5" /> Call
-                                        us now
-                                    </a>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    asChild
-                                    className="cursor-pointer text-xs"
-                                >
-                                    <a href="mailto:support@praxisnotes.com">
-                                        <Mail className="mr-2 size-3.5" /> Send
-                                        us email
-                                    </a>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    asChild
-                                    className="cursor-pointer text-xs"
-                                >
-                                    <a
-                                        href="https://docs.praxisnotes.com"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                            {/* Support Center Section */}
+                            <div
+                                className="col-span-1 flex flex-col border-2 border-blue-200 bg-blue-50 p-4"
+                                style={{
+                                    borderRadius: '18px 28px 20px 25px',
+                                }}
+                            >
+                                <DropdownMenuLabel className="flex items-center gap-2 px-0 text-sm font-semibold text-blue-800">
+                                    <LifeBuoy className="size-4 text-blue-600" />{' '}
+                                    SUPPORT CENTER
+                                </DropdownMenuLabel>
+                                <p className="text-hand-drawn-body mt-2 text-xs text-blue-700">
+                                    If you have any questions, please contact us
+                                    at your earliest convenience.
+                                </p>
+                                <DropdownMenuGroup className="mt-2 space-y-1">
+                                    <DropdownMenuItem
+                                        asChild
+                                        className="cursor-pointer border-2 border-blue-300 bg-blue-100 text-xs transition-colors hover:bg-blue-200"
+                                        style={{
+                                            borderRadius: '8px 12px 10px 14px',
+                                        }}
                                     >
-                                        <HelpCircle className="mr-2 size-3.5" />
-                                        Guides
-                                    </a>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    asChild
-                                    className="cursor-pointer text-xs"
-                                >
-                                    <a
-                                        href="https://www.praxisnotes.com"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                                        <a
+                                            href="tel:+13057974357"
+                                            className="text-hand-drawn-interactive text-blue-800"
+                                        >
+                                            <Phone className="mr-2 size-3.5 text-blue-600" />{' '}
+                                            Call us now
+                                        </a>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        asChild
+                                        className="cursor-pointer border-2 border-blue-300 bg-blue-100 text-xs transition-colors hover:bg-blue-200"
+                                        style={{
+                                            borderRadius: '10px 14px 8px 12px',
+                                        }}
                                     >
-                                        <Home className="mr-2 size-3.5" />{' '}
-                                        Website
-                                    </a>
-                                </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                        </div>
+                                        <a
+                                            href="mailto:support@praxisnotes.com"
+                                            className="text-hand-drawn-interactive text-blue-800"
+                                        >
+                                            <Mail className="mr-2 size-3.5 text-blue-600" />{' '}
+                                            Send us email
+                                        </a>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        asChild
+                                        className="cursor-pointer border-2 border-blue-300 bg-blue-100 text-xs transition-colors hover:bg-blue-200"
+                                        style={{
+                                            borderRadius: '12px 10px 14px 8px',
+                                        }}
+                                    >
+                                        <a
+                                            href="https://docs.praxisnotes.com"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-hand-drawn-interactive text-blue-800"
+                                        >
+                                            <HelpCircle className="mr-2 size-3.5 text-blue-600" />
+                                            Guides
+                                        </a>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                        asChild
+                                        className="cursor-pointer border-2 border-blue-300 bg-blue-100 text-xs transition-colors hover:bg-blue-200"
+                                        style={{
+                                            borderRadius: '14px 8px 12px 10px',
+                                        }}
+                                    >
+                                        <a
+                                            href="https://www.praxisnotes.com"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-hand-drawn-interactive text-blue-800"
+                                        >
+                                            <Home className="mr-2 size-3.5 text-blue-600" />{' '}
+                                            Website
+                                        </a>
+                                    </DropdownMenuItem>
+                                </DropdownMenuGroup>
+                            </div>
 
-                        <Separator className="md:hidden" />
+                            <Separator className="border-green-200 md:hidden" />
 
-                        {/* Send us a message Section */}
-                        <div className="col-span-1 flex flex-col">
-                            <DropdownMenuLabel className="flex items-center gap-2 px-0 text-sm font-semibold">
-                                <Send className="size-4" /> SEND US A MESSAGE
-                            </DropdownMenuLabel>
-                            <ContactForm className="mt-2" />
+                            {/* Send us a message Section */}
+                            <div
+                                className="col-span-1 flex flex-col border-2 border-orange-200 bg-orange-50 p-4"
+                                style={{
+                                    borderRadius: '25px 18px 28px 20px',
+                                }}
+                            >
+                                <DropdownMenuLabel className="flex items-center gap-2 px-0 text-sm font-semibold text-orange-800">
+                                    <Send className="size-4 text-orange-600" />{' '}
+                                    SEND US A MESSAGE
+                                </DropdownMenuLabel>
+                                <ContactForm className="mt-2" />
+                            </div>
                         </div>
                     </div>
                 </DropdownMenuContent>
