@@ -181,11 +181,16 @@ export function AbcSelector({
                                 role="combobox"
                                 aria-expanded={open}
                                 className={cn(
-                                    'font-nunito w-full justify-between',
+                                    'font-nunito h-11 w-full justify-between border-2 border-blue-200 bg-white',
+                                    'hover:border-blue-300 hover:shadow-md focus:border-blue-400 focus:ring-2 focus:ring-blue-300',
+                                    'transition-all duration-200',
                                     !selectedId && 'text-muted-foreground',
                                 )}
+                                style={{
+                                    borderRadius: '12px 14px 12px 16px',
+                                }}
                             >
-                                <span className="truncate">
+                                <span className="truncate text-left">
                                     {selectedId
                                         ? items.find(
                                               (item) => item.id === selectedId,
@@ -200,13 +205,13 @@ export function AbcSelector({
                     </PopoverTrigger>
 
                     <PopoverContent
-                        className="w-[--radix-popover-trigger-width] p-0"
+                        className="w-[--radix-popover-trigger-width] border-2 border-blue-200 bg-white p-0 shadow-xl"
                         style={{ borderRadius: '15px 18px 14px 20px' }}
                     >
                         <Command className="rounded-lg">
                             <CommandInput
                                 placeholder="Search options..."
-                                className="font-nunito h-10"
+                                className="font-nunito h-10 border-0 focus:ring-0"
                                 value={search}
                                 onValueChange={setSearch}
                             />
@@ -239,7 +244,7 @@ export function AbcSelector({
                                     <CommandGroup
                                         key={key}
                                         heading={typeLabels[key as Type]}
-                                        className="font-quicksand font-semibold"
+                                        className="font-quicksand text-foreground px-2 py-1.5 text-sm font-semibold"
                                     >
                                         {options.map((option) => (
                                             <CommandItem
@@ -251,14 +256,21 @@ export function AbcSelector({
                                                     setOpen(false);
                                                     setSearch(''); // Clear search on selection
                                                 }}
-                                                className="font-nunito flex items-center"
+                                                className={cn(
+                                                    'font-nunito flex cursor-pointer items-center',
+                                                    'mx-1 rounded-lg transition-colors duration-200 hover:bg-blue-50',
+                                                )}
+                                                style={{
+                                                    borderRadius:
+                                                        '8px 10px 9px 11px',
+                                                }}
                                             >
                                                 <span className="flex-1 truncate">
                                                     {option.label}
                                                 </span>
                                                 <Check
                                                     className={cn(
-                                                        'ml-2 h-4 w-4 flex-shrink-0 text-blue-500',
+                                                        'ml-2 h-4 w-4 flex-shrink-0 text-green-500',
                                                         option.value ===
                                                             selectedId
                                                             ? 'opacity-100'
@@ -275,12 +287,19 @@ export function AbcSelector({
                                         onSelect={() => {
                                             setCreateDialogOpen(true);
                                         }}
-                                        className="font-nunito mt-1 flex items-center gap-2 border-t border-blue-100 pt-2"
+                                        className={cn(
+                                            'font-nunito mt-1 flex cursor-pointer items-center gap-2',
+                                            'mx-1 rounded-lg border-t border-blue-100 pt-2 hover:bg-green-50',
+                                            'transition-colors duration-200',
+                                        )}
+                                        style={{
+                                            borderRadius: '8px 10px 9px 11px',
+                                        }}
                                     >
                                         <PlusCircle className="h-4 w-4 text-green-500" />
                                         <span className="flex-1">
                                             Create{' '}
-                                            <strong>
+                                            <strong className="text-green-600">
                                                 &quot;{search}&quot;
                                             </strong>
                                         </span>

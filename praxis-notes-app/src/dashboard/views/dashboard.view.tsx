@@ -5,7 +5,7 @@ import { ViewContainer } from '@shared/ui';
 
 export const DashboardView: React.FC = () => {
     return (
-        <div className="relative min-h-screen bg-gradient-to-br from-blue-100 via-yellow-50 to-orange-100">
+        <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100">
             {/* Very subtle background decorations */}
             <div className="pointer-events-none fixed inset-0 overflow-hidden">
                 {/* Subtle geometric shapes */}

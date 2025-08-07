@@ -2,16 +2,7 @@ import { useState, ReactNode, useEffect, useCallback } from 'react';
 
 import { Button } from '@ui/button.ui';
 
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@ui/card.ui';
-
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 
 import { TourStepId } from '@shared/types/tour-step-id.type';
 
@@ -120,120 +111,165 @@ export function MultiStepForm({
         }
     };
 
+    // Get thumb tack color based on step index
+    const getThumbTackColor = (index: number) => {
+        const colors = [
+            'bg-blue-400',
+            'bg-green-400',
+            'bg-orange-400',
+            'bg-yellow-400',
+            'bg-purple-400',
+        ];
+        return colors[index % colors.length];
+    };
+
     return (
         <div className="space-y-8">
-            {/* Progress Indicator */}
-            <ol className="flex justify-between" role="list">
-                {' '}
-                {/* Use <ol> for semantic list */}
-                {steps.map((step, index) => {
-                    const stepNumber = index + 1;
-                    const isActive = stepNumber === currentStep;
-                    const isCompleted = completedSteps.includes(stepNumber);
-                    const isLast = stepNumber === steps.length;
+            {/* Progress Indicator - Hand-drawn style */}
+            <div
+                className="relative rounded-3xl border-2 border-green-200 bg-white p-6 shadow-lg"
+                style={{
+                    borderRadius: '20px 24px 18px 26px',
+                }}
+            >
+                {/* Progress card thumb tack */}
+                <div className="absolute -top-1.5 right-8 h-3 w-3 rotate-45 transform bg-green-400 shadow-sm"></div>
 
-                    return (
-                        <li
-                            key={step.title}
-                            className={`relative flex w-full items-center ${
-                                !isLast
-                                    ? isCompleted
-                                        ? "after:border-primary after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
-                                        : "after:border-muted after:inline-block after:h-1 after:w-full after:border-4 after:border-b after:content-['']"
-                                    : ''
-                            } ${isCompleted || isActive ? 'text-primary' : 'text-muted-foreground'}`}
-                        >
-                            <button
-                                id={indexToId(index)}
-                                type="button"
-                                aria-label={`Go to step ${stepNumber}: ${step.title}`}
-                                aria-current={isActive ? 'step' : undefined}
-                                onClick={() => {
-                                    handleStepClick(stepNumber);
-                                }}
-                                className={`focus-visible:ring-primary flex cursor-pointer flex-col items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2`} // Use focus-visible for ring
-                            >
-                                <span
-                                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 ${
-                                        isActive
-                                            ? 'border-primary text-primary ring-primary font-bold ring-2 ring-offset-2' // Ring already here for active
-                                            : isCompleted
-                                              ? 'border-primary text-primary'
-                                              : 'border-muted text-muted-foreground'
-                                    }`}
+                <div className="pt-1">
+                    <h2
+                        className="font-quicksand mb-4 text-lg font-semibold text-gray-800"
+                        style={{
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+                        }}
+                    >
+                        Progress
+                    </h2>
+                    <div className="flex flex-wrap items-center justify-center gap-4">
+                        {steps.map((step, index) => {
+                            const stepNumber = index + 1;
+                            const isCompleted =
+                                completedSteps.includes(stepNumber);
+                            const isCurrent = currentStep === stepNumber;
+                            const isClickable =
+                                isCompleted || stepNumber <= currentStep;
+
+                            return (
+                                <div
+                                    key={stepNumber}
+                                    className="flex items-center"
                                 >
-                                    <span
-                                        className={isActive ? 'font-bold' : ''}
+                                    <button
+                                        onClick={() => {
+                                            if (isClickable) {
+                                                handleStepClick(stepNumber);
+                                            }
+                                        }}
+                                        disabled={!isClickable}
+                                        className={`font-quicksand relative flex h-10 w-10 items-center justify-center rounded-full border-2 font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+                                            isCurrent
+                                                ? 'border-blue-400 bg-blue-400 text-white shadow-lg'
+                                                : isCompleted
+                                                  ? 'border-green-400 bg-green-400 text-white'
+                                                  : 'border-gray-300 bg-white text-gray-500'
+                                        } ${isClickable ? 'cursor-pointer' : 'cursor-not-allowed'} `}
+                                        style={{
+                                            borderRadius: '40% 60% 50% 50%',
+                                        }}
+                                        id={indexToId(index)}
                                     >
-                                        {stepNumber}
-                                    </span>
-                                </span>
-                                <div className="mt-2 w-full text-center">
-                                    <div className="text-sm font-medium">
-                                        {step.title}
-                                    </div>
-                                    {isActive && (
-                                        <div className="text-muted-foreground hidden text-xs sm:block">
-                                            {step.description}
-                                        </div>
+                                        {isCompleted && !isCurrent ? (
+                                            <CheckCircle className="h-5 w-5" />
+                                        ) : (
+                                            stepNumber
+                                        )}
+                                    </button>
+                                    {index < steps.length - 1 && (
+                                        <div
+                                            className={`mx-2 h-0.5 w-8 ${
+                                                completedSteps.includes(
+                                                    stepNumber + 1,
+                                                )
+                                                    ? 'bg-green-400'
+                                                    : 'bg-gray-300'
+                                            }`}
+                                        />
                                     )}
                                 </div>
-                            </button>
-                        </li>
-                    );
-                })}
-            </ol>
+                            );
+                        })}
+                    </div>
 
-            {/* Current Step Content */}
-            <Card className="w-full">
-                <CardHeader>
-                    <CardTitle>{currentStepData.title}</CardTitle>
-                    <CardDescription>
-                        {currentStepData.description}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>{currentStepData.content}</CardContent>
-                <CardFooter className="flex justify-between">
-                    <Button
-                        variant="outline"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            goToPreviousStep();
-                        }} // Keep preventDefault for button clicks
-                        disabled={currentStep === 1 || isSubmitting}
-                        type="button"
-                    >
-                        <ChevronLeft className="mr-2 h-4 w-4" />
-                        Previous
-                    </Button>
-                    <div className="flex gap-2">
-                        {!isLastStep && (
+                    {/* Current step info */}
+                    <div className="mt-4 text-center">
+                        <h3 className="font-quicksand font-semibold text-gray-800">
+                            Step {currentStep}: {currentStepData.title}
+                        </h3>
+                        <p className="font-nunito text-muted-foreground text-sm">
+                            {currentStepData.description}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Step Content Card */}
+            <div
+                className="relative rounded-3xl border-2 border-blue-200 bg-white shadow-lg"
+                style={{
+                    borderRadius: '25px 30px 20px 35px',
+                }}
+            >
+                {/* Main content thumb tack */}
+                <div className="absolute -top-2 left-8">
+                    {(() => {
+                        const colorClass = getThumbTackColor(currentStep - 1);
+                        const borderColor = colorClass.replace(
+                            'bg-',
+                            'border-b-',
+                        );
+                        return (
+                            <div
+                                className={`h-0 w-0 border-b-4 border-l-2 border-r-2 border-l-transparent border-r-transparent ${borderColor}`}
+                            />
+                        );
+                    })()}
+                </div>
+
+                <div className="p-8 pt-6">
+                    {/* Step content */}
+                    <div className="mb-6">{currentStepData.content}</div>
+
+                    {/* Navigation buttons */}
+                    <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={goToPreviousStep}
+                            disabled={currentStep === 1}
+                        >
+                            <ChevronLeft className="mr-2 h-4 w-4" />
+                            Previous
+                        </Button>
+
+                        {isLastStep ? (
                             <Button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    goToNextStep();
-                                }} // Keep preventDefault for button clicks
-                                disabled={isSubmitting}
                                 type="button"
-                            >
-                                Next
-                                <ChevronRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        )}
-                        {isLastStep && (
-                            <Button
                                 onClick={handleComplete}
                                 disabled={
                                     isSubmitting || !isLastStepSubmitEnabled
                                 }
-                                type="button"
                             >
-                                {isSubmitting ? 'Submitting...' : 'Complete'}
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                {isSubmitting ? 'Creating...' : 'Complete'}
+                            </Button>
+                        ) : (
+                            <Button type="button" onClick={goToNextStep}>
+                                Next
+                                <ChevronRight className="ml-2 h-4 w-4" />
                             </Button>
                         )}
                     </div>
-                </CardFooter>
-            </Card>
+                </div>
+            </div>
         </div>
     );
 }

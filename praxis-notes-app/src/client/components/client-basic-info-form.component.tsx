@@ -1,4 +1,5 @@
 import { useFormContext } from 'react-hook-form';
+import { User, FileText } from 'lucide-react';
 
 import {
     FormField,
@@ -26,14 +27,28 @@ export function ClientBasicInfoForm() {
     const form = useFormContext<ClientFormBasicInfo>();
 
     return (
-        <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="space-y-6">
+            {/* Section Header */}
+            <div className="mb-6 flex items-center gap-2">
+                <User className="h-6 w-6 text-blue-400" />
+                <h3
+                    className="font-quicksand text-xl font-semibold text-gray-800"
+                    style={{
+                        textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+                    }}
+                >
+                    Basic Information
+                </h3>
+            </div>
+
+            {/* Name Fields */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <FormField
                     control={form.control}
                     name="firstName"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>
+                            <FormLabel className="font-quicksand font-semibold text-gray-700">
                                 First Name{' '}
                                 <span className="text-destructive">*</span>
                             </FormLabel>
@@ -53,7 +68,7 @@ export function ClientBasicInfoForm() {
                     name="lastName"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>
+                            <FormLabel className="font-quicksand font-semibold text-gray-700">
                                 Last Name{' '}
                                 <span className="text-destructive">*</span>
                             </FormLabel>
@@ -69,12 +84,13 @@ export function ClientBasicInfoForm() {
                 />
             </div>
 
+            {/* Gender Field */}
             <FormField
                 control={form.control}
                 name="gender"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>
+                        <FormLabel className="font-quicksand font-semibold text-gray-700">
                             Gender <span className="text-destructive">*</span>
                         </FormLabel>
                         <Select
@@ -98,12 +114,16 @@ export function ClientBasicInfoForm() {
                 )}
             />
 
+            {/* Notes Field */}
             <FormField
                 control={form.control}
                 name="notes"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Notes</FormLabel>
+                        <FormLabel className="font-quicksand flex items-center gap-2 font-semibold text-gray-700">
+                            <FileText className="h-4 w-4 text-orange-400" />
+                            Notes
+                        </FormLabel>
                         <FormControl>
                             <Textarea
                                 placeholder="Enter additional notes (optional)"

@@ -392,7 +392,10 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
             const Item = (
                 <CommandItem
                     value={inputValue}
-                    className="font-nunito mt-1 cursor-pointer border-t border-blue-100 pt-2"
+                    className={cn(
+                        'font-nunito mx-1 mt-1 cursor-pointer border-t border-blue-100 pt-2',
+                        'rounded-lg transition-colors duration-200 hover:bg-green-50',
+                    )}
                     onMouseDown={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -412,7 +415,7 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                     }}
                     style={{ borderRadius: '8px 10px 9px 11px' }}
                 >
-                    <span className="text-green-600">
+                    <span className="font-semibold text-green-600">
                         Create &quot;{inputValue}&quot;
                     </span>
                 </CommandItem>
@@ -513,10 +516,10 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                 <Badge
                                     key={option.value}
                                     className={cn(
-                                        'border border-blue-200 bg-blue-100 text-blue-800 hover:bg-blue-200',
+                                        'text-foreground border border-blue-200 bg-blue-100 hover:bg-blue-200',
                                         'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground',
                                         'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground',
-                                        'font-nunito',
+                                        'font-nunito transition-all duration-200 hover:shadow-sm',
                                         badgeClassName,
                                     )}
                                     style={{
@@ -530,7 +533,7 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                         type="button"
                                         className={cn(
                                             'ml-1 rounded-full outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1',
-                                            'transition-colors duration-200',
+                                            'transition-colors duration-200 hover:bg-blue-300',
                                             (disabled ?? false) || option.fixed
                                                 ? 'hidden'
                                                 : '',
@@ -548,7 +551,7 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                             handleUnselect(option);
                                         }}
                                     >
-                                        <X className="h-3 w-3 text-blue-600 hover:text-blue-800" />
+                                        <X className="text-muted-foreground hover:text-foreground h-3 w-3" />
                                     </button>
                                 </Badge>
                             );
@@ -596,8 +599,8 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                 onChange?.(selected.filter((s) => s.fixed));
                             }}
                             className={cn(
-                                'absolute right-2 top-1/2 h-5 w-5 -translate-y-1/2 p-0',
-                                'text-blue-400 transition-colors duration-200 hover:text-blue-600',
+                                'absolute right-2 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full p-0',
+                                'text-muted-foreground hover:text-foreground transition-all duration-200 hover:bg-blue-100',
                                 ((hideClearAllButton || disabled) ??
                                     (selected.length < 1 ||
                                         selected.filter((s) => s.fixed)
@@ -650,7 +653,7 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                                     typeLabels[key] ??
                                                     key.toUpperCase()
                                                 }
-                                                className="font-quicksand h-full overflow-auto font-semibold"
+                                                className="font-quicksand text-foreground h-full overflow-auto px-2 py-1.5 text-sm font-semibold"
                                             >
                                                 <>
                                                     {dropdowns.map((option) => {
@@ -697,9 +700,10 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                                                     );
                                                                 }}
                                                                 className={cn(
-                                                                    'font-nunito cursor-pointer',
+                                                                    'font-nunito cursor-pointer transition-colors duration-200',
+                                                                    'mx-1 rounded-lg hover:bg-blue-50',
                                                                     option.disable &&
-                                                                        'text-muted-foreground cursor-default',
+                                                                        'text-muted-foreground cursor-default hover:bg-transparent',
                                                                 )}
                                                                 style={{
                                                                     borderRadius:
