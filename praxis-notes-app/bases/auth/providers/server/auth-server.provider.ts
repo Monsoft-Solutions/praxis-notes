@@ -26,6 +26,12 @@ export const authServer = betterAuth({
 
     secret: authEnv.MSS_AUTH_SECRET,
 
+    trustedOrigins: [
+        'http://localhost',
+        'http://192.168.0.24',
+        'https://app.praxisnotes.com',
+    ],
+
     database: drizzleAdapter(db, {
         provider: 'pg',
     }),

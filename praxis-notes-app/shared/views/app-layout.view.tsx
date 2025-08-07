@@ -22,7 +22,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     } = Route.useRouteContext();
 
     return (
-        <div className="max-h-screen min-h-screen bg-gradient-to-br from-blue-100 via-yellow-50 to-orange-100">
+        <div className="flex max-h-screen min-h-screen flex-col bg-gradient-to-br from-blue-100 via-yellow-50 to-orange-100">
             {/* Very subtle background decorations */}
             <div className="pointer-events-none fixed inset-0 overflow-hidden">
                 {/* Subtle geometric shapes - following guidelines for very minimal decoration */}
@@ -40,7 +40,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <SidebarProvider className="w-full overflow-hidden">
                 <AppSidebar />
 
-                <SidebarInset className="max-h-screen overflow-hidden">
+                <SidebarInset className="flex min-h-0 flex-col overflow-hidden">
                     {/* Clean, functional header with thick primary border */}
                     <header className="border-primary border-b-4 bg-white/80 backdrop-blur-sm">
                         <div className="flex h-16 shrink-0 items-center gap-2 px-4">
@@ -83,7 +83,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
                     {/* Main content area with hand-drawn styling */}
                     <main
-                        className="relative m-4 flex flex-1 flex-col gap-4 overflow-y-hidden rounded-3xl border-2 border-blue-200 bg-white p-0 shadow-lg"
+                        className="relative m-4 flex min-h-0 flex-1 flex-col gap-4 overflow-hidden rounded-3xl border-2 border-blue-200 bg-white p-0 shadow-lg"
                         style={{
                             borderRadius: '25px 30px 20px 35px',
                         }}
@@ -91,7 +91,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                         {/* Thumb tack for main content */}
                         <div className="absolute -top-2 right-8 h-3 w-3 rotate-45 transform bg-green-400 shadow-sm"></div>
 
-                        <div>{children}</div>
+                        <div className="h-full min-h-0 overflow-hidden">
+                            {children}
+                        </div>
                     </main>
                 </SidebarInset>
             </SidebarProvider>

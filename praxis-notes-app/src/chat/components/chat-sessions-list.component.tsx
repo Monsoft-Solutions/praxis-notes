@@ -112,7 +112,7 @@ export function ChatSessionsList({
 
             {/* Main sessions list card with thumb tack */}
             <div
-                className="relative h-full rounded-3xl border-2 border-blue-200 bg-white shadow-lg"
+                className="relative h-full overflow-hidden rounded-3xl"
                 style={{
                     borderRadius: '25px 30px 20px 35px',
                 }}

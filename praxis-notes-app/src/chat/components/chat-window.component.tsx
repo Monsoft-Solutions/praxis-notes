@@ -6,7 +6,6 @@ import { ChatSuggestedQuestions } from './chat-suggested-questions.component';
 import { api } from '@api/providers/web/api.provider';
 
 import { apiClientUtils } from '@api/providers/web/api-client-utils.provider';
-import { ScrollArea } from '@shared/ui/scroll-area.ui';
 import { AiGenerationQualitySelector } from '@src/ai/schemas';
 import { File } from '@shared/schemas';
 
@@ -230,85 +229,80 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
     const { messages } = session;
 
     return (
-        <div className="relative h-full">
-            {/* Main chat window with hand-drawn styling */}
+        <div
+            className="relative flex min-h-[calc(100vh-8.5rem)] flex-col rounded-3xl border-2 border-green-200 bg-white md:max-h-[calc(100vh-19rem)] lg:max-h-[calc(100vh-8.5rem)]"
+            style={{
+                borderRadius: '25px 30px 20px 35px',
+            }}
+        >
+            {/* Thumb tack - triangle style for variety */}
+            <div className="absolute -top-2 right-8">
+                <div className="h-0 w-0 border-b-[8px] border-l-[6px] border-r-[6px] border-b-orange-400 border-l-transparent border-r-transparent"></div>
+            </div>
+
+            {/* Chat messages area */}
             <div
-                className="relative flex h-full max-h-[calc(100vh-19rem)] flex-col rounded-3xl border-2 border-orange-200 bg-white shadow-lg lg:max-h-[calc(100vh-8.5rem)]"
+                ref={scrollAreaRef}
+                onScroll={handleScroll}
+                className="flex-1 overflow-y-auto p-4 pt-28"
+            >
+                {/* Top spacing */}
+                <div className="h-8 w-full lg:h-4"></div>
+
+                <div className="space-y-4 pb-4">
+                    {messages.map((message) => (
+                        <ChatMessageComponent
+                            key={message.id}
+                            message={message}
+                            isLoading={isMessageLoading(
+                                message.id,
+                                message.role,
+                                message.content,
+                            )}
+                        />
+                    ))}
+                    <div ref={messagesEndRef} />
+
+                    {/* Welcome state with suggested questions */}
+                    {messages.length === 0 && (
+                        <div className="flex justify-center pt-8 lg:pt-12">
+                            <ChatSuggestedQuestions
+                                sessionId={activeSessionId}
+                                onQuestionSelect={(question) => {
+                                    void handleSuggestedQuestionSelect(
+                                        question,
+                                    );
+                                }}
+                                className="max-w-full px-2"
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {/* Bottom spacing */}
+                <div className="h-4 w-full"></div>
+            </div>
+
+            {/* Chat input area */}
+            <div
+                className="mt-auto rounded-b-3xl border-t border-orange-200 bg-white/50 p-4 backdrop-blur-sm"
                 style={{
-                    borderRadius: '25px 30px 20px 35px',
+                    borderBottomLeftRadius: '20px',
+                    borderBottomRightRadius: '35px',
                 }}
             >
-                {/* Thumb tack - triangle style for variety */}
-                <div className="absolute -top-2 right-8">
-                    <div className="h-0 w-0 border-b-[8px] border-l-[6px] border-r-[6px] border-b-orange-400 border-l-transparent border-r-transparent"></div>
-                </div>
-
-                {/* Chat messages area */}
-                <div className="flex-1 overflow-hidden p-4 pt-6">
-                    <ScrollArea
-                        ref={scrollAreaRef}
-                        className="h-full"
-                        onScrollCapture={handleScroll}
-                    >
-                        {/* Top spacing */}
-                        <div className="h-8 w-full lg:h-4"></div>
-
-                        <div className="space-y-4 pb-4">
-                            {messages.map((message) => (
-                                <ChatMessageComponent
-                                    key={message.id}
-                                    message={message}
-                                    isLoading={isMessageLoading(
-                                        message.id,
-                                        message.role,
-                                        message.content,
-                                    )}
-                                />
-                            ))}
-                            <div ref={messagesEndRef} />
-
-                            {/* Welcome state with suggested questions */}
-                            {messages.length === 0 && (
-                                <div className="flex justify-center pt-8 lg:pt-12">
-                                    <ChatSuggestedQuestions
-                                        sessionId={activeSessionId}
-                                        onQuestionSelect={(question) => {
-                                            void handleSuggestedQuestionSelect(
-                                                question,
-                                            );
-                                        }}
-                                        className="max-w-full px-2"
-                                    />
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Bottom spacing */}
-                        <div className="h-4 w-full"></div>
-                    </ScrollArea>
-                </div>
-
-                {/* Chat input area */}
-                <div
-                    className="mt-auto rounded-b-3xl border-t border-orange-200 bg-white/50 p-4 backdrop-blur-sm"
-                    style={{
-                        borderBottomLeftRadius: '20px',
-                        borderBottomRightRadius: '35px',
+                <ChatInputComponent
+                    onSend={({ message, attachments }) => {
+                        void handleSendMessage({
+                            message,
+                            attachments,
+                        });
                     }}
-                >
-                    <ChatInputComponent
-                        onSend={({ message, attachments }) => {
-                            void handleSendMessage({
-                                message,
-                                attachments,
-                            });
-                        }}
-                        isLoading={isSendingMessage}
-                        model={selectedModel}
-                        onModelChange={handleModelChange}
-                        placeholder="Type a message..."
-                    />
-                </div>
+                    isLoading={isSendingMessage}
+                    model={selectedModel}
+                    onModelChange={handleModelChange}
+                    placeholder="Type a message..."
+                />
             </div>
         </div>
     );

@@ -328,6 +328,40 @@
     .text-hand-drawn-interactive {
         @apply font-quicksand font-semibold;
     }
+
+    /* Auto-expanding textarea utilities */
+    .chat-textarea {
+        field-sizing: content;
+        resize: none;
+        overflow-y: auto;
+        line-height: 1.5rem;
+        transition: height 0.2s ease;
+        padding: 10px;
+    }
+
+    /* Custom scrollbar for chat textarea */
+    .chat-textarea::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chat-textarea::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .chat-textarea::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.5);
+        border-radius: 3px;
+    }
+
+    .chat-textarea::-webkit-scrollbar-thumb:hover {
+        background: rgba(156, 163, 175, 0.7);
+    }
+
+    /* Firefox scrollbar */
+    .chat-textarea {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+    }
 }
 
 #app {

@@ -41,7 +41,7 @@ export function ChatView() {
     };
 
     return (
-        <div className="relative h-full min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-orange-50">
+        <div className="relative h-full min-h-0 overflow-hidden bg-gradient-to-br from-blue-50 via-blue-50 to-orange-50">
             {/* Subtle background decorations */}
             <div className="pointer-events-none fixed inset-0 overflow-hidden">
                 <div className="absolute left-16 top-32 h-10 w-10 rounded-full border-2 border-green-200 opacity-25"></div>
@@ -51,7 +51,7 @@ export function ChatView() {
             </div>
 
             <ViewContainer
-                className="fle flex-col overflow-hidden p-0 pt-0"
+                className="flex flex-1 flex-col overflow-hidden p-0 pt-0"
                 noPadding={true}
             >
                 {/* Mobile sessions dialog */}
@@ -124,27 +124,36 @@ export function ChatView() {
                     </Button>
                 </div>
 
-                <div className="flex h-full flex-1 flex-col space-y-0 overflow-hidden lg:grid lg:grid-cols-[320px_1fr] lg:gap-6 lg:overflow-visible lg:p-4">
+                <div className="flex h-full min-h-0 flex-1 flex-col space-y-0 overflow-hidden lg:grid lg:grid-cols-[320px_1fr] lg:gap-6 lg:overflow-hidden lg:p-4">
                     {/* Desktop sessions list - hidden on mobile */}
-                    <div className="hidden lg:block">
-                        <ChatSessionsList
-                            activeSessionId={sessionId}
-                            onSessionSelect={(sessionId) => {
-                                void handleSetSessionId(sessionId);
-                            }}
-                            onCreateSession={() => {
-                                void handleCreateSession();
-                            }}
-                        />
+                    <div className="hidden min-h-0 overflow-hidden lg:block">
+                        <div className="h-full min-h-0 overflow-auto rounded-3xl border-2 border-blue-200 bg-white">
+                            <ChatSessionsList
+                                activeSessionId={sessionId}
+                                onSessionSelect={(sessionId) => {
+                                    void handleSetSessionId(sessionId);
+                                }}
+                                onCreateSession={() => {
+                                    void handleCreateSession();
+                                }}
+                            />
+                        </div>
                     </div>
 
                     {sessionId ? (
-                        <div className="block space-y-0">
-                            <ChatWindow activeSessionId={sessionId} />
+                        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                            <div
+                                className="h-full min-h-0 overflow-hidden"
+                                style={{ borderRadius: '25px 30px 20px 35px' }}
+                            >
+                                <div className="h-full min-h-0">
+                                    <ChatWindow activeSessionId={sessionId} />
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         <div
-                            className="relative flex h-[calc(100vh-11rem)] flex-col rounded-3xl border-2 border-green-200 bg-white shadow-lg lg:mt-0 lg:h-[calc(100vh-8.5rem)] lg:p-2"
+                            className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border-2 border-green-200 bg-white lg:mt-0 lg:p-2"
                             style={{
                                 borderRadius: '25px 30px 20px 35px',
                             }}
@@ -155,7 +164,7 @@ export function ChatView() {
                                 <div className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"></div>
                             </div>
 
-                            <div className="flex h-full flex-col items-center justify-center p-6 pt-8 text-center">
+                            <div className="flex h-full flex-col items-center justify-center overflow-auto p-6 pt-8 text-center">
                                 <h3 className="font-quicksand text-shadow-sm text-2xl font-bold text-gray-800">
                                     Welcome to Chat
                                 </h3>
