@@ -51,8 +51,15 @@ type AbcSelectorProps = {
 const types = ['client', 'custom', 'global'] as const;
 type Type = (typeof types)[number];
 
+// Type labels with proper casing and descriptions
+const typeLabels: Record<Type, string> = {
+    client: 'Client Specific',
+    custom: 'Custom Created',
+    global: 'Global Templates',
+};
+
 export function AbcSelector({
-    placeholder,
+    placeholder = 'Select an option...',
     items,
     onSelect,
     multiple,
@@ -124,7 +131,8 @@ export function AbcSelector({
         }
 
         setCreateDialogOpen(false);
-        toast.success(`Created custom '${search}'`);
+        setSearch(''); // Clear search after creation
+        toast.success(`Created custom '${name}'`);
     };
 
     return (
@@ -137,9 +145,14 @@ export function AbcSelector({
                     value={selectedOptions}
                     creatable={!!create}
                     emptyIndicator={
-                        <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                            no results found.
-                        </p>
+                        <div className="flex flex-col items-center justify-center py-8 text-center">
+                            <p className="font-nunito text-muted-foreground text-sm">
+                                No results found
+                            </p>
+                            <p className="font-nunito text-muted-foreground/70 mt-1 text-xs">
+                                Try adjusting your search terms
+                            </p>
+                        </div>
                     }
                     onChange={(newSelectedOptions) => {
                         const newSelectedIds = newSelectedOptions.map(
@@ -166,30 +179,52 @@ export function AbcSelector({
                             <Button
                                 variant="outline"
                                 role="combobox"
+                                aria-expanded={open}
                                 className={cn(
-                                    'justify-between truncate',
+                                    'font-nunito w-full justify-between',
                                     !selectedId && 'text-muted-foreground',
                                 )}
                             >
-                                {selectedId
-                                    ? items.find(
-                                          (item) => item.id === selectedId,
-                                      )?.name
-                                    : placeholder}
+                                <span className="truncate">
+                                    {selectedId
+                                        ? items.find(
+                                              (item) => item.id === selectedId,
+                                          )?.name
+                                        : placeholder}
+                                </span>
+                                <div className="flex items-center gap-1 text-xs opacity-60">
+                                    {open ? '↑' : '↓'}
+                                </div>
                             </Button>
                         </FormControl>
                     </PopoverTrigger>
 
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                        <Command>
+                    <PopoverContent
+                        className="w-[--radix-popover-trigger-width] p-0"
+                        style={{ borderRadius: '15px 18px 14px 20px' }}
+                    >
+                        <Command className="rounded-lg">
                             <CommandInput
-                                placeholder="search..."
-                                className="h-9"
+                                placeholder="Search options..."
+                                className="font-nunito h-10"
                                 value={search}
                                 onValueChange={setSearch}
                             />
-                            <CommandList>
-                                <CommandEmpty>No framework found.</CommandEmpty>
+                            <CommandList className="max-h-64">
+                                <CommandEmpty className="py-6 text-center">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <p className="font-nunito text-muted-foreground text-sm">
+                                            No options found
+                                        </p>
+                                        {create && search && (
+                                            <p className="font-nunito text-muted-foreground/70 text-xs">
+                                                Try creating a custom option
+                                                below
+                                            </p>
+                                        )}
+                                    </div>
+                                </CommandEmpty>
+
                                 {Object.entries(
                                     availableOptions.reduce<
                                         Record<string, typeof availableOptions>
@@ -203,7 +238,8 @@ export function AbcSelector({
                                 ).map(([key, options]) => (
                                     <CommandGroup
                                         key={key}
-                                        heading={key.toUpperCase()}
+                                        heading={typeLabels[key as Type]}
+                                        className="font-quicksand font-semibold"
                                     >
                                         {options.map((option) => (
                                             <CommandItem
@@ -213,15 +249,16 @@ export function AbcSelector({
                                                     setSelectedId(option.value);
                                                     onSelect(option.value);
                                                     setOpen(false);
+                                                    setSearch(''); // Clear search on selection
                                                 }}
-                                                className="flex items-center"
+                                                className="font-nunito flex items-center"
                                             >
                                                 <span className="flex-1 truncate">
                                                     {option.label}
                                                 </span>
                                                 <Check
                                                     className={cn(
-                                                        'ml-2 flex-shrink-0',
+                                                        'ml-2 h-4 w-4 flex-shrink-0 text-blue-500',
                                                         option.value ===
                                                             selectedId
                                                             ? 'opacity-100'
@@ -238,9 +275,15 @@ export function AbcSelector({
                                         onSelect={() => {
                                             setCreateDialogOpen(true);
                                         }}
+                                        className="font-nunito mt-1 flex items-center gap-2 border-t border-blue-100 pt-2"
                                     >
-                                        <PlusCircle className="h-4 w-4" />
-                                        Create &quot;{search}&quot;
+                                        <PlusCircle className="h-4 w-4 text-green-500" />
+                                        <span className="flex-1">
+                                            Create{' '}
+                                            <strong>
+                                                &quot;{search}&quot;
+                                            </strong>
+                                        </span>
                                     </CommandItem>
                                 )}
                             </CommandList>
@@ -249,19 +292,20 @@ export function AbcSelector({
                 </Popover>
             )}
 
-            {/* confirmation dialog for creating custom options */}
+            {/* Confirmation dialog for creating custom options */}
             <ConfirmationDialog
                 open={createDialogOpen}
                 onOpenChange={setCreateDialogOpen}
-                title="Create custom option ?"
-                description={`Do you want to create '${search}' ?`}
-                confirmLabel="Create"
-                destructive
+                title="Create Custom Option"
+                description={`Do you want to create "${search}" as a new custom option?`}
+                confirmLabel="Create Option"
+                destructive={false}
                 onConfirm={() => {
                     void handleCreate({ name: search });
                 }}
                 onCancel={() => {
                     setCreateDialogOpen(false);
+                    setSearch(''); // Clear search on cancel
                 }}
             />
         </>

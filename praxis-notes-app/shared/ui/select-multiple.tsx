@@ -176,7 +176,7 @@ const CommandEmpty = forwardRef<
     return (
         <div
             ref={forwardedRef}
-            className={cn('py-6 text-center text-sm', className)}
+            className={cn('font-nunito py-6 text-center text-sm', className)}
             role="presentation"
             {...props}
         />
@@ -185,12 +185,19 @@ const CommandEmpty = forwardRef<
 
 CommandEmpty.displayName = 'CommandEmpty';
 
+// Type labels mapping for better group headings
+const typeLabels: Record<string, string> = {
+    client: 'Client Specific',
+    custom: 'Custom Created',
+    global: 'Global Templates',
+};
+
 const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
     (
         {
             value,
             onChange,
-            placeholder,
+            placeholder = 'Select options...',
             defaultOptions: arrayDefaultOptions = [],
             options: arrayOptions,
             delay,
@@ -218,7 +225,7 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
         const [open, setOpen] = useState(false);
         const [onScrollbar, setOnScrollbar] = useState(false);
         const [isLoading, setIsLoading] = useState(false);
-        const dropdownRef = useRef<HTMLDivElement>(null); // Added this
+        const dropdownRef = useRef<HTMLDivElement>(null);
 
         const [selected, setSelected] = useState<Option[]>(value ?? []);
         const [options, setOptions] = useState<GroupOption>(
@@ -385,7 +392,7 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
             const Item = (
                 <CommandItem
                     value={inputValue}
-                    className="cursor-pointer"
+                    className="font-nunito mt-1 cursor-pointer border-t border-blue-100 pt-2"
                     onMouseDown={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -403,8 +410,11 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                         setSelected(newOptions);
                         onChange?.(newOptions);
                     }}
+                    style={{ borderRadius: '8px 10px 9px 11px' }}
                 >
-                    {`Create "${inputValue}"`}
+                    <span className="text-green-600">
+                        Create &quot;{inputValue}&quot;
+                    </span>
                 </CommandItem>
             );
 
@@ -427,7 +437,7 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
             // For async search that showing emptyIndicator
             if (onSearch && !creatable && Object.keys(options).length === 0) {
                 return (
-                    <CommandItem value="-" disabled>
+                    <CommandItem value="-" disabled className="font-nunito">
                         {emptyIndicator}
                     </CommandItem>
                 );
@@ -479,13 +489,19 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
             >
                 <div
                     className={cn(
-                        'border-input ring-offset-background focus-within:ring-ring min-h-10 rounded-md border text-base focus-within:ring-2 focus-within:ring-offset-2 md:text-sm',
+                        'font-nunito min-h-11 border-2 border-blue-200 bg-white text-sm',
+                        'focus-within:ring-2 focus-within:ring-blue-300 focus-within:ring-offset-1',
+                        'transition-all duration-200 focus-within:border-blue-400 hover:border-blue-300',
+                        'shadow-sm focus-within:shadow-md hover:shadow-md',
                         {
                             'px-3 py-2': selected.length !== 0,
                             'cursor-text': !disabled && selected.length !== 0,
                         },
                         className,
                     )}
+                    style={{
+                        borderRadius: '12px 14px 12px 16px',
+                    }}
                     onClick={() => {
                         if (disabled) return;
                         inputRef.current?.focus();
@@ -497,10 +513,15 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                 <Badge
                                     key={option.value}
                                     className={cn(
+                                        'border border-blue-200 bg-blue-100 text-blue-800 hover:bg-blue-200',
                                         'data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground',
                                         'data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground',
+                                        'font-nunito',
                                         badgeClassName,
                                     )}
+                                    style={{
+                                        borderRadius: '8px 10px 9px 11px',
+                                    }}
                                     data-fixed={option.fixed}
                                     data-disabled={disabled ?? undefined}
                                 >
@@ -508,7 +529,8 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                     <button
                                         type="button"
                                         className={cn(
-                                            'ring-offset-background focus:ring-ring ml-1 rounded-full outline-none focus:ring-2 focus:ring-offset-2',
+                                            'ml-1 rounded-full outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1',
+                                            'transition-colors duration-200',
                                             (disabled ?? false) || option.fixed
                                                 ? 'hidden'
                                                 : '',
@@ -526,7 +548,7 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                             handleUnselect(option);
                                         }}
                                     >
-                                        <X className="text-muted-foreground hover:text-foreground h-3 w-3" />
+                                        <X className="h-3 w-3 text-blue-600 hover:text-blue-800" />
                                     </button>
                                 </Badge>
                             );
@@ -558,7 +580,7 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                     : placeholder
                             }
                             className={cn(
-                                'placeholder:text-muted-foreground flex-1 bg-transparent outline-none',
+                                'placeholder:text-muted-foreground font-nunito flex-1 bg-transparent outline-none',
                                 {
                                     'w-full': hidePlaceholderWhenSelected,
                                     'px-3 py-2': selected.length === 0,
@@ -574,7 +596,8 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                 onChange?.(selected.filter((s) => s.fixed));
                             }}
                             className={cn(
-                                'absolute right-0 h-6 w-6 p-0',
+                                'absolute right-2 top-1/2 h-5 w-5 -translate-y-1/2 p-0',
+                                'text-blue-400 transition-colors duration-200 hover:text-blue-600',
                                 ((hideClearAllButton || disabled) ??
                                     (selected.length < 1 ||
                                         selected.filter((s) => s.fixed)
@@ -582,14 +605,17 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                     'hidden',
                             )}
                         >
-                            <X />
+                            <X className="h-4 w-4" />
                         </button>
                     </div>
                 </div>
                 <div className="relative">
                     {open && (
                         <CommandList
-                            className="bg-popover text-popover-foreground animate-in absolute top-1 z-10 w-full rounded-md border shadow-md outline-none"
+                            className="animate-in absolute top-1 z-10 w-full border-2 border-blue-200 bg-white shadow-lg"
+                            style={{
+                                borderRadius: '15px 18px 14px 20px',
+                            }}
                             onMouseLeave={() => {
                                 setOnScrollbar(false);
                             }}
@@ -601,7 +627,11 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                             }}
                         >
                             {isLoading ? (
-                                <>{loadingIndicator}</>
+                                <div className="flex items-center justify-center py-6">
+                                    <div className="font-nunito text-muted-foreground text-sm">
+                                        {loadingIndicator ?? 'Loading...'}
+                                    </div>
+                                </div>
                             ) : (
                                 <>
                                     {EmptyItem()}
@@ -616,8 +646,11 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                         ([key, dropdowns]) => (
                                             <CommandGroup
                                                 key={key}
-                                                heading={key}
-                                                className="h-full overflow-auto"
+                                                heading={
+                                                    typeLabels[key] ??
+                                                    key.toUpperCase()
+                                                }
+                                                className="font-quicksand h-full overflow-auto font-semibold"
                                             >
                                                 <>
                                                     {dropdowns.map((option) => {
@@ -664,10 +697,14 @@ const MultipleSelector = forwardRef<MultipleSelectorRef, MultipleSelectorProps>(
                                                                     );
                                                                 }}
                                                                 className={cn(
-                                                                    'cursor-pointer',
+                                                                    'font-nunito cursor-pointer',
                                                                     option.disable &&
                                                                         'text-muted-foreground cursor-default',
                                                                 )}
+                                                                style={{
+                                                                    borderRadius:
+                                                                        '8px 10px 9px 11px',
+                                                                }}
                                                             >
                                                                 {option.label}
                                                             </CommandItem>

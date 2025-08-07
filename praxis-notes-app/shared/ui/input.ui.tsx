@@ -15,13 +15,22 @@ const preferredSeparator: Separator = '.';
 const Input = forwardRef<
     HTMLInputElement,
     InputHTMLAttributes<HTMLInputElement>
->(({ className, type, onChange, ...props }, ref) => (
+>(({ className, type, onChange, style, ...props }, ref) => (
     <input
         type={type === 'number' ? 'text' : type}
         className={cn(
-            'border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+            'font-nunito flex h-11 w-full border-2 border-blue-200 bg-white px-3 py-2 text-sm',
+            'placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-1',
+            'file:border-0 file:bg-transparent file:text-sm file:font-medium',
+            'disabled:cursor-not-allowed disabled:opacity-50',
+            'transition-all duration-200 hover:border-blue-300 focus:border-blue-400',
+            'shadow-sm hover:shadow-md focus:shadow-md',
             className,
         )}
+        style={{
+            borderRadius: '12px 14px 12px 16px',
+            ...style,
+        }}
         ref={ref}
         onChange={
             type === 'number' || type === 'int'

@@ -11,7 +11,7 @@ import * as LabelPrimitive from '@radix-ui/react-label';
 import { cn } from '@css/utils';
 
 const labelVariants = cva(
-    'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+    'text-sm font-quicksand font-semibold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-shadow-sm',
 );
 
 const Label = forwardRef<
