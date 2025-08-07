@@ -88,208 +88,206 @@ export function ChatInputComponent({
         }
     };
 
-    return (
-        <form onSubmit={handleSubmit} className="flex flex-col">
-            <div className="relative">
-                <div
-                    aria-label="Write your prompt"
-                    className="max-h-96 min-h-[3rem] w-full overflow-y-auto break-words"
-                >
-                    <Textarea
-                        value={input}
-                        onChange={(e) => {
-                            setInput(e.target.value);
-                        }}
-                        placeholder={placeholder}
-                        className={cn(
-                            'resize-none break-words rounded-none border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0',
-                            isLoading && 'opacity-50',
-                        )}
-                        disabled={isLoading}
-                    />
-                </div>
-            </div>
+    const getModelIcon = (modelType: AiGenerationQualitySelector) => {
+        switch (modelType) {
+            case 'Fast':
+                return <FastForward className="h-4 w-4 text-green-500" />;
+            case 'Smart':
+                return <Sparkles className="h-4 w-4 text-blue-500" />;
+            case 'Genius':
+                return <Brain className="h-4 w-4 text-orange-500" />;
+            case 'File':
+                return <FileText className="h-4 w-4 text-yellow-600" />;
+            default:
+                return <Sparkles className="h-4 w-4 text-blue-500" />;
+        }
+    };
 
-            <div className="flex w-full items-center gap-2.5">
-                <div className="flex items-center p-4">
-                    <div className="relative">
+    const getModelColor = (modelType: AiGenerationQualitySelector) => {
+        switch (modelType) {
+            case 'Fast':
+                return 'bg-green-400 hover:bg-green-500 border-green-200';
+            case 'Smart':
+                return 'bg-blue-400 hover:bg-blue-500 border-blue-200';
+            case 'Genius':
+                return 'bg-orange-400 hover:bg-orange-500 border-orange-200';
+            case 'File':
+                return 'bg-yellow-400 hover:bg-yellow-500 border-yellow-200 text-gray-800';
+            default:
+                return 'bg-blue-400 hover:bg-blue-500 border-blue-200';
+        }
+    };
+
+    return (
+        <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-3"
+            id="chat-input"
+        >
+            {/* Attachments preview */}
+            {attachments.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                    {attachments.map((file, idx) => (
+                        <div
+                            key={idx}
+                            className="relative rounded-lg border-2 border-blue-200 bg-white p-2"
+                            style={{
+                                borderRadius: '8px 10px 9px 11px',
+                            }}
+                        >
+                            <Thumbnail file={file} />
+                            <Button
+                                variant="destructive"
+                                size="icon"
+                                className="absolute -right-1 -top-1 h-4 w-4 rounded-full p-0"
+                                onClick={() => {
+                                    removeAttachment(file.name);
+                                }}
+                            >
+                                <X className="h-2.5 w-2.5" />
+                            </Button>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Main input container */}
+            <div
+                className="relative rounded-xl border-2 border-orange-200 bg-white transition-colors focus-within:border-orange-300"
+                style={{
+                    borderRadius: '15px 18px 14px 20px',
+                }}
+            >
+                {/* Input area */}
+                <div className="flex min-h-[3rem] items-end gap-2 p-3">
+                    {/* Attachment button */}
+                    <div className="relative shrink-0">
                         <Attach
                             className="relative overflow-visible"
                             setAttachment={setAttachments}
                             disabled={isLoading}
                         >
-                            <Paperclip className="h-5 w-5" />
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 rounded-lg border-2 border-blue-200 bg-white text-blue-500 transition-all hover:border-blue-300 hover:bg-blue-50"
+                                style={{
+                                    borderRadius: '8px 10px 9px 11px',
+                                }}
+                                disabled={isLoading}
+                            >
+                                <Paperclip className="h-4 w-4" />
+                            </Button>
                         </Attach>
 
                         {numAttachments > 0 && (
-                            <>
-                                <Badge
-                                    variant="secondary"
-                                    className="absolute -right-0.5 -top-0.5 flex size-5 cursor-default items-center justify-center rounded-full px-0 py-0"
-                                >
-                                    {numAttachments > 9 ? '9+' : numAttachments}
-                                </Badge>
-
-                                <Button
-                                    variant="destructive"
-                                    size="icon"
-                                    className="absolute left-0 top-0 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 p-0"
-                                    onClick={() => {
-                                        setAttachments([]);
-                                    }}
-                                >
-                                    <X className="size-2.5" />
-                                </Button>
-                            </>
+                            <Badge className="font-quicksand absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-orange-400 p-0 text-xs font-semibold text-white">
+                                {numAttachments > 9 ? '9+' : numAttachments}
+                            </Badge>
                         )}
                     </div>
-                </div>
 
-                {attachments.length > 0 && (
-                    <div className="flex gap-2 p-2">
-                        {attachments.map((file, idx) => (
-                            <div key={idx} className="relative">
-                                <Thumbnail file={file} />
-
-                                <Button
-                                    variant="destructive"
-                                    size="icon"
-                                    className="absolute left-0 top-0 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 p-0"
-                                    onClick={() => {
-                                        removeAttachment(file.name);
-                                    }}
-                                >
-                                    <X className="size-2.5" />
-                                </Button>
-                            </div>
-                        ))}
+                    {/* Text input */}
+                    <div className="min-h-[2rem] flex-1">
+                        <Textarea
+                            value={input}
+                            onChange={(e) => {
+                                setInput(e.target.value);
+                            }}
+                            placeholder={placeholder}
+                            className={cn(
+                                'font-nunito max-h-32 min-h-[2rem] resize-none border-0 bg-transparent p-0 text-sm placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0',
+                                isLoading && 'opacity-50',
+                            )}
+                            disabled={isLoading}
+                            rows={1}
+                        />
                     </div>
-                )}
 
-                <div className="relative flex min-w-0 flex-1 shrink items-center gap-2">
-                    {/* <div className="relative shrink-0">
-                        <div>
-                            <div className="flex items-center">
-                                <div className="flex shrink-0">
-                                    <button
-                                        className="text-text-300 border-border-300 hover:text-text-200/90 hover:bg-bg-100 relative inline-flex h-8 min-w-8 shrink-0 items-center justify-center rounded-lg border px-[7.5px]"
-                                        type="button"
-                                        aria-label="Open attachments menu"
-                                    >
-                                        <div className="flex flex-row items-center justify-center gap-1">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="16"
-                                                height="16"
-                                                fill="currentColor"
-                                                viewBox="0 0 256 256"
-                                            >
-                                                <path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
-                                            </svg>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div> */}
-                    {/* <div>
-                        <div className="relative shrink-0">
-                            <div>
-                                <div className="flex items-center">
-                                    <div className="flex shrink-0">
-                                        <button
-                                            className="text-text-300 border-border-300 hover:text-text-200/90 hover:bg-bg-100 relative inline-flex h-8 min-w-8 shrink-0 items-center justify-center rounded-lg border px-[7.5px]"
-                                            type="button"
-                                            aria-label="Open tools menu"
-                                        >
-                                            <div className="flex flex-row items-center justify-center gap-1">
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    width="16"
-                                                    height="16"
-                                                    fill="currentColor"
-                                                    viewBox="0 0 256 256"
-                                                >
-                                                    <path d="M40,88H73a32,32,0,0,0,62,0h81a8,8,0,0,0,0-16H135a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16Zm64-24A16,16,0,1,1,88,80,16,16,0,0,1,104,64ZM216,168H199a32,32,0,0,0-62,0H40a8,8,0,0,0,0,16h97a32,32,0,0,0,62,0h17a8,8,0,0,0,0-16Zm-48,24a16,16,0,1,1,16-16A16,16,0,0,1,168,192Z"></path>
-                                                </svg>
-                                            </div>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> */}
-                </div>
-                <div className="-m-1 shrink-0 overflow-hidden p-1">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger className="border-0.5 text-text-100 hover:bg-bg-100 hover:border-border-400 relative ml-1.5 inline-flex h-7 shrink-0 items-center justify-center gap-[0.175em] rounded-md border-transparent px-1.5 py-1 text-sm opacity-80 transition hover:opacity-100">
-                            <div className="inline-flex h-[14px] items-baseline gap-[3px] text-[14px] leading-none">
-                                <div className="flex flex-row items-center justify-center gap-[4px]">
-                                    <div className="flex select-none flex-row items-center justify-center gap-[4px] whitespace-nowrap tracking-tight">
-                                        {modelSelected === 'Fast' && (
-                                            <FastForward className="text-primary size-4" />
-                                        )}
-                                        {modelSelected === 'Smart' && (
-                                            <Sparkles className="text-primary size-4" />
-                                        )}
-                                        {modelSelected === 'Genius' && (
-                                            <Brain className="text-primary size-4" />
-                                        )}
-                                        {modelSelected === 'File' && (
-                                            <FileText className="text-primary size-4" />
-                                        )}
+                    {/* Model selector */}
+                    <div className="shrink-0">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    type="button"
+                                    className={cn(
+                                        'font-quicksand h-8 rounded-lg px-3 font-semibold text-white transition-all hover:shadow-md',
+                                        getModelColor(modelSelected),
+                                    )}
+                                    style={{
+                                        borderRadius: '8px 10px 9px 11px',
+                                    }}
+                                    disabled={isLoading}
+                                >
+                                    {getModelIcon(modelSelected)}
+                                    <span className="ml-1 text-xs">
                                         {modelSelected}
-                                    </div>
-                                </div>
-                            </div>
-                            <ChevronDown className="size-4" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                                onClick={() => {
-                                    handleModelChange('Fast');
+                                    </span>
+                                    <ChevronDown className="ml-1 h-3 w-3" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="end"
+                                className="rounded-xl border-2 border-blue-200"
+                                style={{
+                                    borderRadius: '15px 18px 14px 20px',
                                 }}
                             >
-                                <FastForward className="text-primary size-4" />
-                                Fast
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => {
-                                    handleModelChange('Smart');
-                                }}
-                            >
-                                <Sparkles className="text-primary size-4" />
-                                Smart
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => {
-                                    handleModelChange('Genius');
-                                }}
-                            >
-                                <Brain className="text-primary size-4" />
-                                Genius
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                onClick={() => {
-                                    handleModelChange('File');
-                                }}
-                            >
-                                <FileText className="text-primary size-4" />
-                                File
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-                <div>
-                    <Button
-                        type="button"
-                        onClick={handleSubmit}
-                        disabled={!input.trim() || isLoading}
-                        className="bg-primary hover:bg-primary-200 relative flex h-8 w-8 shrink-0 flex-col items-center justify-center rounded-md font-medium transition-colors active:scale-95 disabled:opacity-50"
-                    >
-                        <Send className="size-4 text-white" />
-                        <span className="sr-only">Send message</span>
-                    </Button>
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        handleModelChange('Fast');
+                                    }}
+                                    className="font-nunito"
+                                >
+                                    <FastForward className="mr-2 h-4 w-4 text-green-500" />
+                                    Fast
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        handleModelChange('Smart');
+                                    }}
+                                    className="font-nunito"
+                                >
+                                    <Sparkles className="mr-2 h-4 w-4 text-blue-500" />
+                                    Smart
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        handleModelChange('Genius');
+                                    }}
+                                    className="font-nunito"
+                                >
+                                    <Brain className="mr-2 h-4 w-4 text-orange-500" />
+                                    Genius
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        handleModelChange('File');
+                                    }}
+                                    className="font-nunito"
+                                >
+                                    <FileText className="mr-2 h-4 w-4 text-yellow-600" />
+                                    File
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+
+                    {/* Send button */}
+                    <div className="shrink-0">
+                        <Button
+                            type="submit"
+                            disabled={!input.trim() || isLoading}
+                            className="font-quicksand h-8 w-8 rounded-lg bg-green-400 p-0 font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-green-500 hover:shadow-md disabled:opacity-50 disabled:hover:translate-y-0"
+                            style={{
+                                borderRadius: '8px 10px 9px 11px',
+                            }}
+                        >
+                            <Send className="h-4 w-4" />
+                            <span className="sr-only">Send message</span>
+                        </Button>
+                    </div>
                 </div>
             </div>
         </form>

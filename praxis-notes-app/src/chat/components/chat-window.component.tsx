@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Card, CardContent, CardFooter } from '@ui/card.ui';
 import { ChatMessageComponent } from './chat-message.component';
 import { ChatInputComponent } from './chat-input.component';
 import { ChatSuggestedQuestions } from './chat-suggested-questions.component';
@@ -231,59 +230,86 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
     const { messages } = session;
 
     return (
-        <Card className="sm:shadow-floating mt-0 flex h-full flex-col items-stretch justify-between space-y-0 border-none p-2 pt-0 shadow-none sm:border lg:max-h-[calc(100vh-6rem)]">
-            <CardContent className="flex-grow overflow-hidden p-0">
-                <ScrollArea
-                    ref={scrollAreaRef}
-                    className="h-[calc(100vh-13rem)] md:h-[calc(100vh-14rem)] lg:h-[calc(100vh-10rem)]"
-                    onScrollCapture={handleScroll}
-                >
-                    <div className="h-32 w-full lg:h-20"></div>
-                    <div className="py-4">
-                        {messages.map((message) => (
-                            <ChatMessageComponent
-                                key={message.id}
-                                message={message}
-                                isLoading={isMessageLoading(
-                                    message.id,
-                                    message.role,
-                                    message.content,
-                                )}
-                            />
-                        ))}
-                        <div ref={messagesEndRef} />
-                        {messages.length === 0 && (
-                            <div className="flex justify-start justify-self-end pt-10">
-                                <ChatSuggestedQuestions
-                                    sessionId={activeSessionId}
-                                    onQuestionSelect={(question) => {
-                                        void handleSuggestedQuestionSelect(
-                                            question,
-                                        );
-                                    }}
-                                    className="max-w-[90%]"
-                                />
-                            </div>
-                        )}
-                    </div>
-                    <div className="h-2 w-full"></div>
-                </ScrollArea>
-            </CardContent>
+        <div className="relative h-full">
+            {/* Main chat window with hand-drawn styling */}
+            <div
+                className="relative flex h-full max-h-[calc(100vh-19rem)] flex-col rounded-3xl border-2 border-orange-200 bg-white shadow-lg lg:max-h-[calc(100vh-8.5rem)]"
+                style={{
+                    borderRadius: '25px 30px 20px 35px',
+                }}
+            >
+                {/* Thumb tack - triangle style for variety */}
+                <div className="absolute -top-2 right-8">
+                    <div className="h-0 w-0 border-b-[8px] border-l-[6px] border-r-[6px] border-b-orange-400 border-l-transparent border-r-transparent"></div>
+                </div>
 
-            <CardFooter className="bg-background sticky bottom-0 mt-auto flex flex-col items-stretch gap-2 border-t pt-2">
-                <ChatInputComponent
-                    onSend={({ message, attachments }) => {
-                        void handleSendMessage({
-                            message,
-                            attachments,
-                        });
+                {/* Chat messages area */}
+                <div className="flex-1 overflow-hidden p-4 pt-6">
+                    <ScrollArea
+                        ref={scrollAreaRef}
+                        className="h-full"
+                        onScrollCapture={handleScroll}
+                    >
+                        {/* Top spacing */}
+                        <div className="h-8 w-full lg:h-4"></div>
+
+                        <div className="space-y-4 pb-4">
+                            {messages.map((message) => (
+                                <ChatMessageComponent
+                                    key={message.id}
+                                    message={message}
+                                    isLoading={isMessageLoading(
+                                        message.id,
+                                        message.role,
+                                        message.content,
+                                    )}
+                                />
+                            ))}
+                            <div ref={messagesEndRef} />
+
+                            {/* Welcome state with suggested questions */}
+                            {messages.length === 0 && (
+                                <div className="flex justify-center pt-8 lg:pt-12">
+                                    <ChatSuggestedQuestions
+                                        sessionId={activeSessionId}
+                                        onQuestionSelect={(question) => {
+                                            void handleSuggestedQuestionSelect(
+                                                question,
+                                            );
+                                        }}
+                                        className="max-w-full px-2"
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Bottom spacing */}
+                        <div className="h-4 w-full"></div>
+                    </ScrollArea>
+                </div>
+
+                {/* Chat input area */}
+                <div
+                    className="mt-auto rounded-b-3xl border-t border-orange-200 bg-white/50 p-4 backdrop-blur-sm"
+                    style={{
+                        borderBottomLeftRadius: '20px',
+                        borderBottomRightRadius: '35px',
                     }}
-                    isLoading={isSendingMessage}
-                    model={selectedModel}
-                    onModelChange={handleModelChange}
-                    placeholder="Type a message..."
-                />
-            </CardFooter>
-        </Card>
+                >
+                    <ChatInputComponent
+                        onSend={({ message, attachments }) => {
+                            void handleSendMessage({
+                                message,
+                                attachments,
+                            });
+                        }}
+                        isLoading={isSendingMessage}
+                        model={selectedModel}
+                        onModelChange={handleModelChange}
+                        placeholder="Type a message..."
+                    />
+                </div>
+            </div>
+        </div>
     );
 }

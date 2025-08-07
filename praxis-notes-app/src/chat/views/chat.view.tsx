@@ -139,7 +139,7 @@ export function ChatView() {
                     </div>
 
                     {sessionId ? (
-                        <div className="flex h-full flex-col space-y-0">
+                        <div className="block space-y-0">
                             <ChatWindow activeSessionId={sessionId} />
                         </div>
                     ) : (
