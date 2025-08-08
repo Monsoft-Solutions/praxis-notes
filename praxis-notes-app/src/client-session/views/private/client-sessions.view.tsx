@@ -147,223 +147,251 @@ export const ClientSessionsView = () => {
     };
 
     return (
-        <ViewContainer>
-            <div className="flex h-full min-h-0 flex-col gap-6 overflow-hidden">
-                {/* Header section */}
-                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                    <h1 className="text-2xl font-bold tracking-tight">
-                        {clientName}&apos;s Sessions
-                    </h1>
-                    <Button asChild>
-                        <Link
-                            id={addSessionButtonId}
-                            to="/clients/$clientId/sessions/new"
-                            params={{ clientId }}
-                            className="self-start sm:self-auto"
+        <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-green-50">
+            {/* Very subtle background decorations */}
+            <div className="pointer-events-none fixed inset-0 overflow-hidden">
+                <div className="hand-drawn-decorative-circle rotate-decorative-right absolute left-10 top-20 hidden h-12 w-12 border-blue-200 sm:block"></div>
+                <div className="hand-drawn-decorative-square absolute bottom-32 right-16 hidden h-8 w-8 border-green-200 sm:block"></div>
+                <div className="absolute bottom-20 left-1/4 hidden h-2 w-2 rounded-full bg-orange-200 opacity-50 sm:block"></div>
+            </div>
+
+            <ViewContainer>
+                <div className="flex h-full min-h-0 flex-col gap-6 overflow-hidden">
+                    {/* Header section */}
+                    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                        <h1 className="text-hand-drawn-title text-3xl">
+                            {clientName}&apos;s Sessions
+                        </h1>
+                        <Button
+                            asChild
+                            className="hand-drawn-button text-foreground font-quicksand bg-blue-400 font-semibold hover:bg-blue-500"
                         >
-                            <PlusCircle className="mr-2 h-5 w-5" />
-                            New Session
-                        </Link>
-                    </Button>
-                </div>
-
-                {/* Scrollable content */}
-                <div className="min-h-0 flex-1 overflow-auto">
-                    {clientSessions.length === 0 ? (
-                        <div className="bg-muted/10 my-8 rounded-lg border p-12 text-center shadow-sm">
-                            <div className="bg-primary/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
-                                <Calendar className="text-primary h-10 w-10" />
-                            </div>
-
-                            <h3 className="mb-3 text-xl font-semibold">
-                                No Sessions Yet
-                            </h3>
-
-                            <p className="text-muted-foreground mx-auto mb-8 max-w-md">
-                                Create your first session to start tracking your
-                                client meetings. You can schedule upcoming
-                                sessions or record past ones.
-                            </p>
-
                             <Link
+                                id={addSessionButtonId}
                                 to="/clients/$clientId/sessions/new"
                                 params={{ clientId }}
+                                className="self-start sm:self-auto"
                             >
-                                <Button size="lg" className="font-medium">
-                                    <PlusCircle className="mr-2 h-5 w-5" />
-                                    New Session
-                                </Button>
+                                <PlusCircle className="mr-2 h-5 w-5" />
+                                New Session
                             </Link>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            {/* Filters and search */}
-                            <div className="bg-card flex flex-col items-start justify-between gap-4 rounded-lg border p-4 shadow-sm sm:flex-row sm:items-center">
-                                <Tabs
-                                    defaultValue="all"
-                                    value={viewType}
-                                    onValueChange={setViewType}
-                                    className="w-full sm:w-auto"
+                        </Button>
+                    </div>
+
+                    {/* Scrollable content */}
+                    <div className="min-h-0 flex-1 overflow-auto">
+                        {clientSessions.length === 0 ? (
+                            <div className="hand-drawn-card border-blue-200 text-center">
+                                <div className="thumb-tack-round text-blue-400"></div>
+
+                                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-blue-200 bg-blue-100">
+                                    <Calendar className="h-10 w-10 text-blue-500" />
+                                </div>
+
+                                <h3 className="font-quicksand mb-3 text-xl font-semibold">
+                                    No Sessions Yet
+                                </h3>
+
+                                <p className="text-hand-drawn-body text-muted-foreground mx-auto mb-8 max-w-md">
+                                    Create your first session to start tracking
+                                    your client meetings. You can schedule
+                                    upcoming sessions or record past ones.
+                                </p>
+
+                                <Button
+                                    asChild
+                                    size="lg"
+                                    className="hand-drawn-button text-foreground font-quicksand bg-blue-400 font-semibold hover:bg-blue-500"
                                 >
-                                    <TabsList className="grid w-full grid-cols-3 sm:w-auto">
-                                        <TabsTrigger value="all">
-                                            All
-                                        </TabsTrigger>
-                                        <TabsTrigger value="completed">
-                                            Completed
-                                        </TabsTrigger>
-                                        <TabsTrigger value="draft">
-                                            Draft
-                                        </TabsTrigger>
-                                    </TabsList>
-                                </Tabs>
-
-                                <div className="relative w-full sm:w-64">
-                                    <Search className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
-                                    <Input
-                                        type="search"
-                                        placeholder="Search sessions..."
-                                        className="w-full pl-8"
-                                        value={searchQuery}
-                                        onChange={handleSearchChange}
-                                    />
-                                </div>
+                                    <Link
+                                        to="/clients/$clientId/sessions/new"
+                                        params={{ clientId }}
+                                    >
+                                        <PlusCircle className="mr-2 h-5 w-5" />
+                                        New Session
+                                    </Link>
+                                </Button>
                             </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {/* Filters and search */}
+                                <div className="hand-drawn-card border-blue-200 p-4">
+                                    <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                                        <Tabs
+                                            defaultValue="all"
+                                            value={viewType}
+                                            onValueChange={setViewType}
+                                            className="w-full sm:w-auto"
+                                        >
+                                            <TabsList className="grid w-full grid-cols-3 sm:w-auto">
+                                                <TabsTrigger value="all">
+                                                    All
+                                                </TabsTrigger>
+                                                <TabsTrigger value="completed">
+                                                    Completed
+                                                </TabsTrigger>
+                                                <TabsTrigger value="draft">
+                                                    Draft
+                                                </TabsTrigger>
+                                            </TabsList>
+                                        </Tabs>
 
-                            {/* Sessions grid */}
-                            {currentSessions.length > 0 ? (
-                                <div className="grid gap-4">
-                                    {currentSessions.map((session) => {
-                                        const sessionDate = new Date(
-                                            session.sessionDate,
-                                        );
+                                        <div className="relative w-full sm:w-64">
+                                            <Search className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
+                                            <Input
+                                                type="search"
+                                                placeholder="Search sessions..."
+                                                className="w-full pl-8"
+                                                value={searchQuery}
+                                                onChange={handleSearchChange}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
 
-                                        return (
-                                            <Link
-                                                key={session.id}
-                                                to="/clients/$clientId/sessions/$sessionId"
-                                                params={{
-                                                    clientId,
-                                                    sessionId: session.id,
-                                                }}
-                                                className="group"
-                                            >
-                                                <div className="bg-card hover:border-primary/50 flex flex-col justify-between rounded-lg border p-3 transition-all hover:shadow-md sm:flex-row sm:items-center">
-                                                    <div className="space-y-2 sm:space-y-3">
-                                                        <div className="flex flex-row items-center justify-between gap-2 sm:flex-row sm:items-center sm:gap-4">
-                                                            <div className="flex items-center text-base font-semibold sm:text-lg">
-                                                                <Calendar className="text-primary mr-1 inline-block h-4 w-4 sm:mr-2 sm:h-5 sm:w-5" />
-                                                                {format(
-                                                                    sessionDate,
-                                                                    'MMMM d, yyyy',
-                                                                )}
+                                {/* Sessions grid */}
+                                {currentSessions.length > 0 ? (
+                                    <div className="grid gap-4">
+                                        {currentSessions.map((session) => {
+                                            const sessionDate = new Date(
+                                                session.sessionDate,
+                                            );
+
+                                            return (
+                                                <Link
+                                                    key={session.id}
+                                                    to="/clients/$clientId/sessions/$sessionId"
+                                                    params={{
+                                                        clientId,
+                                                        sessionId: session.id,
+                                                    }}
+                                                    className="group"
+                                                >
+                                                    <div className="hand-drawn-card hover-lift border-blue-200 p-4 transition-all">
+                                                        <div className="thumb-tack-round text-blue-400"></div>
+
+                                                        <div className="flex flex-col justify-between sm:flex-row sm:items-center">
+                                                            <div className="space-y-2 sm:space-y-3">
+                                                                <div className="flex flex-row items-center justify-between gap-2 sm:flex-row sm:items-center sm:gap-4">
+                                                                    <div className="font-quicksand flex items-center text-base font-semibold sm:text-lg">
+                                                                        <Calendar className="mr-1 inline-block h-4 w-4 text-blue-500 sm:mr-2 sm:h-5 sm:w-5" />
+                                                                        {format(
+                                                                            sessionDate,
+                                                                            'MMMM d, yyyy',
+                                                                        )}
+                                                                    </div>
+
+                                                                    <Badge
+                                                                        variant={
+                                                                            session.draft
+                                                                                ? 'secondary'
+                                                                                : 'default'
+                                                                        }
+                                                                        className="text-xs"
+                                                                    >
+                                                                        {session.draft
+                                                                            ? 'Draft'
+                                                                            : 'Completed'}
+                                                                    </Badge>
+                                                                </div>
+
+                                                                <div className="flex flex-row justify-between gap-2 sm:flex-row sm:gap-4">
+                                                                    <div className="text-muted-foreground flex items-center text-xs sm:text-sm">
+                                                                        <Clock className="mr-1 inline-block h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                                                                        {
+                                                                            session.startTime
+                                                                        }{' '}
+                                                                        -{' '}
+                                                                        {
+                                                                            session.endTime
+                                                                        }
+                                                                    </div>
+
+                                                                    <div className="text-muted-foreground flex items-center text-xs sm:text-sm">
+                                                                        <MapPin className="mr-1 inline-block h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                                                                        {
+                                                                            session.location
+                                                                        }
+                                                                    </div>
+                                                                </div>
                                                             </div>
 
-                                                            <Badge
-                                                                variant={
-                                                                    session.draft
-                                                                        ? 'secondary'
-                                                                        : 'default'
-                                                                }
-                                                                className="text-xs"
-                                                            >
-                                                                {session.draft
-                                                                    ? 'Draft'
-                                                                    : 'Completed'}
-                                                            </Badge>
-                                                        </div>
-
-                                                        <div className="flex flex-row justify-between gap-2 sm:flex-row sm:gap-4">
-                                                            <div className="text-muted-foreground flex items-center text-xs sm:text-sm">
-                                                                <Clock className="mr-1 inline-block h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                                                                {
-                                                                    session.startTime
-                                                                }{' '}
-                                                                -{' '}
-                                                                {
-                                                                    session.endTime
-                                                                }
-                                                            </div>
-
-                                                            <div className="text-muted-foreground flex items-center text-xs sm:text-sm">
-                                                                <MapPin className="mr-1 inline-block h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                                                                {
-                                                                    session.location
-                                                                }
+                                                            <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center sm:static sm:mt-0 sm:translate-y-0">
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="ml-auto h-8 w-8 rounded-full group-hover:bg-blue-50 group-hover:text-blue-600 sm:h-10 sm:w-10"
+                                                                >
+                                                                    <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                                </Button>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="hand-drawn-card border-blue-200 p-8 text-center">
+                                        <div className="thumb-tack-round text-blue-400"></div>
+                                        <p className="text-hand-drawn-body text-muted-foreground">
+                                            No sessions match your search
+                                            criteria.
+                                        </p>
+                                    </div>
+                                )}
 
-                                                    <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center sm:static sm:mt-0 sm:translate-y-0">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="group-hover:bg-primary/10 group-hover:text-primary ml-auto h-8 w-8 rounded-full sm:h-10 sm:w-10"
-                                                        >
-                                                            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </Link>
-                                        );
-                                    })}
-                                </div>
-                            ) : (
-                                <div className="bg-muted/10 rounded-lg border p-8 text-center">
-                                    <p className="text-muted-foreground">
-                                        No sessions match your search criteria.
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Pagination */}
-                            {totalPages > 1 && (
-                                <Pagination className="mt-6">
-                                    <PaginationContent>
-                                        <PaginationItem>
-                                            <PaginationPrevious
-                                                onClick={() => {
-                                                    if (currentPage > 1) {
-                                                        handlePageChange(
-                                                            currentPage - 1,
-                                                        );
+                                {/* Pagination */}
+                                {totalPages > 1 && (
+                                    <Pagination className="mt-6">
+                                        <PaginationContent>
+                                            <PaginationItem>
+                                                <PaginationPrevious
+                                                    onClick={() => {
+                                                        if (currentPage > 1) {
+                                                            handlePageChange(
+                                                                currentPage - 1,
+                                                            );
+                                                        }
+                                                    }}
+                                                    className={
+                                                        currentPage === 1
+                                                            ? 'pointer-events-none opacity-50'
+                                                            : ''
                                                     }
-                                                }}
-                                                className={
-                                                    currentPage === 1
-                                                        ? 'pointer-events-none opacity-50'
-                                                        : ''
-                                                }
-                                            />
-                                        </PaginationItem>
+                                                />
+                                            </PaginationItem>
 
-                                        {renderPaginationLinks()}
+                                            {renderPaginationLinks()}
 
-                                        <PaginationItem>
-                                            <PaginationNext
-                                                onClick={() => {
-                                                    if (
-                                                        currentPage < totalPages
-                                                    ) {
-                                                        handlePageChange(
-                                                            currentPage + 1,
-                                                        );
+                                            <PaginationItem>
+                                                <PaginationNext
+                                                    onClick={() => {
+                                                        if (
+                                                            currentPage <
+                                                            totalPages
+                                                        ) {
+                                                            handlePageChange(
+                                                                currentPage + 1,
+                                                            );
+                                                        }
+                                                    }}
+                                                    className={
+                                                        currentPage ===
+                                                        totalPages
+                                                            ? 'pointer-events-none opacity-50'
+                                                            : ''
                                                     }
-                                                }}
-                                                className={
-                                                    currentPage === totalPages
-                                                        ? 'pointer-events-none opacity-50'
-                                                        : ''
-                                                }
-                                            />
-                                        </PaginationItem>
-                                    </PaginationContent>
-                                </Pagination>
-                            )}
-                        </div>
-                    )}
+                                                />
+                                            </PaginationItem>
+                                        </PaginationContent>
+                                    </Pagination>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
-        </ViewContainer>
+            </ViewContainer>
+        </div>
     );
 };
