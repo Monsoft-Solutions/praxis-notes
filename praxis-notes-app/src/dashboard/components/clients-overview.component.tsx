@@ -13,13 +13,19 @@ import {
 } from '@ui/table.ui';
 import { Button } from '@ui/button.ui';
 import { api } from '@api/providers/web';
+import { BORDER_RADIUS } from '@shared/constants/design-tokens.constant';
 
 export const ClientsOverview: React.FC = () => {
     const { data: clientsQuery } = api.client.getClients.useQuery();
 
     if (!clientsQuery)
         return (
-            <div className="font-nunito py-4 text-center text-blue-600">
+            <div
+                className="font-nunito py-4 text-center text-blue-600"
+                role="status"
+                aria-live="polite"
+            >
+                <span className="sr-only">Loading clients data...</span>
                 Loading clients data...
             </div>
         );
@@ -38,7 +44,7 @@ export const ClientsOverview: React.FC = () => {
         <div
             className="relative rounded-3xl border-2 border-blue-200 bg-white p-6 shadow-lg"
             style={{
-                borderRadius: '25px 30px 20px 35px',
+                borderRadius: BORDER_RADIUS.panel.xl,
             }}
         >
             {/* Thumb tack */}
@@ -58,7 +64,7 @@ export const ClientsOverview: React.FC = () => {
                         size="sm"
                         className="font-quicksand h-9 rounded-xl bg-blue-400 font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-md"
                         style={{
-                            borderRadius: '8px 10px 8px 12px',
+                            borderRadius: BORDER_RADIUS.button.md,
                         }}
                     >
                         <Link to="/clients/new">
@@ -75,7 +81,7 @@ export const ClientsOverview: React.FC = () => {
                     <div
                         className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 p-12 text-center shadow-sm"
                         style={{
-                            borderRadius: '20px 25px 18px 28px',
+                            borderRadius: BORDER_RADIUS.panel.lg,
                             borderStyle: 'dashed',
                         }}
                     >
@@ -95,7 +101,7 @@ export const ClientsOverview: React.FC = () => {
                             asChild
                             className="font-quicksand h-11 rounded-xl bg-blue-400 font-semibold text-white transition-all hover:bg-blue-500 hover:shadow-md"
                             style={{
-                                borderRadius: '12px 14px 12px 16px',
+                                borderRadius: BORDER_RADIUS.button.primary,
                             }}
                         >
                             <Link to="/clients/new">
@@ -108,7 +114,7 @@ export const ClientsOverview: React.FC = () => {
                     <div
                         className="overflow-hidden rounded-2xl border border-blue-200 bg-white"
                         style={{
-                            borderRadius: '18px 22px 16px 24px',
+                            borderRadius: BORDER_RADIUS.panel.table,
                         }}
                     >
                         <Table>
@@ -132,7 +138,7 @@ export const ClientsOverview: React.FC = () => {
                                         className={`border-b border-blue-100 transition-colors hover:bg-blue-50 ${
                                             index % 2 === 0
                                                 ? 'bg-white'
-                                                : 'bg-blue-25'
+                                                : 'bg-blue-50'
                                         }`}
                                     >
                                         <TableCell className="py-4">
@@ -141,7 +147,8 @@ export const ClientsOverview: React.FC = () => {
                                                     className="flex h-10 w-10 items-center justify-center border-2 border-blue-200 bg-blue-100"
                                                     style={{
                                                         borderRadius:
-                                                            '8px 10px 7px 11px',
+                                                            BORDER_RADIUS.button
+                                                                .tiny,
                                                     }}
                                                 >
                                                     <User className="h-5 w-5 text-blue-500" />
@@ -161,7 +168,8 @@ export const ClientsOverview: React.FC = () => {
                                                 }`}
                                                 style={{
                                                     borderRadius:
-                                                        '12px 15px 10px 16px',
+                                                        BORDER_RADIUS.badge
+                                                            .pill,
                                                 }}
                                             >
                                                 {client.isActive
@@ -177,7 +185,7 @@ export const ClientsOverview: React.FC = () => {
                                                 className="font-quicksand h-8 rounded-lg font-medium text-blue-600 transition-all hover:bg-blue-100 hover:shadow-sm"
                                                 style={{
                                                     borderRadius:
-                                                        '6px 8px 6px 9px',
+                                                        BORDER_RADIUS.button.sm,
                                                 }}
                                             >
                                                 <Link

@@ -23,6 +23,7 @@ import {
 import { Separator } from '@ui/separator.ui';
 import { FeedbackDialog } from '@src/contact-center/components/feedback-dialog.component';
 import { ContactForm } from './contact-form.component';
+import { BORDER_RADIUS } from '@shared/constants/design-tokens.constant';
 
 type SupportDropdownProps = HTMLAttributes<HTMLDivElement> & {
     align?: 'start' | 'center' | 'end';
@@ -46,7 +47,7 @@ export function SupportDropdown({
                         size={size}
                         className="hand-drawn-button w-9 border-2 border-green-200 bg-green-50 p-0 text-green-600 hover:bg-green-100"
                         style={{
-                            borderRadius: '12px 14px 12px 16px',
+                            borderRadius: BORDER_RADIUS.button.primary,
                         }}
                     >
                         <LifeBuoy className="size-[1.2rem]" />
@@ -58,7 +59,7 @@ export function SupportDropdown({
                     align={align}
                     className="relative max-h-[90vh] w-screen overflow-y-auto border-2 border-green-200 bg-white p-4 shadow-lg md:max-h-[calc(100vh-4rem)] md:w-auto md:max-w-3xl"
                     style={{
-                        borderRadius: '25px 30px 20px 35px',
+                        borderRadius: BORDER_RADIUS.panel.xl,
                     }}
                 >
                     {/* Thumb tack for dropdown */}
@@ -70,7 +71,7 @@ export function SupportDropdown({
                             <div
                                 className="col-span-1 flex flex-col border-2 border-yellow-200 bg-yellow-50 p-4"
                                 style={{
-                                    borderRadius: '20px 25px 18px 28px',
+                                    borderRadius: BORDER_RADIUS.panel.lg,
                                 }}
                             >
                                 <DropdownMenuLabel className="flex items-center gap-2 px-0 text-sm font-semibold text-yellow-800">
@@ -92,7 +93,8 @@ export function SupportDropdown({
                                                 className="hand-drawn-button w-full border-2 border-yellow-300 bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
                                                 style={{
                                                     borderRadius:
-                                                        '12px 15px 10px 18px',
+                                                        BORDER_RADIUS.button
+                                                            .alt,
                                                 }}
                                             >
                                                 <Lightbulb className="mr-2 size-3.5" />{' '}
@@ -109,7 +111,8 @@ export function SupportDropdown({
                                                 className="hand-drawn-button w-full border-2 border-red-300 bg-red-50 text-red-800 hover:bg-red-100"
                                                 style={{
                                                     borderRadius:
-                                                        '10px 18px 15px 12px',
+                                                        BORDER_RADIUS.button
+                                                            .outline,
                                                 }}
                                             >
                                                 <Bug className="mr-2 size-3.5" />{' '}
@@ -126,7 +129,7 @@ export function SupportDropdown({
                             <div
                                 className="col-span-1 flex flex-col border-2 border-blue-200 bg-blue-50 p-4"
                                 style={{
-                                    borderRadius: '18px 28px 20px 25px',
+                                    borderRadius: BORDER_RADIUS.panel.md,
                                 }}
                             >
                                 <DropdownMenuLabel className="flex items-center gap-2 px-0 text-sm font-semibold text-blue-800">
@@ -142,7 +145,8 @@ export function SupportDropdown({
                                         asChild
                                         className="cursor-pointer border-2 border-blue-300 bg-blue-100 text-xs transition-colors hover:bg-blue-200"
                                         style={{
-                                            borderRadius: '8px 12px 10px 14px',
+                                            borderRadius:
+                                                BORDER_RADIUS.menuItem.a,
                                         }}
                                     >
                                         <a
@@ -157,7 +161,8 @@ export function SupportDropdown({
                                         asChild
                                         className="cursor-pointer border-2 border-blue-300 bg-blue-100 text-xs transition-colors hover:bg-blue-200"
                                         style={{
-                                            borderRadius: '10px 14px 8px 12px',
+                                            borderRadius:
+                                                BORDER_RADIUS.menuItem.b,
                                         }}
                                     >
                                         <a
@@ -172,7 +177,8 @@ export function SupportDropdown({
                                         asChild
                                         className="cursor-pointer border-2 border-blue-300 bg-blue-100 text-xs transition-colors hover:bg-blue-200"
                                         style={{
-                                            borderRadius: '12px 10px 14px 8px',
+                                            borderRadius:
+                                                BORDER_RADIUS.menuItem.c,
                                         }}
                                     >
                                         <a
@@ -189,7 +195,8 @@ export function SupportDropdown({
                                         asChild
                                         className="cursor-pointer border-2 border-blue-300 bg-blue-100 text-xs transition-colors hover:bg-blue-200"
                                         style={{
-                                            borderRadius: '14px 8px 12px 10px',
+                                            borderRadius:
+                                                BORDER_RADIUS.menuItem.d,
                                         }}
                                     >
                                         <a
@@ -211,7 +218,7 @@ export function SupportDropdown({
                             <div
                                 className="col-span-1 flex flex-col border-2 border-orange-200 bg-orange-50 p-4"
                                 style={{
-                                    borderRadius: '25px 18px 28px 20px',
+                                    borderRadius: BORDER_RADIUS.panel.orange,
                                 }}
                             >
                                 <DropdownMenuLabel className="flex items-center gap-2 px-0 text-sm font-semibold text-orange-800">
