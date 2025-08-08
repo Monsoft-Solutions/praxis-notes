@@ -104,60 +104,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     return (
         <div className="relative h-full bg-gradient-to-br from-blue-100 via-yellow-50 to-orange-100">
-            {/* Background decorative elements - matching login view */}
+            {/* Subtle background decorations (2-3 max, hidden on mobile) */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                {/* Scattered puzzle pieces background */}
-                <div className="absolute left-4 top-16 hidden h-6 w-6 rotate-12 transform rounded-sm bg-blue-300 opacity-20 sm:block"></div>
-                <div className="absolute right-6 top-32 hidden h-4 w-4 -rotate-6 transform rounded-sm bg-orange-300 opacity-25 sm:block"></div>
-                <div className="absolute bottom-40 left-8 hidden h-5 w-5 rotate-45 transform rounded-sm bg-green-300 opacity-15 sm:block"></div>
-                <div className="absolute bottom-20 right-4 hidden h-4 w-4 -rotate-12 transform rounded-sm bg-yellow-300 opacity-30 sm:block"></div>
-
-                {/* Hand-drawn circles */}
+                {/* Large dashed circle */}
                 <div
-                    className="absolute right-2 top-1/4 h-6 w-6 rotate-6 transform rounded-full border-2 border-blue-300 opacity-20 sm:h-10 sm:w-10"
+                    className="absolute right-6 top-24 hidden h-12 w-12 transform rounded-full border-2 border-blue-200 opacity-25 sm:block"
                     style={{
                         borderStyle: 'dashed',
                         borderRadius: '60% 40% 65% 35%',
+                        transform: 'rotate(0.1deg)',
                     }}
                 ></div>
-                <div
-                    className="absolute bottom-1/3 left-2 h-5 w-5 -rotate-12 transform rounded-full border-2 border-orange-300 opacity-25 sm:h-8 sm:w-8"
-                    style={{
-                        borderStyle: 'dashed',
-                        borderRadius: '50% 60% 40% 70%',
-                    }}
-                ></div>
-
-                {/* Floating animated elements */}
-                <div
-                    className="absolute right-3 top-12 animate-bounce text-sm sm:text-base"
-                    style={{
-                        animationDelay: '0s',
-                        animationDuration: '4s',
-                    }}
-                >
-                    📊
-                </div>
-                <div
-                    className="absolute bottom-32 left-3 animate-bounce text-sm sm:text-base"
-                    style={{
-                        animationDelay: '1s',
-                        animationDuration: '5s',
-                    }}
-                >
-                    🎯
-                </div>
+                {/* Soft green square */}
+                <div className="absolute bottom-28 left-6 hidden h-8 w-8 rounded border-2 border-green-200 opacity-25 sm:block"></div>
+                {/* Small orange dot */}
+                <div className="absolute bottom-16 left-1/3 hidden h-2.5 w-2.5 rounded-full bg-orange-200 opacity-60 sm:block"></div>
             </div>
 
             <Sidebar {...props} className="border-0 bg-transparent">
                 <SidebarHeader className="p-4">
                     <div
-                        className="relative -rotate-1 transform rounded-3xl border-2 border-purple-200 bg-white p-4 shadow-lg"
+                        className="relative rounded-3xl border-2 border-blue-200 bg-white p-4 shadow-lg"
                         style={{
                             borderStyle: 'solid',
                             borderRadius: '25px 30px 20px 35px',
-                            background:
-                                'linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%)',
                         }}
                     >
                         {/* Decorative elements */}
@@ -182,12 +152,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </SidebarHeader>
 
                 <SidebarContent className="space-y-4 px-4">
-                    {navbarSections.map((item, index) => {
+                    {navbarSections.map((item) => {
                         if ('items' in item) {
                             return (
                                 <div key={item.title}>
                                     <div
-                                        className={`relative transform rounded-3xl border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-purple-50 p-4 shadow-lg transition-all duration-200 hover:shadow-md ${index % 2 === 0 ? 'rotate-1' : '-rotate-1'}`}
+                                        className={`relative rounded-3xl border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-purple-50 p-4 shadow-lg transition-all duration-200 hover:shadow-md`}
                                         style={{
                                             borderStyle: 'dashed',
                                             borderRadius: '30px 20px 35px 25px',
@@ -205,8 +175,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                             <div className="space-y-2">
                                                 {item.items.map(
                                                     (
-                                                        { title, url, icon },
-                                                        itemIndex,
+                                                        {
+                                                            title,
+                                                            url,
+                                                            icon,
+                                                        }: {
+                                                            title: string;
+                                                            url: string;
+                                                            icon?: React.ReactNode;
+                                                        },
+                                                        itemIndex: number,
                                                     ) => (
                                                         <Link
                                                             key={title}
@@ -214,7 +192,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                                             className="group block"
                                                         >
                                                             <div
-                                                                className={`font-quicksand flex transform items-center gap-3 rounded-xl border-2 border-blue-200 bg-white p-3 font-semibold text-gray-800 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-50 hover:shadow-md ${itemIndex % 2 === 0 ? 'rotate-1' : '-rotate-1'}`}
+                                                                className={`font-quicksand flex transform items-center gap-3 rounded-xl border-2 border-blue-200 bg-white p-3 font-semibold text-gray-800 transition-all duration-200 hover:-translate-y-0.5 hover:bg-blue-50 hover:shadow-md ${itemIndex % 2 === 0 ? 'rotate-[0.2deg]' : '-rotate-[0.2deg]'}`}
                                                                 style={{
                                                                     borderStyle:
                                                                         'solid',
@@ -249,9 +227,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             return (
                                 <div key={item.title}>
                                     <div
-                                        className="relative rotate-1 transform rounded-3xl border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-yellow-50 p-4 shadow-lg transition-all duration-200 hover:shadow-md"
+                                        className="relative rounded-3xl border-2 border-orange-200 bg-white p-4 shadow-lg transition-all duration-200 hover:shadow-md"
                                         style={{
-                                            borderStyle: 'dotted',
+                                            borderStyle: 'solid',
                                             borderRadius: '25px 15px 30px 20px',
                                         }}
                                     >
@@ -265,7 +243,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                                 className="block"
                                             >
                                                 <div
-                                                    className="font-quicksand flex items-center gap-3 rounded-xl border-2 border-orange-200 bg-white p-3 font-semibold text-gray-800 transition-all duration-200 hover:-translate-y-0.5 hover:bg-orange-50 hover:shadow-md"
+                                                    className="font-quicksand relative flex rotate-[0.2deg] transform items-center gap-3 rounded-xl border-2 border-orange-200 bg-white p-3 font-semibold text-gray-800 transition-all duration-200 hover:-translate-y-0.5 hover:bg-orange-50 hover:shadow-md"
                                                     style={{
                                                         borderStyle: 'solid',
                                                         borderRadius:
@@ -278,6 +256,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                                     <span className="text-sm">
                                                         {item.title}
                                                     </span>
+
+                                                    {/* Subtle attention animation for Chat button */}
+                                                    {item.url === '/chat' && (
+                                                        <>
+                                                            <span
+                                                                className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-orange-500"
+                                                                aria-hidden
+                                                            ></span>
+                                                            <span
+                                                                className="absolute -right-1 -top-1 h-2 w-2 animate-ping rounded-full bg-orange-400 opacity-60"
+                                                                style={{
+                                                                    animationDuration:
+                                                                        '2.5s',
+                                                                }}
+                                                                aria-hidden
+                                                            ></span>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </Link>
                                         </div>
@@ -290,9 +286,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
                 <SidebarFooter className="p-4">
                     <div
-                        className="relative -rotate-1 transform rounded-3xl border-2 border-yellow-300 bg-gradient-to-r from-yellow-100 to-orange-100 p-4 shadow-lg"
+                        className="relative rounded-3xl border-2 border-yellow-300 bg-white p-4 shadow-lg"
                         style={{
-                            borderStyle: 'dotted',
+                            borderStyle: 'solid',
                             borderRadius: '20px 30px 15px 25px',
                         }}
                     >
