@@ -147,9 +147,9 @@ export const ClientSessionsView = () => {
     };
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-green-50">
+        <div className="relative h-full min-h-0 overflow-hidden bg-gradient-to-br from-blue-50 via-blue-50 to-green-50">
             {/* Very subtle background decorations */}
-            <div className="pointer-events-none fixed inset-0 overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 <div className="hand-drawn-decorative-circle rotate-decorative-right absolute left-10 top-20 hidden h-12 w-12 border-blue-200 sm:block"></div>
                 <div className="hand-drawn-decorative-square absolute bottom-32 right-16 hidden h-8 w-8 border-green-200 sm:block"></div>
                 <div className="absolute bottom-20 left-1/4 hidden h-2 w-2 rounded-full bg-orange-200 opacity-50 sm:block"></div>

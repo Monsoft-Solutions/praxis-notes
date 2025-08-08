@@ -120,83 +120,94 @@ export function ClientSessionDetailsView() {
     if (isEdit) {
         return (
             <ViewContainer>
-                <div className="mb-6 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Link
-                            to={`/clients/${clientId}/sessions/${sessionId}`}
-                            params={{ clientId, sessionId }}
-                        >
-                            <Button variant="ghost" size="icon">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Button>
-                        </Link>
-                        <h1 className="text-2xl font-bold">Edit Session</h1>
+                <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                    <div className="mb-6 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Link
+                                to={`/clients/${clientId}/sessions/${sessionId}`}
+                                params={{ clientId, sessionId }}
+                            >
+                                <Button variant="ghost" size="icon">
+                                    <ArrowLeft className="h-4 w-4" />
+                                </Button>
+                            </Link>
+                            <h1 className="text-2xl font-bold">Edit Session</h1>
+                        </div>
+                    </div>
+                    <div className="min-h-0 flex-1 overflow-auto">
+                        <SessionForm
+                            clientId={clientId}
+                            clientName={session.client.firstName}
+                            sessionId={sessionId}
+                            isTour={false}
+                            placeholderSessionData={{
+                                ...sessionFormData,
+                                replacementProgramEntries:
+                                    sessionFormData.replacementProgramEntries.map(
+                                        (entry) => ({
+                                            ...entry,
+                                            progress:
+                                                entry.progress !== null
+                                                    ? Number(entry.progress)
+                                                    : null,
+                                        }),
+                                    ),
+                            }}
+                        />
                     </div>
                 </div>
-                <SessionForm
-                    clientId={clientId}
-                    clientName={session.client.firstName}
-                    sessionId={sessionId}
-                    isTour={false}
-                    placeholderSessionData={{
-                        ...sessionFormData,
-                        replacementProgramEntries:
-                            sessionFormData.replacementProgramEntries.map(
-                                (entry) => ({
-                                    ...entry,
-                                    progress:
-                                        entry.progress !== null
-                                            ? Number(entry.progress)
-                                            : null,
-                                }),
-                            ),
-                    }}
-                />
             </ViewContainer>
         );
     }
 
     return (
         <ViewContainer>
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <Link
-                        to={`/clients/${clientId}/sessions`}
-                        params={{ clientId }}
-                    >
-                        <Button variant="ghost" size="icon">
-                            <ArrowLeft className="h-4 w-4" />
+            <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Link
+                            to={`/clients/${clientId}/sessions`}
+                            params={{ clientId }}
+                        >
+                            <Button variant="ghost" size="icon">
+                                <ArrowLeft className="h-4 w-4" />
+                            </Button>
+                        </Link>
+                        <h1 className="text-2xl font-bold">Session Details</h1>
+                    </div>
+
+                    <div className="flex space-x-2">
+                        <Link
+                            to={`/clients/${clientId}/sessions/${sessionId}`}
+                            params={{ clientId, sessionId }}
+                            search={{ isEdit: true }}
+                        >
+                            <Button variant="outline" size="sm">
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                            </Button>
+                        </Link>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                                setDeleteDialogOpen(true);
+                            }}
+                            disabled={deleteSessionMutation.isPending}
+                            className="text-destructive hover:text-destructive"
+                        >
+                            <Trash2 className="h-4 w-4" />
                         </Button>
-                    </Link>
-                    <h1 className="text-2xl font-bold">Session Details</h1>
+                    </div>
                 </div>
 
-                <div className="flex space-x-2">
-                    <Link
-                        to={`/clients/${clientId}/sessions/${sessionId}`}
-                        params={{ clientId, sessionId }}
-                        search={{ isEdit: true }}
-                    >
-                        <Button variant="outline" size="sm">
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit
-                        </Button>
-                    </Link>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                            setDeleteDialogOpen(true);
-                        }}
-                        disabled={deleteSessionMutation.isPending}
-                        className="text-destructive hover:text-destructive"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
+                <div className="min-h-0 flex-1 overflow-auto">
+                    <SessionDetails
+                        session={sessionDetails}
+                        sessionId={sessionId}
+                    />
                 </div>
             </div>
-
-            <SessionDetails session={sessionDetails} sessionId={sessionId} />
 
             <ConfirmationDialog
                 open={isDeleteDialogOpen}
