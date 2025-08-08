@@ -112,7 +112,7 @@ export const ClientSessionsView = () => {
     };
 
     const renderPaginationLinks = () => {
-        const links = [];
+        const links = [] as React.JSX.Element[];
         const maxVisiblePages = 5;
 
         // Logic to determine which page numbers to show
@@ -148,7 +148,7 @@ export const ClientSessionsView = () => {
 
     return (
         <ViewContainer>
-            <div className="flex flex-col gap-6">
+            <div className="flex h-full min-h-0 flex-col gap-6 overflow-hidden">
                 {/* Header section */}
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <h1 className="text-2xl font-bold tracking-tight">
@@ -167,188 +167,202 @@ export const ClientSessionsView = () => {
                     </Button>
                 </div>
 
-                {clientSessions.length === 0 ? (
-                    <div className="bg-muted/10 my-8 rounded-lg border p-12 text-center shadow-sm">
-                        <div className="bg-primary/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
-                            <Calendar className="text-primary h-10 w-10" />
-                        </div>
+                {/* Scrollable content */}
+                <div className="min-h-0 flex-1 overflow-auto">
+                    {clientSessions.length === 0 ? (
+                        <div className="bg-muted/10 my-8 rounded-lg border p-12 text-center shadow-sm">
+                            <div className="bg-primary/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
+                                <Calendar className="text-primary h-10 w-10" />
+                            </div>
 
-                        <h3 className="mb-3 text-xl font-semibold">
-                            No Sessions Yet
-                        </h3>
+                            <h3 className="mb-3 text-xl font-semibold">
+                                No Sessions Yet
+                            </h3>
 
-                        <p className="text-muted-foreground mx-auto mb-8 max-w-md">
-                            Create your first session to start tracking your
-                            client meetings. You can schedule upcoming sessions
-                            or record past ones.
-                        </p>
+                            <p className="text-muted-foreground mx-auto mb-8 max-w-md">
+                                Create your first session to start tracking your
+                                client meetings. You can schedule upcoming
+                                sessions or record past ones.
+                            </p>
 
-                        <Link
-                            to="/clients/$clientId/sessions/new"
-                            params={{ clientId }}
-                        >
-                            <Button size="lg" className="font-medium">
-                                <PlusCircle className="mr-2 h-5 w-5" />
-                                New Session
-                            </Button>
-                        </Link>
-                    </div>
-                ) : (
-                    <>
-                        {/* Filters and search */}
-                        <div className="bg-card flex flex-col items-start justify-between gap-4 rounded-lg border p-4 shadow-sm sm:flex-row sm:items-center">
-                            <Tabs
-                                defaultValue="all"
-                                value={viewType}
-                                onValueChange={setViewType}
-                                className="w-full sm:w-auto"
+                            <Link
+                                to="/clients/$clientId/sessions/new"
+                                params={{ clientId }}
                             >
-                                <TabsList className="grid w-full grid-cols-3 sm:w-auto">
-                                    <TabsTrigger value="all">All</TabsTrigger>
-                                    <TabsTrigger value="completed">
-                                        Completed
-                                    </TabsTrigger>
-                                    <TabsTrigger value="draft">
-                                        Draft
-                                    </TabsTrigger>
-                                </TabsList>
-                            </Tabs>
-
-                            <div className="relative w-full sm:w-64">
-                                <Search className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
-                                <Input
-                                    type="search"
-                                    placeholder="Search sessions..."
-                                    className="w-full pl-8"
-                                    value={searchQuery}
-                                    onChange={handleSearchChange}
-                                />
-                            </div>
+                                <Button size="lg" className="font-medium">
+                                    <PlusCircle className="mr-2 h-5 w-5" />
+                                    New Session
+                                </Button>
+                            </Link>
                         </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {/* Filters and search */}
+                            <div className="bg-card flex flex-col items-start justify-between gap-4 rounded-lg border p-4 shadow-sm sm:flex-row sm:items-center">
+                                <Tabs
+                                    defaultValue="all"
+                                    value={viewType}
+                                    onValueChange={setViewType}
+                                    className="w-full sm:w-auto"
+                                >
+                                    <TabsList className="grid w-full grid-cols-3 sm:w-auto">
+                                        <TabsTrigger value="all">
+                                            All
+                                        </TabsTrigger>
+                                        <TabsTrigger value="completed">
+                                            Completed
+                                        </TabsTrigger>
+                                        <TabsTrigger value="draft">
+                                            Draft
+                                        </TabsTrigger>
+                                    </TabsList>
+                                </Tabs>
 
-                        {/* Sessions grid */}
-                        {currentSessions.length > 0 ? (
-                            <div className="grid gap-4">
-                                {currentSessions.map((session) => {
-                                    const sessionDate = new Date(
-                                        session.sessionDate,
-                                    );
+                                <div className="relative w-full sm:w-64">
+                                    <Search className="text-muted-foreground absolute left-2.5 top-2.5 h-4 w-4" />
+                                    <Input
+                                        type="search"
+                                        placeholder="Search sessions..."
+                                        className="w-full pl-8"
+                                        value={searchQuery}
+                                        onChange={handleSearchChange}
+                                    />
+                                </div>
+                            </div>
 
-                                    return (
-                                        <Link
-                                            key={session.id}
-                                            to="/clients/$clientId/sessions/$sessionId"
-                                            params={{
-                                                clientId,
-                                                sessionId: session.id,
-                                            }}
-                                            className="group"
-                                        >
-                                            <div className="bg-card hover:border-primary/50 flex flex-col justify-between rounded-lg border p-3 transition-all hover:shadow-md sm:flex-row sm:items-center">
-                                                <div className="space-y-2 sm:space-y-3">
-                                                    <div className="flex flex-row items-center justify-between gap-2 sm:flex-row sm:items-center sm:gap-4">
-                                                        <div className="flex items-center text-base font-semibold sm:text-lg">
-                                                            <Calendar className="text-primary mr-1 inline-block h-4 w-4 sm:mr-2 sm:h-5 sm:w-5" />
-                                                            {format(
-                                                                sessionDate,
-                                                                'MMMM d, yyyy',
-                                                            )}
+                            {/* Sessions grid */}
+                            {currentSessions.length > 0 ? (
+                                <div className="grid gap-4">
+                                    {currentSessions.map((session) => {
+                                        const sessionDate = new Date(
+                                            session.sessionDate,
+                                        );
+
+                                        return (
+                                            <Link
+                                                key={session.id}
+                                                to="/clients/$clientId/sessions/$sessionId"
+                                                params={{
+                                                    clientId,
+                                                    sessionId: session.id,
+                                                }}
+                                                className="group"
+                                            >
+                                                <div className="bg-card hover:border-primary/50 flex flex-col justify-between rounded-lg border p-3 transition-all hover:shadow-md sm:flex-row sm:items-center">
+                                                    <div className="space-y-2 sm:space-y-3">
+                                                        <div className="flex flex-row items-center justify-between gap-2 sm:flex-row sm:items-center sm:gap-4">
+                                                            <div className="flex items-center text-base font-semibold sm:text-lg">
+                                                                <Calendar className="text-primary mr-1 inline-block h-4 w-4 sm:mr-2 sm:h-5 sm:w-5" />
+                                                                {format(
+                                                                    sessionDate,
+                                                                    'MMMM d, yyyy',
+                                                                )}
+                                                            </div>
+
+                                                            <Badge
+                                                                variant={
+                                                                    session.draft
+                                                                        ? 'secondary'
+                                                                        : 'default'
+                                                                }
+                                                                className="text-xs"
+                                                            >
+                                                                {session.draft
+                                                                    ? 'Draft'
+                                                                    : 'Completed'}
+                                                            </Badge>
                                                         </div>
 
-                                                        <Badge
-                                                            variant={
-                                                                session.draft
-                                                                    ? 'secondary'
-                                                                    : 'default'
-                                                            }
-                                                            className="text-xs"
+                                                        <div className="flex flex-row justify-between gap-2 sm:flex-row sm:gap-4">
+                                                            <div className="text-muted-foreground flex items-center text-xs sm:text-sm">
+                                                                <Clock className="mr-1 inline-block h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                                                                {
+                                                                    session.startTime
+                                                                }{' '}
+                                                                -{' '}
+                                                                {
+                                                                    session.endTime
+                                                                }
+                                                            </div>
+
+                                                            <div className="text-muted-foreground flex items-center text-xs sm:text-sm">
+                                                                <MapPin className="mr-1 inline-block h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
+                                                                {
+                                                                    session.location
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center sm:static sm:mt-0 sm:translate-y-0">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="group-hover:bg-primary/10 group-hover:text-primary ml-auto h-8 w-8 rounded-full sm:h-10 sm:w-10"
                                                         >
-                                                            {session.draft
-                                                                ? 'Draft'
-                                                                : 'Completed'}
-                                                        </Badge>
-                                                    </div>
-
-                                                    <div className="flex flex-row justify-between gap-2 sm:flex-row sm:gap-4">
-                                                        <div className="text-muted-foreground flex items-center text-xs sm:text-sm">
-                                                            <Clock className="mr-1 inline-block h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                                                            {session.startTime}{' '}
-                                                            - {session.endTime}
-                                                        </div>
-
-                                                        <div className="text-muted-foreground flex items-center text-xs sm:text-sm">
-                                                            <MapPin className="mr-1 inline-block h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
-                                                            {session.location}
-                                                        </div>
+                                                            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                                                        </Button>
                                                     </div>
                                                 </div>
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="bg-muted/10 rounded-lg border p-8 text-center">
+                                    <p className="text-muted-foreground">
+                                        No sessions match your search criteria.
+                                    </p>
+                                </div>
+                            )}
 
-                                                <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center sm:static sm:mt-0 sm:translate-y-0">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="group-hover:bg-primary/10 group-hover:text-primary ml-auto h-8 w-8 rounded-full sm:h-10 sm:w-10"
-                                                    >
-                                                        <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <div className="bg-muted/10 rounded-lg border p-8 text-center">
-                                <p className="text-muted-foreground">
-                                    No sessions match your search criteria.
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Pagination */}
-                        {totalPages > 1 && (
-                            <Pagination className="mt-6">
-                                <PaginationContent>
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            onClick={() => {
-                                                if (currentPage > 1) {
-                                                    handlePageChange(
-                                                        currentPage - 1,
-                                                    );
+                            {/* Pagination */}
+                            {totalPages > 1 && (
+                                <Pagination className="mt-6">
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                onClick={() => {
+                                                    if (currentPage > 1) {
+                                                        handlePageChange(
+                                                            currentPage - 1,
+                                                        );
+                                                    }
+                                                }}
+                                                className={
+                                                    currentPage === 1
+                                                        ? 'pointer-events-none opacity-50'
+                                                        : ''
                                                 }
-                                            }}
-                                            className={
-                                                currentPage === 1
-                                                    ? 'pointer-events-none opacity-50'
-                                                    : ''
-                                            }
-                                        />
-                                    </PaginationItem>
+                                            />
+                                        </PaginationItem>
 
-                                    {renderPaginationLinks()}
+                                        {renderPaginationLinks()}
 
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            onClick={() => {
-                                                if (currentPage < totalPages) {
-                                                    handlePageChange(
-                                                        currentPage + 1,
-                                                    );
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                onClick={() => {
+                                                    if (
+                                                        currentPage < totalPages
+                                                    ) {
+                                                        handlePageChange(
+                                                            currentPage + 1,
+                                                        );
+                                                    }
+                                                }}
+                                                className={
+                                                    currentPage === totalPages
+                                                        ? 'pointer-events-none opacity-50'
+                                                        : ''
                                                 }
-                                            }}
-                                            className={
-                                                currentPage === totalPages
-                                                    ? 'pointer-events-none opacity-50'
-                                                    : ''
-                                            }
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
-                        )}
-                    </>
-                )}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         </ViewContainer>
     );
