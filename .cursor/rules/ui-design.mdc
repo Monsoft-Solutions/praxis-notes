@@ -1,0 +1,214 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Hand-Drawn Sketch Design System
+
+Use this hand-drawn sketch aesthetic with ABA-themed colors for all UI components. Take @log-in.view.tsx and @log-in-form.component.tsx as primary references.
+
+The style should be **relaxed but professional** - clean, approachable, and subtle.
+# Hand-Drawn Sketch Design System
+
+Use this hand-drawn sketch aesthetic with ABA-themed colors for all UI components. Take @log-in.view.tsx and @log-in-form.component.tsx as primary references.
+
+The style should be **relaxed but professional** - clean, approachable, and subtle.
+
+## Color Palette
+
+**Primary ABA Colors:**
+- Blue: `blue-100` to `blue-400` (primary actions, trust)
+- Green: `green-100` to `green-400` (success, growth)
+- Orange: `orange-100` to `orange-400` (energy, attention)
+- Yellow: `yellow-100` to `yellow-400` (warmth, optimism)
+
+**Usage:**
+- Background gradients: `bg-gradient-to-br from-blue-100 via-yellow-50 to-orange-100`
+- Cards: `border-blue-200`, `border-green-200`, etc.
+- Buttons: Solid colors like `bg-blue-400`, `bg-green-400` (no gradients)
+- Elements should use harmonious color combinations from the same palette
+
+## Hand-Drawn Aesthetic Elements
+
+**Irregular Border Radius:**
+```tsx
+style={{
+    borderRadius: '25px 30px 20px 35px', // Always use 4 different values for cards
+}}
+```
+
+**Very Slight Rotations (use sparingly):**
+```tsx
+transform: 'rotate(-0.1deg)', // Very subtle: -0.2deg to 0.2deg only
+className="rotate-[0.1deg] transform" // Use for non-critical decorative elements only
+```
+
+**IMPORTANT:** 
+- **Never rotate** forms, inputs, main containers, or functional elements
+- **Never rotate** cards - they should look stable and hung properly
+- Only use on small decorative background elements
+
+**Border Styles:**
+- `borderStyle: 'solid'` for main containers and cards (clean and professional)
+- `borderStyle: 'dashed'` sparingly for decorative accents only
+- `borderStyle: 'dotted'` for very subtle background elements
+
+## Card Components
+
+**Card with Thumb Tack Effect (hanging from wall):**
+```tsx
+<div
+    className="relative rounded-3xl border-2 border-blue-200 bg-white p-6 shadow-lg"
+    style={{
+        borderRadius: '25px 30px 20px 35px',
+    }}
+>
+    {/* Thumb tack - choose one style per card */}
+    <div className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 transform">
+        <div className="h-full w-full rounded-full bg-blue-400 shadow-sm"></div>
+        <div className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"></div>
+    </div>
+    
+    {/* OR Alternative thumb tack styles: */}
+    {/* Small square tack */}
+    <div className="absolute -top-1.5 right-8 h-3 w-3 rotate-45 transform bg-green-400 shadow-sm"></div>
+    
+    {/* OR Triangle tack */}
+    <div className="absolute -top-2 left-8">
+        <div className="h-0 w-0 border-l-2 border-r-2 border-b-4 border-l-transparent border-r-transparent border-b-orange-400"></div>
+    </div>
+    
+    {/* Card content */}
+    <div className="pt-2">
+        {/* Your content here */}
+    </div>
+</div>
+```
+
+**Main Container Pattern (no rotation):**
+```tsx
+<div className="relative rounded-3xl border-2 border-blue-200 bg-white p-8 shadow-xl">
+    {/* Clean, professional, no excessive decorations */}
+</div>
+```
+
+## Form Styling
+
+**Form Fields (clean and functional):**
+```tsx
+<div className="relative rounded-xl border-2 border-blue-200 bg-white">
+    <Input className="h-11 rounded-lg border-0 bg-transparent focus:ring-2 focus:ring-blue-300" />
+</div>
+```
+
+**Buttons (solid colors, no gradients):**
+```tsx
+<Button 
+    className="h-11 rounded-xl bg-primary text-foreground font-quicksand font-semibold transition-all hover:bg-blue-500 hover:shadow-md"
+    style={{
+        borderRadius: '12px 14px 12px 16px',
+    }}
+>
+    <CheckCircle className="mr-2 h-4 w-4" />
+    Button Text
+</Button>
+```
+
+**Alternative Button Colors:**
+- Primary: `bg-blue-400 hover:bg-blue-500`
+- Success: `bg-green-400 hover:bg-green-500`
+- Warning: `bg-orange-400 hover:bg-orange-500`
+- Info: `bg-yellow-400 hover:bg-yellow-500 text-gray-800`
+
+## Icons
+
+**Use Lucide React Icons:**
+```tsx
+import { CheckCircle, User, Settings, Home, Plus, Search } from 'lucide-react'
+
+// In components:
+<CheckCircle className="h-5 w-5 text-green-400" />
+<User className="mr-2 h-4 w-4" />
+```
+
+**Icon Guidelines:**
+- Use consistent sizing: `h-4 w-4` for buttons, `h-5 w-5` for standalone
+- Color icons with theme colors: `text-blue-400`, `text-green-400`
+- Avoid emoticons - use icons instead
+- We don't need to use them in all the btns.
+
+## Background Elements
+
+**Main Container Background (very subtle decorations):**
+```tsx
+className="min-h-screen bg-gradient-to-br from-blue-100 via-yellow-50 to-orange-100 relative"
+
+{/* Very subtle background decorations - use 2-3 max */}
+<div className="fixed inset-0 overflow-hidden pointer-events-none">
+    {/* Subtle geometric shapes */}
+    <div 
+        className="absolute left-10 top-20 h-12 w-12 rounded-full border-2 border-blue-200 opacity-30"
+        style={{ transform: 'rotate(0.1deg)' }}
+    ></div>
+    
+    <div className="absolute right-16 bottom-32 h-8 w-8 rounded border border-green-200 opacity-40"></div>
+    
+    {/* Small dots */}
+    <div className="absolute left-1/4 bottom-20 h-2 w-2 rounded-full bg-orange-200 opacity-50"></div>
+</div>
+```
+
+## Typography
+
+**Font Classes:**
+- Headlines: `font-quicksand font-bold`
+- Body text: `font-nunito`
+- Interactive elements: `font-quicksand font-semibold`
+
+**Text Shadows (subtle):**
+```tsx
+style={{
+    textShadow: '1px 1px 2px rgba(0,0,0,0.1)',
+}}
+```
+
+## Responsive Design
+
+**Mobile Considerations:**
+- Hide background decorations on small screens: `hidden sm:block`
+- Adjust padding: `p-4 sm:p-6 lg:p-8`
+- Smaller thumb tacks: `h-3 w-3 sm:h-4 sm:w-4`
+
+## Animation Guidelines
+
+**Subtle Hover Effects:**
+```tsx
+className="transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+```
+
+**NO floating animated elements** - reserve only for special new views when specifically needed.
+
+## Implementation Rules
+
+1. **Relaxed but professional** - clean lines, subtle decorations
+2. **Use thumb tack elements** to make cards look hung on wall
+3. **No rotations** on functional elements (forms, main containers, cards)
+4. **Solid button colors** - no gradients
+5. **Very subtle background decorations** - 2-3 elements max
+6. **Use Lucide icons** instead of emoticons
+7. **Harmonious colors** from the ABA palette
+8. **No excessive animations** - keep it calm and professional
+
+## Color Harmony Examples
+
+**Blue-focused:**
+- Card: `border-blue-200`
+- Button: `bg-blue-400`
+- Icon: `text-blue-500`
+- Accent: `bg-blue-100`
+
+**Green-focused:**
+- Card: `border-green-200`
+- Button: `bg-green-400`
+- Icon: `text-green-500`
+- Accent: `bg-green-100`

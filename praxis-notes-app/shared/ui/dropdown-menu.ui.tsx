@@ -34,10 +34,14 @@ const DropdownMenuSubTrigger = forwardRef<
     <DropdownMenuPrimitive.SubTrigger
         ref={ref}
         className={cn(
-            'focus:bg-accent data-[state=open]:bg-accent flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+            'font-nunito flex cursor-default select-none items-center gap-2 px-2 py-1.5 text-sm outline-none',
+            'hover:bg-blue-50 focus:bg-blue-50 data-[state=open]:bg-blue-50',
+            'transition-colors duration-200',
+            '[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
             inset && 'pl-8',
             className,
         )}
+        style={{ borderRadius: '8px 10px 9px 11px' }}
         {...props}
     >
         {children}
@@ -50,13 +54,21 @@ DropdownMenuSubTrigger.displayName =
 const DropdownMenuSubContent = forwardRef<
     ElementRef<typeof DropdownMenuPrimitive.SubContent>,
     ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>
->(({ className, ...props }, ref) => (
+>(({ className, style, ...props }, ref) => (
     <DropdownMenuPrimitive.SubContent
         ref={ref}
         className={cn(
-            'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] overflow-hidden rounded-md border p-1 shadow-lg',
+            'z-50 min-w-[8rem] overflow-hidden border-2 border-blue-200 bg-white p-1 shadow-lg',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+            'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+            'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
             className,
         )}
+        style={{
+            borderRadius: '15px 18px 14px 20px',
+            ...style,
+        }}
         {...props}
     />
 ));
@@ -66,16 +78,23 @@ DropdownMenuSubContent.displayName =
 const DropdownMenuContent = forwardRef<
     ElementRef<typeof DropdownMenuPrimitive.Content>,
     ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
+>(({ className, sideOffset = 4, style, ...props }, ref) => (
     <DropdownMenuPrimitive.Portal>
         <DropdownMenuPrimitive.Content
             ref={ref}
             sideOffset={sideOffset}
             className={cn(
-                'bg-popover text-popover-foreground z-50 min-w-[8rem] overflow-hidden rounded-md border p-1 shadow-md',
-                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+                'z-50 min-w-[8rem] overflow-hidden border-2 border-blue-200 bg-white p-1 shadow-lg',
+                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+                'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+                'data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2',
+                'data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
                 className,
             )}
+            style={{
+                borderRadius: '15px 18px 14px 20px',
+                ...style,
+            }}
             {...props}
         />
     </DropdownMenuPrimitive.Portal>
@@ -91,10 +110,14 @@ const DropdownMenuItem = forwardRef<
     <DropdownMenuPrimitive.Item
         ref={ref}
         className={cn(
-            'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0',
+            'font-nunito relative flex cursor-default select-none items-center gap-2 px-2 py-1.5 text-sm outline-none',
+            'transition-colors duration-200 hover:bg-blue-50 focus:bg-blue-50',
+            'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+            '[&>svg]:size-4 [&>svg]:shrink-0',
             inset && 'pl-8',
             className,
         )}
+        style={{ borderRadius: '8px 10px 9px 11px' }}
         {...props}
     />
 ));
@@ -107,9 +130,12 @@ const DropdownMenuCheckboxItem = forwardRef<
     <DropdownMenuPrimitive.CheckboxItem
         ref={ref}
         className={cn(
-            'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+            'font-nunito relative flex cursor-default select-none items-center py-1.5 pl-8 pr-2 text-sm outline-none',
+            'transition-colors duration-200 hover:bg-blue-50 focus:bg-blue-50',
+            'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
             className,
         )}
+        style={{ borderRadius: '8px 10px 9px 11px' }}
         checked={checked}
         {...props}
     >
@@ -131,9 +157,12 @@ const DropdownMenuRadioItem = forwardRef<
     <DropdownMenuPrimitive.RadioItem
         ref={ref}
         className={cn(
-            'focus:bg-accent focus:text-accent-foreground relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+            'font-nunito relative flex cursor-default select-none items-center py-1.5 pl-8 pr-2 text-sm outline-none',
+            'transition-colors duration-200 hover:bg-blue-50 focus:bg-blue-50',
+            'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
             className,
         )}
+        style={{ borderRadius: '8px 10px 9px 11px' }}
         {...props}
     >
         <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
@@ -155,7 +184,7 @@ const DropdownMenuLabel = forwardRef<
     <DropdownMenuPrimitive.Label
         ref={ref}
         className={cn(
-            'px-2 py-1.5 text-sm font-semibold',
+            'font-quicksand text-shadow-sm px-2 py-1.5 text-sm font-semibold',
             inset && 'pl-8',
             className,
         )}
@@ -170,7 +199,7 @@ const DropdownMenuSeparator = forwardRef<
 >(({ className, ...props }, ref) => (
     <DropdownMenuPrimitive.Separator
         ref={ref}
-        className={cn('bg-muted -mx-1 my-1 h-px', className)}
+        className={cn('-mx-1 my-1 h-px bg-blue-200', className)}
         {...props}
     />
 ));
@@ -183,7 +212,7 @@ const DropdownMenuShortcut = ({
     return (
         <span
             className={cn(
-                'ml-auto text-xs tracking-widest opacity-60',
+                'font-nunito ml-auto text-xs tracking-widest opacity-60',
                 className,
             )}
             {...props}

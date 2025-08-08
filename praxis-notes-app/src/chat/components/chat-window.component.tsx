@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Card, CardContent, CardFooter } from '@ui/card.ui';
 import { ChatMessageComponent } from './chat-message.component';
 import { ChatInputComponent } from './chat-input.component';
 import { ChatSuggestedQuestions } from './chat-suggested-questions.component';
@@ -7,7 +6,6 @@ import { ChatSuggestedQuestions } from './chat-suggested-questions.component';
 import { api } from '@api/providers/web/api.provider';
 
 import { apiClientUtils } from '@api/providers/web/api-client-utils.provider';
-import { ScrollArea } from '@shared/ui/scroll-area.ui';
 import { AiGenerationQualitySelector } from '@src/ai/schemas';
 import { File } from '@shared/schemas';
 
@@ -231,46 +229,63 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
     const { messages } = session;
 
     return (
-        <Card className="sm:shadow-floating mt-0 flex h-full flex-col items-stretch justify-between space-y-0 border-none p-2 pt-0 shadow-none sm:border lg:max-h-[calc(100vh-6rem)]">
-            <CardContent className="flex-grow overflow-hidden p-0">
-                <ScrollArea
-                    ref={scrollAreaRef}
-                    className="h-[calc(100vh-13rem)] md:h-[calc(100vh-14rem)] lg:h-[calc(100vh-10rem)]"
-                    onScrollCapture={handleScroll}
-                >
-                    <div className="h-32 w-full lg:h-20"></div>
-                    <div className="py-4">
-                        {messages.map((message) => (
-                            <ChatMessageComponent
-                                key={message.id}
-                                message={message}
-                                isLoading={isMessageLoading(
-                                    message.id,
-                                    message.role,
-                                    message.content,
-                                )}
-                            />
-                        ))}
-                        <div ref={messagesEndRef} />
-                        {messages.length === 0 && (
-                            <div className="flex justify-start justify-self-end pt-10">
-                                <ChatSuggestedQuestions
-                                    sessionId={activeSessionId}
-                                    onQuestionSelect={(question) => {
-                                        void handleSuggestedQuestionSelect(
-                                            question,
-                                        );
-                                    }}
-                                    className="max-w-[90%]"
-                                />
-                            </div>
-                        )}
-                    </div>
-                    <div className="h-2 w-full"></div>
-                </ScrollArea>
-            </CardContent>
+        <div className="relative flex h-full min-h-0 flex-col rounded-none border-2 border-green-200 bg-white lg:[border-radius:25px_30px_20px_35px]">
+            {/* Thumb tack - triangle style for variety */}
+            <div className="absolute -top-2 right-8">
+                <div className="h-0 w-0 border-b-[8px] border-l-[6px] border-r-[6px] border-b-orange-400 border-l-transparent border-r-transparent"></div>
+            </div>
 
-            <CardFooter className="bg-background sticky bottom-0 mt-auto flex flex-col items-stretch gap-2 border-t pt-2">
+            {/* Chat messages area */}
+            <div
+                ref={scrollAreaRef}
+                onScroll={handleScroll}
+                className="min-h-0 flex-1 overflow-y-auto p-4 pb-36 pt-28 lg:pb-4"
+            >
+                {/* Top spacing */}
+                <div className="h-8 w-full lg:h-4"></div>
+
+                <div className="space-y-4 pb-4">
+                    {messages.map((message) => (
+                        <ChatMessageComponent
+                            key={message.id}
+                            message={message}
+                            isLoading={isMessageLoading(
+                                message.id,
+                                message.role,
+                                message.content,
+                            )}
+                        />
+                    ))}
+                    <div ref={messagesEndRef} />
+
+                    {/* Welcome state with suggested questions */}
+                    {messages.length === 0 && (
+                        <div className="flex justify-center pt-8 lg:pt-12">
+                            <ChatSuggestedQuestions
+                                sessionId={activeSessionId}
+                                onQuestionSelect={(question) => {
+                                    void handleSuggestedQuestionSelect(
+                                        question,
+                                    );
+                                }}
+                                className="max-w-full px-2"
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {/* Bottom spacing */}
+                <div className="h-4 w-full"></div>
+            </div>
+
+            {/* Chat input area */}
+            <div
+                className="absolute inset-x-0 bottom-0 z-20 border-t border-orange-200 bg-white/90 p-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur-sm lg:static lg:z-auto lg:rounded-b-3xl lg:bg-white/50 lg:p-4 lg:pb-4"
+                style={{
+                    borderBottomLeftRadius: '20px',
+                    borderBottomRightRadius: '35px',
+                }}
+            >
                 <ChatInputComponent
                     onSend={({ message, attachments }) => {
                         void handleSendMessage({
@@ -283,7 +298,7 @@ export function ChatWindow({ activeSessionId }: ChatWindowProps) {
                     onModelChange={handleModelChange}
                     placeholder="Type a message..."
                 />
-            </CardFooter>
-        </Card>
+            </div>
+        </div>
     );
 }

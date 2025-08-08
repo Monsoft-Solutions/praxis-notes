@@ -31,15 +31,21 @@ export function NewClientSessionView() {
 
     return (
         <ViewContainer>
-            <SessionForm
-                isTour={!loggedInUser.hasDoneTour}
-                clientId={clientId}
-                clientName={clientName}
-                placeholderSessionData={{
-                    ...placeholderSessionData,
-                    sessionDate: new Date(placeholderSessionData.sessionDate),
-                }}
-            />
+            <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                <div className="min-h-0 flex-1 overflow-auto">
+                    <SessionForm
+                        isTour={!loggedInUser.hasDoneTour}
+                        clientId={clientId}
+                        clientName={clientName}
+                        placeholderSessionData={{
+                            ...placeholderSessionData,
+                            sessionDate: new Date(
+                                placeholderSessionData.sessionDate,
+                            ),
+                        }}
+                    />
+                </div>
+            </div>
         </ViewContainer>
     );
 }
