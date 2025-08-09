@@ -69,9 +69,9 @@ export function NewClientView() {
     const initialData = !loggedInUser.hasDoneTour ? tourData : draftData;
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100">
+        <div className="relative h-full min-h-0 overflow-hidden bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100">
             {/* Very subtle background decorations */}
-            <div className="pointer-events-none fixed inset-0 overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 {/* Subtle geometric shapes */}
                 <div
                     className="absolute left-10 top-20 hidden h-12 w-12 rounded-full border-2 border-blue-200 opacity-30 sm:block"
@@ -87,48 +87,56 @@ export function NewClientView() {
             </div>
 
             <ViewContainer>
-                {/* Header Card with Thumb Tack */}
-                <div
-                    className="relative rounded-3xl border-2 border-blue-200 bg-white p-6 shadow-lg"
-                    style={{
-                        borderRadius: '25px 30px 20px 35px',
-                    }}
-                >
-                    {/* Thumb tack */}
-                    <div className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 transform">
-                        <div className="h-full w-full rounded-full bg-blue-400 shadow-sm"></div>
-                        <div className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"></div>
-                    </div>
+                <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                    {/* Header Card with Thumb Tack */}
+                    <div
+                        className="relative rounded-3xl border-2 border-blue-200 bg-white p-6 shadow-lg"
+                        style={{
+                            borderRadius: '25px 30px 20px 35px',
+                        }}
+                    >
+                        {/* Thumb tack */}
+                        <div className="absolute -top-2 left-1/2 h-4 w-4 -translate-x-1/2 transform">
+                            <div className="h-full w-full rounded-full bg-blue-400 shadow-sm"></div>
+                            <div className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"></div>
+                        </div>
 
-                    {/* Header content */}
-                    <div className="pt-2">
-                        <div className="flex items-center gap-3">
-                            <UserPlus className="h-8 w-8 text-blue-400" />
-                            <div>
-                                <h1
-                                    className="font-quicksand text-3xl font-bold text-gray-800"
-                                    style={{
-                                        textShadow:
-                                            '1px 1px 2px rgba(0,0,0,0.1)',
-                                    }}
-                                >
-                                    Add New Client
-                                </h1>
-                                <p className="font-nunito text-muted-foreground mt-1">
-                                    Create a new client record with behaviors,
-                                    replacement programs, and interventions.
-                                </p>
+                        {/* Header content */}
+                        <div className="pt-2">
+                            <div className="flex items-center gap-3">
+                                <UserPlus className="h-8 w-8 text-blue-400" />
+                                <div>
+                                    <h1
+                                        className="font-quicksand text-3xl font-bold text-gray-800"
+                                        style={{
+                                            textShadow:
+                                                '1px 1px 2px rgba(0,0,0,0.1)',
+                                        }}
+                                    >
+                                        Add New Client
+                                    </h1>
+                                    <p className="font-nunito text-muted-foreground mt-1">
+                                        Create a new client record with
+                                        behaviors, replacement programs, and
+                                        interventions.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Form Container */}
-                {initialData === undefined ? (
-                    <ClientForm />
-                ) : (
-                    <ClientForm initialData={initialData} draftId={fromDraft} />
-                )}
+                    {/* Scrollable form container */}
+                    <div className="min-h-0 flex-1 overflow-auto">
+                        {initialData === undefined ? (
+                            <ClientForm />
+                        ) : (
+                            <ClientForm
+                                initialData={initialData}
+                                draftId={fromDraft}
+                            />
+                        )}
+                    </div>
+                </div>
             </ViewContainer>
         </div>
     );
