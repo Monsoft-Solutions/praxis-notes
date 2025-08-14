@@ -38,107 +38,113 @@ export const EditClientView = () => {
 
     return (
         <ViewContainer>
-            <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Edit Client</h1>
-                <Button type="button" variant="outline" onClick={handleCancel}>
-                    Cancel
-                </Button>
-            </div>
-
-            <div className="space-y-4">
-                <Card>
-                    <CardHeader
-                        className="flex cursor-pointer flex-row items-center justify-between"
-                        onClick={() => {
-                            toggleCard('basicInfo');
-                        }}
+            <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                <div className="mb-6 flex items-center justify-between">
+                    <h1 className="text-2xl font-bold">Edit Client</h1>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCancel}
                     >
-                        <CardTitle>Basic Information</CardTitle>
-                        <Button variant="ghost" size="sm" className="p-0">
-                            {openCards.basicInfo ? (
-                                <ChevronUp />
-                            ) : (
-                                <ChevronDown />
-                            )}
-                        </Button>
-                    </CardHeader>
-                    {openCards.basicInfo && (
-                        <CardContent>
-                            <EditClientBasicInfo clientId={clientId} />
-                        </CardContent>
-                    )}
-                </Card>
+                        Cancel
+                    </Button>
+                </div>
 
-                <Card>
-                    <CardHeader
-                        className="flex cursor-pointer flex-row items-center justify-between"
-                        onClick={() => {
-                            toggleCard('behaviors');
-                        }}
-                    >
-                        <CardTitle>Behaviors</CardTitle>
-                        <Button variant="ghost" size="sm" className="p-0">
-                            {openCards.behaviors ? (
-                                <ChevronUp />
-                            ) : (
-                                <ChevronDown />
-                            )}
-                        </Button>
-                    </CardHeader>
-                    {openCards.behaviors && (
-                        <CardContent>
-                            <EditClientBehaviors clientId={clientId} />
-                        </CardContent>
-                    )}
-                </Card>
+                <div className="min-h-0 flex-1 space-y-4 overflow-auto">
+                    <Card>
+                        <CardHeader
+                            className="flex cursor-pointer flex-row items-center justify-between"
+                            onClick={() => {
+                                toggleCard('basicInfo');
+                            }}
+                        >
+                            <CardTitle>Basic Information</CardTitle>
+                            <Button variant="ghost" size="sm" className="p-0">
+                                {openCards.basicInfo ? (
+                                    <ChevronUp />
+                                ) : (
+                                    <ChevronDown />
+                                )}
+                            </Button>
+                        </CardHeader>
+                        {openCards.basicInfo && (
+                            <CardContent>
+                                <EditClientBasicInfo clientId={clientId} />
+                            </CardContent>
+                        )}
+                    </Card>
 
-                <Card>
-                    <CardHeader
-                        className="flex cursor-pointer flex-row items-center justify-between"
-                        onClick={() => {
-                            toggleCard('replacementPrograms');
-                        }}
-                    >
-                        <CardTitle>Replacement Programs</CardTitle>
-                        <Button variant="ghost" size="sm" className="p-0">
-                            {openCards.replacementPrograms ? (
-                                <ChevronUp />
-                            ) : (
-                                <ChevronDown />
-                            )}
-                        </Button>
-                    </CardHeader>
-                    {openCards.replacementPrograms && (
-                        <CardContent>
-                            <EditClientReplacementPrograms
-                                clientId={clientId}
-                            />
-                        </CardContent>
-                    )}
-                </Card>
+                    <Card>
+                        <CardHeader
+                            className="flex cursor-pointer flex-row items-center justify-between"
+                            onClick={() => {
+                                toggleCard('behaviors');
+                            }}
+                        >
+                            <CardTitle>Behaviors</CardTitle>
+                            <Button variant="ghost" size="sm" className="p-0">
+                                {openCards.behaviors ? (
+                                    <ChevronUp />
+                                ) : (
+                                    <ChevronDown />
+                                )}
+                            </Button>
+                        </CardHeader>
+                        {openCards.behaviors && (
+                            <CardContent>
+                                <EditClientBehaviors clientId={clientId} />
+                            </CardContent>
+                        )}
+                    </Card>
 
-                <Card>
-                    <CardHeader
-                        className="flex cursor-pointer flex-row items-center justify-between"
-                        onClick={() => {
-                            toggleCard('interventions');
-                        }}
-                    >
-                        <CardTitle>Interventions</CardTitle>
-                        <Button variant="ghost" size="sm" className="p-0">
-                            {openCards.interventions ? (
-                                <ChevronUp />
-                            ) : (
-                                <ChevronDown />
-                            )}
-                        </Button>
-                    </CardHeader>
-                    {openCards.interventions && (
-                        <CardContent>
-                            <EditClientInterventions clientId={clientId} />
-                        </CardContent>
-                    )}
-                </Card>
+                    <Card>
+                        <CardHeader
+                            className="flex cursor-pointer flex-row items-center justify-between"
+                            onClick={() => {
+                                toggleCard('replacementPrograms');
+                            }}
+                        >
+                            <CardTitle>Replacement Programs</CardTitle>
+                            <Button variant="ghost" size="sm" className="p-0">
+                                {openCards.replacementPrograms ? (
+                                    <ChevronUp />
+                                ) : (
+                                    <ChevronDown />
+                                )}
+                            </Button>
+                        </CardHeader>
+                        {openCards.replacementPrograms && (
+                            <CardContent>
+                                <EditClientReplacementPrograms
+                                    clientId={clientId}
+                                />
+                            </CardContent>
+                        )}
+                    </Card>
+
+                    <Card>
+                        <CardHeader
+                            className="flex cursor-pointer flex-row items-center justify-between"
+                            onClick={() => {
+                                toggleCard('interventions');
+                            }}
+                        >
+                            <CardTitle>Interventions</CardTitle>
+                            <Button variant="ghost" size="sm" className="p-0">
+                                {openCards.interventions ? (
+                                    <ChevronUp />
+                                ) : (
+                                    <ChevronDown />
+                                )}
+                            </Button>
+                        </CardHeader>
+                        {openCards.interventions && (
+                            <CardContent>
+                                <EditClientInterventions clientId={clientId} />
+                            </CardContent>
+                        )}
+                    </Card>
+                </div>
             </div>
         </ViewContainer>
     );
