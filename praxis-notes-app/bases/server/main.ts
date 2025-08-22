@@ -46,6 +46,17 @@ const server = express();
 // enable cors
 server.use(cors());
 
+server.use(
+    apiPath,
+    express.raw({
+        type: 'application/json',
+        verify: (req, res, buf) => {
+            // @ts-expect-error - TODO: this is valid express middleware to get the raw body
+            req.rawBody = buf.toString(); // or keep as Buffer
+        },
+    }),
+);
+
 // add trpc middleware
 server.use(apiPath, trpcMiddleware);
 

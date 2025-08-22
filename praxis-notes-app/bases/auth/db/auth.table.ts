@@ -12,6 +12,7 @@ export const user = pgTable('user', {
     language: text('language'),
     bookmarked: boolean('bookmarked'),
     hasDoneTour: boolean('has_done_tour'),
+    stripeCustomerId: text('stripe_customer_id').unique(),
 });
 
 export const session = pgTable('session', {
